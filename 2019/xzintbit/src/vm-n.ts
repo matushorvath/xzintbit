@@ -370,13 +370,23 @@ export class Vm {
                 };
             }
             case 'db': {
-                if (ps.length !== 1) {
+                if (ps.length !== 1 || ps[0].ind || ps[0].rb) {
                     throw new Error('invalid params');
                 }
                 const aps = [this.asmParam(ps, 0)];
                 return {
                     mem: [aps[0].mem],
                     fixups: aps[0].fixups
+                };
+            }
+            case 'ds': {
+                if (ps.length !== 2 || ps[0].ind || ps[0].rb || ps[1].ind || ps[1].rb) {
+                    throw new Error('invalid params');
+                }
+                const aps = [undefined, this.asmParam(ps, 1)];
+                return {
+                    mem: Array.from({ length: ps[0].val }).fill([aps[1].mem]) as number[],
+                    fixups: aps[1].fixups
                 };
             }
             default:

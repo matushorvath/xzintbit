@@ -8,5 +8,4 @@
     hlt
 
 data:
-    db 0
-    db 0
+    ds 2, 0
