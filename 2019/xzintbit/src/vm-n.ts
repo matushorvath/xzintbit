@@ -229,12 +229,12 @@ export class Vm {
     };
 
     private parseParam = (lineno: number, idx: number, param: string) => {
-        const m = param.match(/(\[)?(rb \+ )?([a-zA-Z_]\w+)?( \+ )?([0-9]+)?(\])?/);
+        const m = param.match(/(\[)?(rb \+ )?([a-zA-Z_]\w+)?( \+ )?(([0-9]+)|'(.)')?(\])?/);
 
         if (!m) {
             throw new Error(`no param match, line ${lineno}, op ${idx}: ${param}`);
         }
-        if (!!m[1] !== !!m[6]) {
+        if (!!m[1] !== !!m[8]) {
             throw new Error(`invalid param, brace mismatch, line ${lineno}, op ${idx}: ${param}`);
         }
         if (!m[1] && m[2]) {
@@ -250,7 +250,7 @@ export class Vm {
         return {
             ind: m[1] !== undefined,
             rb: m[2] !== undefined,
-            val: Number(m[5] ?? 0),
+            val: Number(m[6] ?? m[7]?.charCodeAt(0) ?? 0),
             sym: m[3]
         };
     };

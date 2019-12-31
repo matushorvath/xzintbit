@@ -1,4 +1,4 @@
-    out 65
+    out '?'
     out 10
     in  [data]
     in  [data + 1]
