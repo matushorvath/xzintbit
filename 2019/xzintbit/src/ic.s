@@ -1,17 +1,23 @@
+    arb stack
+
 next_digit:
     in  [digit]
     eq  [digit], 44, [flag]
     jnz [flag], finish_byte
     eq  [digit], 10, [flag]
-    jnz [flag], finish_prog
-    mul [rb + mem], 10, [rb + mem]
-    add [rb + mem], [digit], [rb + mem]
+    jnz [flag], finish_byte
+    mul [byte], 10, [byte]
+    add [byte], [digit], [byte]
     jz  0, next_digit
 
 finish_byte:
+    add [byte], 0, [mem]
+    add 0, 0, [byte]
     add [size], 1, [size]
-    arb 1
-    jz  0, next_digit
+    add [finish_byte + 3], 1, [finish_byte + 3]
+
+    eq  [digit], 10, [flag]
+    jz  [flag], next_digit
 
 finish_prog:
     out 'L'
@@ -19,17 +25,17 @@ finish_prog:
     out 's'
     out 't'
     out ':'
-
-    mul -1, [size], [size]
-    arb [size]
+    out 10
 
     jz  [size], finish_print
+    mul -1, [size], [size]
+
 print_byte:
-    out [rb + mem]
+    out [mem]
     jz  [size], finish_print
     out 44
-    arb 1
-    add 1, [size], [size]
+    add [size], 1, [size]
+    add [print_byte + 1], 1, [print_byte + 1]
     jz  0, print_byte
 
 finish_print:
@@ -40,7 +46,12 @@ size:
     db  0
 digit:
     db  0
+byte:
+    db  0
 flag:
     db  0
+
+stack:
+    ds  50, 0
 
 mem:

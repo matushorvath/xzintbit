@@ -427,9 +427,9 @@ export class Vm {
                 const ps = pss === undefined ? [] : pss.split(', ').map((p, i) => this.parseParam(lineno, i, p));
 
                 try {
-                    console.log('i', op, ps);
+                    //console.log('i', op, ps);
                     const { mem, fixups: addFixups } = this.asmOp(op, ps);
-                    console.log('a', mem, addFixups);
+                    //console.log('a', mem, addFixups);
 
                     for (const fixup of addFixups) {
                         if (fixups[fixup.sym] === undefined) {
@@ -438,7 +438,7 @@ export class Vm {
                             fixups[fixup.sym].push(fixup.ip);
                         }
                     }
-                    console.log('f', fixups);
+                    //console.log('f', fixups);
 
                     this.mem.push(...mem);
                     this.ip += mem.length;
