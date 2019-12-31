@@ -1,19 +1,11 @@
 import { Vm } from './vm';
 import { promises as fs } from 'fs';
-import * as readline from 'readline';
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
 
 async function* getIns() {
-    while (true) {
-        const input = await new Promise<string>(resolve => rl.question('', resolve));
-        for (const char of input) {
-            yield char.charCodeAt(0);
+    for await (const chunk of process.stdin) {
+        for (const char of chunk as Buffer) {
+            yield char;
         }
-        yield 10;
     }
 }
 
@@ -31,8 +23,6 @@ const main = async () => {
             line.push(char);
         }
     }
-
-    rl.close();
 };
 
 main()
