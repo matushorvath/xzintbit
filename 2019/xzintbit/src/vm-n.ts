@@ -229,7 +229,7 @@ export class Vm {
     };
 
     private parseParam = (lineno: number, idx: number, param: string) => {
-        const m = param.match(/(\[)?(rb \+ )?([a-zA-Z_]\w+)?( \+ )?(([0-9]+)|'(.)')?(\])?/);
+        const m = param.match(/(\[)?(rb \+ )?([a-zA-Z_]\w+)?( \+ )?((-?[0-9]+)|'(.)')?(\])?/);
 
         if (!m) {
             throw new Error(`no param match, line ${lineno}, op ${idx}: ${param}`);
@@ -460,6 +460,6 @@ export class Vm {
     };
 
     getAsInput = () => {
-        return this.mem.join(',')
+        return this.mem.join(',') + '\n';
     };
 }
