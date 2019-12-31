@@ -59,10 +59,6 @@ print:
     jz  [size], print_finish
 
 print_byte:
-#+1 = print_size:
-#    add [mem], '0', [rb + byte]
-#    out [rb + byte]
-
 +1 = print_size:
     add [mem], 0, [rb - 1]
     arb -1
@@ -103,24 +99,6 @@ print_num_next_order:
     jz  [rb + tmp], print_num_next_order
 
 print_num_finish_order:
-#    out 'N'
-#    out [rb + num]
-#    out 'O'
-#    out [rb + order]
-#    out '0'
-#    out [rb + digits]
-#    out '1'
-#    out [rb + digits - 1]
-#    out '2'
-#    out [rb + digits - 2]
-#    out '3'
-#    out [rb + digits - 3]
-#    out '4'
-#    out [rb + digits - 4]
-#    out '5'
-#    out [rb + digits - 5]
-#    out 10
-
     add [print_num_digit_ptr_1], 1, [print_num_digit_ptr_2]
 
 print_num_next_digit:
@@ -146,21 +124,6 @@ print_num_increase:
     jz  0, print_num_next_digit
 
 print_num_finish:
-#    out 10
-
-#    add 0, 0, [rb + digits]
-#
-#print_num_next_order:
-#    add [rb + digits], 1, [rb + digits]
-#    mul [rb + digits], [rb + order], [rb + tmp]
-#    lt  [rb + tmp], [rb + order], [rb + tmp]
-#    jnz [rb + tmp], print_num_next_order
-#
-#+3 = print_num_digit_index:
-#    add [rb + digits], -1, [rb - 1]
-#    add [print_num_digit_index], -1, [print_num_digit_index]
-#    j
-
     add digits, 0, [print_num_digit_ptr_2]
     add digits, 0, [print_num_digit_ptr_1]
 
