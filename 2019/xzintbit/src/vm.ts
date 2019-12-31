@@ -260,6 +260,9 @@ export class Vm {
         // Process frame symbols
         if (sym) {
             if (frame && frame[sym] !== undefined) {
+                if (obr && !rbpm) {
+                    throw new Error(`invalid param, frame symbol ${sym} used as global pointer, line ${lineno}, op ${idx}: ${param}`);
+                }
                 val += frame[sym];
                 sym = undefined;
             } else if (rbpm) {

@@ -9,4 +9,4 @@ const main = async () => {
 
 main()
     .then(() => console.log('done'))
-    .catch(error => console.log('error:', error));
+    .catch(error => { console.log('error:', error); process.exit(1); });

@@ -86,56 +86,85 @@ print_finish:
 ##########
 # convert number to string
 print_num:
-.FRAME num; flag, order, digit
-    # digit[] overlaps next stack frame
-    arb -3
+.FRAME num; tmp, order, digit, digits
+    # digits[] overlaps next stack frame
+    arb -4
 
     # determine highest power of 10
     add 1, 0, [rb + order]
 
 print_num_next_order:
-+3 = print_num_digit_ptr:
-    add [rb + order], 0, [rb + digit]
-    add [print_num_digit_ptr], -1, [print_num_digit_ptr]
++3 = print_num_digit_ptr_1:
+    add [rb + order], 0, [rb + digits]
+    add [print_num_digit_ptr_1], -1, [print_num_digit_ptr_1]
 
     mul [rb + order], 10, [rb + order]
-    lt  [rb + order], [rb + num], [rb + flag]
-    jnz [rb + flag], print_num_next_order
+    lt  [rb + num], [rb + order], [rb + tmp]
+    jz  [rb + tmp], print_num_next_order
 
 print_num_finish_order:
-    out 'N'
-    out [rb + num]
-    out 'O'
-    out [rb + order]
-    out '0'
-    out [rb + digit]
-    out '1'
-    out [rb + digit - 1]
-    out '2'
-    out [rb + digit - 2]
-    out '3'
-    out [rb + digit - 3]
-    out '4'
-    out [rb + digit - 4]
-    out '5'
-    out [rb + digit - 5]
-    out 10
+#    out 'N'
+#    out [rb + num]
+#    out 'O'
+#    out [rb + order]
+#    out '0'
+#    out [rb + digits]
+#    out '1'
+#    out [rb + digits - 1]
+#    out '2'
+#    out [rb + digits - 2]
+#    out '3'
+#    out [rb + digits - 3]
+#    out '4'
+#    out [rb + digits - 4]
+#    out '5'
+#    out [rb + digits - 5]
+#    out 10
 
-#    add 0, 0, [rb + digit]
+    add [print_num_digit_ptr_1], 1, [print_num_digit_ptr_2]
+
+print_num_next_digit:
++1 = print_num_digit_ptr_2:
+    add [rb + digits], 0, [rb + order]
+    add -1, 0, [rb + digit]
+
+print_num_increase:
+    add [rb + digit], 1, [rb + digit]
+    mul [rb + order], -1, [rb + tmp]
+    add [rb + num], [rb + tmp], [rb + num]
+    lt  [rb + num], 0, [rb + tmp]
+    jz  [rb + tmp], print_num_increase
+
+    add [rb + num], [rb + order], [rb + num]
+    add [rb + digit], '0', [rb + digit]
+    out [rb + digit]
+
+    eq  [rb + order], 1, [rb + tmp]
+    jnz [rb + tmp], print_num_finish
+
+    add [print_num_digit_ptr_2], 1, [print_num_digit_ptr_2]
+    jz  0, print_num_next_digit
+
+print_num_finish:
+#    out 10
+
+#    add 0, 0, [rb + digits]
 #
 #print_num_next_order:
-#    add [rb + digit], 1, [rb + digit]
-#    mul [rb + digit], [rb + order], [rb + flag]
-#    lt  [rb + flag], [rb + order], [rb + flag]
-#    jnz [rb + flag], print_num_next_order
+#    add [rb + digits], 1, [rb + digits]
+#    mul [rb + digits], [rb + order], [rb + tmp]
+#    lt  [rb + tmp], [rb + order], [rb + tmp]
+#    jnz [rb + tmp], print_num_next_order
 #
 #+3 = print_num_digit_index:
-#    add [rb + digit], -1, [rb - 1]
+#    add [rb + digits], -1, [rb - 1]
 #    add [print_num_digit_index], -1, [print_num_digit_index]
 #    j
 
-    add digit, 0, [print_num_digit_ptr]
-    arb 3
+    add digits, 0, [print_num_digit_ptr_2]
+    add digits, 0, [print_num_digit_ptr_1]
+
+    arb 4
     ret 1
 .ENDFRAME
 
