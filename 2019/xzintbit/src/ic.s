@@ -2,6 +2,7 @@
 
 ##########
 main:
+.FRAME
     out '?'
     out 10
 
@@ -9,10 +10,11 @@ main:
     cal print
 
     hlt
+.ENDFRAME
 
 ##########
 read:
-    # digit, byte, flag
+.FRAME digit, byte, flag
     arb -3
 
 read_next_digit:
@@ -40,10 +42,11 @@ read_finish_byte:
     add mem, 0, [read_size]
     arb 3
     ret 0
+.ENDFRAME
 
 ##########
 print:
-    # byte, flag
+.FRAME byte, flag
     arb -2
 
     out 'L'
@@ -78,12 +81,13 @@ print_finish:
     add -1, 0, [print_size]
     arb 2
     ret 0
+.ENDFRAME
 
 ##########
 # convert number to string
 print_num:
-    # param: num
-    # stack: tmp, order, digit; also digit[] (digits in reverse order, overlaps next stack frame)
+.FRAME tmp, order, digit; num
+    # also digit[] is on stack (overlaps next stack frame)
     arb -3
 
     # determine highest power of 10
@@ -118,17 +122,7 @@ print_num_next_digit:
 
     arb 3
     ret 1
-
-##########
-#div:
-#    # number, divisor
-#    #
-#    arb -0
-#
-#    
-#
-#    arb 0
-#    ret 2
+.ENDFRAME
 
 ##########
 # globals

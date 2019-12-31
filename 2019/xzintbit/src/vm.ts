@@ -12,6 +12,8 @@ interface AsmParam {
     sym: string
 };
 
+type Frame = { [sym: string]: number };
+
 export type Mem = number[];
 
 export class Vm {
@@ -228,7 +230,7 @@ export class Vm {
         return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);
     };
 
-    private parseParam = (lineno: number, idx: number, frame: { [sym: string]: number }, param: string) => {
+    private parseParam = (lineno: number, idx: number, frame: Frame, param: string) => {
         const m = param.match(/(\[)?(?:rb ([-+]) )?([a-zA-Z_]\w+)?(?: ([-+]) )?((-?[0-9]+)|'(.)')?(\])?/);
         if (!m) {
             throw new Error(`no param match, line ${lineno}, op ${idx}: ${param}`);
@@ -445,7 +447,7 @@ export class Vm {
 
         const fixups: { [sym: string]: number[] } = {};
         const syms: { [sym: string]: number } = {};
-        let frame: { [sym: string]: number };
+        let frame: Frame;
 
         this.ip = 0;
         for (let lineno = 0; lineno < lines.length; lineno += 1) {
@@ -468,9 +470,13 @@ export class Vm {
                     if (frame) {
                         throw new Error(`.FRAME when frame already started, line ${lineno}: ${line}`);
                     }
-                    frame = {};
 
                     const pss = dpsss === undefined ? [] : dpsss.split('; ').map(ps => ps.split(', '));
+                    if (pss.length > 2) {
+                        throw new Error(`.FRAME with more than one semicolon, line ${lineno}: ${line}`);
+                    }
+
+                    frame = {};
 
                     let ofs = 0;
                     for (const ps of pss.reverse()) {
