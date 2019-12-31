@@ -15,7 +15,6 @@ finish_byte:
 +3 = size_in:
     add [byte], 0, [mem]
     add 0, 0, [byte]
-    add [size], 1, [size]
     add [size_in], 1, [size_in]
 
     eq  [digit], 10, [flag]
@@ -29,26 +28,25 @@ finish_prog:
     out ':'
     out 10
 
-    jz  [size], finish_print
-    mul -1, [size], [size]
-    add [size], 1, [size]
+    add [size_in], -1, [size_in]
+    jz  [size_in], finish_print
 
 print_byte:
 +1 = size_out:
     add [mem], '0', [byte]
     out [byte]
-    jz  [size], finish_print
-    out 44
-    add [size], 1, [size]
+
+    eq  [size_in], [size_out], [flag]
+    jnz [flag], finish_print
     add [size_out], 1, [size_out]
+
+    out 44
     jz  0, print_byte
 
 finish_print:
     out 10
     hlt
 
-size:
-    db  0
 digit:
     db  0
 byte:
