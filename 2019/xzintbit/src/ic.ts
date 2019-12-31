@@ -22,14 +22,13 @@ const main = async () => {
     const mem = input.split(',').map(i => Number(i));
     const vm = new Vm(0, mem);
 
-    let line: string[] = [];
+    let line: number[] = [];
     for await (const char of vm.run(getIns())) {
         if (char === 10) {
-            console.log(line.join(''));
+            console.log(line.map(n => String.fromCharCode(n)).join(''), [...line, char]);
             line = [];
         } else {
-            console.log('c', char);
-            line.push(String.fromCharCode(char));
+            line.push(char);
         }
     }
 

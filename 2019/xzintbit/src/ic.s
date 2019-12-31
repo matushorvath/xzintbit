@@ -37,6 +37,7 @@ read_finish_byte:
 
     add [read_size], -1, [size]
 
+    add mem, 0, [read_size]
     arb 3
     ret 0
 
@@ -55,14 +56,14 @@ print:
     jz  [size], print_finish
 
 print_byte:
-+1 = print_size:
-    add [mem], '0', [rb + 0]
-    out [rb + 0]
-
 #+1 = print_size:
-#    add [mem], 0, [rb ]
-#    arb 
-#    cal 
+#    add [mem], '0', [rb + 0]
+#    out [rb + 0]
+
++1 = print_size:
+    add [mem], 0, [rb - 1]
+    arb -1
+    cal print_num
 
     eq  [size], [print_size], [rb + 1]
     jnz [rb + 1], print_finish
@@ -73,6 +74,8 @@ print_byte:
 
 print_finish:
     out 10
+
+    add -1, 0, [print_size]
     arb 2
     ret 0
 
@@ -88,18 +91,18 @@ print_num:
 
 print_num_next_order:
     mul [rb + 1], 10, [rb + 0]
-    lt  [rb + 0], [rb + 1], [rb + 0]
+    lt  [rb + 0], [rb + 4], [rb + 0]
     jz  [rb + 0], print_num_next_digit
     mul [rb + 1], 10, [rb + 1]
     jz  0, print_num_next_order
 
+print_num_next_digit:
     out 'N'
-    out [rb + 1]
+    out [rb + 4]
     out 'O'
     out [rb + 1]
     out 10
 
-print_num_next_digit:
 #    add 0, 0, [rb + 2]
 #
 #print_num_next_order:
