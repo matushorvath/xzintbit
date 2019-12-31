@@ -28,7 +28,7 @@ const main = async () => {
             console.log(line.join(''));
             line = [];
         } else {
-            //console.log('c', char, line);
+            console.log('c', char);
             line.push(String.fromCharCode(char));
         }
     }
