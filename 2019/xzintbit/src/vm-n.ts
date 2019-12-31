@@ -229,29 +229,35 @@ export class Vm {
     };
 
     private parseParam = (lineno: number, idx: number, param: string) => {
-        const m = param.match(/(\[)?(rb \+ )?([a-zA-Z_]\w+)?( \+ )?((-?[0-9]+)|'(.)')?(\])?/);
-
+        const m = param.match(/(\[)?(?:rb ([-+]) )?([a-zA-Z_]\w+)?(?: ([-+]) )?((-?[0-9]+)|'(.)')?(\])?/);
         if (!m) {
             throw new Error(`no param match, line ${lineno}, op ${idx}: ${param}`);
         }
-        if (!!m[1] !== !!m[8]) {
+
+        const [_, obr, rbpm, sym, sympm, vc, val, chr, cbr] = m;
+        if (!!obr !== !!cbr) {
             throw new Error(`invalid param, brace mismatch, line ${lineno}, op ${idx}: ${param}`);
         }
-        if (!m[1] && m[2]) {
+        if (!obr && rbpm) {
             throw new Error(`invalid param, no braces and rb, line ${lineno}, op ${idx}: ${param}`);
         }
-        if ((!m[3] && m[4]) || (!m[5] && m[4])) {
-            throw new Error(`invalid param, extra plus sign, line ${lineno}, op ${idx}: ${param}`);
+        if ((!sym && sympm) || (!val && sympm)) {
+            throw new Error(`invalid param, extra plus/minus sign, line ${lineno}, op ${idx}: ${param}`);
         }
-        if (!m[3] && !m[5]) {
+        if (!sym && !vc) {
             throw new Error(`invalid param, neither symbol nor value, line ${lineno}, op ${idx}: ${param}`);
         }
+        if (rbpm && sym) {
+            throw new Error(`invalid param, asking for negative symbol, line ${lineno}, op ${idx}: ${param}`);
+        }
+
+        const valn = val ? (rbpm === '-' ? -1 : 1) * (sympm === '-' ? -1 : 1) * Number(val) : undefined;
 
         return {
-            ind: m[1] !== undefined,
-            rb: m[2] !== undefined,
-            val: Number(m[6] ?? m[7]?.charCodeAt(0) ?? 0),
-            sym: m[3]
+            ind: obr !== undefined,
+            rb: rbpm !== undefined,
+            val: Number(valn ?? chr?.charCodeAt(0) ?? 0),
+            sym
         };
     };
 
