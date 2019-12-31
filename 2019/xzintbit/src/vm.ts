@@ -13,6 +13,7 @@ interface AsmParam {
 };
 
 type Frame = { [sym: string]: number };
+type FixupData = { sym: string, a: number };
 
 export type Mem = number[];
 
@@ -250,19 +251,20 @@ export class Vm {
             throw new Error(`invalid param, neither symbol nor value, line ${lineno}, op ${idx}: ${param}`);
         }
         if (rbpm && rbpm === '-' && sym) {
-            throw new Error(`invalid param, asking for negative frame symbol, line ${lineno}, op ${idx}: ${param}`);
+            throw new Error(`invalid param, negative frame symbol, line ${lineno}, op ${idx}: ${param}`);
         }
 
         const valn = vals ? (rbpm === '-' ? -1 : 1) * (sympm === '-' ? -1 : 1) * Number(vals) : undefined;
         let val = Number(valn ?? chr?.charCodeAt(0) ?? 0);
 
         // Process frame symbols
-        if (rbpm && sym) {
-            if (!frame || frame[sym] === undefined) {
-                throw new Error(`invalid param, non-existent frame symbol ${sym}, line ${lineno}, op ${idx}: ${param}`);
+        if (sym) {
+            if (frame && frame[sym] !== undefined) {
+                val += frame[sym];
+                sym = undefined;
+            } else if (rbpm) {
+                throw new Error(`invalid param, rb + non-frame symbol ${sym}, line ${lineno}, op ${idx}: ${param}`);
             }
-            val += frame[sym];
-            sym = undefined;
         }
 
         return {
@@ -289,8 +291,8 @@ export class Vm {
         return coef[idx] * mul;
     };
 
-    private fixup = (p: AsmParam, offset: number) => {
-        return p.sym ? [{ sym: p.sym, ip: this.ip + offset }] : []
+    private fixup = (p: AsmParam, offset: number): FixupData[] => {
+        return p.sym ? [{ sym: p.sym, a: this.ip + offset }] : []
     };
 
     private asmOp = (op: string, ps: AsmParam[]) => {
@@ -391,7 +393,7 @@ export class Vm {
                 }
                 return {
                     mem: [99],
-                    fixups: [] as any[]
+                    fixups: [] as FixupData[]
                 };
             }
             case 'db': {
@@ -409,7 +411,7 @@ export class Vm {
                 }
                 return {
                     mem: Array.from({ length: ps[0].val }).fill(ps[1].val) as number[],
-                    fixups: [] as any[] // TODO
+                    fixups: [] as FixupData[] // TODO
                 };
             }
             case 'cal': {
@@ -445,13 +447,13 @@ export class Vm {
     asm = (code: string) => {
         const lines = code.split(/\r?\n/);
 
-        const fixups: { [sym: string]: number[] } = {};
+        const fixups: { [sym: string]: { a: number, ln: number }[] } = {};
         const syms: { [sym: string]: number } = {};
         let frame: Frame;
 
         this.ip = 0;
-        for (let lineno = 0; lineno < lines.length; lineno += 1) {
-            const line = lines[lineno];
+        for (let lineno = 1; lineno <= lines.length; lineno += 1) {
+            const line = lines[lineno - 1];
 
             const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^(?:\.([A-Z]+))(?:\s+(.+))?(?:\s*#.*)?|^\s+([a-z]+)(?:\s+(.+))?(?:\s*#.*)?|^\s*#|^\s*$/);
             if (!lm) {
@@ -489,6 +491,7 @@ export class Vm {
                         }
                         ofs += 1;
                     }
+                    //console.log('f', frame);
                 } else if (dir === 'ENDFRAME') {
                     if (dpsss) {
                         throw new Error(`.ENDFRAME with params, line ${lineno}: ${line}`);
@@ -497,6 +500,7 @@ export class Vm {
                         throw new Error(`.ENDFRAME when no frame started, line ${lineno}: ${line}`);
                     }
                     frame = undefined;
+                    //console.log('f', frame);
                 }
             } else if (op !== undefined) {
                 const ps = opss === undefined ? [] : opss.split(', ')
@@ -509,9 +513,9 @@ export class Vm {
 
                     for (const fixup of addFixups) {
                         if (fixups[fixup.sym] === undefined) {
-                            fixups[fixup.sym] = [fixup.ip]
+                            fixups[fixup.sym] = [{ a: fixup.a, ln: lineno }]
                         } else {
-                            fixups[fixup.sym].push(fixup.ip);
+                            fixups[fixup.sym].push({ a: fixup.a, ln: lineno });
                         }
                     }
                     //console.log('f', fixups);
@@ -525,11 +529,12 @@ export class Vm {
         }
 
         for (const sym of Object.keys(fixups)) {
+            const fixup = fixups[sym];
             if (syms[sym] === undefined) {
-                throw new Error(`unknown symbol ${sym}`);
+                throw new Error(`unknown global symbol ${sym}, line ${fixup[0].ln}`);
             }
             const val = syms[sym];
-            for (const addr of fixups[sym]) {
+            for (const { a: addr } of fixup) {
                 this.mem[addr] += val;
             }
         }

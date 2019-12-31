@@ -86,40 +86,55 @@ print_finish:
 ##########
 # convert number to string
 print_num:
-.FRAME num; tmp, order, digit
-    # also digit[] is on stack (overlaps next stack frame)
+.FRAME num; flag, order, digit
+    # digit[] overlaps next stack frame
     arb -3
 
     # determine highest power of 10
     add 1, 0, [rb + order]
 
 print_num_next_order:
-    mul [rb + order], 10, [rb + tmp]
-    lt  [rb + tmp], [rb + num], [rb + tmp]
-    jz  [rb + tmp], print_num_next_digit
-    mul [rb + order], 10, [rb + order]
-    jz  0, print_num_next_order
++3 = print_num_digit_ptr:
+    add [rb + order], 0, [rb + digit]
+    add [print_num_digit_ptr], -1, [print_num_digit_ptr]
 
-print_num_next_digit:
+    mul [rb + order], 10, [rb + order]
+    lt  [rb + order], [rb + num], [rb + flag]
+    jnz [rb + flag], print_num_next_order
+
+print_num_finish_order:
     out 'N'
     out [rb + num]
     out 'O'
     out [rb + order]
+    out '0'
+    out [rb + digit]
+    out '1'
+    out [rb + digit - 1]
+    out '2'
+    out [rb + digit - 2]
+    out '3'
+    out [rb + digit - 3]
+    out '4'
+    out [rb + digit - 4]
+    out '5'
+    out [rb + digit - 5]
     out 10
 
 #    add 0, 0, [rb + digit]
 #
 #print_num_next_order:
 #    add [rb + digit], 1, [rb + digit]
-#    mul [rb + digit], [rb + order], [rb + tmp]
-#    lt  [rb + tmp], [rb + order], [rb + tmp]
-#    jnz [rb + tmp], print_num_next_order
+#    mul [rb + digit], [rb + order], [rb + flag]
+#    lt  [rb + flag], [rb + order], [rb + flag]
+#    jnz [rb + flag], print_num_next_order
 #
 #+3 = print_num_digit_index:
 #    add [rb + digit], -1, [rb - 1]
 #    add [print_num_digit_index], -1, [print_num_digit_index]
 #    j
 
+    add digit, 0, [print_num_digit_ptr]
     arb 3
     ret 1
 .ENDFRAME
