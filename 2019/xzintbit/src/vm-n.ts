@@ -389,6 +389,36 @@ export class Vm {
                     fixups: aps[1].fixups
                 };
             }
+            case 'call': {
+                if (ps.length !== 2) {
+                    throw new Error('invalid params');
+                }
+                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1)];
+                return {
+                    mem: [
+                        9 + aps[0].oc, 2 + aps[0].mem,              // arb $1 + 2
+                        21101, this.ip + 11, 0, -2,                 // add ip + 4 + 4 + 3, 0, [rb + -2]
+                        21001 + aps[0].oc, 2 + aps[0].mem, 0, -1,   // add $1 + 2, 0, [rb + -1]
+                        106 + aps[1].oc, 0, aps[1].mem              // jz 0, $2
+                    ],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups]
+                };
+            }
+            case 'ret': {
+                if (ps.length !== 0) {
+                    throw new Error('invalid params');
+                }
+                return {
+                    mem: [
+                        // add 
+                        9 + aps[0].oc, 2 + aps[0].mem,          // arb [rb + -1]
+                        21101, this.ip + 11, 0, -2,             // add ip + 4 + 4 + 3, 0, [rb + -2]
+                        21001 + aps[0].oc, aps[0].mem, 0, -1,   // add $1, 0, [rb + -1]
+                        106 + aps[1].oc, 0, aps[1].mem          // jz 0, $2
+                    ],
+                    fixups: [...aps[0].fixups, ...aps[1].fixups]
+                };
+            }
             default:
                 throw new Error('invalid opcode');
         }
