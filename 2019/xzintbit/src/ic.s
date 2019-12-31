@@ -82,9 +82,8 @@ print_finish:
 ##########
 # convert number to string
 print_num:
-.FRAME num; tmp, order, digit, digits
-    # digits[] overlaps next stack frame
-    arb -4
+.FRAME num; tmp, order, digit; digits
+    arb -3
 
     # determine highest power of 10
     add 1, 0, [rb + order]
@@ -127,7 +126,7 @@ print_num_finish:
     add digits, 0, [print_num_digit_ptr_2]
     add digits, 0, [print_num_digit_ptr_1]
 
-    arb 4
+    arb 3
     ret 1
 .ENDFRAME
 

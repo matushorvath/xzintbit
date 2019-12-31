@@ -489,7 +489,7 @@ export class Vm {
                         pss = [[], [], []];
                     }
 
-                    console.log(pss);
+                    //console.log(pss);
 
                     // Local variables below rb
                     const nv = pss[2].map((s, i) => ({ s, o: -i - 1 }));
@@ -498,7 +498,7 @@ export class Vm {
                     // Function parameters
                     const ps = pss[0].reverse().map((s, i) => ({ s, o: lv.length + i + 1 }));
 
-                    console.log(nv, lv, ps);
+                    //console.log(nv, lv, ps);
 
                     frame = {};
                     for (const { s, o } of [...nv, ...lv, ...ps]) {
@@ -507,7 +507,7 @@ export class Vm {
                         }
                         frame[s] = o;
                     }
-                    console.log('f', frame);
+                    //console.log('f', frame);
                 } else if (dir === 'ENDFRAME') {
                     if (dpsss) {
                         throw new Error(`.ENDFRAME with params, line ${lineno}: ${line}`);
