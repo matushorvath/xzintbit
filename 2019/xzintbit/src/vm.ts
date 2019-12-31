@@ -256,7 +256,7 @@ export class Vm {
 
         // Process frame symbols
         if (rbpm && sym) {
-            if (!frame || !frame[sym]) {
+            if (!frame || frame[sym] === undefined) {
                 throw new Error(`invalid param, non-existent frame symbol ${sym}, line ${lineno}, op ${idx}: ${param}`);
             }
             val += frame[sym];
@@ -451,7 +451,7 @@ export class Vm {
         for (let lineno = 0; lineno < lines.length; lineno += 1) {
             const line = lines[lineno];
 
-            const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^(?:\.([a-z]+))(?:\s+(.+))?(?:\s*#.*)|^\s+([a-z]+)(?:\s+(.+))?(?:\s*#.*)?|^\s*#|^\s*$/);
+            const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^(?:\.([A-Z]+))(?:\s+(.+))?(?:\s*#.*)?|^\s+([a-z]+)(?:\s+(.+))?(?:\s*#.*)?|^\s*#|^\s*$/);
             if (!lm) {
                 throw new Error(`no line match, line ${lineno}: ${line}`);
             }
@@ -473,17 +473,18 @@ export class Vm {
                     const pss = dpsss === undefined ? [] : dpsss.split('; ').map(ps => ps.split(', '));
 
                     let ofs = 0;
-                    for (const ps of pss) {
-                        for (const p of ps) {
+                    for (const ps of pss.reverse()) {
+                        for (const p of ps.reverse()) {
                             if (p in frame) {
                                 throw new Error(`duplicate frame symbol ${p}, line ${lineno}: ${line}`);
                             }
                             frame[p] = ofs;
+                            ofs += 1;
                         }
                         ofs += 1;
                     }
                 } else if (dir === 'ENDFRAME') {
-                    if (dpsss !== '') {
+                    if (dpsss) {
                         throw new Error(`.ENDFRAME with params, line ${lineno}: ${line}`);
                     }
                     if (!frame) {
