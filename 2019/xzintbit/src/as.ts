@@ -1,4 +1,4 @@
-import { Vm } from './vm-n';
+import { Vm } from './vm';
 import { promises as fs } from 'fs';
 
 const main = async () => {

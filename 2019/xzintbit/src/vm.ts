@@ -228,35 +228,45 @@ export class Vm {
         return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);
     };
 
-    private parseParam = (lineno: number, idx: number, param: string) => {
+    private parseParam = (lineno: number, idx: number, frame: { [sym: string]: number }, param: string) => {
         const m = param.match(/(\[)?(?:rb ([-+]) )?([a-zA-Z_]\w+)?(?: ([-+]) )?((-?[0-9]+)|'(.)')?(\])?/);
         if (!m) {
             throw new Error(`no param match, line ${lineno}, op ${idx}: ${param}`);
         }
 
-        const [_, obr, rbpm, sym, sympm, vc, val, chr, cbr] = m;
+        let [_, obr, rbpm, sym, sympm, vc, vals, chr, cbr] = m;
         if (!!obr !== !!cbr) {
             throw new Error(`invalid param, brace mismatch, line ${lineno}, op ${idx}: ${param}`);
         }
         if (!obr && rbpm) {
             throw new Error(`invalid param, no braces and rb, line ${lineno}, op ${idx}: ${param}`);
         }
-        if ((!sym && sympm) || (!val && sympm)) {
+        if ((!sym && sympm) || (!vals && sympm)) {
             throw new Error(`invalid param, extra plus/minus sign, line ${lineno}, op ${idx}: ${param}`);
         }
         if (!sym && !vc) {
             throw new Error(`invalid param, neither symbol nor value, line ${lineno}, op ${idx}: ${param}`);
         }
-        if (rbpm && sym) {
-            throw new Error(`invalid param, asking for negative symbol, line ${lineno}, op ${idx}: ${param}`);
+        if (rbpm && rbpm === '-' && sym) {
+            throw new Error(`invalid param, asking for negative frame symbol, line ${lineno}, op ${idx}: ${param}`);
         }
 
-        const valn = val ? (rbpm === '-' ? -1 : 1) * (sympm === '-' ? -1 : 1) * Number(val) : undefined;
+        const valn = vals ? (rbpm === '-' ? -1 : 1) * (sympm === '-' ? -1 : 1) * Number(vals) : undefined;
+        let val = Number(valn ?? chr?.charCodeAt(0) ?? 0);
+
+        // Process frame symbols
+        if (rbpm && sym) {
+            if (!frame || !frame[sym]) {
+                throw new Error(`invalid param, non-existent frame symbol ${sym}, line ${lineno}, op ${idx}: ${param}`);
+            }
+            val += frame[sym];
+            sym = undefined;
+        }
 
         return {
             ind: obr !== undefined,
             rb: rbpm !== undefined,
-            val: Number(valn ?? chr?.charCodeAt(0) ?? 0),
+            val,
             sym
         };
     };
@@ -435,32 +445,55 @@ export class Vm {
 
         const fixups: { [sym: string]: number[] } = {};
         const syms: { [sym: string]: number } = {};
+        let frame: { [sym: string]: number };
 
         this.ip = 0;
         for (let lineno = 0; lineno < lines.length; lineno += 1) {
             const line = lines[lineno];
 
-            const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^\s+([a-z]+)(?:\s+(.+))?(?:\s*#.*)?|^\s*#|^\s*$/);
+            const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^(?:\.([a-z]+))(?:\s+(.+))?(?:\s*#.*)|^\s+([a-z]+)(?:\s+(.+))?(?:\s*#.*)?|^\s*#|^\s*$/);
             if (!lm) {
                 throw new Error(`no line match, line ${lineno}: ${line}`);
             }
 
-            const [_, inc, sym, op, pss] = lm;
+            const [_, inc, sym, dir, dpsss, op, opss] = lm;
 
             if (sym !== undefined) {
-                if (op !== undefined || pss !== undefined) {
-                    throw new Error(`sym line with op or ps, line ${lineno}: ${line}`);
-                }
                 if (sym in syms) {
-                    throw new Error(`duplicate symbol ${sym}, line ${lineno}: ${line}`);
+                    throw new Error(`duplicate global symbol ${sym}, line ${lineno}: ${line}`);
                 }
                 syms[sym] = this.ip + Number(inc ?? 0);
-            } else if (op !== undefined) {
-                if (sym !== undefined) {
-                    throw new Error(`op line with sym, line ${lineno}: ${line}`);
-                }
+            } else if (dir !== undefined) {
+                if (dir === 'FRAME') {
+                    if (frame) {
+                        throw new Error(`.FRAME when frame already started, line ${lineno}: ${line}`);
+                    }
+                    frame = {};
 
-                const ps = pss === undefined ? [] : pss.split(', ').map((p, i) => this.parseParam(lineno, i, p));
+                    const pss = dpsss === undefined ? [] : dpsss.split('; ').map(ps => ps.split(', '));
+
+                    let ofs = 0;
+                    for (const ps of pss) {
+                        for (const p of ps) {
+                            if (p in frame) {
+                                throw new Error(`duplicate frame symbol ${p}, line ${lineno}: ${line}`);
+                            }
+                            frame[p] = ofs;
+                        }
+                        ofs += 1;
+                    }
+                } else if (dir === 'ENDFRAME') {
+                    if (dpsss !== '') {
+                        throw new Error(`.ENDFRAME with params, line ${lineno}: ${line}`);
+                    }
+                    if (!frame) {
+                        throw new Error(`.ENDFRAME when no frame started, line ${lineno}: ${line}`);
+                    }
+                    frame = undefined;
+                }
+            } else if (op !== undefined) {
+                const ps = opss === undefined ? [] : opss.split(', ')
+                    .map((p, i) => this.parseParam(lineno, i, frame, p));
 
                 try {
                     //console.log('i', op, ps);
