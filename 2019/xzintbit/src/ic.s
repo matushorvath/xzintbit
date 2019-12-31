@@ -1,26 +1,49 @@
     arb stack
 
+##########
+main:
+    out '?'
+    out 10
+
+    cal read
+    cal print
+    hlt
+
+##########
+read:
+    # digit, byte, flag
+    arb -3
+
 next_digit:
-    in  [digit]
-    eq  [digit], 44, [flag]
-    jnz [flag], finish_byte
-    eq  [digit], 10, [flag]
-    jnz [flag], finish_byte
-    add [digit], -48, [digit]
-    mul [byte], 10, [byte]
-    add [byte], [digit], [byte]
+    in  [rb + 0]
+    eq  [rb + 0], 44, [rb + -2]
+    jnz [rb + -2], finish_byte
+    eq  [rb + 0], 10, [rb + -2]
+    jnz [rb + -2], finish_byte
+    add [rb + 0], -48, [rb + 0]
+    mul [rb + -1], 10, [rb + -1]
+    add [rb + -1], [rb + 0], [rb + -1]
     jz  0, next_digit
 
 finish_byte:
 +3 = size_in:
-    add [byte], 0, [mem]
-    add 0, 0, [byte]
+    add [rb + -1], 0, [mem]
+    add 0, 0, [rb + -1]
     add [size_in], 1, [size_in]
 
-    eq  [digit], 10, [flag]
-    jz  [flag], next_digit
+    eq  [rb + 0], 10, [rb + -2]
+    jz  [rb + -2], next_digit
 
-finish_prog:
+    add [size_in], -1, [size]
+
+    arb 3
+    ret 0
+
+##########
+print:
+    # byte, flag
+    arb -2
+
     out 'L'
     out 'i'
     out 's'
@@ -28,16 +51,15 @@ finish_prog:
     out ':'
     out 10
 
-    add [size_in], -1, [size_in]
-    jz  [size_in], finish_print
+    jz  [size], finish_print
 
 print_byte:
 +1 = size_out:
-    add [mem], '0', [byte]
-    out [byte]
+    add [mem], '0', [rb + 0]
+    out [rb + 0]
 
-    eq  [size_in], [size_out], [flag]
-    jnz [flag], finish_print
+    eq  [size], [size_out], [rb + -1]
+    jnz [rb + -1], finish_print
     add [size_out], 1, [size_out]
 
     out 44
@@ -45,16 +67,16 @@ print_byte:
 
 finish_print:
     out 10
-    hlt
+    arb 2
+    ret 0
 
-digit:
-    db  0
-byte:
-    db  0
-flag:
+##########
+# globals
+size:
     db  0
 
-stack:
+##########
     ds  50, 0
+stack:
 
 mem:

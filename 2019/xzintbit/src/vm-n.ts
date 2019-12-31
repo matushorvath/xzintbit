@@ -258,14 +258,21 @@ export class Vm {
     private asmParam = (ps: AsmParam[], idx: number) => {
         const p = ps[idx];
 
+        return {
+            oc: this.oc(p, idx),
+            mem: p.val,
+            fixups: this.fixup(p, idx + 1)
+        }
+    };
+
+    private oc = (p: AsmParam, idx: number) => {
         const coef = [100, 1000, 10000];
         const mul = p.ind ? (p.rb ? 2 : 0) : 1;
+        return coef[idx] * mul;
+    };
 
-        return {
-            oc: coef[idx] * mul,
-            mem: p.val ?? 0,
-            fixups: p.sym ? [{ sym: p.sym, ip: this.ip + idx + 1 }] : []
-        }
+    private fixup = (p: AsmParam, offset: number) => {
+        return p.sym ? [{ sym: p.sym, ip: this.ip + offset }] : []
     };
 
     private asmOp = (op: string, ps: AsmParam[]) => {
@@ -373,50 +380,43 @@ export class Vm {
                 if (ps.length !== 1 || ps[0].ind || ps[0].rb) {
                     throw new Error('invalid params');
                 }
-                const aps = [this.asmParam(ps, 0)];
                 return {
-                    mem: [aps[0].mem],
-                    fixups: aps[0].fixups
+                    mem: [ps[0].val],
+                    fixups: this.fixup(ps[0], 0)
                 };
             }
             case 'ds': {
                 if (ps.length !== 2 || ps[0].ind || ps[0].rb || ps[1].ind || ps[1].rb) {
                     throw new Error('invalid params');
                 }
-                const aps = [undefined, this.asmParam(ps, 1)];
                 return {
-                    mem: Array.from({ length: ps[0].val }).fill([aps[1].mem]) as number[],
-                    fixups: aps[1].fixups
+                    mem: Array.from({ length: ps[0].val }).fill(ps[1].val) as number[],
+                    fixups: [] as any[] // TODO
                 };
             }
-            case 'call': {
-                if (ps.length !== 2) {
+            case 'cal': {
+                if (ps.length !== 1) {
                     throw new Error('invalid params');
                 }
-                const aps = [this.asmParam(ps, 0), this.asmParam(ps, 1)];
                 return {
                     mem: [
-                        9 + aps[0].oc, 2 + aps[0].mem,              // arb $1 + 2
-                        21101, this.ip + 11, 0, -2,                 // add ip + 4 + 4 + 3, 0, [rb + -2]
-                        21001 + aps[0].oc, 2 + aps[0].mem, 0, -1,   // add $1 + 2, 0, [rb + -1]
-                        106 + aps[1].oc, 0, aps[1].mem              // jz 0, $2
+                        109, -1,                                    // arb -1
+                        21101, this.ip + 9, 0, 0,                   // add ip + 2 + 4 + 3, 0, [rb + 0]
+                        106 + this.oc(ps[0], 1), 0, ps[0].val       // jz 0, $0
                     ],
-                    fixups: [...aps[0].fixups, ...aps[1].fixups]
+                    fixups: this.fixup(ps[0], 8)
                 };
             }
             case 'ret': {
-                if (ps.length !== 0) {
+                if (ps.length !== 1 || ps[0].ind || ps[0].rb) {
                     throw new Error('invalid params');
                 }
                 return {
                     mem: [
-                        // add 
-                        9 + aps[0].oc, 2 + aps[0].mem,          // arb [rb + -1]
-                        21101, this.ip + 11, 0, -2,             // add ip + 4 + 4 + 3, 0, [rb + -2]
-                        21001 + aps[0].oc, aps[0].mem, 0, -1,   // add $1, 0, [rb + -1]
-                        106 + aps[1].oc, 0, aps[1].mem          // jz 0, $2
+                        109, ps[0].val + 1,                         // arb $0 + 1
+                        2106, 0, -(ps[0].val + 1)                   // jz 0, [rb - ($0 + 1)]
                     ],
-                    fixups: [...aps[0].fixups, ...aps[1].fixups]
+                    fixups: this.fixup(ps[0], 1)
                 };
             }
             default:
@@ -434,12 +434,12 @@ export class Vm {
         for (let lineno = 0; lineno < lines.length; lineno += 1) {
             const line = lines[lineno];
 
-            const lm = line.match(/^(\+([0123]) = )?(\w+):|^\s+([a-z]+)(\s+(.+))?|(^#)|^\s*$/);
+            const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^\s+([a-z]+)(?:\s+(.+))?(?:\s*#.*)?|^\s*#|^\s*$/);
             if (!lm) {
                 throw new Error(`no line match, line ${lineno}: ${line}`);
             }
 
-            const [_0, _1, inc, sym, op, _2, pss] = lm;
+            const [_, inc, sym, op, pss] = lm;
 
             if (sym !== undefined) {
                 if (op !== undefined || pss !== undefined) {
