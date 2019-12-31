@@ -404,12 +404,12 @@ export class Vm {
         for (let lineno = 0; lineno < lines.length; lineno += 1) {
             const line = lines[lineno];
 
-            const lm = line.match(/^(\w+):|^\s+([a-z]+)(\s+(.+))?|(^#)|^\s*$/);
+            const lm = line.match(/^(\+([0123]) = )?(\w+):|^\s+([a-z]+)(\s+(.+))?|(^#)|^\s*$/);
             if (!lm) {
                 throw new Error(`no line match, line ${lineno}: ${line}`);
             }
 
-            const [_1, sym, op, _2, pss] = lm;
+            const [_0, _1, inc, sym, op, _2, pss] = lm;
 
             if (sym !== undefined) {
                 if (op !== undefined || pss !== undefined) {
@@ -418,7 +418,7 @@ export class Vm {
                 if (sym in syms) {
                     throw new Error(`duplicate symbol ${sym}, line ${lineno}: ${line}`);
                 }
-                syms[sym] = this.ip;
+                syms[sym] = this.ip + Number(inc ?? 0);
             } else if (op !== undefined) {
                 if (sym !== undefined) {
                     throw new Error(`op line with sym, line ${lineno}: ${line}`);
