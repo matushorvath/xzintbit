@@ -228,6 +228,33 @@ export class Vm {
         return Object.keys(code).map(ip => `${ip}\t${code[Number(ip)]}`).join(os.EOL);
     };
 
+    private parseParam = (lineno: number, idx: number, param: string) => {
+        const m = param.match(/(\[)?(rb \+ )?([a-zA-Z_]\w+)?( \+ )?([0-9]+)?(\])?/);
+
+        if (!m) {
+            throw new Error(`no param match, line ${lineno}, op ${idx}: ${param}`);
+        }
+        if (!!m[1] !== !!m[6]) {
+            throw new Error(`invalid param, brace mismatch, line ${lineno}, op ${idx}: ${param}`);
+        }
+        if (!m[1] && m[2]) {
+            throw new Error(`invalid param, no braces and rb, line ${lineno}, op ${idx}: ${param}`);
+        }
+        if ((!m[3] && m[4]) || (!m[5] && m[4])) {
+            throw new Error(`invalid param, extra plus sign, line ${lineno}, op ${idx}: ${param}`);
+        }
+        if (!m[3] && !m[5]) {
+            throw new Error(`invalid param, neither symbol nor value, line ${lineno}, op ${idx}: ${param}`);
+        }
+
+        return {
+            ind: m[1] !== undefined,
+            rb: m[2] !== undefined,
+            val: Number(m[5] ?? 0),
+            sym: m[3]
+        };
+    };
+
     private asmParam = (ps: AsmParam[], idx: number) => {
         const p = ps[idx];
 
@@ -236,8 +263,8 @@ export class Vm {
 
         return {
             oc: coef[idx] * mul,
-            mem: p.val,
-            fixups: !p.sym ? [] : [{ sym: p.sym, ip: this.ip + idx + 1 }]
+            mem: p.val ?? 0,
+            fixups: p.sym ? [{ sym: p.sym, ip: this.ip + idx + 1 }] : []
         }
     };
 
@@ -387,14 +414,7 @@ export class Vm {
                     throw new Error(`op line with sym, line ${lineno}: ${line}`);
                 }
 
-                const ps = pss === undefined ? [] : pss.split(', ')
-                    .map(p => p.match(/(\[)?(rb \+ )?(\w+)(\])?/))
-                    .map(m => ({
-                        ind: m[1] !== undefined,
-                        rb: m[2] !== undefined,
-                        val: (m[3][0] >= '0' && m[3][0] <= '9') ? Number(m[3]) : undefined,
-                        sym: (m[3][0] >= '0' && m[3][0] <= '9') ? undefined : m[3]
-                    }));
+                const ps = pss === undefined ? [] : pss.split(', ').map((p, i) => this.parseParam(lineno, i, p));
 
                 try {
                     console.log('i', op, ps);
@@ -424,7 +444,7 @@ export class Vm {
             }
             const val = syms[sym];
             for (const addr of fixups[sym]) {
-                this.setMem(addr, val);
+                this.mem[addr] += val;
             }
         }
     };

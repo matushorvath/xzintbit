@@ -1,13 +1,12 @@
     out 65
     out 10
-    in  [input1]
-    in  [input2]
-    add 1, [input1], [input1]
-    out [input1]
-    out [input2]
+    in  [data]
+    in  [data + 1]
+    add 1, [data], [data]
+    out [data]
+    out [data + 1]
     hlt
 
-input1:
+data:
     db 0
-input2:
     db 0
