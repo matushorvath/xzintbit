@@ -476,25 +476,38 @@ export class Vm {
                         throw new Error(`.FRAME when frame already started, line ${lineno}: ${line}`);
                     }
 
-                    const pss = dpsss === undefined ? [] : dpsss.split('; ').map(ps => ps.split(', '));
-                    if (pss.length > 2) {
-                        throw new Error(`.FRAME with more than one semicolon, line ${lineno}: ${line}`);
+                    let pss = dpsss === undefined ? [] : dpsss.split('; ').map(ps => ps.split(', '));
+
+                    // We first assume last component is missing, then first component is missing, then all are missing
+                    if (pss.length > 3) {
+                        throw new Error(`.FRAME with more than two semicolons, line ${lineno}: ${line}`);
+                    } else if (pss.length === 2) {
+                        pss = [...pss, []];
+                    } else if (pss.length === 1) {
+                        pss = [[], ...pss, []];
+                    } else if (pss.length === 0) {
+                        pss = [[], [], []];
                     }
+
+                    console.log(pss);
+
+                    // Local variables below rb
+                    const nv = pss[2].map((s, i) => ({ s, o: -i - 1 }));
+                    // Local variables
+                    const lv = pss[1].reverse().map((s, i) => ({ s, o: i }));
+                    // Function parameters
+                    const ps = pss[0].reverse().map((s, i) => ({ s, o: lv.length + i + 1 }));
+
+                    console.log(nv, lv, ps);
 
                     frame = {};
-
-                    let ofs = 0;
-                    for (const ps of pss.reverse()) {
-                        for (const p of ps.reverse()) {
-                            if (p in frame) {
-                                throw new Error(`duplicate frame symbol ${p}, line ${lineno}: ${line}`);
-                            }
-                            frame[p] = ofs;
-                            ofs += 1;
+                    for (const { s, o } of [...nv, ...lv, ...ps]) {
+                        if (s in frame) {
+                            throw new Error(`duplicate frame symbol ${sym}, line ${lineno}: ${line}`);
                         }
-                        ofs += 1;
+                        frame[s] = o;
                     }
-                    //console.log('f', frame);
+                    console.log('f', frame);
                 } else if (dir === 'ENDFRAME') {
                     if (dpsss) {
                         throw new Error(`.ENDFRAME with params, line ${lineno}: ${line}`);
