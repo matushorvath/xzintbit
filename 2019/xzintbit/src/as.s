@@ -20,7 +20,7 @@ main_loop:
 ##########
 # A add; T arb; C cal; B db; S ds; E eq; H hlt; I in;
 # J jnz; Z jz; L lt; M mul; O out; P rb; R ret
-# F .FRAME D .ENDFRAME + - = : , ;
+# F .FRAME; D .ENDFRAME; c ,; $ EOL; + - = : ; [ ]
 # n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* s ' '
 get_token:
 .FRAME tmp, char
@@ -29,6 +29,20 @@ get_token:
 get_token_loop:
     in  [rb + char]
 
+    # skip whitespace
+    eq  [rb + char], ' ', [rb + tmp]
+    jnz [rb + tmp], get_token_loop
+    eq  [rb + char], 7, [rb + tmp]
+    jnz [rb + tmp], get_token_loop
+
+    # comments
+    eq  [rb + char], 35, [rb + tmp]
+    jnz [rb + tmp], get_token_eat_comment
+
+    eq  [rb + char], 10, [rb + tmp]
+    jnz [rb + tmp], get_token_eol
+
+    # keywords
     eq  [rb + char], 'a', [rb + tmp]
     jnz [rb + tmp], get_token_a
     eq  [rb + char], 'c', [rb + tmp]
@@ -51,8 +65,12 @@ get_token_loop:
     jnz [rb + tmp], get_token_o
     eq  [rb + char], 'r', [rb + tmp]
     jnz [rb + tmp], get_token_r
+
+    # directives
     eq  [rb + char], '.', [rb + tmp]
     jnz [rb + tmp], get_token_dir
+
+    # symbols
     eq  [rb + char], '+', [rb + tmp]
     jnz [rb + tmp], get_token_plus
     eq  [rb + char], '-', [rb + tmp]
@@ -65,8 +83,36 @@ get_token_loop:
     jnz [rb + tmp], get_token_comma
     eq  [rb + char], ';', [rb + tmp]
     jnz [rb + tmp], get_token_semicolon
+    eq  [rb + char], '[', [rb + tmp]
+    jnz [rb + tmp], get_token_open_bracket
+    eq  [rb + char], ']', [rb + tmp]
+    jnz [rb + tmp], get_token_close_bracket
 
-    # number, identifier, string, whitespace, comment
+    # strings
+    eq  [rb + char], ''', [rb + tmp]
+    jnz [rb + tmp], get_token_string
+
+    # numbers and identifiers
+    lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
+    jnz [rb + tmp], get_token_not_digit
+    lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
+    jz [rb + tmp], get_token_number
+
+get_token_not_digit:
+    lt  'z', [rb + char], [rb + tmp]                        # if char > z, not lowercase
+    jnz [rb + tmp], get_token_not_lowercase
+    lt  [rb + char], 'a', [rb + tmp]                        # if char < a, not lowercase
+    jz [rb + tmp], get_token_identifier
+
+get_token_not_lowercase:
+    lt  'Z', [rb + char], [rb + tmp]                        # if char > Z, not uppercase
+    jnz [rb + tmp], get_token_not_uppercase
+    lt  [rb + char], 'A', [rb + tmp]                        # if char < A, not uppercase
+    jz [rb + tmp], get_token_identifier
+
+get_token_not_uppercase:
+    eq  [rb + char], '_', [rb + tmp]
+    jz [rb + tmp], get_token_identifier
 
     hlt
 
@@ -375,6 +421,11 @@ get_token_dir_E:
 get_token_dir_E_fail:
     hlt
 
+get_token_eol:
+    add '$', 0, [rb + tmp]
+    arb 2
+    ret 0
+
 get_token_plus:
     add '+', 0, [rb + tmp]
     arb 2
@@ -396,12 +447,44 @@ get_token_colon:
     ret 0
 
 get_token_comma:
-    add ',', 0, [rb + tmp]
+    add 'c', 0, [rb + tmp]
     arb 2
     ret 0
 
 get_token_semicolon:
     add ';', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_open_bracket:
+    add '[', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_close_bracket:
+    add ']', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_eat_comment:
+    # TODO
+    hlt
+
+get_token_string:
+    # TODO
+    add 's', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_number:
+    # TODO
+    add 'n', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_identifier:
+    # TODO
+    add 'i', 0, [rb + tmp]
     arb 2
     ret 0
 

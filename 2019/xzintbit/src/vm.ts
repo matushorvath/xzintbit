@@ -458,7 +458,7 @@ export class Vm {
         for (let lineno = 1; lineno <= lines.length; lineno += 1) {
             const line = lines[lineno - 1];
 
-            const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^(?:\.([A-Z]+))(?:\s+(.+))?(?:\s*#.*)?|^\s+([a-z]+)(?:\s+(.+))?(?:\s*#.*)?|^\s*#|^\s*$/);
+            const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^(?:\.([A-Z]+))(?:\s+([^#]+))?(?:#.*)?|^\s+([a-z]+)(?:\s+([^#]+))?(?:\s*#.*)?|^\s*#|^\s*$/);
             if (!lm) {
                 throw new Error(`no line match, line ${lineno}: ${line}`);
             }
