@@ -3,8 +3,6 @@
 ##########
 main:
 .FRAME
-    #out '?'
-    #out 10
 
 main_loop:
     cal get_token
@@ -12,19 +10,18 @@ main_loop:
     out 10
     jz  0, main_loop
 
-    #cal print
-
     hlt
 .ENDFRAME
 
 ##########
+get_token:
+.FRAME tmp, char
+    arb -2
+
 # A add; T arb; C cal; B db; S ds; E eq; H hlt; I in;
 # J jnz; Z jz; L lt; M mul; O out; P rb; R ret
 # F .FRAME; D .ENDFRAME; c ,; $ EOL; + - = : ; [ ]
 # n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* s ' '
-get_token:
-.FRAME tmp, char
-    arb -2
 
 get_token_loop:
     in  [rb + char]
@@ -92,27 +89,20 @@ get_token_loop:
     eq  [rb + char], ''', [rb + tmp]
     jnz [rb + tmp], get_token_string
 
-    # numbers and identifiers
-    lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
-    jnz [rb + tmp], get_token_try_identifier
-    lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
-    jz  [rb + tmp], get_token_number
+    # numbers
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_digit
+    jnz [rb - 3], get_token_number
 
-get_token_try_identifier:
-    lt  'z', [rb + char], [rb + tmp]                        # if char > z, not lowercase
-    jnz [rb + tmp], get_token_not_lowercase
-    lt  [rb + char], 'a', [rb + tmp]                        # if char < a, not lowercase
-    jz  [rb + tmp], get_token_identifier
-
-get_token_not_lowercase:
-    lt  'Z', [rb + char], [rb + tmp]                        # if char > Z, not uppercase
-    jnz [rb + tmp], get_token_not_uppercase
-    lt  [rb + char], 'A', [rb + tmp]                        # if char < A, not uppercase
-    jz  [rb + tmp], get_token_identifier
-
-get_token_not_uppercase:
+    # identifiers
     eq  [rb + char], '_', [rb + tmp]
-    jnz  [rb + tmp], get_token_identifier
+    jnz [rb + tmp], get_token_identifier
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_alpha
+    jnz [rb - 3], get_token_identifier
 
     hlt
 
@@ -124,7 +114,7 @@ get_token_a:
     eq  [rb + char], 'r', [rb + tmp]
     jnz [rb + tmp], get_token_ar
 
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_ad:
     in  [rb + char]
@@ -133,7 +123,7 @@ get_token_ad:
     jnz [rb + tmp], get_token_add
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_add:
     add 'A', 0, [rb + tmp]
@@ -147,7 +137,7 @@ get_token_ar:
     jnz [rb + tmp], get_token_arb
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_arb:
     add 'T', 0, [rb + tmp]
@@ -161,7 +151,7 @@ get_token_c:
     jnz [rb + tmp], get_token_ca
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_ca:
     in  [rb + char]
@@ -170,7 +160,7 @@ get_token_ca:
     jnz [rb + tmp], get_token_cal
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_cal:
     add 'C', 0, [rb + tmp]
@@ -186,7 +176,7 @@ get_token_d:
     jnz [rb + tmp], get_token_ds
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_db:
     add 'B', 0, [rb + tmp]
@@ -205,7 +195,7 @@ get_token_e:
     jnz [rb + tmp], get_token_eq
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_eq:
     add 'E', 0, [rb + tmp]
@@ -219,7 +209,7 @@ get_token_h:
     jnz [rb + tmp], get_token_hl
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_hl:
     in  [rb + char]
@@ -228,7 +218,7 @@ get_token_hl:
     jnz [rb + tmp], get_token_hlt
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_hlt:
     add 'H', 0, [rb + tmp]
@@ -242,7 +232,7 @@ get_token_i:
     jnz [rb + tmp], get_token_in
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_in:
     add 'I', 0, [rb + tmp]
@@ -258,7 +248,7 @@ get_token_j:
     jnz [rb + tmp], get_token_jz
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_jn:
     in  [rb + char]
@@ -267,7 +257,7 @@ get_token_jn:
     jnz [rb + tmp], get_token_jnz
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_jnz:
     add 'J', 0, [rb + tmp]
@@ -286,7 +276,7 @@ get_token_l:
     jnz [rb + tmp], get_token_lt
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_lt:
     add 'L', 0, [rb + tmp]
@@ -300,7 +290,7 @@ get_token_m:
     jnz [rb + tmp], get_token_mu
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_mu:
     in  [rb + char]
@@ -309,7 +299,7 @@ get_token_mu:
     jnz [rb + tmp], get_token_mul
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_mul:
     add 'M', 0, [rb + tmp]
@@ -323,7 +313,7 @@ get_token_o:
     jnz [rb + tmp], get_token_ou
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_ou:
     in  [rb + char]
@@ -332,7 +322,7 @@ get_token_ou:
     jnz [rb + tmp], get_token_out
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_out:
     add 'O', 0, [rb + tmp]
@@ -348,7 +338,7 @@ get_token_r:
     jnz [rb + tmp], get_token_re
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_rb:
     add 'P', 0, [rb + tmp]
@@ -362,7 +352,7 @@ get_token_re:
     jnz [rb + tmp], get_token_ret
 
     # TODO store previous chars
-    jz  0, get_token_try_identifier
+    jz  0, get_token_identifier
 
 get_token_ret:
     add 'R', 0, [rb + tmp]
@@ -500,17 +490,101 @@ get_token_string_loop:
     ret 0
 
 get_token_number:
-    # TODO
+    # first digit of the number was already processed
+    # TODO store the number
+
+get_token_number_loop:
+    in  [rb + char]
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_digit
+    jnz [rb - 3], get_token_number_loop
+
     add 'n', 0, [rb + tmp]
     arb 2
     ret 0
 
 get_token_identifier:
-    # TODO
+    # at least one character of the identifier was already processed
+    # TODO store the identifier
+
+get_token_identifier_loop:
+    in  [rb + char]
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_alphanum
+    jnz [rb - 3], get_token_identifier_loop
+
     add 'i', 0, [rb + tmp]
     arb 2
     ret 0
 
+.ENDFRAME
+
+##########
+is_digit:
+.FRAME char; tmp
+    arb -1
+
+    # check if 0 <= char <= 9
+    lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
+    jnz [rb + tmp], is_digit_end
+    lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
+
+is_digit_end:
+    # the result is a logical negation of [rb + tmp]
+    eq  [rb + tmp], 0, [rb + tmp]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+is_alpha:
+.FRAME char; tmp
+    arb -1
+
+    # check if a <= char <= z
+    lt  'z', [rb + char], [rb + tmp]                        # if char > z, not a letter
+    jnz [rb + tmp], is_alpha_end
+    lt  [rb + char], 'a', [rb + tmp]                        # if !(char < a), is a letter
+    jz  [rb + tmp], is_alpha_end
+
+    # check if A <= char <= Z
+    lt  'Z', [rb + char], [rb + tmp]                        # if char > Z, not a letter
+    jnz [rb + tmp], is_alpha_end
+    lt  [rb + char], 'A', [rb + tmp]                        # if !(char < A), is a letter
+
+is_alpha_end:
+    # the result is a logical negation of [rb + tmp]
+    eq  [rb + tmp], 0, [rb + tmp]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+is_alphanum:
+.FRAME char; tmp
+    arb -1
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_alpha
+    jnz [rb - 3], is_alphanum_end
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_digit
+    jnz [rb - 3], is_alphanum_end
+
+    eq  [rb + char], '_', [rb + tmp]
+
+is_alphanum_end:
+    arb 1
+    ret 1
 .ENDFRAME
 
 ##########

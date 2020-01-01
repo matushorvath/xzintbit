@@ -80,7 +80,7 @@ print_finish:
 .ENDFRAME
 
 ##########
-# convert number to string
+# output number as string
 print_num:
 .FRAME num; tmp, order, digit; digits
     arb -3
