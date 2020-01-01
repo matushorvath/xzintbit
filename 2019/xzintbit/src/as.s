@@ -94,25 +94,25 @@ get_token_loop:
 
     # numbers and identifiers
     lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
-    jnz [rb + tmp], get_token_not_digit
+    jnz [rb + tmp], get_token_try_identifier
     lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
-    jz [rb + tmp], get_token_number
+    jz  [rb + tmp], get_token_number
 
-get_token_not_digit:
+get_token_try_identifier:
     lt  'z', [rb + char], [rb + tmp]                        # if char > z, not lowercase
     jnz [rb + tmp], get_token_not_lowercase
     lt  [rb + char], 'a', [rb + tmp]                        # if char < a, not lowercase
-    jz [rb + tmp], get_token_identifier
+    jz  [rb + tmp], get_token_identifier
 
 get_token_not_lowercase:
     lt  'Z', [rb + char], [rb + tmp]                        # if char > Z, not uppercase
     jnz [rb + tmp], get_token_not_uppercase
     lt  [rb + char], 'A', [rb + tmp]                        # if char < A, not uppercase
-    jz [rb + tmp], get_token_identifier
+    jz  [rb + tmp], get_token_identifier
 
 get_token_not_uppercase:
     eq  [rb + char], '_', [rb + tmp]
-    jz [rb + tmp], get_token_identifier
+    jnz  [rb + tmp], get_token_identifier
 
     hlt
 
@@ -124,7 +124,7 @@ get_token_a:
     eq  [rb + char], 'r', [rb + tmp]
     jnz [rb + tmp], get_token_ar
 
-    hlt
+    jz  0, get_token_try_identifier
 
 get_token_ad:
     in  [rb + char]
@@ -132,7 +132,8 @@ get_token_ad:
     eq  [rb + char], 'd', [rb + tmp]
     jnz [rb + tmp], get_token_add
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_add:
     add 'A', 0, [rb + tmp]
@@ -145,7 +146,8 @@ get_token_ar:
     eq  [rb + char], 'b', [rb + tmp]
     jnz [rb + tmp], get_token_arb
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_arb:
     add 'T', 0, [rb + tmp]
@@ -158,7 +160,8 @@ get_token_c:
     eq  [rb + char], 'a', [rb + tmp]
     jnz [rb + tmp], get_token_ca
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_ca:
     in  [rb + char]
@@ -166,7 +169,8 @@ get_token_ca:
     eq  [rb + char], 'l', [rb + tmp]
     jnz [rb + tmp], get_token_cal
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_cal:
     add 'C', 0, [rb + tmp]
@@ -181,7 +185,8 @@ get_token_d:
     eq  [rb + char], 's', [rb + tmp]
     jnz [rb + tmp], get_token_ds
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_db:
     add 'B', 0, [rb + tmp]
@@ -199,7 +204,8 @@ get_token_e:
     eq  [rb + char], 'q', [rb + tmp]
     jnz [rb + tmp], get_token_eq
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_eq:
     add 'E', 0, [rb + tmp]
@@ -212,7 +218,8 @@ get_token_h:
     eq  [rb + char], 'l', [rb + tmp]
     jnz [rb + tmp], get_token_hl
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_hl:
     in  [rb + char]
@@ -220,7 +227,8 @@ get_token_hl:
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_hlt
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_hlt:
     add 'H', 0, [rb + tmp]
@@ -233,7 +241,8 @@ get_token_i:
     eq  [rb + char], 'n', [rb + tmp]
     jnz [rb + tmp], get_token_in
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_in:
     add 'I', 0, [rb + tmp]
@@ -248,7 +257,8 @@ get_token_j:
     eq  [rb + char], 'z', [rb + tmp]
     jnz [rb + tmp], get_token_jz
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_jn:
     in  [rb + char]
@@ -256,7 +266,8 @@ get_token_jn:
     eq  [rb + char], 'z', [rb + tmp]
     jnz [rb + tmp], get_token_jnz
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_jnz:
     add 'J', 0, [rb + tmp]
@@ -274,7 +285,8 @@ get_token_l:
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_lt
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_lt:
     add 'L', 0, [rb + tmp]
@@ -287,7 +299,8 @@ get_token_m:
     eq  [rb + char], 'u', [rb + tmp]
     jnz [rb + tmp], get_token_mu
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_mu:
     in  [rb + char]
@@ -295,7 +308,8 @@ get_token_mu:
     eq  [rb + char], 'l', [rb + tmp]
     jnz [rb + tmp], get_token_mul
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_mul:
     add 'M', 0, [rb + tmp]
@@ -308,7 +322,8 @@ get_token_o:
     eq  [rb + char], 'u', [rb + tmp]
     jnz [rb + tmp], get_token_ou
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_ou:
     in  [rb + char]
@@ -316,7 +331,8 @@ get_token_ou:
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_out
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_out:
     add 'O', 0, [rb + tmp]
@@ -331,7 +347,8 @@ get_token_r:
     eq  [rb + char], 'e', [rb + tmp]
     jnz [rb + tmp], get_token_re
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_rb:
     add 'P', 0, [rb + tmp]
@@ -344,7 +361,8 @@ get_token_re:
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_ret
 
-    hlt
+    # TODO store previous chars
+    jz  0, get_token_try_identifier
 
 get_token_ret:
     add 'R', 0, [rb + tmp]
@@ -467,11 +485,16 @@ get_token_close_bracket:
     ret 0
 
 get_token_eat_comment:
-    # TODO
+    # TODO eat the comment
     hlt
 
 get_token_string:
-    # TODO
+    # TODO store the string
+get_token_string_loop:
+    in  [rb + char]
+    eq  [rb + char], ''', [rb + tmp]
+    jz  [rb + tmp], get_token_string_loop
+
     add 's', 0, [rb + tmp]
     arb 2
     ret 0
