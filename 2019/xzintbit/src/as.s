@@ -550,16 +550,13 @@ get_token_number:
     # TODO store the number
 
 get_token_number_loop:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    add [rb + char], 0, [rb - 1]
-    arb -1
-    cal is_digit
-    jnz [rb - 3], get_token_number_loop
-
-    # unget last char
+    # unget last char, parse_number will get it again
     add [rb + char], 0, [get_input_buffer]
+
+    cal parse_number
+    out '>'
+    out [rb - 2]
+    out 10
 
     add 'n', 0, [rb + tmp]
     arb 2
@@ -653,65 +650,61 @@ is_alphanum_end:
 .ENDFRAME
 
 ##########
-read:
-.FRAME digit, byte, flag
+parse_number:
+.FRAME byte, digit, tmp
     arb -3
 
-read_next_digit:
-    in  [rb + digit]
-    eq  [rb + digit], 44, [rb + flag]
-    jnz [rb + flag], read_finish_byte
-    eq  [rb + digit], 10, [rb + flag]
-    jnz [rb + flag], read_finish_byte
+    add 0, 0, [rb + byte]
+
+parse_number_loop:
+    # get next character
+    cal get_input
+    add [rb - 2], 0, [rb + digit]
+
+    # if it is not a digit, end
+    add [rb + digit], 0, [rb - 1]
+    arb -1
+    cal is_digit
+    jz  [rb - 3], parse_number_end
+
+    # convert ASCII to a number
     add [rb + digit], -48, [rb + digit]
+
+    # byte = byte * 10 + digit
     mul [rb + byte], 10, [rb + byte]
     add [rb + byte], [rb + digit], [rb + byte]
-    jz  0, read_next_digit
 
-read_finish_byte:
-+3 = read_size:
-    add [rb + byte], 0, [mem]
-    add 0, 0, [rb + byte]
-    add [read_size], 1, [read_size]
+    jz  0, parse_number_loop
 
-    eq  [rb + digit], 10, [rb + flag]
-    jz  [rb + flag], read_next_digit
+parse_number_end:
+    # unget last char
+    add [rb + digit], 0, [get_input_buffer]
 
-    add [read_size], -1, [size]
-
-    add mem, 0, [read_size]
     arb 3
     ret 0
 .ENDFRAME
 
 ##########
-print:
+print_mem:
 .FRAME byte, flag
     arb -2
 
-    out 'L'
-    out 'i'
-    out 's'
-    out 't'
-    out ':'
-    out 10
+    jz  [size], print_mem_finish
 
-    jz  [size], print_finish
-
-print_byte:
+print_mem_byte:
 +1 = print_size:
     add [mem], 0, [rb - 1]
     arb -1
     cal print_num
 
     eq  [size], [print_size], [rb + flag]
-    jnz [rb + flag], print_finish
+    jnz [rb + flag], print_mem_finish
     add [print_size], 1, [print_size]
 
     out 44
-    jz  0, print_byte
+    jz  0, print_mem_byte
 
-print_finish:
+print_mem_finish:
     out 10
 
     add -1, 0, [print_size]
