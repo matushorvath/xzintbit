@@ -20,8 +20,8 @@ main_loop:
 ##########
 # A add; T arb; C cal; B db; S ds; E eq; H hlt; I in;
 # J jnz; Z jz; L lt; M mul; O out; P rb; R ret
-# F .FRAME D .ENDFRAME p + m - e = c : m , s ;
-# n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* g ' '
+# F .FRAME D .ENDFRAME + - = : , ;
+# n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* s ' '
 get_token:
 .FRAME tmp, char
     arb -2
@@ -51,20 +51,20 @@ get_token_loop:
     jnz [rb + tmp], get_token_o
     eq  [rb + char], 'r', [rb + tmp]
     jnz [rb + tmp], get_token_r
-    #eq  [rb + char], '.', [rb + tmp]
-    #jnz [rb + tmp], get_token_dot
-    #eq  [rb + char], '+', [rb + tmp]
-    #jnz [rb + tmp], get_token_plus
-    #eq  [rb + char], '-', [rb + tmp]
-    #jnz [rb + tmp], get_token_minus
-    #eq  [rb + char], '=', [rb + tmp]
-    #jnz [rb + tmp], get_token_equal
-    #eq  [rb + char], ':', [rb + tmp]
-    #jnz [rb + tmp], get_token_colon
-    #eq  [rb + char], ',', [rb + tmp]
-    #jnz [rb + tmp], get_token_comma
-    #eq  [rb + char], ';', [rb + tmp]
-    #jnz [rb + tmp], get_token_semicolon
+    eq  [rb + char], '.', [rb + tmp]
+    jnz [rb + tmp], get_token_dir
+    eq  [rb + char], '+', [rb + tmp]
+    jnz [rb + tmp], get_token_plus
+    eq  [rb + char], '-', [rb + tmp]
+    jnz [rb + tmp], get_token_minus
+    eq  [rb + char], '=', [rb + tmp]
+    jnz [rb + tmp], get_token_equal
+    eq  [rb + char], ':', [rb + tmp]
+    jnz [rb + tmp], get_token_colon
+    eq  [rb + char], ',', [rb + tmp]
+    jnz [rb + tmp], get_token_comma
+    eq  [rb + char], ';', [rb + tmp]
+    jnz [rb + tmp], get_token_semicolon
 
     # number, identifier, string, whitespace, comment
 
@@ -302,6 +302,106 @@ get_token_re:
 
 get_token_ret:
     add 'R', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_dir:
+    in  [rb + char]
+
+    eq  [rb + char], 'E', [rb + tmp]
+    jnz [rb + tmp], get_token_dir_E
+    eq  [rb + char], 'F', [rb + tmp]
+    jnz [rb + tmp], get_token_dir_F
+
+    hlt
+
+get_token_dir_F:
+    in  [rb + char]
+    eq  [rb + char], 'R', [rb + tmp]
+    jz [rb + tmp], get_token_dir_F_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'A', [rb + tmp]
+    jz [rb + tmp], get_token_dir_F_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'M', [rb + tmp]
+    jz [rb + tmp], get_token_dir_F_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'E', [rb + tmp]
+    jz [rb + tmp], get_token_dir_F_fail
+
+    add 'F', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_dir_F_fail:
+    hlt
+
+get_token_dir_E:
+    in  [rb + char]
+    eq  [rb + char], 'N', [rb + tmp]
+    jz [rb + tmp], get_token_dir_E_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'D', [rb + tmp]
+    jz [rb + tmp], get_token_dir_E_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'F', [rb + tmp]
+    jz [rb + tmp], get_token_dir_E_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'R', [rb + tmp]
+    jz [rb + tmp], get_token_dir_E_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'A', [rb + tmp]
+    jz [rb + tmp], get_token_dir_E_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'M', [rb + tmp]
+    jz [rb + tmp], get_token_dir_E_fail
+
+    in  [rb + char]
+    eq  [rb + char], 'E', [rb + tmp]
+    jz [rb + tmp], get_token_dir_E_fail
+
+    add 'D', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_dir_E_fail:
+    hlt
+
+get_token_plus:
+    add '+', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_minus:
+    add '-', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_equal:
+    add '=', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_colon:
+    add ':', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_comma:
+    add ',', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_semicolon:
+    add ';', 0, [rb + tmp]
     arb 2
     ret 0
 
