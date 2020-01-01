@@ -14,6 +14,29 @@ main_loop:
 .ENDFRAME
 
 ##########
+get_input:
+.FRAME tmp
+    arb -1
+
+    # we need to be able to "unget" an unused char and then get it again later
+    # to unget a char, we just use one instruction: add [rb + char], 0, [get_input_buffer]
+
+    jnz [get_input_buffer], get_input_from_buffer
+    in  [rb + tmp]
+    arb 1
+    ret 0
+
+get_input_from_buffer:
+    add [get_input_buffer], 0, [rb + tmp]
+    add 0, 0, [get_input_buffer]
+    arb 1
+    ret 0
+
+get_input_buffer:
+    db  0
+.ENDFRAME
+
+##########
 get_token:
 .FRAME tmp, char
     arb -2
@@ -24,7 +47,8 @@ get_token:
 # n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* s ' '
 
 get_token_loop:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     # skip whitespace
     eq  [rb + char], ' ', [rb + tmp]
@@ -107,7 +131,8 @@ get_token_loop:
     hlt
 
 get_token_a:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'd', [rb + tmp]
     jnz [rb + tmp], get_token_ad
@@ -117,7 +142,8 @@ get_token_a:
     jz  0, get_token_identifier
 
 get_token_ad:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'd', [rb + tmp]
     jnz [rb + tmp], get_token_add
@@ -131,7 +157,8 @@ get_token_add:
     ret 0
 
 get_token_ar:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'b', [rb + tmp]
     jnz [rb + tmp], get_token_arb
@@ -145,7 +172,8 @@ get_token_arb:
     ret 0
 
 get_token_c:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'a', [rb + tmp]
     jnz [rb + tmp], get_token_ca
@@ -154,7 +182,8 @@ get_token_c:
     jz  0, get_token_identifier
 
 get_token_ca:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'l', [rb + tmp]
     jnz [rb + tmp], get_token_cal
@@ -168,7 +197,8 @@ get_token_cal:
     ret 0
 
 get_token_d:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'b', [rb + tmp]
     jnz [rb + tmp], get_token_db
@@ -189,7 +219,8 @@ get_token_ds:
     ret 0
 
 get_token_e:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'q', [rb + tmp]
     jnz [rb + tmp], get_token_eq
@@ -203,7 +234,8 @@ get_token_eq:
     ret 0
 
 get_token_h:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'l', [rb + tmp]
     jnz [rb + tmp], get_token_hl
@@ -212,7 +244,8 @@ get_token_h:
     jz  0, get_token_identifier
 
 get_token_hl:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_hlt
@@ -226,7 +259,8 @@ get_token_hlt:
     ret 0
 
 get_token_i:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'n', [rb + tmp]
     jnz [rb + tmp], get_token_in
@@ -240,7 +274,8 @@ get_token_in:
     ret 0
 
 get_token_j:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'n', [rb + tmp]
     jnz [rb + tmp], get_token_jn
@@ -251,7 +286,8 @@ get_token_j:
     jz  0, get_token_identifier
 
 get_token_jn:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'z', [rb + tmp]
     jnz [rb + tmp], get_token_jnz
@@ -270,7 +306,8 @@ get_token_jz:
     ret 0
 
 get_token_l:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_lt
@@ -284,7 +321,8 @@ get_token_lt:
     ret 0
 
 get_token_m:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'u', [rb + tmp]
     jnz [rb + tmp], get_token_mu
@@ -293,7 +331,8 @@ get_token_m:
     jz  0, get_token_identifier
 
 get_token_mu:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'l', [rb + tmp]
     jnz [rb + tmp], get_token_mul
@@ -307,7 +346,8 @@ get_token_mul:
     ret 0
 
 get_token_o:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'u', [rb + tmp]
     jnz [rb + tmp], get_token_ou
@@ -316,7 +356,8 @@ get_token_o:
     jz  0, get_token_identifier
 
 get_token_ou:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_out
@@ -330,7 +371,8 @@ get_token_out:
     ret 0
 
 get_token_r:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'b', [rb + tmp]
     jnz [rb + tmp], get_token_rb
@@ -346,7 +388,8 @@ get_token_rb:
     ret 0
 
 get_token_re:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 't', [rb + tmp]
     jnz [rb + tmp], get_token_ret
@@ -360,7 +403,8 @@ get_token_ret:
     ret 0
 
 get_token_dir:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'E', [rb + tmp]
     jnz [rb + tmp], get_token_dir_E
@@ -370,21 +414,25 @@ get_token_dir:
     hlt
 
 get_token_dir_F:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'R', [rb + tmp]
-    jz [rb + tmp], get_token_dir_F_fail
+    jz  [rb + tmp], get_token_dir_F_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'A', [rb + tmp]
-    jz [rb + tmp], get_token_dir_F_fail
+    jz  [rb + tmp], get_token_dir_F_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'M', [rb + tmp]
-    jz [rb + tmp], get_token_dir_F_fail
+    jz  [rb + tmp], get_token_dir_F_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'E', [rb + tmp]
-    jz [rb + tmp], get_token_dir_F_fail
+    jz  [rb + tmp], get_token_dir_F_fail
 
     add 'F', 0, [rb + tmp]
     arb 2
@@ -394,33 +442,40 @@ get_token_dir_F_fail:
     hlt
 
 get_token_dir_E:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'N', [rb + tmp]
-    jz [rb + tmp], get_token_dir_E_fail
+    jz  [rb + tmp], get_token_dir_E_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'D', [rb + tmp]
-    jz [rb + tmp], get_token_dir_E_fail
+    jz  [rb + tmp], get_token_dir_E_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'F', [rb + tmp]
-    jz [rb + tmp], get_token_dir_E_fail
+    jz  [rb + tmp], get_token_dir_E_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'R', [rb + tmp]
-    jz [rb + tmp], get_token_dir_E_fail
+    jz  [rb + tmp], get_token_dir_E_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'A', [rb + tmp]
-    jz [rb + tmp], get_token_dir_E_fail
+    jz  [rb + tmp], get_token_dir_E_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'M', [rb + tmp]
-    jz [rb + tmp], get_token_dir_E_fail
+    jz  [rb + tmp], get_token_dir_E_fail
 
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], 'E', [rb + tmp]
-    jz [rb + tmp], get_token_dir_E_fail
+    jz  [rb + tmp], get_token_dir_E_fail
 
     add 'D', 0, [rb + tmp]
     arb 2
@@ -481,7 +536,8 @@ get_token_eat_comment:
 get_token_string:
     # TODO store the string
 get_token_string_loop:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
     eq  [rb + char], ''', [rb + tmp]
     jz  [rb + tmp], get_token_string_loop
 
@@ -494,12 +550,16 @@ get_token_number:
     # TODO store the number
 
 get_token_number_loop:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     add [rb + char], 0, [rb - 1]
     arb -1
     cal is_digit
     jnz [rb - 3], get_token_number_loop
+
+    # unget last char
+    add [rb + char], 0, [get_input_buffer]
 
     add 'n', 0, [rb + tmp]
     arb 2
@@ -510,17 +570,20 @@ get_token_identifier:
     # TODO store the identifier
 
 get_token_identifier_loop:
-    in  [rb + char]
+    cal get_input
+    add [rb - 2], 0, [rb + char]
 
     add [rb + char], 0, [rb - 1]
     arb -1
     cal is_alphanum
     jnz [rb - 3], get_token_identifier_loop
 
+    # unget last char
+    add [rb + char], 0, [get_input_buffer]
+
     add 'i', 0, [rb + tmp]
     arb 2
     ret 0
-
 .ENDFRAME
 
 ##########
@@ -573,12 +636,14 @@ is_alphanum:
     add [rb + char], 0, [rb - 1]
     arb -1
     cal is_alpha
-    jnz [rb - 3], is_alphanum_end
+    add [rb - 3], 0, [rb + tmp]
+    jnz [rb + tmp], is_alphanum_end
 
     add [rb + char], 0, [rb - 1]
     arb -1
     cal is_digit
-    jnz [rb - 3], is_alphanum_end
+    add [rb - 3], 0, [rb + tmp]
+    jnz [rb + tmp], is_alphanum_end
 
     eq  [rb + char], '_', [rb + tmp]
 
