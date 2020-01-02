@@ -2,11 +2,36 @@
 
 ##########
 main:
-.FRAME
+.FRAME tmp
+    arb -1
 
 main_loop:
     cal get_token
+
+    # print token type
     out [rb - 2]
+
+    # print token value if relevant
+    eq  [rb - 2], 'n', [rb + tmp]
+    jnz [rb + tmp], main_print_n
+    eq  [rb - 2], 's', [rb + tmp]
+    jnz [rb + tmp], main_print_s
+    jz  0, main_finish
+
+main_print_n:
+    out ' '
+    # reuse [rb - 3] as a parameter to print_num
+    arb -3
+    cal print_num
+    arb 2
+    jz  0, main_finish
+
+main_print_s:
+    out ' '
+    out [rb - 3]
+    jz  0, main_finish
+
+main_finish:
     out 10
     jz  0, main_loop
 
@@ -534,29 +559,30 @@ get_token_eat_comment:
     hlt
 
 get_token_string:
-    # TODO store the string
-get_token_string_loop:
+    # get one character and return it in [rb + char]
     cal get_input
     add [rb - 2], 0, [rb + char]
-    eq  [rb + char], ''', [rb + tmp]
-    jz  [rb + tmp], get_token_string_loop
 
+    # get closing quote
+    cal get_input
+    eq  [rb - 2], ''', [rb + tmp]
+    jnz [rb + tmp], get_token_string_success
+
+    # error, missing closing quote
+    hlt
+
+get_token_string_success:
     add 's', 0, [rb + tmp]
     arb 2
     ret 0
 
 get_token_number:
-    # first digit of the number was already processed
-    # TODO store the number
-
-get_token_number_loop:
     # unget last char, parse_number will get it again
     add [rb + char], 0, [get_input_buffer]
 
+    # return parsed number in [rb + char]
     cal parse_number
-    out '>'
-    out [rb - 2]
-    out 10
+    add [rb - 2], 0, [rb + char]
 
     add 'n', 0, [rb + tmp]
     arb 2
