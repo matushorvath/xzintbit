@@ -279,10 +279,59 @@ parse_ds:
 
 ##########
 parse_symbol:
-.FRAME tmp
-    arb -1
+.FRAME tmp, address
+    arb -2
 
-    arb 1
+    # default symbol address is current ip
+    add [ip], 0, [rb + address]
+
+    # check if there is an offset
+    eq  [token], '+', [rb + tmp]
+    jz  [rb + tmp], parse_symbol_after_offset
+
+    cal get_token
+    eq  [token], 'n', [rb + tmp]
+    jnz [rb + tmp], parse_symbol_have_offset
+    cal parse_error
+
+parse_symbol_have_offset:
+    # add offset to symbol address
+    add [rb + address], [value], [rb + address]
+    cal get_token
+
+    eq  [token], '=', [rb + tmp]
+    jnz [rb + tmp], parse_symbol_after_equals
+    cal parse_error
+
+parse_symbol_after_equals:
+    cal get_token
+
+parse_symbol_after_offset:
+    eq  [token], 'i', [rb + tmp]
+    jnz [rb + tmp], parse_symbol_have_identifier
+    cal parse_error
+
+parse_symbol_have_identifier:
+    # add the symbol to symbol table
+    add [value], 0, [rb - 1]
+    add [rb + address], 0, [rb - 2]
+    arb -2
+    cal set_symbol_address
+
+    # free the symbol value
+    add [value], 0, [rb - 1]
+    arb -1
+    cal free
+    add 0, 0, [value]
+
+    cal get_token
+
+    eq  [token], ':', [rb + tmp]
+    jnz [rb + tmp], parse_symbol_done
+    cal parse_error
+
+parse_symbol_done:
+    arb 2
     ret 0
 .ENDFRAME
 
