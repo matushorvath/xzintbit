@@ -387,15 +387,9 @@ parse_identifier_or_keyword:
 .FRAME token, buffer, tmp
     arb -3
 
-    out 'A'
-    out 10
-
     # parse the identifier into a buffer
     cal parse_identifier
     add [rb - 2], 0, [rb + buffer]
-
-    out 'B'
-    out 10
 
     # check if the identifier is actually a keyword
     # reuse buffer [rb - 2] and length [rb - 3] as parameters
@@ -403,10 +397,6 @@ parse_identifier_or_keyword:
     cal detect_keyword
     arb 1
     add [rb - 5], 0, [rb + token]
-
-    out 'C'
-    out [rb + token]
-    out 10
 
     # if it is a keyword, free the buffer, we don't need it
     eq  [rb + token], 'i', [rb + tmp]
@@ -468,11 +458,6 @@ parse_identifier_done:
     # unget last char
     add [rb + char], 0, [get_input_buffer]
 
-    # TODO remove
-    add [rb + buffer], 0, [rb - 1]
-    arb -1
-    cal print_str
-
     arb 4
     ret 0
 
@@ -514,56 +499,32 @@ detect_keyword:
     lt  'z', [rb + char1], [rb + tmp]
     jnz [rb + tmp], detect_keyword_is_not
 
-    out 'K'
-    out [rb + char0]
-    out [rb + char1]
-    out 10
-
     # calculate indexes into the asso_values table
     add [rb + char0], -97, [rb + char0]
     add [rb + char1], -97, [rb + char1]
-
-    out 'L'
-    out [rb + char0]
-    out [rb + char1]
-    out 10
 
     # look up the hash value (store to char0)
     add detect_keyword_asso_values, [rb + char0], [detect_keyword_asso_values_ptr0]
 +1 = detect_keyword_asso_values_ptr0:
     add [0], [rb + length], [rb + char0]
 
-    out 'M'
-    out [rb + char0]
-    out 10
-
     add detect_keyword_asso_values, [rb + char1], [detect_keyword_asso_values_ptr1]
 +1 = detect_keyword_asso_values_ptr1:
     add [0], [rb + char0], [rb + char0]
 
-    out 'N'
-    out [rb + char0]
-    out 10
-
     # check hash limit
-    lt  33, [rb + char0], [rb + tmp]
+    lt  28, [rb + char0], [rb + tmp]
     jnz [rb + tmp], detect_keyword_is_not
 
-    # find candidate keyword, compare input with the candidate
+    # find candidate keyword, compare input string with the candidate
     mul [rb + char0], 4, [rb + tmp]
-    add detect_keyword_wordlist, [rb + tmp], [detect_keyword_wordlist_ptr]
-+1 = detect_keyword_wordlist_ptr:
-    add [0], 0, [rb - 1]
+    add detect_keyword_wordlist, [rb + tmp], [rb - 1]
     add [rb + string], 0, [rb - 2]
     arb -2
     cal strcmp
 
-    out 'O'
-    out [rb - 4]
-    out 10
-
     eq  [rb - 4], 0, [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jz  [rb + tmp], detect_keyword_is_not
 
     # find token id, return it
     add detect_keyword_tokens, [rb + char0], [detect_keyword_tokens_ptr]
@@ -577,10 +538,6 @@ detect_keyword_is_not:
     # not a keyword, so it is an identifier
     add 'i', 0, [rb + tmp]
 
-    out 'W'
-    out [rb + tmp]
-    out 10
-
     arb 3
     ret 2
 
@@ -589,20 +546,21 @@ detect_keyword_asso_values:
     db  3
     db  5
     db  10
-    ds  2, 34
-    ds  2, 15
+    ds  2, 29
     db  10
-    db  34
+    db  4
+    db  10
+    db  29
     db  15
     db  3
     ds  2, 10
-    db  34
+    db  29
     db  5
     db  0
     db  5
     db  10
     db  5
-    ds  4, 34
+    ds  4, 29
     db  10
 
 detect_keyword_wordlist:
@@ -636,7 +594,10 @@ detect_keyword_wordlist:
     db  'r'
     db  'e'
     db  't'
-    ds  13, 0
+    ds  9, 0
+    db  'i'
+    db  'n'
+    ds  2, 0
     db  'e'
     db  'q'
     ds  2, 0
@@ -654,9 +615,6 @@ detect_keyword_wordlist:
     db  'l'
     db  't'
     ds  2, 0
-    db  'i'
-    db  'n'
-    ds  17, 0
     db  'h'
     db  'l'
     db  't'
@@ -674,7 +632,8 @@ detect_keyword_tokens:
     db  'M'
     db  'S'
     db  'R'
-    ds  3, 0
+    ds  2, 0
+    db  'I'
     db  'E'
     db  'O'
     ds  3, 0
@@ -682,8 +641,6 @@ detect_keyword_tokens:
     db  'J'
     ds  3, 0
     db  'L'
-    db  'I'
-    ds  4, 0
     db  'H'
 .ENDFRAME
 
