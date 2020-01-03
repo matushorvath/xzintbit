@@ -147,10 +147,10 @@ get_token_identifier:
 
     # return parsed identifier pointer in [rb + char]
     # this memory needs to be freed by caller of get_token
-    cal parse_identifier
-    add [rb - 2], 0, [rb + char]
+    cal parse_identifier_or_keyword
+    add [rb - 2], 0, [rb + tmp]
+    add [rb - 3], 0, [rb + char]
 
-    add 'i', 0, [rb + tmp]
     arb 2
     ret 0
 
@@ -254,303 +254,6 @@ get_token_number:
     arb 2
     ret 0
 .ENDFRAME
-
-
-
-#    # keywords
-#    eq  [rb + char], 'a', [rb + tmp]
-#    jnz [rb + tmp], get_token_a
-#    eq  [rb + char], 'c', [rb + tmp]
-#    jnz [rb + tmp], get_token_c
-#    eq  [rb + char], 'd', [rb + tmp]
-#    jnz [rb + tmp], get_token_d
-#    eq  [rb + char], 'e', [rb + tmp]
-#    jnz [rb + tmp], get_token_e
-#    eq  [rb + char], 'h', [rb + tmp]
-#    jnz [rb + tmp], get_token_h
-#    eq  [rb + char], 'i', [rb + tmp]
-#    jnz [rb + tmp], get_token_i
-#    eq  [rb + char], 'j', [rb + tmp]
-#    jnz [rb + tmp], get_token_j
-#    eq  [rb + char], 'l', [rb + tmp]
-#    jnz [rb + tmp], get_token_l
-#    eq  [rb + char], 'm', [rb + tmp]
-#    jnz [rb + tmp], get_token_m
-#    eq  [rb + char], 'o', [rb + tmp]
-#    jnz [rb + tmp], get_token_o
-#    eq  [rb + char], 'r', [rb + tmp]
-#    jnz [rb + tmp], get_token_r
-#get_token_a:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'd', [rb + tmp]
-#    jnz [rb + tmp], get_token_ad
-#    eq  [rb + char], 'r', [rb + tmp]
-#    jnz [rb + tmp], get_token_ar
-#
-#    jz  0, get_token_identifier
-#
-#get_token_ad:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'd', [rb + tmp]
-#    jnz [rb + tmp], get_token_add
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_add:
-#    add 'A', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_ar:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'b', [rb + tmp]
-#    jnz [rb + tmp], get_token_arb
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_arb:
-#    add 'T', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_c:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'a', [rb + tmp]
-#    jnz [rb + tmp], get_token_ca
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_ca:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'l', [rb + tmp]
-#    jnz [rb + tmp], get_token_cal
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_cal:
-#    add 'C', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_d:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'b', [rb + tmp]
-#    jnz [rb + tmp], get_token_db
-#    eq  [rb + char], 's', [rb + tmp]
-#    jnz [rb + tmp], get_token_ds
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_db:
-#    add 'B', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_ds:
-#    add 'S', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_e:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'q', [rb + tmp]
-#    jnz [rb + tmp], get_token_eq
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_eq:
-#    add 'E', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_h:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'l', [rb + tmp]
-#    jnz [rb + tmp], get_token_hl
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_hl:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 't', [rb + tmp]
-#    jnz [rb + tmp], get_token_hlt
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_hlt:
-#    add 'H', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_i:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'n', [rb + tmp]
-#    jnz [rb + tmp], get_token_in
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_in:
-#    add 'I', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_j:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'n', [rb + tmp]
-#    jnz [rb + tmp], get_token_jn
-#    eq  [rb + char], 'z', [rb + tmp]
-#    jnz [rb + tmp], get_token_jz
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_jn:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'z', [rb + tmp]
-#    jnz [rb + tmp], get_token_jnz
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_jnz:
-#    add 'J', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_jz:
-#    add 'Z', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_l:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 't', [rb + tmp]
-#    jnz [rb + tmp], get_token_lt
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_lt:
-#    add 'L', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_m:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'u', [rb + tmp]
-#    jnz [rb + tmp], get_token_mu
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_mu:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'l', [rb + tmp]
-#    jnz [rb + tmp], get_token_mul
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_mul:
-#    add 'M', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_o:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'u', [rb + tmp]
-#    jnz [rb + tmp], get_token_ou
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_ou:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 't', [rb + tmp]
-#    jnz [rb + tmp], get_token_out
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_out:
-#    add 'O', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_r:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 'b', [rb + tmp]
-#    jnz [rb + tmp], get_token_rb
-#    eq  [rb + char], 'e', [rb + tmp]
-#    jnz [rb + tmp], get_token_re
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_rb:
-#    add 'P', 0, [rb + tmp]
-#    arb 2
-#    ret 0
-#
-#get_token_re:
-#    cal get_input
-#    add [rb - 2], 0, [rb + char]
-#
-#    eq  [rb + char], 't', [rb + tmp]
-#    jnz [rb + tmp], get_token_ret
-#
-#    # TODO store previous chars
-#    jz  0, get_token_identifier
-#
-#get_token_ret:
-#    add 'R', 0, [rb + tmp]
-#    arb 2
-#    ret 0
 
 ##########
 is_symbol:
@@ -680,6 +383,37 @@ parse_number_end:
 .ENDFRAME
 
 ##########
+parse_identifier_or_keyword:
+.FRAME token, buffer, tmp
+    arb -2
+
+    # parse the identifier into a buffer
+    cal parse_identifier
+    add [rb - 2], 0, [rb + buffer]
+
+    # check if the identifier is actually a keyword
+    # reuse buffer [rb - 2] and length [rb - 3] as parameters
+    arb -3
+    cal detect_keyword
+    arb 1
+    add [rb - 4], 0, [rb + token]
+
+    # if it is a keyword, free the buffer, we don't need it
+    # TODO
+    #eq  [rb + token], 'i', [rb + tmp]
+    #jnz [rb + tmp], parse_identifier_or_keyword_skip_free
+    #
+    #add [rb + buffer], 0, [rb - 1]
+    #arb -1
+    #cal free
+    #parse_identifier_or_keyword_skip_free:
+
+    arb 3
+    ret 0
+.ENDFRAME
+##########
+
+##########
 parse_identifier:
 .FRAME buffer, index, char, tmp
     arb -4
@@ -728,6 +462,186 @@ parse_identifier_done:
 
 parse_identifier_error:
     hlt
+.ENDFRAME
+
+##########
+detect_keyword:
+.FRAME string, length; tmp, char0, char1
+    arb -3
+
+    # this uses a perfect hash function, generated using gperf and a list of keywords
+    # gperf < src/gperf.in
+
+    # check string length
+    lt  3, [rb + length], [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+    lt  [rb + length], 2, [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+
+    # read first character, check that it is a lowercase letter
+    add [rb + string], 0, [detect_keyword_char0_ptr]
++1 = detect_keyword_char0_ptr:
+    add [0], 0, [rb + char0]
+
+    lt  [rb + char0], 'a', [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+    lt  'z', [rb + char0], [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+
+    # read second character, check that it is a lowercase letter
+    add [rb + string], 1, [detect_keyword_char1_ptr]
++1 = detect_keyword_char1_ptr:
+    add [0], 0, [rb + char1]
+
+    lt  [rb + char1], 'a', [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+    lt  'z', [rb + char1], [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+
+    # calculate indexes into the asso_values table
+    add [rb + char0], -97, [rb + char0]
+    add [rb + char1], -97, [rb + char1]
+
+    # look up the hash value (store to char0)
+    add [detect_keyword_asso_values], [rb + char0], [detect_keyword_asso_values_ptr0]
++1 = detect_keyword_asso_values_ptr0:
+    add [0], 0, [rb + char0]
+
+    add [detect_keyword_asso_values], [rb + char1], [detect_keyword_asso_values_ptr1]
++1 = detect_keyword_asso_values_ptr1:
+    add [0], [rb + char0], [rb + char0]
+
+    # check hash limit
+    lt  33, [rb + char0], [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+
+    # find candidate keyword, compare input with the candidate
+    mul [rb + char0], 4, [rb + tmp]
+    add [detect_keyword_wordlist], [rb + tmp], [detect_keyword_wordlist_ptr]
++1 = detect_keyword_wordlist_ptr:
+    add [0], 0, [rb - 1]
+    add [rb + string], 0, [rb - 2]
+    arb -2
+    cal strcmp
+
+    eq  [rb - 4], 0, [rb + tmp]
+    jnz [rb + tmp], detect_keyword_is_not
+
+    # find token id, return it
+    add [detect_keyword_tokens], [rb + char0], [detect_keyword_tokens_ptr]
++1 = detect_keyword_tokens_ptr:
+    add [0], 0, [rb + tmp]
+
+    arb 3
+    ret 2
+
+detect_keyword_is_not:
+    # not a keyword, so it is an identifier
+    add 'i', 0, [rb + tmp]
+    arb 3
+    ret 2
+
+detect_keyword_asso_values:
+    ds  2, 0
+    db  3
+    db  5
+    db  10
+    ds  2, 34
+    ds  2, 15
+    db  10
+    db  34
+    db  15
+    db  3
+    ds  2, 10
+    db  34
+    db  5
+    db  0
+    db  5
+    db  10
+    db  5
+    ds  4, 34
+    db  10
+
+detect_keyword_wordlist:
+    # TODO use strings once supported
+    ds  8, 0
+    db  'r'
+    db  'b'
+    ds  2, 0
+    db  'a'
+    db  'r'
+    db  'b'
+    ds  9, 0
+    db  'c'
+    db  'a'
+    db  'l'
+    db  0
+    db  'd'
+    db  'b'
+    ds  2, 0
+    db  'a'
+    db  'd'
+    db  'd'
+    ds  9, 0
+    db  'm'
+    db  'u'
+    db  'l'
+    db  0
+    db  'd'
+    db  's'
+    ds  2, 0
+    db  'r'
+    db  'e'
+    db  't'
+    ds  13, 0
+    db  'e'
+    db  'q'
+    ds  2, 0
+    db  'o'
+    db  'u'
+    db  't'
+    ds  13, 0
+    db  'j'
+    db  'z'
+    ds  2, 0
+    db  'j'
+    db  'n'
+    db  'z'
+    ds  13, 0
+    db  'l'
+    db  't'
+    ds  2, 0
+    db  'i'
+    db  'n'
+    ds  17, 0
+    db  'h'
+    db  'l'
+    db  't'
+    db  0
+
+detect_keyword_tokens:
+    ds  2, 0
+    db  'P'
+    db  'T'
+    ds  2, 0
+    db  'C'
+    db  'B'
+    db  'A'
+    ds  2, 0
+    db  'M'
+    db  'S'
+    db  'R'
+    ds  3, 0
+    db  'E'
+    db  'O'
+    ds  3, 0
+    db  'Z'
+    db  'J'
+    ds  3, 0
+    db  'L'
+    db  'I'
+    ds  4, 0
+    db  'H'
 .ENDFRAME
 
 ##########
