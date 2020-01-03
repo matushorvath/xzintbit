@@ -8,45 +8,58 @@ main:
 main_loop:
     cal get_token
 
-    # print token type
-    out [rb - 2]
-
-    # print token value if relevant
-    eq  [rb - 2], 'n', [rb + tmp]
-    jnz [rb + tmp], main_print_n
-    eq  [rb - 2], 'c', [rb + tmp]
-    jnz [rb + tmp], main_print_c
-    eq  [rb - 2], 'i', [rb + tmp]
-    jnz [rb + tmp], main_print_i
-    jz  0, main_finish
-
-main_print_n:
-    out ' '
-    # reuse [rb - 3] as a parameter to print_num
+    # reuse [rb - 2] and [rb - 3] as a parameters to dump_tokens
     arb -3
-    cal print_num
-    arb 2
-    jz  0, main_finish
+    cal dump_tokens
+    arb 1
 
-main_print_c:
-    out ' '
-    out [rb - 3]
-    jz  0, main_finish
-
-main_print_i:
-    # TODO free the buffer
-    out ' '
-    # reuse [rb - 3] as a parameter to print_str
-    arb -3
-    cal print_str
-    arb 2
-    jz  0, main_finish
-
-main_finish:
-    out 10
     jz  0, main_loop
 
     hlt
+.ENDFRAME
+
+##########
+dump_tokens:
+.FRAME token, data; tmp
+    arb -1
+
+    # print token type
+    out [rb + token]
+
+    # print token value if relevant
+    eq  [rb + token], 'n', [rb + tmp]
+    jnz [rb + tmp], dump_tokens_print_n
+    eq  [rb + token], 'c', [rb + tmp]
+    jnz [rb + tmp], dump_tokens_print_c
+    eq  [rb + token], 'i', [rb + tmp]
+    jnz [rb + tmp], dump_tokens_print_i
+    jz  0, dump_tokens_finish
+
+dump_tokens_print_n:
+    out ' '
+    add [rb + data], 0, [rb - 1]
+    arb -1
+    cal print_num
+    jz  0, dump_tokens_finish
+
+dump_tokens_print_c:
+    out ' '
+    out [rb - 3]
+    jz  0, dump_tokens_finish
+
+dump_tokens_print_i:
+    # TODO free the buffer
+    out ' '
+    add [rb + data], 0, [rb - 1]
+    arb -1
+    cal print_str
+    jz  0, dump_tokens_finish
+
+dump_tokens_finish:
+    out 10
+
+    arb 1
+    ret 2
 .ENDFRAME
 
 ##########
