@@ -145,15 +145,20 @@ parse_error:
 
 ##########
 parse_add_mul_lt_eq:
-.FRAME tmp, op
-    arb -2
+.FRAME tmp, op, param0, param1, param2
+    arb -5
 
     # token type is conveniently also the op code
     add [token], 0, [rb + op]
     cal get_token
 
+    add [ip], 1, [ip]
     cal parse_in_param
-    # TODO process param 0
+
+    # update opcode and param 0 value
+    mul [rb - 3], 100, [rb - 3]
+    add [rb + op], [rb - 3], [rb + op]
+    add [rb - 2], 0, [rb + param0]
 
     eq  [token], ',', [rb + tmp]
     cal get_token
@@ -161,8 +166,13 @@ parse_add_mul_lt_eq:
     cal parse_error
 
 parse_add_mul_lt_eq_param1:
+    add [ip], 1, [ip]
     cal parse_in_param
-    # TODO process param 1
+
+    # update opcode and param 1 value
+    mul [rb - 3], 1000, [rb - 3]
+    add [rb + op], [rb - 3], [rb + op]
+    add [rb - 2], 0, [rb + param1]
 
     eq  [token], ',', [rb + tmp]
     cal get_token
@@ -170,15 +180,28 @@ parse_add_mul_lt_eq_param1:
     cal parse_error
 
 parse_add_mul_lt_eq_param2:
+    add [ip], 1, [ip]
     cal parse_out_param
-    # TODO process param 2
+
+    # update opcode and param 2 value
+    mul [rb - 3], 10000, [rb - 3]
+    add [rb + op], [rb - 3], [rb + op]
+    add [rb - 2], 0, [rb + param2]
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_done
     cal parse_error
 
 parse_add_mul_lt_eq_done:
-    arb 2
+    add [ip], 1, [ip]
+
+    out [rb + op]
+    out [rb + param0]
+    out [rb + param1]
+    out [rb + param2]
+    out 10
+
+    arb 5
     ret 0
 .ENDFRAME
 
@@ -292,8 +315,11 @@ parse_directive_eof:
 
 ##########
 parse_out_param:
-.FRAME tmp
-    arb -1
+.FRAME result, mode, sign, tmp
+    arb -4
+
+    # default is position mode, unless we see a 'rb'
+    add 0, 0, [rb + mode]
 
     eq  [token], '[', [rb + tmp]
     cal get_token
@@ -313,80 +339,104 @@ parse_out_param_try_rb:
     cal parse_error
 
 parse_out_param_rb_plus:
-    # TODO process rb +
+    # relative mode, sign is +
+    add 2, 0, [rb + mode]
+    add 1, 0, [rb + sign]
+
     cal get_token
     jz  0, parse_out_param_after_rb
 
 parse_out_param_rb_minus:
-    # TODO process rb -
+    # relative mode, sign is -
+    add 2, 0, [rb + mode]
+    add -1, 0, [rb + sign]
+
     cal get_token
     jz  0, parse_out_param_after_rb
 
 parse_out_param_after_rb:
     cal parse_value
-    # TODO process value
+    mul [rb - 2], [rb + sign], [rb + result]
 
+    # we don't support 'rb - symbol', the fixup is always positive
+    eq  [rb - 3], 1, [rb + tmp]
+    jz  [rb + tmp], parse_out_param_skip_neg_symbol_check
+
+    eq  [rb + sign], -1, [rb + tmp]
+    jnz [rb + tmp], parse_error
+
+parse_out_param_skip_neg_symbol_check:
     eq  [token], ']', [rb + tmp]
     cal get_token
     jnz [rb + tmp], parse_out_param_done
     cal parse_error
 
 parse_out_param_done:
-    arb 1
+    arb 4
     ret 0
 .ENDFRAME
 
 ##########
 parse_in_param:
-.FRAME tmp
-    arb -1
+.FRAME result, mode, tmp
+    arb -3
 
     # position and relative are handled same as out_param
     eq  [token], '[', [rb + tmp]
     jz  [rb + tmp], parse_in_param_immediate
 
     cal parse_out_param
-    # TODO process out param (return it)
+    add [rb - 2], 0, [rb + result]
+    add [rb - 3], 0, [rb + mode]
     jz  0, parse_in_param_done
 
 parse_in_param_immediate:
     cal parse_value
-    # TODO process value (return it)
+
+    # return the value and immediate mode
+    add [rb - 2], 0, [rb + result]
+    add 1, 0, [rb + mode]
 
 parse_in_param_done:
-    arb 1
+    arb 3
     ret 0
 .ENDFRAME
 
 ##########
 parse_value:
-.FRAME tmp
-    arb -1
+.FRAME result, has_symbol, sign, tmp
+    arb -4
+
+    add 0, 0, [rb + has_symbol]
 
     eq  [token], 'n', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_1
+    jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token], 'c', [rb + tmp]
-    jnz [rb + tmp], parse_value_char_1
+    jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token], 'i', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier
 
     cal parse_error
 
-parse_value_number_1:
-    # TODO process the number
-    cal get_token
-    jz  0, parse_value_done
+parse_value_number_or_char_1:
+    # return the number/char value
+    add [value], 0, [rb + result]
 
-parse_value_char_1:
-    # TODO process the char
     cal get_token
     jz  0, parse_value_done
 
 parse_value_identifier:
-    # TODO process the char
-    cal get_token
+    # TODO support frame symbols, resolve them immediately
+    add 1, 0, [rb + has_symbol]
+
+    # add a fixup for this identifier
+    add [value], 0, [rb - 1]
+    add [ip], 0, [rb - 2]
+    arb -2
+    cal add_fixup
 
     # optionally followed by + or - and a number or char
+    cal get_token
     eq  [token], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier_plus
     eq  [token], '-', [rb + tmp]
@@ -394,34 +444,31 @@ parse_value_identifier:
     jz  0, parse_value_done
 
 parse_value_identifier_plus:
-    # TODO process identifier +
+    add 1, 0, [rb + sign]
     cal get_token
     jz  0, parse_value_identifier_after_sign
 
 parse_value_identifier_minus:
-    # TODO process rb -
+    add -1, 0, [rb + sign]
     cal get_token
     jz  0, parse_value_identifier_after_sign
 
 parse_value_identifier_after_sign:
     eq  [token], 'n', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_2
+    jnz [rb + tmp], parse_value_number_or_char_2
     eq  [token], 'c', [rb + tmp]
-    jnz [rb + tmp], parse_value_char_2
+    jnz [rb + tmp], parse_value_number_or_char_2
     cal parse_error
 
-parse_value_number_2:
-    # TODO process the number
-    cal get_token
-    jz  0, parse_value_done
+parse_value_number_or_char_2:
+    # return the number/char value
+    mul [value], [rb + sign], [rb + result]
 
-parse_value_char_2:
-    # TODO process the char
     cal get_token
     jz  0, parse_value_done
 
 parse_value_done:
-    arb 1
+    arb 4
     ret 0
 .ENDFRAME
 
@@ -1319,6 +1366,110 @@ add_symbol:
 .ENDFRAME
 
 ##########
+add_fixup:
+.FRAME identifier, address; symbol, fixup, tmp
+    arb -3
+
+    # DEBUG
+    out 'F'
+    out ' '
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    cal print_str
+    out ' '
+    add [rb + address], 0, [rb - 1]
+    arb -1
+    cal print_num
+    out 10
+
+    # find or create the symbol record
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    cal find_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+    eq  [rb + symbol], 0, [rb + tmp]
+    jz  [rb + tmp], add_fixup_have_symbol
+
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    cal add_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+add_fixup_have_symbol:
+    # allocate a block
+    # TODO use smaller blocks, or collect multiple fixups in one block
+    add 50, 0, [rb - 1]
+    arb -1
+    cal alloc
+    add [rb - 3], 0, [rb + fixup]
+
+    # store the address of the fixup
+    add [rb + fixup], 1, [add_fixup_address_ptr]
++3 = add_fixup_address_ptr:
+    add [rb + address], 0, [0]
+
+    # read current fixup list head
+    add [rb + symbol], 49, [add_fixup_list_head_1]
++1 = add_fixup_list_head_1:
+    add [0], 0, [rb + tmp]
+
+    # set pointer to next fixup
+    add [rb + fixup], 0, [add_fixup_next_record]
++3 = add_fixup_next_record:
+    add [rb + tmp], 0, [0]
+
+    # set new fixup list head
+    add [rb + symbol], 49, [add_fixup_list_head_2]
++3 = add_fixup_list_head_2:
+    add [rb + fixup], 0, [0]
+
+    arb 3
+    ret 2
+.ENDFRAME
+
+##########
+set_symbol_address:
+.FRAME identifier, address; symbol, tmp
+    arb -2
+
+    # DEBUG
+    out 'S'
+    out ' '
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    cal print_str
+    out ' '
+    add [rb + address], 0, [rb - 1]
+    arb -1
+    cal print_num
+    out 10
+
+    # find or create the symbol record
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    cal find_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+    eq  [rb + symbol], 0, [rb + tmp]
+    jz  [rb + tmp], set_symbol_address_have_symbol
+
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    cal add_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+set_symbol_address_have_symbol:
+    # store the address of the symbol
+    add [rb + symbol], 48, [set_symbol_address_ptr]
++3 = set_symbol_address_ptr:
+    add [rb + address], 0, [0]
+
+    arb 2
+    ret 2
+.ENDFRAME
+
+##########
 strcmp:
 .FRAME str1, str2; tmp, char1, char2, index
     arb -4
@@ -1440,6 +1591,10 @@ dump_loop:
 # 48: symbol value (address)
 # 49: linked list of fixups
 
+# fixup record layout:
+# 0: pointer to next fixup
+# 1: fixup address
+
 # head of the linked list of symbols
 symbol_head:
     db  0
@@ -1459,6 +1614,10 @@ token:
 # lookahead token value, if any
 value:
     db  0
+
+# current instruction pointer
+ip:
+    db 0
 
 ##########
     ds  50, 0
