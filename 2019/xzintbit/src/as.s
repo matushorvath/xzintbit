@@ -79,7 +79,8 @@ get_token:
 
 # A add; T arb; C cal; B db; S ds; E eq; H hlt; I in;
 # J jnz; Z jz; L lt; M mul; O out; P rb; R ret
-# F .FRAME; D .ENDFRAME; m ,; $ EOL; + - = : ; [ ]
+# F .FRAME; D .ENDFRAME; $ EOL
+# + - = , : ; [ ]
 # n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* c ' '
 
 get_token_loop:
@@ -96,66 +97,11 @@ get_token_loop:
     eq  [rb + char], 35, [rb + tmp]
     jnz [rb + tmp], get_token_eat_comment
 
+    # end of line
     eq  [rb + char], 10, [rb + tmp]
     jnz [rb + tmp], get_token_eol
 
-    # keywords
-    eq  [rb + char], 'a', [rb + tmp]
-    jnz [rb + tmp], get_token_a
-    eq  [rb + char], 'c', [rb + tmp]
-    jnz [rb + tmp], get_token_c
-    eq  [rb + char], 'd', [rb + tmp]
-    jnz [rb + tmp], get_token_d
-    eq  [rb + char], 'e', [rb + tmp]
-    jnz [rb + tmp], get_token_e
-    eq  [rb + char], 'h', [rb + tmp]
-    jnz [rb + tmp], get_token_h
-    eq  [rb + char], 'i', [rb + tmp]
-    jnz [rb + tmp], get_token_i
-    eq  [rb + char], 'j', [rb + tmp]
-    jnz [rb + tmp], get_token_j
-    eq  [rb + char], 'l', [rb + tmp]
-    jnz [rb + tmp], get_token_l
-    eq  [rb + char], 'm', [rb + tmp]
-    jnz [rb + tmp], get_token_m
-    eq  [rb + char], 'o', [rb + tmp]
-    jnz [rb + tmp], get_token_o
-    eq  [rb + char], 'r', [rb + tmp]
-    jnz [rb + tmp], get_token_r
-
-    # directives
-    eq  [rb + char], '.', [rb + tmp]
-    jnz [rb + tmp], get_token_dir
-
-    # symbols
-    eq  [rb + char], '+', [rb + tmp]
-    jnz [rb + tmp], get_token_plus
-    eq  [rb + char], '-', [rb + tmp]
-    jnz [rb + tmp], get_token_minus
-    eq  [rb + char], '=', [rb + tmp]
-    jnz [rb + tmp], get_token_equal
-    eq  [rb + char], ':', [rb + tmp]
-    jnz [rb + tmp], get_token_colon
-    eq  [rb + char], ',', [rb + tmp]
-    jnz [rb + tmp], get_token_comma
-    eq  [rb + char], ';', [rb + tmp]
-    jnz [rb + tmp], get_token_semicolon
-    eq  [rb + char], '[', [rb + tmp]
-    jnz [rb + tmp], get_token_open_bracket
-    eq  [rb + char], ']', [rb + tmp]
-    jnz [rb + tmp], get_token_close_bracket
-
-    # characters
-    eq  [rb + char], ''', [rb + tmp]
-    jnz [rb + tmp], get_token_char
-
-    # numbers
-    add [rb + char], 0, [rb - 1]
-    arb -1
-    cal is_digit
-    jnz [rb - 3], get_token_number
-
-    # identifiers
+    # identifiers and keywords
     eq  [rb + char], '_', [rb + tmp]
     jnz [rb + tmp], get_token_identifier
 
@@ -164,360 +110,30 @@ get_token_loop:
     cal is_alpha
     jnz [rb - 3], get_token_identifier
 
-    hlt
-
-get_token_a:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'd', [rb + tmp]
-    jnz [rb + tmp], get_token_ad
-    eq  [rb + char], 'r', [rb + tmp]
-    jnz [rb + tmp], get_token_ar
-
-    jz  0, get_token_identifier
-
-get_token_ad:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'd', [rb + tmp]
-    jnz [rb + tmp], get_token_add
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_add:
-    add 'A', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_ar:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'b', [rb + tmp]
-    jnz [rb + tmp], get_token_arb
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_arb:
-    add 'T', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_c:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'a', [rb + tmp]
-    jnz [rb + tmp], get_token_ca
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_ca:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'l', [rb + tmp]
-    jnz [rb + tmp], get_token_cal
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_cal:
-    add 'C', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_d:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'b', [rb + tmp]
-    jnz [rb + tmp], get_token_db
-    eq  [rb + char], 's', [rb + tmp]
-    jnz [rb + tmp], get_token_ds
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_db:
-    add 'B', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_ds:
-    add 'S', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_e:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'q', [rb + tmp]
-    jnz [rb + tmp], get_token_eq
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_eq:
-    add 'E', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_h:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'l', [rb + tmp]
-    jnz [rb + tmp], get_token_hl
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_hl:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 't', [rb + tmp]
-    jnz [rb + tmp], get_token_hlt
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_hlt:
-    add 'H', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_i:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'n', [rb + tmp]
-    jnz [rb + tmp], get_token_in
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_in:
-    add 'I', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_j:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'n', [rb + tmp]
-    jnz [rb + tmp], get_token_jn
-    eq  [rb + char], 'z', [rb + tmp]
-    jnz [rb + tmp], get_token_jz
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_jn:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'z', [rb + tmp]
-    jnz [rb + tmp], get_token_jnz
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_jnz:
-    add 'J', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_jz:
-    add 'Z', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_l:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 't', [rb + tmp]
-    jnz [rb + tmp], get_token_lt
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_lt:
-    add 'L', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_m:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'u', [rb + tmp]
-    jnz [rb + tmp], get_token_mu
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_mu:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'l', [rb + tmp]
-    jnz [rb + tmp], get_token_mul
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_mul:
-    add 'M', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_o:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'u', [rb + tmp]
-    jnz [rb + tmp], get_token_ou
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_ou:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 't', [rb + tmp]
-    jnz [rb + tmp], get_token_out
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_out:
-    add 'O', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_r:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'b', [rb + tmp]
-    jnz [rb + tmp], get_token_rb
-    eq  [rb + char], 'e', [rb + tmp]
-    jnz [rb + tmp], get_token_re
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_rb:
-    add 'P', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_re:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 't', [rb + tmp]
-    jnz [rb + tmp], get_token_ret
-
-    # TODO store previous chars
-    jz  0, get_token_identifier
-
-get_token_ret:
-    add 'R', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_dir:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], 'E', [rb + tmp]
-    jnz [rb + tmp], get_token_dir_E
-    eq  [rb + char], 'F', [rb + tmp]
-    jnz [rb + tmp], get_token_dir_F
+    # directives
+    eq  [rb + char], '.', [rb + tmp]
+    jnz [rb + tmp], get_token_directive
+
+    # symbols
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_symbol
+    jnz [rb - 3], get_token_symbol
+
+    # character literals
+    eq  [rb + char], ''', [rb + tmp]
+    jnz [rb + tmp], get_token_char
+
+    # number literals
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_digit
+    jnz [rb - 3], get_token_number
 
     hlt
 
-get_token_dir_F:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'R', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_F_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'A', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_F_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'M', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_F_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'E', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_F_fail
-
-    add 'F', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_dir_F_fail:
-    hlt
-
-get_token_dir_E:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'N', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_E_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'D', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_E_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'F', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_E_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'R', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_E_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'A', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_E_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'M', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_E_fail
-
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-    eq  [rb + char], 'E', [rb + tmp]
-    jz  [rb + tmp], get_token_dir_E_fail
-
-    add 'D', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_dir_E_fail:
+get_token_eat_comment:
+    # TODO eat the comment
     hlt
 
 get_token_eol:
@@ -525,49 +141,88 @@ get_token_eol:
     arb 2
     ret 0
 
-get_token_plus:
-    add '+', 0, [rb + tmp]
+get_token_identifier:
+    # unget last char, parse_identifier will get it again
+    add [rb + char], 0, [get_input_buffer]
+
+    # return parsed identifier pointer in [rb + char]
+    # this memory needs to be freed by caller of get_token
+    cal parse_identifier
+    add [rb - 2], 0, [rb + char]
+
+    add 'i', 0, [rb + tmp]
     arb 2
     ret 0
 
-get_token_minus:
-    add '-', 0, [rb + tmp]
-    arb 2
-    ret 0
+get_token_directive:
+    cal get_input
 
-get_token_equal:
-    add '=', 0, [rb + tmp]
-    arb 2
-    ret 0
+    eq  [rb - 2], 'E', [rb + tmp]
+    jnz [rb + tmp], get_token_directive_E
+    eq  [rb - 2], 'F', [rb + tmp]
+    jnz [rb + tmp], get_token_directive_F
 
-get_token_colon:
-    add ':', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_comma:
-    add 'm', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_semicolon:
-    add ';', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_open_bracket:
-    add '[', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_close_bracket:
-    add ']', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_eat_comment:
-    # TODO eat the comment
+get_token_directive_fail:
     hlt
+
+get_token_directive_F:
+    cal get_input
+    eq  [rb - 2], 'R', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'A', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'M', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'E', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    add 'F', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_directive_E:
+    cal get_input
+    eq  [rb - 2], 'N', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'D', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'F', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'R', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'A', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'M', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'E', [rb + tmp]
+    jz  [rb + tmp], get_token_directive_fail
+
+    add 'D', 0, [rb + tmp]
+    arb 2
+    ret 0
+
+get_token_symbol:
+    add [rb + char], 0, [rb + tmp]
+    arb 2
+    ret 0
 
 get_token_char:
     # get one character and return it in [rb + char]
@@ -598,19 +253,329 @@ get_token_number:
     add 'n', 0, [rb + tmp]
     arb 2
     ret 0
+.ENDFRAME
 
-get_token_identifier:
-    # unget last char, parse_identifier will get it again
-    add [rb + char], 0, [get_input_buffer]
 
-    # return parsed identifier pointer in [rb + char]
-    # this memory needs to be freed by caller of get_token
-    cal parse_identifier
-    add [rb - 2], 0, [rb + char]
 
-    add 'i', 0, [rb + tmp]
-    arb 2
-    ret 0
+#    # keywords
+#    eq  [rb + char], 'a', [rb + tmp]
+#    jnz [rb + tmp], get_token_a
+#    eq  [rb + char], 'c', [rb + tmp]
+#    jnz [rb + tmp], get_token_c
+#    eq  [rb + char], 'd', [rb + tmp]
+#    jnz [rb + tmp], get_token_d
+#    eq  [rb + char], 'e', [rb + tmp]
+#    jnz [rb + tmp], get_token_e
+#    eq  [rb + char], 'h', [rb + tmp]
+#    jnz [rb + tmp], get_token_h
+#    eq  [rb + char], 'i', [rb + tmp]
+#    jnz [rb + tmp], get_token_i
+#    eq  [rb + char], 'j', [rb + tmp]
+#    jnz [rb + tmp], get_token_j
+#    eq  [rb + char], 'l', [rb + tmp]
+#    jnz [rb + tmp], get_token_l
+#    eq  [rb + char], 'm', [rb + tmp]
+#    jnz [rb + tmp], get_token_m
+#    eq  [rb + char], 'o', [rb + tmp]
+#    jnz [rb + tmp], get_token_o
+#    eq  [rb + char], 'r', [rb + tmp]
+#    jnz [rb + tmp], get_token_r
+#get_token_a:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'd', [rb + tmp]
+#    jnz [rb + tmp], get_token_ad
+#    eq  [rb + char], 'r', [rb + tmp]
+#    jnz [rb + tmp], get_token_ar
+#
+#    jz  0, get_token_identifier
+#
+#get_token_ad:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'd', [rb + tmp]
+#    jnz [rb + tmp], get_token_add
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_add:
+#    add 'A', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_ar:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'b', [rb + tmp]
+#    jnz [rb + tmp], get_token_arb
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_arb:
+#    add 'T', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_c:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'a', [rb + tmp]
+#    jnz [rb + tmp], get_token_ca
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_ca:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'l', [rb + tmp]
+#    jnz [rb + tmp], get_token_cal
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_cal:
+#    add 'C', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_d:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'b', [rb + tmp]
+#    jnz [rb + tmp], get_token_db
+#    eq  [rb + char], 's', [rb + tmp]
+#    jnz [rb + tmp], get_token_ds
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_db:
+#    add 'B', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_ds:
+#    add 'S', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_e:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'q', [rb + tmp]
+#    jnz [rb + tmp], get_token_eq
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_eq:
+#    add 'E', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_h:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'l', [rb + tmp]
+#    jnz [rb + tmp], get_token_hl
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_hl:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 't', [rb + tmp]
+#    jnz [rb + tmp], get_token_hlt
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_hlt:
+#    add 'H', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_i:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'n', [rb + tmp]
+#    jnz [rb + tmp], get_token_in
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_in:
+#    add 'I', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_j:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'n', [rb + tmp]
+#    jnz [rb + tmp], get_token_jn
+#    eq  [rb + char], 'z', [rb + tmp]
+#    jnz [rb + tmp], get_token_jz
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_jn:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'z', [rb + tmp]
+#    jnz [rb + tmp], get_token_jnz
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_jnz:
+#    add 'J', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_jz:
+#    add 'Z', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_l:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 't', [rb + tmp]
+#    jnz [rb + tmp], get_token_lt
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_lt:
+#    add 'L', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_m:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'u', [rb + tmp]
+#    jnz [rb + tmp], get_token_mu
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_mu:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'l', [rb + tmp]
+#    jnz [rb + tmp], get_token_mul
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_mul:
+#    add 'M', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_o:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'u', [rb + tmp]
+#    jnz [rb + tmp], get_token_ou
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_ou:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 't', [rb + tmp]
+#    jnz [rb + tmp], get_token_out
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_out:
+#    add 'O', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_r:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 'b', [rb + tmp]
+#    jnz [rb + tmp], get_token_rb
+#    eq  [rb + char], 'e', [rb + tmp]
+#    jnz [rb + tmp], get_token_re
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_rb:
+#    add 'P', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+#
+#get_token_re:
+#    cal get_input
+#    add [rb - 2], 0, [rb + char]
+#
+#    eq  [rb + char], 't', [rb + tmp]
+#    jnz [rb + tmp], get_token_ret
+#
+#    # TODO store previous chars
+#    jz  0, get_token_identifier
+#
+#get_token_ret:
+#    add 'R', 0, [rb + tmp]
+#    arb 2
+#    ret 0
+
+##########
+is_symbol:
+.FRAME char; tmp
+    arb -1
+
+    eq  [rb + char], '+', [rb + tmp]
+    jnz [rb + tmp], is_symbol_end
+    eq  [rb + char], '-', [rb + tmp]
+    jnz [rb + tmp], is_symbol_end
+    eq  [rb + char], '=', [rb + tmp]
+    jnz [rb + tmp], is_symbol_end
+    eq  [rb + char], ',', [rb + tmp]
+    jnz [rb + tmp], is_symbol_end
+    eq  [rb + char], ':', [rb + tmp]
+    jnz [rb + tmp], is_symbol_end
+    eq  [rb + char], ';', [rb + tmp]
+    jnz [rb + tmp], is_symbol_end
+    eq  [rb + char], '[', [rb + tmp]
+    jnz [rb + tmp], is_symbol_end
+    eq  [rb + char], ']', [rb + tmp]
+
+is_symbol_end:
+    arb 1
+    ret 1
 .ENDFRAME
 
 ##########
