@@ -37,9 +37,9 @@
 data:
 +1 = data1:
     db 42
-#    ds 3, 0
+    ds 3, 0
 
-#    ds 50, 0
+    ds 50, 'x'
 stack:
 
 db  'a'

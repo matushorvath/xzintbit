@@ -415,11 +415,42 @@ parse_db_done:
 
 ##########
 parse_ds:
-.FRAME tmp
-    arb -1
-    # TODO
+.FRAME tmp, count, data
+    arb -3
 
-    arb 1
+    # eat the 'ds' token
+    cal get_token
+
+    eq  [token], 'n', [rb + tmp]
+    jnz [rb + tmp], parse_ds_have_count
+    cal parse_error
+
+parse_ds_have_count:
+    add [value], 0, [rb + count]
+    cal get_token
+
+    eq  [token], ',', [rb + tmp]
+    jnz [rb + tmp], parse_ds_have_comma
+    cal parse_error
+
+parse_ds_have_comma:
+    cal get_token
+    cal parse_number_or_char
+    add [rb - 2], 0, [rb + data]
+
+    add [ip], [rb + count], [ip]
+
+parse_ds_loop:
+    # TODO store the byte
+    out [rb + data]
+
+    add [rb + count], -1, [rb + count]
+    lt  0, [rb + count], [rb + tmp]
+    jnz [rb + tmp], parse_ds_loop
+
+    out 10
+
+    arb 3
     ret 0
 .ENDFRAME
 
