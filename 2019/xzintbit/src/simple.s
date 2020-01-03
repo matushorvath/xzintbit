@@ -31,7 +31,7 @@ test:                                   # end of line comment
     out 10
 
     arb 2
-#    ret 2
+    ret 2
 #.ENDFRAME
 
 data:

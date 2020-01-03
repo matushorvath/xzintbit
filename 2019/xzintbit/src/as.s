@@ -339,10 +339,6 @@ parse_hlt_done:
     ret 0
 .ENDFRAME
 
-# 109, -1,                                    // arb -1
-# 21101, this.ip + 9, 0, 0,                   // add ip + 2 + 4 + 3, 0, [rb + 0]
-# 106 + this.oc(ps[0], 1), 0, ps[0].val       // jz 0, $0
-
 ##########
 parse_cal:
 .FRAME tmp
@@ -371,7 +367,7 @@ parse_cal:
     add [ip], 8, [ip]
     cal parse_in_param
 
-    # generate code: jz 0, $0
+    # generate code: jz 0, $param
     # 106 + mode * 1000, 0, param
     # TODO store, do not print
     mul [rb - 3], 1000, [rb + tmp]
@@ -401,7 +397,36 @@ parse_cal_done:
 parse_ret:
 .FRAME tmp
     arb -1
-    # TODO
+
+    # eat the 'ret' token
+    cal get_token
+
+    # parse the parameter
+    cal parse_number_or_char
+
+    # generate code: arb $param + 1
+    # 109, param + 1
+    # TODO store, do not print
+    out 109
+    add [rb - 2], 1, [rb + tmp]
+    out [rb + tmp]
+
+    # generate code: jz 0, [rb - ($param + 1)]
+    # 2106, 0, -(param + 1)
+    # TODO store, do not print
+    out 2106
+    out 0
+    mul [rb + tmp], -1, [rb + tmp]
+    out [rb + tmp]
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_ret_done
+    cal parse_error
+
+parse_ret_done:
+    add [ip], 5, [ip]
+
+    out 10
 
     arb 1
     ret 0
