@@ -1,0 +1,64 @@
+program = 
+      line EOL { line EOL } EOF
+    .
+
+line = 
+      symbol
+    | "." directive
+    | instruction
+    .
+
+symbol = 
+    | [ "+" NUMBER "=" ] IDENTIFIER ":"
+    .
+
+directive = 
+      "FRAME" identifier_list [ ";" identifier_list [ ";" identifier_list ] ]
+    | "ENDFRAME"
+    | "EOF"
+    .
+
+identifier_list = 
+      IDENTIFIER { "," IDENTIFIER }
+    .
+
+instruction = 
+      "add" in_param "," in_param "," out_param
+    | "arb" in_param
+    | "cal" in_param
+    | "db" db_param { "," db_param }
+    | "ds" NUMBER, in_param
+    | "eq" in_param "," in_param "," out_param
+    | "hlt"
+    | "in" out_param
+    | "jnz" in_param "," in_param
+    | "jz" in_param "," in_param
+    | "lt" in_param "," in_param "," out_param
+    | "mul" in_param "," in_param "," out_param
+    | "out" in_param
+    | "ret" number_or_char
+    .
+
+out_param = 
+      "[" [ "rb" ( "+" | "-" ) ] value "]"
+    .
+
+in_param = 
+      out_param
+    | value
+    .
+
+db_param = 
+      value
+    | STRING
+    .
+
+value = 
+      number_or_char
+    | IDENTIFIER ( "+" | "-" ) number_or_char
+    .
+
+number_or_char = 
+      NUMBER
+    | CHAR
+    .

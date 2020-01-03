@@ -8,12 +8,12 @@ main:
 main_loop:
     cal get_token
 
-    # reuse [rb - 2] and [rb - 3] as a parameters to dump_tokens
-    arb -3
-    cal dump_tokens
-    arb 1
+    add [token], 0, [rb - 1]
+    add [value], 0, [rb - 2]
+    arb -2
+    cal dump_token
 
-    # TODO free the buffer if needed
+    # TODO free the [value] buffer if needed
 
     jz  0, main_loop
 
@@ -21,7 +21,7 @@ main_loop:
 .ENDFRAME
 
 ##########
-dump_tokens:
+dump_token:
 .FRAME token, data; tmp
     arb -1
 
@@ -30,33 +30,33 @@ dump_tokens:
 
     # print token value if relevant
     eq  [rb + token], 'n', [rb + tmp]
-    jnz [rb + tmp], dump_tokens_print_n
+    jnz [rb + tmp], dump_token_print_n
     eq  [rb + token], 'c', [rb + tmp]
-    jnz [rb + tmp], dump_tokens_print_c
+    jnz [rb + tmp], dump_token_print_c
     eq  [rb + token], 'i', [rb + tmp]
-    jnz [rb + tmp], dump_tokens_print_i
-    jz  0, dump_tokens_finish
+    jnz [rb + tmp], dump_token_print_i
+    jz  0, dump_token_finish
 
-dump_tokens_print_n:
+dump_token_print_n:
     out ' '
     add [rb + data], 0, [rb - 1]
     arb -1
     cal print_num
-    jz  0, dump_tokens_finish
+    jz  0, dump_token_finish
 
-dump_tokens_print_c:
+dump_token_print_c:
     out ' '
     out [rb - 3]
-    jz  0, dump_tokens_finish
+    jz  0, dump_token_finish
 
-dump_tokens_print_i:
+dump_token_print_i:
     out ' '
     add [rb + data], 0, [rb - 1]
     arb -1
     cal print_str
-    jz  0, dump_tokens_finish
+    jz  0, dump_token_finish
 
-dump_tokens_finish:
+dump_token_finish:
     out 10
 
     arb 1
@@ -157,7 +157,17 @@ get_token_eat_comment_loop:
     # FALLTHROUGH: last char was EOL, so return it as a token
 
 get_token_eol:
-    add '$', 0, [rb + tmp]
+    # handle consequtive EOLs as one
+
+get_token_eol_loop:
+    cal get_input
+    eq  [rb - 2], 10, [rb + tmp]
+    jnz [rb + tmp], get_token_eol_loop
+
+    # unget last char
+    add [rb - 2], 0, [get_input_buffer]
+
+    add '$', 0, [token]
     arb 2
     ret 0
 
@@ -168,35 +178,35 @@ get_token_identifier:
     # return parsed identifier pointer in [rb + char]
     # this memory needs to be freed by caller of get_token
     cal parse_identifier_or_keyword
-    add [rb - 2], 0, [rb + tmp]
-    add [rb - 3], 0, [rb + char]
+    add [rb - 2], 0, [token]
+    add [rb - 3], 0, [value]
 
     arb 2
     ret 0
 
 get_token_directive:
     cal parse_directive
-    add [rb - 2], 0, [rb + tmp]
+    add [rb - 2], 0, [token]
 
     arb 2
     ret 0
 
 get_token_symbol:
-    add [rb + char], 0, [rb + tmp]
+    add [rb + char], 0, [token]
     arb 2
     ret 0
 
 get_token_char:
-    # get one character and return it in [rb + char]
+    # get one character and return it as token value
     cal get_input
-    add [rb - 2], 0, [rb + char]
+    add [rb - 2], 0, [value]
 
     # get closing quote
     cal get_input
     eq  [rb - 2], ''', [rb + tmp]
     jz  [rb + tmp], get_token_char_fail
 
-    add 'c', 0, [rb + tmp]
+    add 'c', 0, [token]
     arb 2
     ret 0
 
@@ -210,9 +220,9 @@ get_token_number:
 
     # return parsed number in [rb + char]
     cal parse_number
-    add [rb - 2], 0, [rb + char]
+    add [rb - 2], 0, [value]
 
-    add 'n', 0, [rb + tmp]
+    add 'n', 0, [token]
     arb 2
     ret 0
 .ENDFRAME
@@ -1022,6 +1032,14 @@ free_head:
 # start of unused memory
 heap_end:
     db  stack
+
+# lookahead token type
+token:
+    db  0
+
+# lookahead token value, if any
+value:
+    db  0
 
 ##########
     ds  50, 0
