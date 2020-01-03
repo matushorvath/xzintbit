@@ -133,8 +133,14 @@ get_token_loop:
     hlt
 
 get_token_eat_comment:
-    # TODO eat the comment
-    hlt
+    # eat everything until end of line
+
+get_token_eat_comment_loop:
+    cal get_input
+    eq  [rb - 2], 10, [rb + tmp]
+    jz  [rb + tmp], get_token_eat_comment_loop
+
+    # FALLTHROUGH: last char was EOL, so return it as a token
 
 get_token_eol:
     add '$', 0, [rb + tmp]

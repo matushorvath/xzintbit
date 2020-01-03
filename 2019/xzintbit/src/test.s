@@ -14,7 +14,8 @@
     cal test
     hlt
 
-test:
+# test function
+test:                                   # end of line comment
 .FRAME prm1, prm2; tmp1, tmp2
     arb -2
     add 40, 2, [rb + tmp1]
