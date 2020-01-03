@@ -207,37 +207,135 @@ parse_add_mul_lt_eq_done:
 
 ##########
 parse_jnz_jz:
-.FRAME tmp
-    arb -1
+.FRAME tmp, op, param0, param1
+    arb -4
 
-    arb 1
+    # token type is conveniently also the op code
+    add [token], 0, [rb + op]
+    cal get_token
+
+    add [ip], 1, [ip]
+    cal parse_in_param
+
+    # update opcode and param 0 value
+    mul [rb - 3], 100, [rb - 3]
+    add [rb + op], [rb - 3], [rb + op]
+    add [rb - 2], 0, [rb + param0]
+
+    eq  [token], ',', [rb + tmp]
+    cal get_token
+    jnz [rb + tmp], parse_jnz_jz_param1
+    cal parse_error
+
+parse_jnz_jz_param1:
+    add [ip], 1, [ip]
+    cal parse_in_param
+
+    # update opcode and param 1 value
+    mul [rb - 3], 1000, [rb - 3]
+    add [rb + op], [rb - 3], [rb + op]
+    add [rb - 2], 0, [rb + param1]
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_jnz_jz_done
+    cal parse_error
+
+parse_jnz_jz_done:
+    add [ip], 1, [ip]
+
+    out [rb + op]
+    out [rb + param0]
+    out [rb + param1]
+    out 10
+
+    arb 4
     ret 0
 .ENDFRAME
 
 ##########
 parse_arb_out:
-.FRAME tmp
-    arb -1
+.FRAME tmp, op, param0
+    arb -3
 
-    arb 1
+    # token type is conveniently also the op code
+    add [token], 0, [rb + op]
+    cal get_token
+
+    add [ip], 1, [ip]
+    cal parse_in_param
+
+    # update opcode and param 0 value
+    mul [rb - 3], 100, [rb - 3]
+    add [rb + op], [rb - 3], [rb + op]
+    add [rb - 2], 0, [rb + param0]
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_arb_out_done
+    cal parse_error
+
+parse_arb_out_done:
+    add [ip], 1, [ip]
+
+    out [rb + op]
+    out [rb + param0]
+    out 10
+
+    arb 3
     ret 0
 .ENDFRAME
 
 ##########
 parse_in:
-.FRAME tmp
-    arb -1
+.FRAME tmp, op, param0
+    arb -3
 
-    arb 1
+    # token type is conveniently also the op code
+    add [token], 0, [rb + op]
+    cal get_token
+
+    add [ip], 1, [ip]
+    cal parse_out_param
+
+    # update opcode and param 0 value
+    mul [rb - 3], 100, [rb - 3]
+    add [rb + op], [rb - 3], [rb + op]
+    add [rb - 2], 0, [rb + param0]
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_in_done
+    cal parse_error
+
+parse_in_done:
+    add [ip], 1, [ip]
+
+    out [rb + op]
+    out [rb + param0]
+    out 10
+
+    arb 3
     ret 0
 .ENDFRAME
 
 ##########
 parse_hlt:
-.FRAME tmp
-    arb -1
+.FRAME tmp, op
+    arb -2
 
-    arb 1
+    # token type is conveniently also the op code
+    add [token], 0, [rb + op]
+    cal get_token
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_hlt_done
+    cal parse_error
+
+parse_hlt_done:
+    add [ip], 1, [ip]
+
+    out [rb + op]
+    out 10
+
+    arb 2
     ret 0
 .ENDFRAME
 
@@ -355,11 +453,18 @@ parse_directive_endframe:
 
 ##########
 parse_directive_eof:
-.FRAME tmp
-    arb -1
+.FRAME
+    # TODO run fixups, then dump memory to output
+    out 'S'
+    out 'u'
+    out 'c'
+    out 'c'
+    out 'e'
+    out 's'
+    out 's'
+    out 10
 
-    arb 1
-    ret 0
+    hlt
 .ENDFRAME
 
 ##########
@@ -369,6 +474,7 @@ parse_out_param:
 
     # default is position mode, unless we see a 'rb'
     add 0, 0, [rb + mode]
+    add 1, 0, [rb + sign]
 
     eq  [token], '[', [rb + tmp]
     cal get_token
@@ -387,18 +493,12 @@ parse_out_param_try_rb:
 
     cal parse_error
 
-parse_out_param_rb_plus:
-    # relative mode, sign is +
-    add 2, 0, [rb + mode]
-    add 1, 0, [rb + sign]
-
-    cal get_token
-    jz  0, parse_out_param_after_rb
-
 parse_out_param_rb_minus:
-    # relative mode, sign is -
-    add 2, 0, [rb + mode]
     add -1, 0, [rb + sign]
+
+parse_out_param_rb_plus:
+    # relative mode
+    add 2, 0, [rb + mode]
 
     cal get_token
     jz  0, parse_out_param_after_rb
@@ -456,8 +556,11 @@ parse_value:
 .FRAME result, has_symbol, sign, tmp
     arb -4
 
+    add 0, 0, [rb + result]
     add 0, 0, [rb + has_symbol]
 
+    eq  [token], '-', [rb + tmp]
+    jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token], 'n', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token], 'c', [rb + tmp]
@@ -483,6 +586,12 @@ parse_value_identifier:
     add [ip], 0, [rb - 2]
     arb -2
     cal add_fixup
+
+    # free the symbol value
+    add [value], 0, [rb - 1]
+    arb -1
+    cal free
+    add 0, 0, [value]
 
     # optionally followed by + or - and a number or char
     cal get_token
