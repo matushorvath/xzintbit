@@ -11,11 +11,11 @@
     add 40, 0, [rb - 1]
     add 40, 1, [rb - 2]
     arb -2
-#    cal test
+    cal test
     hlt
 
 # test function
-#test:                                   # end of line comment
+test:                                   # end of line comment
 #.FRAME prm1, prm2; tmp1, tmp2
     arb -2
     add 40, 2, [rb + tmp1]

@@ -339,15 +339,63 @@ parse_hlt_done:
     ret 0
 .ENDFRAME
 
+# 109, -1,                                    // arb -1
+# 21101, this.ip + 9, 0, 0,                   // add ip + 2 + 4 + 3, 0, [rb + 0]
+# 106 + this.oc(ps[0], 1), 0, ps[0].val       // jz 0, $0
+
 ##########
 parse_cal:
 .FRAME tmp
     arb -1
-    # TODO
+
+    # eat the 'cal' token
+    cal get_token
+
+    # generate code: arb -1
+    # 109, -1
+    # TODO store, do not print
+    out 109
+    out -1
+
+    # generate code: add ip + 2 + 4 + 3, 0, [rb + 0]
+    # 21101, ip + 9, 0, 0
+    # TODO store, do not print
+    out 21101
+    add [ip], 9, [rb + tmp]
+    out [rb + tmp]
+    out 0
+    out 0
+
+    # update ip to point to second parameter of the 'jz' below
+    # this way parse_in_param will generate the correct fixup
+    add [ip], 8, [ip]
+    cal parse_in_param
+
+    # generate code: jz 0, $0
+    # 106 + mode * 1000, 0, param
+    # TODO store, do not print
+    mul [rb - 3], 1000, [rb + tmp]
+    add 106, [rb + tmp], [rb + tmp]
+    out [rb + tmp]
+    out 0
+    out [rb - 2]
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_cal_done
+    cal parse_error
+
+parse_cal_done:
+    # ip was already incremented, for fixup porposes, now move it past the last written byte
+    add [ip], 1, [ip]
+
+    out 10
 
     arb 1
     ret 0
 .ENDFRAME
+
+# 109, ps[0].val + 1,                         // arb $0 + 1
+# 2106, 0, -(ps[0].val + 1)                   // jz 0, [rb - ($0 + 1)]
 
 ##########
 parse_ret:
