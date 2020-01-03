@@ -1,23 +1,428 @@
     arb stack
 
+# token types:
+# 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
+# C cal; R ret; B db; S ds
+# F .FRAME; D .ENDFRAME; N EOF; $ EOL; P rb
+# + - = , : ; [ ]
+# n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* c '.'
+
 ##########
-main:
+parse:
 .FRAME tmp
     arb -1
 
-main_loop:
+parse_loop:
     cal get_token
 
-    add [token], 0, [rb - 1]
-    add [value], 0, [rb - 2]
-    arb -2
-    cal dump_token
+    # skip empty lines
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_loop
 
-    # TODO free the [value] buffer if needed
+    # instructions
+    eq  [token], 1, [rb + tmp]
+    jnz [rb + tmp], parse_call_add_mul_lt_eq
+    eq  [token], 2, [rb + tmp]
+    jnz [rb + tmp], parse_call_add_mul_lt_eq
+    eq  [token], 7, [rb + tmp]
+    jnz [rb + tmp], parse_call_add_mul_lt_eq
+    eq  [token], 8, [rb + tmp]
+    jnz [rb + tmp], parse_call_add_mul_lt_eq
 
-    jz  0, main_loop
+    eq  [token], 5, [rb + tmp]
+    jnz [rb + tmp], parse_call_jnz_jz
+    eq  [token], 6, [rb + tmp]
+    jnz [rb + tmp], parse_call_jnz_jz
+
+    eq  [token], 9, [rb + tmp]
+    jnz [rb + tmp], parse_call_arb_out
+    eq  [token], 4, [rb + tmp]
+    jnz [rb + tmp], parse_call_arb_out
+
+    eq  [token], 3, [rb + tmp]
+    jnz [rb + tmp], parse_call_in
+    eq  [token], 99, [rb + tmp]
+    jnz [rb + tmp], parse_call_hlt
+
+    # pseudo-instructions
+    eq  [token], 'C', [rb + tmp]
+    jnz [rb + tmp], parse_call_cal
+    eq  [token], 'R', [rb + tmp]
+    jnz [rb + tmp], parse_call_ret
+    eq  [token], 'B', [rb + tmp]
+    jnz [rb + tmp], parse_call_db
+    eq  [token], 'S', [rb + tmp]
+    jnz [rb + tmp], parse_call_ds
+
+    # symbols
+    eq  [token], 'i', [rb + tmp]
+    jnz [rb + tmp], parse_call_symbol
+    eq  [token], '+', [rb + tmp]
+    jnz [rb + tmp], parse_call_symbol
+
+    # directives
+    eq  [token], 'F', [rb + tmp]
+    jnz [rb + tmp], parse_call_directive_frame
+    eq  [token], 'E', [rb + tmp]
+    jnz [rb + tmp], parse_call_directive_endframe
+    eq  [token], 'N', [rb + tmp]
+    jnz [rb + tmp], parse_call_directive_eof
+
+    cal parse_error
+
+parse_call_add_mul_lt_eq:
+    cal parse_add_mul_lt_eq
+    jz  0, parse_loop
+
+parse_call_jnz_jz:
+    cal parse_jnz_jz
+    jz  0, parse_loop
+
+parse_call_arb_out:
+    cal parse_arb_out
+    jz  0, parse_loop
+
+parse_call_in:
+    cal parse_in
+    jz  0, parse_loop
+
+parse_call_hlt:
+    cal parse_hlt
+    jz  0, parse_loop
+
+parse_call_cal:
+    cal parse_cal
+    jz  0, parse_loop
+
+parse_call_ret:
+    cal parse_ret
+    jz  0, parse_loop
+
+parse_call_db:
+    cal parse_db
+    jz  0, parse_loop
+
+parse_call_ds:
+    cal parse_ds
+    jz  0, parse_loop
+
+parse_call_symbol:
+    cal parse_symbol
+    jz  0, parse_loop
+
+parse_call_directive_frame:
+    cal parse_directive_frame
+    jz  0, parse_loop
+
+parse_call_directive_endframe:
+    cal parse_directive_endframe
+    jz  0, parse_loop
+
+parse_call_directive_eof:
+    cal parse_directive_eof
+    jz  0, parse_loop
+.ENDFRAME
+
+##########
+parse_error:
+.FRAME
+    # TODO use strings once available
+    out 'P'
+    out 'a'
+    out 'r'
+    out 's'
+    out 'e'
+    out ' '
+    out 'e'
+    out 'r'
+    out 'r'
+    out 'o'
+    out 'r'
+    out 10
 
     hlt
+.ENDFRAME
+
+##########
+parse_add_mul_lt_eq:
+.FRAME tmp, op
+    arb -2
+
+    # token type is conveniently also the op code
+    add [token], 0, [rb + op]
+    cal get_token
+
+    cal parse_in_param
+    # TODO process param 0
+
+    eq  [token], ',', [rb + tmp]
+    cal get_token
+    jnz [rb + tmp], parse_add_mul_lt_eq_param1
+    cal parse_error
+
+parse_add_mul_lt_eq_param1:
+    cal parse_in_param
+    # TODO process param 1
+
+    eq  [token], ',', [rb + tmp]
+    cal get_token
+    jnz [rb + tmp], parse_add_mul_lt_eq_param2
+    cal parse_error
+
+parse_add_mul_lt_eq_param2:
+    cal parse_out_param
+    # TODO process param 2
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_add_mul_lt_eq_done
+    cal parse_error
+
+parse_add_mul_lt_eq_done:
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+parse_jnz_jz:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_arb_out:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_in:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_hlt:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_cal:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_ret:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_db:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_ds:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_symbol:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_directive_frame:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_directive_endframe:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_directive_eof:
+.FRAME tmp
+    arb -1
+
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_out_param:
+.FRAME tmp
+    arb -1
+
+    eq  [token], '[', [rb + tmp]
+    cal get_token
+    jnz [rb + tmp], parse_out_param_try_rb
+    cal parse_error
+
+parse_out_param_try_rb:
+    eq  [token], 'P', [rb + tmp]
+    jz  [rb + tmp], parse_out_param_after_rb
+    cal get_token
+
+    eq  [token], '+', [rb + tmp]
+    jnz [rb + tmp], parse_out_param_rb_plus
+    eq  [token], '-', [rb + tmp]
+    jnz [rb + tmp], parse_out_param_rb_minus
+
+    cal parse_error
+
+parse_out_param_rb_plus:
+    # TODO process rb +
+    cal get_token
+    jz  0, parse_out_param_after_rb
+
+parse_out_param_rb_minus:
+    # TODO process rb -
+    cal get_token
+    jz  0, parse_out_param_after_rb
+
+parse_out_param_after_rb:
+    cal parse_value
+    # TODO process value
+
+    eq  [token], ']', [rb + tmp]
+    cal get_token
+    jnz [rb + tmp], parse_out_param_done
+    cal parse_error
+
+parse_out_param_done:
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_in_param:
+.FRAME tmp
+    arb -1
+
+    # position and relative are handled same as out_param
+    eq  [token], '[', [rb + tmp]
+    jz  [rb + tmp], parse_in_param_immediate
+
+    cal parse_out_param
+    # TODO process out param (return it)
+    jz  0, parse_in_param_done
+
+parse_in_param_immediate:
+    cal parse_value
+    # TODO process value (return it)
+
+parse_in_param_done:
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_value:
+.FRAME tmp
+    arb -1
+
+    eq  [token], 'n', [rb + tmp]
+    jnz [rb + tmp], parse_value_number_1
+    eq  [token], 'c', [rb + tmp]
+    jnz [rb + tmp], parse_value_char_1
+    eq  [token], 'i', [rb + tmp]
+    jnz [rb + tmp], parse_value_identifier
+
+    cal parse_error
+
+parse_value_number_1:
+    # TODO process the number
+    cal get_token
+    jz  0, parse_value_done
+
+parse_value_char_1:
+    # TODO process the char
+    cal get_token
+    jz  0, parse_value_done
+
+parse_value_identifier:
+    # TODO process the char
+    cal get_token
+
+    # optionally followed by + or - and a number or char
+    eq  [token], '+', [rb + tmp]
+    jnz [rb + tmp], parse_value_identifier_plus
+    eq  [token], '-', [rb + tmp]
+    jnz [rb + tmp], parse_value_identifier_minus
+    jz  0, parse_value_done
+
+parse_value_identifier_plus:
+    # TODO process identifier +
+    cal get_token
+    jz  0, parse_value_identifier_after_sign
+
+parse_value_identifier_minus:
+    # TODO process rb -
+    cal get_token
+    jz  0, parse_value_identifier_after_sign
+
+parse_value_identifier_after_sign:
+    eq  [token], 'n', [rb + tmp]
+    jnz [rb + tmp], parse_value_number_2
+    eq  [token], 'c', [rb + tmp]
+    jnz [rb + tmp], parse_value_char_2
+    cal parse_error
+
+parse_value_number_2:
+    # TODO process the number
+    cal get_token
+    jz  0, parse_value_done
+
+parse_value_char_2:
+    # TODO process the char
+    cal get_token
+    jz  0, parse_value_done
+
+parse_value_done:
+    arb 1
+    ret 0
 .ENDFRAME
 
 ##########
@@ -91,12 +496,6 @@ get_token:
 .FRAME tmp, char
     arb -2
 
-# A add; T arb; C cal; B db; S ds; E eq; H hlt; I in;
-# J jnz; Z jz; L lt; M mul; O out; P rb; R ret
-# F .FRAME; D .ENDFRAME; N EOF; $ EOL
-# + - = , : ; [ ]
-# n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* c ' '
-
 get_token_loop:
     cal get_input
     add [rb - 2], 0, [rb + char]
@@ -144,7 +543,7 @@ get_token_loop:
     cal is_digit
     jnz [rb - 3], get_token_number
 
-    hlt
+    cal token_error
 
 get_token_eat_comment:
     # eat everything until end of line
@@ -157,27 +556,17 @@ get_token_eat_comment_loop:
     # FALLTHROUGH: last char was EOL, so return it as a token
 
 get_token_eol:
-    # handle consequtive EOLs as one
-
-get_token_eol_loop:
-    cal get_input
-    eq  [rb - 2], 10, [rb + tmp]
-    jnz [rb + tmp], get_token_eol_loop
-
-    # unget last char
-    add [rb - 2], 0, [get_input_buffer]
-
     add '$', 0, [token]
     arb 2
     ret 0
 
 get_token_identifier:
-    # unget last char, parse_identifier will get it again
+    # unget last char, read_identifier will get it again
     add [rb + char], 0, [get_input_buffer]
 
-    # return parsed identifier pointer in [rb + char]
+    # return read identifier pointer in [rb + char]
     # this memory needs to be freed by caller of get_token
-    cal parse_identifier_or_keyword
+    cal read_identifier_or_keyword
     add [rb - 2], 0, [token]
     add [rb - 3], 0, [value]
 
@@ -185,7 +574,7 @@ get_token_identifier:
     ret 0
 
 get_token_directive:
-    cal parse_directive
+    cal read_directive
     add [rb - 2], 0, [token]
 
     arb 2
@@ -204,27 +593,47 @@ get_token_char:
     # get closing quote
     cal get_input
     eq  [rb - 2], ''', [rb + tmp]
-    jz  [rb + tmp], get_token_char_fail
+    jnz [rb + tmp], get_token_char_done
 
+    # error, missing closing quote
+    cal token_error
+
+get_token_char_done:
     add 'c', 0, [token]
     arb 2
     ret 0
 
-get_token_char_fail:
-    # error, missing closing quote
-    hlt
-
 get_token_number:
-    # unget last char, parse_number will get it again
+    # unget last char, read_number will get it again
     add [rb + char], 0, [get_input_buffer]
 
-    # return parsed number in [rb + char]
-    cal parse_number
+    # return read number in [rb + char]
+    cal read_number
     add [rb - 2], 0, [value]
 
     add 'n', 0, [token]
     arb 2
     ret 0
+.ENDFRAME
+
+##########
+token_error:
+.FRAME
+    # TODO use strings once available
+    out 'T'
+    out 'o'
+    out 'k'
+    out 'e'
+    out 'n'
+    out ' '
+    out 'e'
+    out 'r'
+    out 'r'
+    out 'o'
+    out 'r'
+    out 10
+
+    hlt
 .ENDFRAME
 
 ##########
@@ -320,13 +729,13 @@ is_alphanum_end:
 .ENDFRAME
 
 ##########
-parse_number:
+read_number:
 .FRAME byte, digit, tmp
     arb -3
 
     add 0, 0, [rb + byte]
 
-parse_number_loop:
+read_number_loop:
     # get next character
     cal get_input
     add [rb - 2], 0, [rb + digit]
@@ -335,7 +744,7 @@ parse_number_loop:
     add [rb + digit], 0, [rb - 1]
     arb -1
     cal is_digit
-    jz  [rb - 3], parse_number_end
+    jz  [rb - 3], read_number_end
 
     # convert ASCII to a number
     add [rb + digit], -48, [rb + digit]
@@ -344,9 +753,9 @@ parse_number_loop:
     mul [rb + byte], 10, [rb + byte]
     add [rb + byte], [rb + digit], [rb + byte]
 
-    jz  0, parse_number_loop
+    jz  0, read_number_loop
 
-parse_number_end:
+read_number_end:
     # unget last char
     add [rb + digit], 0, [get_input_buffer]
 
@@ -355,12 +764,12 @@ parse_number_end:
 .ENDFRAME
 
 ##########
-parse_identifier_or_keyword:
+read_identifier_or_keyword:
 .FRAME token, buffer, tmp
     arb -3
 
-    # parse the identifier into a buffer
-    cal parse_identifier
+    # read the identifier into a buffer
+    cal read_identifier
     add [rb - 2], 0, [rb + buffer]
 
     # check if the identifier is actually a keyword
@@ -372,21 +781,21 @@ parse_identifier_or_keyword:
 
     # if it is a keyword, free the buffer, we don't need it
     eq  [rb + token], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_identifier_or_keyword_skip_free
+    jnz [rb + tmp], read_identifier_or_keyword_skip_free
 
     add [rb + buffer], 0, [rb - 1]
     arb -1
     cal free
     add 0, 0, [rb + buffer]
 
-parse_identifier_or_keyword_skip_free:
+read_identifier_or_keyword_skip_free:
     arb 3
     ret 0
 .ENDFRAME
 ##########
 
 ##########
-parse_identifier:
+read_identifier:
 .FRAME buffer, index, char, tmp
     arb -4
 
@@ -398,7 +807,7 @@ parse_identifier:
 
     add 0, 0, [rb + index]
 
-parse_identifier_loop:
+read_identifier_loop:
     cal get_input
     add [rb - 2], 0, [rb + char]
 
@@ -406,24 +815,24 @@ parse_identifier_loop:
     add [rb + char], 0, [rb - 1]
     arb -1
     cal is_alphanum
-    jz  [rb - 3], parse_identifier_done
+    jz  [rb - 3], read_identifier_done
 
     # store the character in buffer
-    add [rb + buffer], [rb + index], [parse_identifier_buffer_char_ptr]
-+3 = parse_identifier_buffer_char_ptr:
+    add [rb + buffer], [rb + index], [read_identifier_buffer_char_ptr]
++3 = read_identifier_buffer_char_ptr:
     add [rb + char], 0, [0]
 
     # increase index and check for maximum identifier length (50 - 3)
     add [rb + index], 1, [rb + index]
     lt  [rb + index], 47, [rb + tmp]
-    jz  [rb + tmp], parse_identifier_error
+    jnz [rb + tmp], read_identifier_loop
 
-    jz  0, parse_identifier_loop
+    cal token_error
 
-parse_identifier_done:
+read_identifier_done:
     # zero terminate
-    add [rb + buffer], [rb + index], [parse_identifier_buffer_zero_ptr]
-+3 = parse_identifier_buffer_zero_ptr:
+    add [rb + buffer], [rb + index], [read_identifier_buffer_zero_ptr]
++3 = read_identifier_buffer_zero_ptr:
     add 0, 0, [0]
 
     # unget last char
@@ -431,9 +840,6 @@ parse_identifier_done:
 
     arb 4
     ret 0
-
-parse_identifier_error:
-    hlt
 .ENDFRAME
 
 ##########
@@ -594,29 +1000,29 @@ detect_keyword_wordlist:
 detect_keyword_tokens:
     ds  2, 0
     db  'P'
-    db  'T'
+    db  9
     ds  2, 0
     db  'C'
     db  'B'
-    db  'A'
+    db  1
     ds  2, 0
-    db  'M'
+    db  2
     db  'S'
     db  'R'
     ds  2, 0
-    db  'I'
-    db  'E'
-    db  'O'
+    db  3
+    db  8
+    db  4
     ds  3, 0
-    db  'Z'
-    db  'J'
+    db  6
+    db  5
     ds  3, 0
-    db  'L'
-    db  'H'
+    db  7
+    db  99
 .ENDFRAME
 
 ##########
-parse_directive:
+read_directive:
 .FRAME tmp
     arb -1
 
@@ -626,83 +1032,83 @@ parse_directive:
     cal get_input
 
     eq  [rb - 2], 'E', [rb + tmp]
-    jnz [rb + tmp], parse_directive_e
+    jnz [rb + tmp], read_directive_e
     eq  [rb - 2], 'F', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame
+    jnz [rb + tmp], read_directive_frame
 
-    jz  0, parse_directive_fail
+    jz  0, read_directive_fail
 
-parse_directive_e:
+read_directive_e:
     cal get_input
 
     eq  [rb - 2], 'N', [rb + tmp]
-    jnz [rb + tmp], parse_directive_endframe
+    jnz [rb + tmp], read_directive_endframe
     eq  [rb - 2], 'O', [rb + tmp]
-    jnz [rb + tmp], parse_directive_eof
+    jnz [rb + tmp], read_directive_eof
 
-    jz  0, parse_directive_fail
+    jz  0, read_directive_fail
 
-parse_directive_endframe:
+read_directive_endframe:
     cal get_input
     eq  [rb - 2], 'D', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'F', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'R', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'A', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'M', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'E', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     add 'D', 0, [rb + tmp]
     arb 1
     ret 0
 
-parse_directive_eof:
+read_directive_eof:
     cal get_input
     eq  [rb - 2], 'F', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     add 'N', 0, [rb + tmp]
     arb 1
     ret 0
 
-parse_directive_frame:
+read_directive_frame:
     cal get_input
     eq  [rb - 2], 'R', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'A', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'M', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     cal get_input
     eq  [rb - 2], 'E', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
+    jz  [rb + tmp], read_directive_fail
 
     add 'F', 0, [rb + tmp]
     arb 1
     ret 0
 
-parse_directive_fail:
-    hlt
+read_directive_fail:
+    cal token_error
 .ENDFRAME
 
 ##########
@@ -816,6 +1222,19 @@ alloc_create_block:
     ret 1
 
 alloc_error:
+    out 'A'
+    out 'l'
+    out 'l'
+    out 'o'
+    out 'c'
+    out ' '
+    out 'e'
+    out 'r'
+    out 'r'
+    out 'o'
+    out 'r'
+    out 10
+
     hlt
 .ENDFRAME
 
