@@ -5,7 +5,7 @@
 # C cal; R ret; B db; S ds
 # F .FRAME; D .ENDFRAME; N EOF; $ EOL; P rb
 # + - = , : ; [ ]
-# n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* c '.'
+# n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
 ##########
 parse:
@@ -395,6 +395,8 @@ parse_db_string:
     arb -1
     cal free
     add 0, 0, [value]
+
+    cal get_token
 
 parse_db_after_param:
     eq  [token], ',', [rb + tmp]
@@ -825,6 +827,10 @@ get_token_loop:
     cal is_symbol
     jnz [rb - 3], get_token_symbol
 
+    # string literals
+    eq  [rb + char], '"', [rb + tmp]
+    jnz [rb + tmp], get_token_string
+
     # character literals
     eq  [rb + char], ''', [rb + tmp]
     jnz [rb + tmp], get_token_char
@@ -856,7 +862,7 @@ get_token_identifier:
     # unget last char, read_identifier will get it again
     add [rb + char], 0, [get_input_buffer]
 
-    # return read identifier pointer in [rb + char]
+    # return read identifier pointer in [value]
     # this memory needs to be freed by caller of get_token
     cal read_identifier_or_keyword
     add [rb - 2], 0, [token]
@@ -874,6 +880,16 @@ get_token_directive:
 
 get_token_symbol:
     add [rb + char], 0, [token]
+    arb 2
+    ret 0
+
+get_token_string:
+    # return read string pointer in [value]
+    # this memory needs to be freed by caller of get_token
+    cal read_string
+    add [rb - 2], 0, [value]
+
+    add 's', 0, [token]
     arb 2
     ret 0
 
@@ -899,7 +915,7 @@ get_token_number:
     # unget last char, read_number will get it again
     add [rb + char], 0, [get_input_buffer]
 
-    # return read number in [rb + char]
+    # return read number in [value]
     cal read_number
     add [rb - 2], 0, [value]
 
@@ -1018,6 +1034,52 @@ is_alphanum:
 is_alphanum_end:
     arb 1
     ret 1
+.ENDFRAME
+
+##########
+read_string:
+.FRAME buffer, index, char, tmp
+    arb -4
+
+    # we will store the string in dynamic memory that needs to be freed by caller
+    add 50, 0, [rb - 1]
+    arb -1
+    cal alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    add 0, 0, [rb + index]
+
+    # the opening quote was already processed by caller
+
+read_string_loop:
+    cal get_input
+    add [rb - 2], 0, [rb + char]
+
+    # when we find a quote character, we are done
+    # TODO escaping
+    eq  [rb + char], '"', [rb + tmp]
+    jnz [rb + tmp], read_string_done
+
+    # store the character in buffer
+    add [rb + buffer], [rb + index], [read_string_buffer_char_ptr]
++3 = read_string_buffer_char_ptr:
+    add [rb + char], 0, [0]
+
+    # increase index and check for maximum string length (50 - 1)
+    add [rb + index], 1, [rb + index]
+    lt  [rb + index], 49, [rb + tmp]
+    jnz [rb + tmp], read_string_loop
+
+    cal token_error
+
+read_string_done:
+    # zero terminate
+    add [rb + buffer], [rb + index], [read_string_buffer_zero_ptr]
++3 = read_string_buffer_zero_ptr:
+    add 0, 0, [0]
+
+    arb 4
+    ret 0
 .ENDFRAME
 
 ##########
