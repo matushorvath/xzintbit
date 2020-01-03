@@ -1,5 +1,86 @@
     arb stack
 
+    add s1, 0, [rb - 1]
+    arb -1
+    cal add_symbol
+
+    out [symbol_head]
+    add [rb - 3], 0, [x1]
++1 = x1:
+    out [0]
+    add 1, [rb - 3], [rb - 1]
+    arb -1
+    cal print_str
+    out 10
+
+    add s2, 0, [rb - 1]
+    arb -1
+    cal add_symbol
+
+    out [symbol_head]
+    add [rb - 3], 0, [x2]
++1 = x2:
+    out [0]
+
+    add [rb - 3], 0, [y1]
++1 = y1:
+    add [0], 0, [y2]
++1 = y2:
+    out [0]
+
+    add 1, [rb - 3], [rb - 1]
+    arb -1
+    cal print_str
+    out 10
+
+    #hlt
+
+    add s1, 0, [rb - 1]
+    arb -1
+    cal find_symbol
+
+    add 1, [rb - 3], [rb - 1]
+    arb -1
+    cal print_str
+    out 10
+
+    add s2, 0, [rb - 1]
+    arb -1
+    cal find_symbol
+
+    add 1, [rb - 3], [rb - 1]
+    arb -1
+    cal print_str
+    out 10
+
+    add s3, 0, [rb - 1]
+    arb -1
+    cal find_symbol
+
+    out [rb - 3]
+    out 10
+
+    hlt
+
+s1:
+    db 'a'
+    db 'b'
+    db 'c'
+    db 0
+
+s2:
+    db 'x'
+    db '1'
+    db 0
+
+s3:
+    db '_'
+    db '0'
+    db '1'
+    db '2'
+    db '3'
+    db 0
+
 ##########
 main:
 .FRAME tmp
@@ -711,32 +792,32 @@ parse_number_end:
 .ENDFRAME
 
 ##########
-print_mem:
-.FRAME byte, flag
-    arb -2
-
-    jz  [size], print_mem_finish
-
-print_mem_byte:
-+1 = print_size:
-    add [mem], 0, [rb - 1]
-    arb -1
-    cal print_num
-
-    eq  [size], [print_size], [rb + flag]
-    jnz [rb + flag], print_mem_finish
-    add [print_size], 1, [print_size]
-
-    out 44
-    jz  0, print_mem_byte
-
-print_mem_finish:
-    out 10
-
-    add -1, 0, [print_size]
-    arb 2
-    ret 0
-.ENDFRAME
+#print_mem:
+#.FRAME byte, flag
+#    arb -2
+#
+#    jz  [size], print_mem_finish
+#
+#print_mem_byte:
+#+1 = print_size:
+#    add [mem], 0, [rb - 1]
+#    arb -1
+#    cal print_num
+#
+#    eq  [size], [print_size], [rb + flag]
+#    jnz [rb + flag], print_mem_finish
+#    add [print_size], 1, [print_size]
+#
+#    out 44
+#    jz  0, print_mem_byte
+#
+#print_mem_finish:
+#    out 10
+#
+#    add -1, 0, [print_size]
+#    arb 2
+#    ret 0
+#.ENDFRAME
 
 ##########
 # convert number to string
@@ -790,12 +871,237 @@ print_num_finish:
 .ENDFRAME
 
 ##########
+alloc:
+.FRAME size; block, tmp
+    arb -2
+
+    # we only support certain block sizes
+    lt  32, [rb + size], [rb + tmp]
+    jnz [rb + tmp], alloc_error
+
+    # do we have any free blocks?
+    eq  [free_head], 0, [rb + tmp]
+    jnz [rb + tmp], alloc_create_block
+
+    # yes, remove first block from the list and return it
+    add [free_head], 0, [rb + block]
+
+    add [free_head], 0, [alloc_next_block]
++1 = alloc_next_block:
+    add [0], 0, [free_head]
+
+    arb 2
+    ret 1
+
+alloc_create_block:
+    # there is no block, create one
+    add [heap_end], 0, [rb + block]
+    add [heap_end], 32, [heap_end]
+
+    arb 2
+    ret 1
+
+alloc_error:
+    hlt
+.ENDFRAME
+
+##########
+find_symbol:
+.FRAME identifier; record, tmp
+    arb -2
+
+    add [symbol_head], 0, [rb + record]
+
+find_symbol_loop:
+    # are there any more records?
+    eq  [rb + record], 0, [rb + tmp]
+    jnz [rb + tmp], find_symbol_done
+
+    # does this record contain the identifier?
+    add [rb + identifier], 0, [rb - 1]
+    add [rb + record], 1, [rb - 2]
+    arb -2
+    cal strcmp
+
+    # if strcmp result is 0, we are done
+    eq  [rb - 4], 0, [rb + tmp]
+    jnz [rb + tmp], find_symbol_done
+
+    # move to next record
+    add [rb + record], 0, [find_symbol_next_record]
++1 = find_symbol_next_record:
+    add [0], 0, [rb + record]
+
+    jz  0, find_symbol_loop
+
+find_symbol_done:
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
+add_symbol:
+.FRAME identifier; record
+    arb -1
+
+    # allocate a block
+    add 32, 0, [rb - 1]
+    arb -1
+    cal alloc
+    add [rb - 3], 0, [rb + record]
+
+    # store the identifier
+    add [rb + identifier], 0, [rb - 1]
+    add [rb + record], 1, [rb - 2]
+    arb -2
+    cal strcpy
+
+    # set pointer to next symbol
+    add [rb + record], 0, [add_symbol_next_record]
++3 = add_symbol_next_record:
+    add [symbol_head], 0, [0]
+
+    # set new symbol head
+    add [rb + record], 0, [symbol_head]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+strcmp:
+.FRAME str1, str2; tmp, char1, char2, index
+    arb -4
+
+    add 0, 0, [rb + index]
+
+strcmp_loop:
+    add [rb + str1], [rb + index], [strcmp_str1_ptr]
++1 = strcmp_str1_ptr:
+    add [0], 0, [rb + char1]
+
+    add [rb + str2], [rb + index], [strcmp_str2_ptr]
++1 = strcmp_str2_ptr:
+    add [0], 0, [rb + char2]
+
+    # different characters, we are done
+    eq  [rb + char1], [rb + char2], [rb + tmp]
+    jz  [rb + tmp], strcmp_done
+
+    # same character, is it 0?
+    eq  [rb + char1], 0, [rb + tmp]
+    jnz [rb + tmp], strcmp_done
+
+    add [rb + index], 1, [rb + index]
+    jz  0, strcmp_loop
+
+strcmp_done:
+    mul [rb + char2], -1, [rb + tmp]
+    add [rb + char1], [rb + tmp], [rb + tmp]
+
+    arb 4
+    ret 2
+.ENDFRAME
+
+##########
+strcpy:
+.FRAME src, tgt; tmp, char, index
+    arb -3
+
+    add 0, 0, [rb + index]
+
+strcpy_loop:
+    add [rb + src], [rb + index], [strcpy_src_ptr]
++1 = strcpy_src_ptr:
+    add [0], 0, [rb + char]
+
+    add [rb + tgt], [rb + index], [strcpy_tgt_ptr]
++3 = strcpy_tgt_ptr:
+    add [rb + char], 0, [0]
+
+    eq  [rb + char], 0, [rb + tmp]
+    jnz [rb + tmp], strcpy_done
+
+    add [rb + index], 1, [rb + index]
+    jz  0, strcpy_loop
+
+strcpy_done:
+    arb 3
+    ret 2
+.ENDFRAME
+
+##########
+print_str:
+.FRAME str; tmp, char, index
+    arb -3
+
+    add 0, 0, [rb + index]
+
+print_str_loop:
+    add [rb + str], [rb + index], [print_str_str_ptr]
++1 = print_str_str_ptr:
+    add [0], 0, [rb + char]
+
+    eq  [rb + char], 0, [rb + tmp]
+    jnz [rb + tmp], print_str_done
+
+    out [rb + char]
+
+    add [rb + index], 1, [rb + index]
+    jz  0, print_str_loop
+
+print_str_done:
+    arb 3
+    ret 1
+.ENDFRAME
+
+##########
+dump:
+.FRAME ptr, count; tmp, byte, index
+    arb -3
+
+    add 0, 0, [rb + index]
+
+dump_loop:
+    add [rb + ptr], [rb + index], [dump_ptr]
++1 = dump_ptr:
+    add [0], 0, [rb + byte]
+
+    add [rb + ptr], [rb + index], [rb + tmp]
+    out [rb + tmp]
+    out [rb + byte]
+    out 10
+
+    add [rb + index], 1, [rb + index]
+    lt  [rb + count], [rb + index], [rb + tmp]
+    jz  [rb + tmp], dump_loop
+
+    arb 3
+    ret 2
+.ENDFRAME
+
+##########
 # globals
-size:
+
+# symbol record layout:
+# 0: pointer to next symbol
+# 1-29: symbol identifier
+# 30: symbol value (address)
+# 31: linked list of fixups
+
+# head of the linked list of symbols
+symbol_head:
     db  0
+
+
+# head of the linked list of free blocks
+free_head:
+    db  0
+
+# start of unused memory
+heap_end:
+    db  stack
 
 ##########
     ds  50, 0
 stack:
-
-mem:
