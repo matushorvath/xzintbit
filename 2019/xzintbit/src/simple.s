@@ -36,9 +36,14 @@
 
 data:
 +1 = data1:
+    db 42
 #    ds 3, 0
 
 #    ds 50, 0
 stack:
+
+db  'a'
+db  data + 1
+#db  "string", 55, -1, 'z', "more"
 
 .EOF

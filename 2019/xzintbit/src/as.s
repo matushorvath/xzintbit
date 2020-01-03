@@ -343,6 +343,7 @@ parse_hlt_done:
 parse_cal:
 .FRAME tmp
     arb -1
+    # TODO
 
     arb 1
     ret 0
@@ -352,6 +353,7 @@ parse_cal:
 parse_ret:
 .FRAME tmp
     arb -1
+    # TODO
 
     arb 1
     ret 0
@@ -359,10 +361,53 @@ parse_ret:
 
 ##########
 parse_db:
-.FRAME tmp
-    arb -1
+.FRAME tmp, data
+    arb -2
 
-    arb 1
+parse_db_loop:
+    # eat the 'db' token (first parameter) or the comma (subsequent parameters)
+    cal get_token
+
+    eq  [token], 's', [rb + tmp]
+    jnz [rb + tmp], parse_db_string
+
+    # not a string, so it must be a value
+    cal parse_value
+    add [rb - 2], 0, [rb + data]
+
+    # TODO store the value
+    out [rb + data]
+
+    add [ip], 1, [ip]
+    jz  0, parse_db_after_param
+
+parse_db_string:
+    # TODO store the string instead of printing it; don't store zero termination
+    add [value], 0, [rb - 1]
+    arb -1
+    cal print_str
+
+    # string length is returned by print_str (and also strcpy, but that needs testing)
+    add [ip], [rb - 3], [ip]
+
+    # free the string
+    add [value], 0, [rb - 1]
+    arb -1
+    cal free
+    add 0, 0, [value]
+
+parse_db_after_param:
+    eq  [token], ',', [rb + tmp]
+    jnz [rb + tmp], parse_db_loop
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_db_done
+
+    cal parse_error
+
+parse_db_done:
+    out 10
+
+    arb 2
     ret 0
 .ENDFRAME
 
@@ -370,6 +415,7 @@ parse_db:
 parse_ds:
 .FRAME tmp
     arb -1
+    # TODO
 
     arb 1
     ret 0
@@ -437,6 +483,7 @@ parse_symbol_done:
 parse_directive_frame:
 .FRAME tmp
     arb -1
+    # TODO
 
     arb 1
     ret 0
@@ -446,6 +493,7 @@ parse_directive_frame:
 parse_directive_endframe:
 .FRAME tmp
     arb -1
+    # TODO
 
     arb 1
     ret 0
@@ -671,36 +719,36 @@ parse_number_or_char_have_value:
 
 ##########
 dump_token:
-.FRAME token, data; tmp
+.FRAME tmp
     arb -1
 
     # print token type
-    out [rb + token]
+    out [token]
 
     # print token value if relevant
-    eq  [rb + token], 'n', [rb + tmp]
+    eq  [token], 'n', [rb + tmp]
     jnz [rb + tmp], dump_token_print_n
-    eq  [rb + token], 'c', [rb + tmp]
+    eq  [token], 'c', [rb + tmp]
     jnz [rb + tmp], dump_token_print_c
-    eq  [rb + token], 'i', [rb + tmp]
+    eq  [token], 'i', [rb + tmp]
     jnz [rb + tmp], dump_token_print_i
     jz  0, dump_token_finish
 
 dump_token_print_n:
     out ' '
-    add [rb + data], 0, [rb - 1]
+    add [value], 0, [rb - 1]
     arb -1
     cal print_num
     jz  0, dump_token_finish
 
 dump_token_print_c:
     out ' '
-    out [rb - 3]
+    out [value]
     jz  0, dump_token_finish
 
 dump_token_print_i:
     out ' '
-    add [rb + data], 0, [rb - 1]
+    add [value], 0, [rb - 1]
     arb -1
     cal print_str
     jz  0, dump_token_finish
@@ -709,7 +757,7 @@ dump_token_finish:
     out 10
 
     arb 1
-    ret 2
+    ret 0
 .ENDFRAME
 
 ##########
@@ -1703,7 +1751,7 @@ strcmp_done:
 
 ##########
 strcpy:
-.FRAME src, tgt; tmp, char, index
+.FRAME src, tgt; index, tmp, char
     arb -3
 
     add 0, 0, [rb + index]
@@ -1730,7 +1778,7 @@ strcpy_done:
 
 ##########
 print_str:
-.FRAME str; tmp, char, index
+.FRAME str; index, tmp, char
     arb -3
 
     add 0, 0, [rb + index]
