@@ -14,8 +14,8 @@ main_loop:
     # print token value if relevant
     eq  [rb - 2], 'n', [rb + tmp]
     jnz [rb + tmp], main_print_n
-    eq  [rb - 2], 's', [rb + tmp]
-    jnz [rb + tmp], main_print_s
+    eq  [rb - 2], 'c', [rb + tmp]
+    jnz [rb + tmp], main_print_c
     jz  0, main_finish
 
 main_print_n:
@@ -26,7 +26,7 @@ main_print_n:
     arb 2
     jz  0, main_finish
 
-main_print_s:
+main_print_c:
     out ' '
     out [rb - 3]
     jz  0, main_finish
@@ -68,8 +68,8 @@ get_token:
 
 # A add; T arb; C cal; B db; S ds; E eq; H hlt; I in;
 # J jnz; Z jz; L lt; M mul; O out; P rb; R ret
-# F .FRAME; D .ENDFRAME; c ,; $ EOL; + - = : ; [ ]
-# n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* s ' '
+# F .FRAME; D .ENDFRAME; m ,; $ EOL; + - = : ; [ ]
+# n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* c ' '
 
 get_token_loop:
     cal get_input
@@ -134,9 +134,9 @@ get_token_loop:
     eq  [rb + char], ']', [rb + tmp]
     jnz [rb + tmp], get_token_close_bracket
 
-    # strings
+    # characters
     eq  [rb + char], ''', [rb + tmp]
-    jnz [rb + tmp], get_token_string
+    jnz [rb + tmp], get_token_char
 
     # numbers
     add [rb + char], 0, [rb - 1]
@@ -535,7 +535,7 @@ get_token_colon:
     ret 0
 
 get_token_comma:
-    add 'c', 0, [rb + tmp]
+    add 'm', 0, [rb + tmp]
     arb 2
     ret 0
 
@@ -558,7 +558,7 @@ get_token_eat_comment:
     # TODO eat the comment
     hlt
 
-get_token_string:
+get_token_char:
     # get one character and return it in [rb + char]
     cal get_input
     add [rb - 2], 0, [rb + char]
@@ -566,15 +566,15 @@ get_token_string:
     # get closing quote
     cal get_input
     eq  [rb - 2], ''', [rb + tmp]
-    jnz [rb + tmp], get_token_string_success
+    jz  [rb + tmp], get_token_char_fail
 
-    # error, missing closing quote
-    hlt
-
-get_token_string_success:
-    add 's', 0, [rb + tmp]
+    add 'c', 0, [rb + tmp]
     arb 2
     ret 0
+
+get_token_char_fail:
+    # error, missing closing quote
+    hlt
 
 get_token_number:
     # unget last char, parse_number will get it again
