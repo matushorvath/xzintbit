@@ -39,3 +39,5 @@ data:
 
     ds 50, 0
 stack:
+
+.EOF

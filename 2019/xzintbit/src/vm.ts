@@ -455,7 +455,11 @@ export class Vm {
         let frame: Frame;
 
         this.ip = 0;
-        for (let lineno = 1; lineno <= lines.length; lineno += 1) {
+        let lineno = 1;
+        while (true) {
+            if (lineno - 1 >= lines.length) {
+                throw new Error('missing .EOF at the end of file');
+            }
             const line = lines[lineno - 1];
 
             const lm = line.match(/^(?:\+([0123]) = )?(\w+):(?:\s*#.*)?|^(?:\.([A-Z]+))(?:\s+([^#]+))?(?:#.*)?|^\s+([a-z]+)(?:\s+([^#]+))?(?:\s*#.*)?|^\s*#|^\s*$/);
@@ -517,6 +521,9 @@ export class Vm {
                     }
                     frame = undefined;
                     //console.log('f', frame);
+                } else if (dir === 'EOF') {
+                    // Explicit end of file, needed for intcode implementation to detect EOF
+                    break;
                 }
             } else if (op !== undefined) {
                 const ps = opss === undefined ? [] : opss.split(', ')
@@ -542,6 +549,7 @@ export class Vm {
                     throw new Error(`${error.message}, line ${lineno}: ${line}`);
                 }
             }
+            lineno += 1;
         }
 
         for (const sym of Object.keys(fixups)) {

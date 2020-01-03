@@ -93,7 +93,7 @@ get_token:
 
 # A add; T arb; C cal; B db; S ds; E eq; H hlt; I in;
 # J jnz; Z jz; L lt; M mul; O out; P rb; R ret
-# F .FRAME; D .ENDFRAME; $ EOL
+# F .FRAME; D .ENDFRAME; N EOF; $ EOL
 # + - = , : ; [ ]
 # n [0-9]+ i [a-zA-Z_][a-zA-Z0-9_]* c ' '
 
@@ -616,18 +616,23 @@ parse_directive:
     cal get_input
 
     eq  [rb - 2], 'E', [rb + tmp]
-    jnz [rb + tmp], parse_directive_endframe
+    jnz [rb + tmp], parse_directive_e
     eq  [rb - 2], 'F', [rb + tmp]
     jnz [rb + tmp], parse_directive_frame
 
-parse_directive_fail:
-    hlt
+    jz  0, parse_directive_fail
+
+parse_directive_e:
+    cal get_input
+
+    eq  [rb - 2], 'N', [rb + tmp]
+    jnz [rb + tmp], parse_directive_endframe
+    eq  [rb - 2], 'O', [rb + tmp]
+    jnz [rb + tmp], parse_directive_eof
+
+    jz  0, parse_directive_fail
 
 parse_directive_endframe:
-    cal get_input
-    eq  [rb - 2], 'N', [rb + tmp]
-    jz  [rb + tmp], parse_directive_fail
-
     cal get_input
     eq  [rb - 2], 'D', [rb + tmp]
     jz  [rb + tmp], parse_directive_fail
@@ -656,6 +661,15 @@ parse_directive_endframe:
     arb 1
     ret 0
 
+parse_directive_eof:
+    cal get_input
+    eq  [rb - 2], 'F', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    add 'N', 0, [rb + tmp]
+    arb 1
+    ret 0
+
 parse_directive_frame:
     cal get_input
     eq  [rb - 2], 'R', [rb + tmp]
@@ -676,6 +690,9 @@ parse_directive_frame:
     add 'F', 0, [rb + tmp]
     arb 1
     ret 0
+
+parse_directive_fail:
+    hlt
 .ENDFRAME
 
 ##########
@@ -1009,3 +1026,5 @@ heap_end:
 ##########
     ds  50, 0
 stack:
+
+.EOF
