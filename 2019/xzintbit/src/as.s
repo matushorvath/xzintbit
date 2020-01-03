@@ -161,67 +161,9 @@ get_token_identifier:
     ret 0
 
 get_token_directive:
-    cal get_input
+    cal parse_directive
+    add [rb - 2], 0, [rb + tmp]
 
-    eq  [rb - 2], 'E', [rb + tmp]
-    jnz [rb + tmp], get_token_directive_E
-    eq  [rb - 2], 'F', [rb + tmp]
-    jnz [rb + tmp], get_token_directive_F
-
-get_token_directive_fail:
-    hlt
-
-get_token_directive_F:
-    cal get_input
-    eq  [rb - 2], 'R', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'A', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'M', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'E', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    add 'F', 0, [rb + tmp]
-    arb 2
-    ret 0
-
-get_token_directive_E:
-    cal get_input
-    eq  [rb - 2], 'N', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'D', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'F', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'R', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'A', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'M', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    cal get_input
-    eq  [rb - 2], 'E', [rb + tmp]
-    jz  [rb + tmp], get_token_directive_fail
-
-    add 'D', 0, [rb + tmp]
     arb 2
     ret 0
 
@@ -648,6 +590,79 @@ detect_keyword_tokens:
     ds  3, 0
     db  'L'
     db  'H'
+.ENDFRAME
+
+##########
+parse_directive:
+.FRAME tmp
+    arb -1
+
+    # TODO consider reading the whole string and doing a gperf
+    # TODO perhaps use the same gperf code as above, just parametrized
+
+    cal get_input
+
+    eq  [rb - 2], 'E', [rb + tmp]
+    jnz [rb + tmp], parse_directive_endframe
+    eq  [rb - 2], 'F', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame
+
+parse_directive_fail:
+    hlt
+
+parse_directive_endframe:
+    cal get_input
+    eq  [rb - 2], 'N', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'D', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'F', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'R', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'A', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'M', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'E', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    add 'D', 0, [rb + tmp]
+    arb 1
+    ret 0
+
+parse_directive_frame:
+    cal get_input
+    eq  [rb - 2], 'R', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'A', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'M', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    cal get_input
+    eq  [rb - 2], 'E', [rb + tmp]
+    jz  [rb + tmp], parse_directive_fail
+
+    add 'F', 0, [rb + tmp]
+    arb 1
+    ret 0
 .ENDFRAME
 
 ##########
