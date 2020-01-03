@@ -16,6 +16,8 @@ main_loop:
     jnz [rb + tmp], main_print_n
     eq  [rb - 2], 'c', [rb + tmp]
     jnz [rb + tmp], main_print_c
+    eq  [rb - 2], 'i', [rb + tmp]
+    jnz [rb + tmp], main_print_i
     jz  0, main_finish
 
 main_print_n:
@@ -29,6 +31,15 @@ main_print_n:
 main_print_c:
     out ' '
     out [rb - 3]
+    jz  0, main_finish
+
+main_print_i:
+    # TODO free the buffer
+    out ' '
+    # reuse [rb - 3] as a parameter to print_str
+    arb -3
+    cal print_str
+    arb 2
     jz  0, main_finish
 
 main_finish:
@@ -589,20 +600,13 @@ get_token_number:
     ret 0
 
 get_token_identifier:
-    # at least one character of the identifier was already processed
-    # TODO store the identifier
-
-get_token_identifier_loop:
-    cal get_input
-    add [rb - 2], 0, [rb + char]
-
-    add [rb + char], 0, [rb - 1]
-    arb -1
-    cal is_alphanum
-    jnz [rb - 3], get_token_identifier_loop
-
-    # unget last char
+    # unget last char, parse_identifier will get it again
     add [rb + char], 0, [get_input_buffer]
+
+    # return parsed identifier pointer in [rb + char]
+    # this memory needs to be freed by caller of get_token
+    cal parse_identifier
+    add [rb - 2], 0, [rb + char]
 
     add 'i', 0, [rb + tmp]
     arb 2
@@ -711,6 +715,57 @@ parse_number_end:
 .ENDFRAME
 
 ##########
+parse_identifier:
+.FRAME buffer, index, char, tmp
+    arb -4
+
+    # we will store the identifier in dynamic memory that needs to be freed by caller
+    add 50, 0, [rb - 1]
+    arb -1
+    cal alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    add 0, 0, [rb + index]
+
+parse_identifier_loop:
+    cal get_input
+    add [rb - 2], 0, [rb + char]
+
+    # when we find first non-alphanumeric character, we are done
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal is_alphanum
+    jz  [rb - 3], parse_identifier_done
+
+    # store the character in buffer
+    add [rb + buffer], [rb + index], [parse_identifier_buffer_char_ptr]
++3 = parse_identifier_buffer_char_ptr:
+    add [rb + char], 0, [0]
+
+    # increase index and check for maximum identifier length (50 - 3)
+    add [rb + index], 1, [rb + index]
+    lt  [rb + index], 47, [rb + tmp]
+    jz  [rb + tmp], parse_identifier_error
+
+    jz  0, parse_identifier_loop
+
+parse_identifier_done:
+    # zero terminate
+    add [rb + buffer], [rb + index], [parse_identifier_buffer_zero_ptr]
++3 = parse_identifier_buffer_zero_ptr:
+    add 0, 0, [0]
+
+    # unget last char
+    add [rb + char], 0, [get_input_buffer]
+
+    arb 4
+    ret 0
+
+parse_identifier_error:
+    hlt
+.ENDFRAME
+
+##########
 #print_mem:
 #.FRAME byte, flag
 #    arb -2
@@ -795,7 +850,7 @@ alloc:
     arb -2
 
     # we only support certain block sizes
-    lt  32, [rb + size], [rb + tmp]
+    lt  50, [rb + size], [rb + tmp]
     jnz [rb + tmp], alloc_error
 
     # do we have any free blocks?
@@ -815,7 +870,7 @@ alloc:
 alloc_create_block:
     # there is no block, create one
     add [heap_end], 0, [rb + block]
-    add [heap_end], 32, [heap_end]
+    add [heap_end], 50, [heap_end]
 
     arb 2
     ret 1
@@ -864,7 +919,7 @@ add_symbol:
     arb -1
 
     # allocate a block
-    add 32, 0, [rb - 1]
+    add 50, 0, [rb - 1]
     arb -1
     cal alloc
     add [rb - 3], 0, [rb + record]
@@ -975,6 +1030,7 @@ print_str_done:
 .ENDFRAME
 
 ##########
+# this function was not tested yet!
 dump:
 .FRAME ptr, count; tmp, byte, index
     arb -3
@@ -1004,14 +1060,13 @@ dump_loop:
 
 # symbol record layout:
 # 0: pointer to next symbol
-# 1-29: symbol identifier
-# 30: symbol value (address)
-# 31: linked list of fixups
+# 1-47: zero-terminated symbol identifier
+# 48: symbol value (address)
+# 49: linked list of fixups
 
 # head of the linked list of symbols
 symbol_head:
     db  0
-
 
 # head of the linked list of free blocks
 free_head:
