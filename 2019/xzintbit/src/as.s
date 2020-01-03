@@ -13,6 +13,8 @@ main_loop:
     cal dump_tokens
     arb 1
 
+    # TODO free the buffer if needed
+
     jz  0, main_loop
 
     hlt
@@ -48,7 +50,6 @@ dump_tokens_print_c:
     jz  0, dump_tokens_finish
 
 dump_tokens_print_i:
-    # TODO free the buffer
     out ' '
     add [rb + data], 0, [rb - 1]
     arb -1
@@ -363,10 +364,9 @@ parse_identifier_or_keyword:
     eq  [rb + token], 'i', [rb + tmp]
     jnz [rb + tmp], parse_identifier_or_keyword_skip_free
 
-    # TODO actually implement free
-    #add [rb + buffer], 0, [rb - 1]
-    #arb -1
-    #cal free
+    add [rb + buffer], 0, [rb - 1]
+    arb -1
+    cal free
     add 0, 0, [rb + buffer]
 
 parse_identifier_or_keyword_skip_free:
@@ -790,6 +790,23 @@ alloc_create_block:
 
 alloc_error:
     hlt
+.ENDFRAME
+
+##########
+free:
+.FRAME block; tmp
+    arb -1
+
+    # set pointer to next free block in the block we are returning
+    add [rb + block], 0, [free_next_block]
++3 = free_next_block:
+    add [free_head], 0, [0]
+
+    # set new free block head
+    add [rb + block], 0, [free_head]
+
+    arb 1
+    ret 1
 .ENDFRAME
 
 ##########
