@@ -59,6 +59,5 @@ value =
     .
 
 number_or_char = 
-      NUMBER
-    | CHAR
+      [+|-] (NUMBER|CHAR)
     .

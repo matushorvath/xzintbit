@@ -36,9 +36,9 @@
 
 data:
 +1 = data1:
-    ds 3, 0
+#    ds 3, 0
 
-    ds 50, 0
+#    ds 50, 0
 stack:
 
 .EOF

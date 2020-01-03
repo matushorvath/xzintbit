@@ -559,6 +559,8 @@ parse_value:
     add 0, 0, [rb + result]
     add 0, 0, [rb + has_symbol]
 
+    eq  [token], '+', [rb + tmp]
+    jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token], '-', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token], 'n', [rb + tmp]
@@ -571,10 +573,8 @@ parse_value:
     cal parse_error
 
 parse_value_number_or_char_1:
-    # return the number/char value
-    add [value], 0, [rb + result]
-
-    cal get_token
+    cal parse_number_or_char
+    add [rb - 2], 0, [rb + result]
     jz  0, parse_value_done
 
 parse_value_identifier:
@@ -612,6 +612,11 @@ parse_value_identifier_minus:
     jz  0, parse_value_identifier_after_sign
 
 parse_value_identifier_after_sign:
+    # technically this is also valid: [abcd + -2] or even [abcd + +2]
+    eq  [token], '+', [rb + tmp]
+    jnz [rb + tmp], parse_value_number_or_char_2
+    eq  [token], '-', [rb + tmp]
+    jnz [rb + tmp], parse_value_number_or_char_2
     eq  [token], 'n', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_2
     eq  [token], 'c', [rb + tmp]
@@ -619,14 +624,48 @@ parse_value_identifier_after_sign:
     cal parse_error
 
 parse_value_number_or_char_2:
-    # return the number/char value
-    mul [value], [rb + sign], [rb + result]
-
-    cal get_token
+    cal parse_number_or_char
+    mul [rb - 2], [rb + sign], [rb + result]
     jz  0, parse_value_done
 
 parse_value_done:
     arb 4
+    ret 0
+.ENDFRAME
+
+##########
+parse_number_or_char:
+.FRAME result, sign, tmp
+    arb -3
+
+    add 1, 0, [rb + sign]
+
+    # is there a sign?
+    eq  [token], '+', [rb + tmp]
+    jnz [rb + tmp], parse_number_or_char_plus
+    eq  [token], '-', [rb + tmp]
+    jnz [rb + tmp], parse_number_or_char_minus
+    jz  0, parse_number_or_char_after_sign
+
+parse_number_or_char_minus:
+    add -1, 0, [rb + sign]
+
+parse_number_or_char_plus:
+    cal get_token
+
+parse_number_or_char_after_sign:
+    eq  [token], 'n', [rb + tmp]
+    jnz [rb + tmp], parse_number_or_char_have_value
+    eq  [token], 'c', [rb + tmp]
+    jnz [rb + tmp], parse_number_or_char_have_value
+    cal parse_error
+
+parse_number_or_char_have_value:
+    # return the number/char value
+    mul [value], [rb + sign], [rb + result]
+    cal get_token
+
+    arb 3
     ret 0
 .ENDFRAME
 
