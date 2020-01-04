@@ -10,11 +10,11 @@
 # TODO
 # ip pseudoregister as global symbol for reading
 # validations: nonsensical use of global and frame symbols
-# line number, column index
 # return address frame symbol?
 # allocate less than 50 for fixups
 # some testing framework
 # check for duplicate and missing frame symbols
+# bug: seems nonexistent global symbols don't cause an error during fixup
 
 ##########
 parse:
@@ -1184,25 +1184,59 @@ dump_token_finish:
 
 ##########
 get_input:
-.FRAME tmp
+.FRAME char, tmp
+    arb -2
+
+    # get input from the buffer if we have it
+    add [get_input_buffer], 0, [rb + char]
+    add 0, 0, [get_input_buffer]
+
+    jnz [rb + char], get_input_have_char
+    in  [rb + char]
+
+get_input_have_char:
+    # track line and column number
+    eq  [rb + char], 10, [rb + tmp]
+    jz  [rb + tmp], get_input_same_line
+
+    # we have a new line
+    add [line_num], 1, [line_num]
+    add [column_num], 0, [prev_column_num]
+    add 1, 0, [column_num]
+    jz  0, get_input_done
+
+get_input_same_line:
+    # we are on the same line
+    add [column_num], 1, [column_num]
+
+get_input_done:
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+unget_input:
+.FRAME char; tmp
     arb -1
 
-    # we need to be able to "unget" an unused char and then get it again later
-    # to unget a char, we just use one instruction: add [rb + char], 0, [get_input_buffer]
+    # "unget" an unused char so we get it again later
+    add [rb + char], 0, [get_input_buffer]
 
-    jnz [get_input_buffer], get_input_from_buffer
-    in  [rb + tmp]
+    # track line and column number
+    eq  [rb + char], 10, [rb + tmp]
+    jz  [rb + tmp], unget_input_same_line
+
+    # we moved back to previous line, use [prev_column_num] as column num
+    add [line_num], -1, [line_num]
+    add [prev_column_num], 0, [column_num]
+    jz  0, unget_input_done
+
+unget_input_same_line:
+    add [column_num], -1, [column_num]
+
+unget_input_done:
     arb 1
-    ret 0
-
-get_input_from_buffer:
-    add [get_input_buffer], 0, [rb + tmp]
-    add 0, 0, [get_input_buffer]
-    arb 1
-    ret 0
-
-get_input_buffer:
-    db  0
+    ret 1
 .ENDFRAME
 
 ##########
@@ -1281,7 +1315,9 @@ get_token_eol:
 
 get_token_identifier:
     # unget last char, read_identifier will get it again
-    add [rb + char], 0, [get_input_buffer]
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal unget_input
 
     # return read identifier pointer in [value]
     # this memory needs to be freed by caller of get_token
@@ -1334,7 +1370,9 @@ get_token_char_done:
 
 get_token_number:
     # unget last char, read_number will get it again
-    add [rb + char], 0, [get_input_buffer]
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal unget_input
 
     # return read number in [value]
     cal read_number
@@ -1513,7 +1551,9 @@ read_number_loop:
 
 read_number_end:
     # unget last char
-    add [rb + digit], 0, [get_input_buffer]
+    add [rb + digit], 0, [rb - 1]
+    arb -1
+    cal unget_input
 
     arb 3
     ret 0
@@ -1593,7 +1633,9 @@ read_identifier_done:
     add 0, 0, [0]
 
     # unget last char
-    add [rb + char], 0, [get_input_buffer]
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal unget_input
 
     arb 4
     ret 0
@@ -2500,7 +2542,7 @@ report_error:
 .FRAME message;
     #cal print_mem
 
-    add report_error_msg, 0, [rb - 1]
+    add report_error_msg_start, 0, [rb - 1]
     arb -1
     cal print_str
 
@@ -2508,12 +2550,38 @@ report_error:
     arb -1
     cal print_str
 
+    add report_error_msg_line, 0, [rb - 1]
+    arb -1
+    cal print_str
+
+    add [line_num], 0, [rb - 1]
+    arb -1
+    cal print_num
+
+    add report_error_msg_column, 0, [rb - 1]
+    arb -1
+    cal print_str
+
+    add [column_num], 0, [rb - 1]
+    arb -1
+    cal print_num
+
+    add report_error_msg_end, 0, [rb - 1]
+    arb -1
+    cal print_str
+
     out 10
 
     hlt
 
-report_error_msg:
+report_error_msg_start:
     db "Error: ", 0
+report_error_msg_line:
+    db " (line ", 0
+report_error_msg_column:
+    db ", column ", 0
+report_error_msg_end:
+    db ")", 0
 .ENDFRAME
 
 ##########
@@ -2632,6 +2700,36 @@ dump_loop:
 ##########
 # globals
 
+# head of the linked list of free blocks
+free_head:
+    db  0
+
+# start of unused memory
+heap_end:
+    db  stack
+
+# current line and column number
+line_num:
+    db  1
+column_num:
+    db  1
+
+# column number before we got last character
+prev_column_num:
+    db  0
+
+# last input char buffer
+get_input_buffer:
+    db  0
+
+# lookahead token type
+token:
+    db  0
+
+# lookahead token value, if any
+value:
+    db  0
+
 # global symbol record layout:
 # 0: pointer to next symbol
 # 1-47: zero-terminated symbol identifier
@@ -2658,22 +2756,6 @@ frame_head:
 
 # are we currently in a frame?
 is_frame:
-    db  0
-
-# head of the linked list of free blocks
-free_head:
-    db  0
-
-# start of unused memory
-heap_end:
-    db  stack
-
-# lookahead token type
-token:
-    db  0
-
-# lookahead token value, if any
-value:
     db  0
 
 # current instruction pointer
