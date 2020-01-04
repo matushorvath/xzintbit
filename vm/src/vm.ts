@@ -112,7 +112,7 @@ export class Vm {
                     const { value, done } = await ins.next();
                     if (done) {
                         //console.log(this.id, 'ins done');
-                        return;
+                        throw new Error('no more inputs');
                     }
                     //console.log(this.id, 'in', value);
                     this.setParam(o, 0, value);

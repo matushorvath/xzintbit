@@ -12,14 +12,13 @@
 # validations: nonsensical use of global and frame symbols
 # return address frame symbol?
 # allocate less than 50 for fixups
-# return non-zero to shell on compile fail
 # store line and column number with fixups
 # have a printf-like function to print more info about errors
 # check the typescript implementation for missing error handling
 # bug: jnz parse_dir_frame_block_is_unique crashes
 # simplify eq [x], 0, [tmp]; jnz [tmp] pattern
 # bug: detect missing .ENDFRAME at the end of file
-# test: overlapping global and frame; access frame outside of frame
+# test: both global and frame symbol; access frame outside of frame
 
 ##########
 parse:
@@ -2592,7 +2591,13 @@ report_error:
 
     out 10
 
-    hlt
+    # instead of halting, we will read all inputs, which hopefully
+    # will cause the intcode vm to crash, indicating a problem
+    # this is the only way we can return a non-zero result from intcode
+
+report_error_loop:
+    in  [0]
+    jz  0, report_error_loop
 
 report_error_msg_start:
     db "Error: ", 0
