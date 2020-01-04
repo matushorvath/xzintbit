@@ -821,6 +821,7 @@ parse_dir_endframe_check_params:
 
 parse_dir_endframe_done:
     cal reset_frame
+    add  0, 0, [is_frame]
 
     arb 1
     ret 0
