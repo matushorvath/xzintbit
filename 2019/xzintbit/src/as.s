@@ -591,8 +591,8 @@ parse_symbol_done:
 
 ##########
 parse_directive_frame:
-.FRAME tmp, frame_block
-    arb -2
+.FRAME tmp, frame_block, symbol_count
+    arb -3
 
     add 0, 0, [rb + frame_block]
 
@@ -608,6 +608,7 @@ parse_directive_frame_loop:
     add [rb + frame_block], 0, [rb - 1]
     arb -1
     cal parse_directive_frame_block
+    add [rb - 3], 0, [rb + symbol_count]
 
     # are there any more blocks, or was this the last one?
     eq  [token], ';', [rb + tmp]
@@ -623,22 +624,22 @@ parse_directive_frame_check_count:
     jnz [rb + tmp], parse_directive_frame_loop
     cal parse_error
 
-parse_directive_more_blocks:
-
 parse_directive_frame_eol:
     # we have up to three identifier blocks stored in the frame list
     # now decide which block represents parameters, local variables and downstream variables
     # then assign offsets to all symbols in the frame
     # TODO
 
-    arb 2
+    arb 3
     ret 0
 .ENDFRAME
 
 ##########
 parse_directive_frame_block:
-.FRAME frame_block; tmp
-    arb -1
+.FRAME frame_block; symbol_count, tmp
+    arb -2
+
+    add 0, 0, [rb + symbol_count]
 
     # handle empty block
     eq  [token], ';', [rb + tmp]
@@ -652,7 +653,18 @@ parse_directive_frame_block_loop:
     cal parse_error
 
 parse_directive_frame_block_identifier:
-    # TODO store the symbol with frame_block, free the identifier
+    # store the symbol with frame_block instead of address for now
+    add [value], 0, [rb - 1]
+    add [rb + frame_block], 0, [rb - 2]
+    arb -2
+    cal add_frame_symbol
+
+    # free the identifier
+    add [value], 0, [rb - 1]
+    arb -1
+    cal free
+
+    add [rb + symbol_count], 1, [rb + symbol_count]
     cal get_token
 
     eq  [token], ',', [rb + tmp]
@@ -668,9 +680,7 @@ parse_directive_frame_block_comma:
     jz  0, parse_directive_frame_block_loop
 
 parse_directive_frame_block_done:
-    # TODO track number of identifiers, return it (needed for downstream variable offsets)
-
-    arb 1
+    arb 2
     ret 1
 .ENDFRAME
 
