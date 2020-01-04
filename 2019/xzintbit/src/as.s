@@ -111,15 +111,15 @@ parse_call_symbol:
     jz  0, parse_loop
 
 parse_call_directive_frame:
-    cal parse_directive_frame
+    cal parse_dir_frame
     jz  0, parse_loop
 
 parse_call_directive_endframe:
-    cal parse_directive_endframe
+    cal parse_dir_endframe
     jz  0, parse_loop
 
 parse_call_directive_eof:
-    cal parse_directive_eof
+    cal parse_dir_eof
     jz  0, parse_loop
 .ENDFRAME
 
@@ -590,72 +590,75 @@ parse_symbol_done:
 .ENDFRAME
 
 ##########
-parse_directive_frame:
-.FRAME tmp, frame_block, symbol_count
+parse_dir_frame:
+.FRAME tmp, block_index, symbol_count
     arb -3
 
-    add 0, 0, [rb + frame_block]
+    add 0, 0, [rb + block_index]
 
     # no nested frames, only one frame at a time
     eq  [frame_head], 0, [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_loop
+    jnz [rb + tmp], parse_dir_frame_loop
     cal parse_error
 
-parse_directive_frame_loop:
+parse_dir_frame_loop:
     # eat the 'FRAME' token (first parameter block) or the semicolon (subsequent parameter blocks)
     cal get_token
 
-    add [rb + frame_block], 0, [rb - 1]
+    add [rb + block_index], 0, [rb - 1]
     arb -1
-    cal parse_directive_frame_block
+    cal parse_dir_frame_block
     add [rb - 3], 0, [rb + symbol_count]
 
     # are there any more blocks, or was this the last one?
     eq  [token], ';', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_check_count
+    jnz [rb + tmp], parse_dir_frame_check_count
     eq  [token], '$', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_eol
+    jnz [rb + tmp], parse_dir_frame_eol
     cal parse_error
 
-parse_directive_frame_check_count:
+parse_dir_frame_check_count:
     # we support up to three identifier lists
-    add [rb + frame_block], 1, [rb + frame_block]
-    lt  [rb + frame_block], 3, [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_loop
+    add [rb + block_index], 1, [rb + block_index]
+    lt  [rb + block_index], 3, [rb + tmp]
+    jnz [rb + tmp], parse_dir_frame_loop
     cal parse_error
 
-parse_directive_frame_eol:
+parse_dir_frame_eol:
     # we have up to three identifier blocks stored in the frame list
     # now decide which block represents parameters, local variables and downstream variables
     # then assign offsets to all symbols in the frame
-    # TODO
+    add [rb + block_index], 1, [rb - 1]
+    add [rb + symbol_count], 0, [rb - 2]
+    arb -2
+    cal parse_dir_frame_offset_blocks
 
     arb 3
     ret 0
 .ENDFRAME
 
 ##########
-parse_directive_frame_block:
-.FRAME frame_block; symbol_count, tmp
+parse_dir_frame_block:
+.FRAME block_count; symbol_count, tmp
     arb -2
 
     add 0, 0, [rb + symbol_count]
 
     # handle empty block
     eq  [token], ';', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_block_done
+    jnz [rb + tmp], parse_dir_frame_block_done
     eq  [token], '$', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_block_done
+    jnz [rb + tmp], parse_dir_frame_block_done
 
-parse_directive_frame_block_loop:
+parse_dir_frame_block_loop:
     eq  [token], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_block_identifier
+    jnz [rb + tmp], parse_dir_frame_block_identifier
     cal parse_error
 
-parse_directive_frame_block_identifier:
-    # store the symbol with frame_block instead of address for now
+parse_dir_frame_block_identifier:
+    # store the symbol with block index
     add [value], 0, [rb - 1]
-    add [rb + frame_block], 0, [rb - 2]
+    add [rb + block_count], 0, [rb - 2]
     arb -2
     cal add_frame_symbol
 
@@ -668,24 +671,131 @@ parse_directive_frame_block_identifier:
     cal get_token
 
     eq  [token], ',', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_block_comma
+    jnz [rb + tmp], parse_dir_frame_block_comma
     eq  [token], ';', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_block_done
+    jnz [rb + tmp], parse_dir_frame_block_done
     eq  [token], '$', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_block_done
+    jnz [rb + tmp], parse_dir_frame_block_done
     cal parse_error
 
-parse_directive_frame_block_comma:
+parse_dir_frame_block_comma:
     cal get_token
-    jz  0, parse_directive_frame_block_loop
+    jz  0, parse_dir_frame_block_loop
 
-parse_directive_frame_block_done:
+parse_dir_frame_block_done:
     arb 2
     ret 1
 .ENDFRAME
 
 ##########
-parse_directive_endframe:
+parse_dir_frame_offset_blocks:
+.FRAME block_count, symbol_count; tmp, offset
+    arb -2
+
+    # we have stored all frame symbols, now we can assign offsets to them
+
+    # are there any downstream symbols?
+    lt  [rb + block_count], 3, [rb + tmp]
+    jnz [rb + tmp], parse_dir_frame_offset_blocks_after_downstream
+
+    # process block 2 as downstream variables
+    add 2, 0, [rb - 1]
+    mul [rb + symbol_count], -1, [rb - 2]
+    arb -2
+    cal parse_dir_frame_offset
+
+parse_dir_frame_offset_blocks_after_downstream:
+    # if there is at least one block, that will be local variables
+    lt  [rb + block_count], 1, [rb + tmp]
+    jnz [rb + tmp], parse_dir_frame_offset_blocks_done
+
+    # process block 0 or 1 as local variables
+    lt  1, [rb + block_count], [rb - 1]
+    add 0, 0, [rb - 2]
+    arb -2
+    cal parse_dir_frame_offset
+
+    # save ending offset for local variables so we know where to continue
+    # we will skip one offset for return value stored on stack
+    add [rb - 4], 1, [rb + offset]
+
+    # if there were at least two blocks, the last one is parameters
+    lt  1, [rb + block_count], [rb + tmp]
+    jz  [rb + tmp], parse_dir_frame_offset_blocks_done
+
+    # process block 0 as parameters
+    add 0, 0, [rb - 1]
+    add [rb + offset], 0, [rb - 2]
+    arb -2
+    cal parse_dir_frame_offset
+
+parse_dir_frame_offset_blocks_done:
+    arb 2
+    ret 2
+.ENDFRAME
+
+##########
+parse_dir_frame_offset:
+.FRAME current_block, start_offset; offset, record, record_block, tmp
+    arb -4
+
+    out 'B'
+    out [rb + current_block]
+    out [rb + start_offset]
+    out 10
+
+    add [rb + start_offset], 0, [rb + offset]
+    add [frame_head], 0, [rb + record]
+
+parse_dir_frame_offset_loop:
+    # are there any more records?
+    eq  [rb + record], 0, [rb + tmp]
+    jnz [rb + tmp], parse_dir_frame_offset_done
+
+    # read block index field
+    add [rb + record], 49, [parse_dir_frame_offset_block_index_ptr]
++1 = parse_dir_frame_offset_block_index_ptr:
+    add [0], 0, [rb + record_block]
+
+    # for records where block matches the block we are processing, set offset
+    eq  [rb + record_block], [rb + current_block], [rb + tmp]
+    jz  [rb + tmp], parse_dir_frame_offset_after_update
+
+    # write offset field
+    add [rb + record], 48, [parse_dir_frame_offset_offset_ptr]
++3 = parse_dir_frame_offset_offset_ptr:
+    add [rb + offset], 0, [0]
+
+    # DEBUG
+    out 'o'
+    out ' '
+    add [rb + record], 1, [rb - 1]
+    arb -1
+    cal print_str
+    out ' '
+    add [rb + offset], 0, [rb - 1]
+    arb -1
+    cal print_num
+    out 10
+
+    # increment offset for next symbol
+    add [rb + offset], 1, [rb + offset]
+
+parse_dir_frame_offset_after_update:
+    # move to next record
+    add [rb + record], 0, [parse_dir_frame_offset_next_record]
++1 = parse_dir_frame_offset_next_record:
+    add [0], 0, [rb + record]
+
+    jz  0, parse_dir_frame_offset_loop
+
+parse_dir_frame_offset_done:
+    arb 4
+    ret 2
+.ENDFRAME
+
+##########
+parse_dir_endframe:
 .FRAME tmp
     arb -1
     # TODO
@@ -695,7 +805,7 @@ parse_directive_endframe:
 .ENDFRAME
 
 ##########
-parse_directive_eof:
+parse_dir_eof:
 .FRAME
     # TODO run fixups, then dump memory to output
     out 'S'
@@ -1695,6 +1805,12 @@ print_num:
     # determine highest power of 10
     add 1, 0, [rb + order]
 
+    # handle sign if negative
+    lt  [rb + num], 0, [rb + tmp]
+    jz  [rb + tmp], print_num_next_order
+    out '-'
+    mul [rb + num], -1, [rb + num]
+
 print_num_next_order:
 +3 = print_num_digit_ptr_1:
     add [rb + order], 0, [rb + digits]
@@ -2032,7 +2148,7 @@ find_frame_symbol_done:
 
 ##########
 add_frame_symbol:
-.FRAME identifier, address; record
+.FRAME identifier, block_index; record
     arb -1
 
     # DEBUG
@@ -2042,7 +2158,7 @@ add_frame_symbol:
     arb -1
     cal print_str
     out ' '
-    add [rb + address], 0, [rb - 1]
+    add [rb + block_index], 0, [rb - 1]
     arb -1
     cal print_num
     out 10
@@ -2064,10 +2180,10 @@ add_frame_symbol:
     arb -2
     cal strcpy
 
-    # set address
-    add [rb + record], 48, [add_frame_symbol_address_ptr]
+    # set block index
+    add [rb + record], 49, [add_frame_symbol_address_ptr]
 +3 = add_frame_symbol_address_ptr:
-    add [rb + address], 0, [0]
+    add [rb + block_index], 0, [0]
 
     # set new symbol head
     add [rb + record], 0, [frame_head]
@@ -2231,7 +2347,7 @@ dump_loop:
 ##########
 # globals
 
-# symbol record layout:
+# global symbol record layout:
 # 0: pointer to next symbol
 # 1-47: zero-terminated symbol identifier
 # 48: symbol value (address)
@@ -2244,6 +2360,12 @@ dump_loop:
 # head of the linked list of global symbols
 global_head:
     db  0
+
+# frame symbol record layout:
+# 0: pointer to next symbol
+# 1-47: zero-terminated symbol identifier
+# 48: symbol value (offset)
+# 49: block index (.FRAME block0; block1; block2)
 
 # head of the linked list of frame symbols
 frame_head:
