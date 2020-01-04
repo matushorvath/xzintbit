@@ -953,15 +953,29 @@ parse_value_number_or_char_1:
     jz  0, parse_value_done
 
 parse_value_identifier:
-    # TODO support frame symbols, resolve them immediately
     add 1, 0, [rb + has_symbol]
 
-    # add a fixup for this identifier
+    # check if this is a frame symbol, we can resolve those immediately
+    add [value], 0, [rb - 1]
+    arb -1
+    cal find_frame_symbol
+
+    eq  [rb - 3], 0, [rb + tmp]
+    jnz [rb + tmp], parse_value_is_global
+
+    # it is a frame symbol, find_frame_symbol has also returned its offset
+    add [rb - 4], 0, [rb + result]
+
+    jz  0, parse_value_after_global
+
+parse_value_is_global:
+    # it is a global symbol, add a fixup for this identifier
     add [value], 0, [rb - 1]
     add [ip], 0, [rb - 2]
     arb -2
     cal add_fixup
 
+parse_value_after_global:
     # free the symbol value
     add [value], 0, [rb - 1]
     arb -1
@@ -1000,7 +1014,8 @@ parse_value_identifier_after_sign:
 
 parse_value_number_or_char_2:
     cal parse_number_or_char
-    mul [rb - 2], [rb + sign], [rb + result]
+    mul [rb - 2], [rb + sign], [rb + tmp]
+    add [rb + result], [rb + tmp], [rb + result]
     jz  0, parse_value_done
 
 parse_value_done:
