@@ -1310,8 +1310,7 @@ get_token_eat_comment_loop:
 
 get_token_eol:
     add '$', 0, [token]
-    arb 2
-    ret 0
+    jz  0, get_token_done
 
 get_token_identifier:
     # unget last char, read_identifier will get it again
@@ -1325,20 +1324,16 @@ get_token_identifier:
     add [rb - 2], 0, [token]
     add [rb - 3], 0, [value]
 
-    arb 2
-    ret 0
+    jz  0, get_token_done
 
 get_token_directive:
     cal read_directive
     add [rb - 2], 0, [token]
-
-    arb 2
-    ret 0
+    jz  0, get_token_done
 
 get_token_symbol:
     add [rb + char], 0, [token]
-    arb 2
-    ret 0
+    jz  0, get_token_done
 
 get_token_string:
     # return read string pointer in [value]
@@ -1347,8 +1342,7 @@ get_token_string:
     add [rb - 2], 0, [value]
 
     add 's', 0, [token]
-    arb 2
-    ret 0
+    jz  0, get_token_done
 
 get_token_char:
     # get one character and return it as token value
@@ -1365,8 +1359,7 @@ get_token_char:
 
 get_token_char_done:
     add 'c', 0, [token]
-    arb 2
-    ret 0
+    jz  0, get_token_done
 
 get_token_number:
     # unget last char, read_number will get it again
@@ -1379,6 +1372,9 @@ get_token_number:
     add [rb - 2], 0, [value]
 
     add 'n', 0, [token]
+    jz  0, get_token_done
+
+get_token_done:
     arb 2
     ret 0
 .ENDFRAME
@@ -2721,6 +2717,12 @@ input_prev_column_num:
 # last input char buffer
 input_buffer:
     db  0
+
+# line and column number of current token
+token_line_num:
+    db  1
+token_column_num:
+    db  1
 
 # lookahead token type
 token:
