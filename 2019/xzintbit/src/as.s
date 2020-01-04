@@ -13,9 +13,12 @@
 # return address frame symbol?
 # allocate less than 50 for fixups
 # some testing framework
-# check for duplicate and missing frame symbols
 # return non-zero to shell on compile fail
 # store line and column number with fixups
+# have a printf-like function to print more info about errors
+# check the typescript implementation for missing error handling
+# jnz parse_dir_frame_block_is_unique crashes
+# simplify eq [x], 0, [tmp]; jnz [tmp] pattern
 
 ##########
 parse:
@@ -748,6 +751,16 @@ parse_dir_frame_block_loop:
     cal report_error
 
 parse_dir_frame_block_identifier:
+    # check for duplicate symbols
+    add [value], 0, [rb - 1]
+    arb -1
+    cal find_frame_symbol
+    jz  [rb - 3], parse_dir_frame_block_is_unique
+
+    add err_duplicate_symbol, 0, [rb + 0]
+    cal report_error
+
+parse_dir_frame_block_is_unique:
     # store the symbol with block index
     add [value], 0, [rb - 1]
     add [rb + block_count], 0, [rb - 2]
