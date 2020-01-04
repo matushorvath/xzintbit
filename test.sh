@@ -26,7 +26,7 @@ for input in $(ls test/*.s) ; do
 
     echo -n "Test $id: "
 
-    ./vm.sh src/as.input < "$input" > "$output"
+    ./vm.sh src/as.input < "$input" > "$output" 2> /dev/null || true
     diff "$output" "$expect" && status=$? || status=$?
 
     if [ $status = 0 ]; then
