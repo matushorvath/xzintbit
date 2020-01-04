@@ -16,7 +16,7 @@
 
 # test function
 test:                                   # end of line comment
-#.FRAME prm1, prm2; tmp1, tmp2
+.FRAME prm1, prm2; tmp1, tmp2
     arb -2
     add 40, 2, [rb + tmp1]
     add 40, 3, [rb + tmp2]
@@ -32,7 +32,7 @@ test:                                   # end of line comment
 
     arb 2
     ret 2
-#.ENDFRAME
+.ENDFRAME
 
 data:
 +1 = data1:

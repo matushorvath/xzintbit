@@ -7,6 +7,15 @@
 # + - = , : ; [ ]
 # n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
+# TODO
+# ip pseudoregister as global symbol for reading
+# validations: nonsensical use of global and frame symbols
+# error messages, once we have strings
+# line number, column index
+# return address frame symbol?
+# allocate less than 50 for fixups
+# some testing framework
+
 ##########
 parse:
 .FRAME tmp
@@ -63,7 +72,7 @@ parse_loop:
     # directives
     eq  [token], 'F', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_frame
-    eq  [token], 'E', [rb + tmp]
+    eq  [token], 'D', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_endframe
     eq  [token], 'N', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_eof
@@ -597,7 +606,8 @@ parse_dir_frame:
     add 0, 0, [rb + block_index]
 
     # no nested frames, only one frame at a time
-    eq  [frame_head], 0, [rb + tmp]
+    # we can't use frame_head, because a frame could have no symbols
+    eq  [is_frame], 0, [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_loop
     cal parse_error
 
@@ -632,6 +642,8 @@ parse_dir_frame_eol:
     add [rb + symbol_count], 0, [rb - 2]
     arb -2
     cal parse_dir_frame_offset_blocks
+
+    add 1, 0, [is_frame]
 
     arb 3
     ret 0
@@ -739,11 +751,6 @@ parse_dir_frame_offset:
 .FRAME current_block, start_offset; offset, record, record_block, tmp
     arb -4
 
-    out 'B'
-    out [rb + current_block]
-    out [rb + start_offset]
-    out 10
-
     add [rb + start_offset], 0, [rb + offset]
     add [frame_head], 0, [rb + record]
 
@@ -798,7 +805,22 @@ parse_dir_frame_offset_done:
 parse_dir_endframe:
 .FRAME tmp
     arb -1
-    # TODO
+
+    # check if we are in fact in a frame
+    # we can't use frame_head, because a frame could have no symbols
+    eq  [is_frame], 1, [rb + tmp]
+    jnz [rb + tmp], parse_dir_endframe_check_params
+    cal parse_error
+
+parse_dir_endframe_check_params:
+    cal get_token
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_dir_endframe_done
+    cal parse_error
+
+parse_dir_endframe_done:
+    cal reset_frame
 
     arb 1
     ret 0
@@ -2369,6 +2391,10 @@ global_head:
 
 # head of the linked list of frame symbols
 frame_head:
+    db  0
+
+# are we currently in a frame?
+is_frame:
     db  0
 
 # head of the linked list of free blocks
