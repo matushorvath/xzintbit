@@ -6,6 +6,10 @@ on:
     branches:
     - master
 
+env:
+  FORCE_COLOR: 1
+  TERM: xterm-color
+
 jobs:
   build:
     runs-on: ubuntu-latest
