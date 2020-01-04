@@ -513,6 +513,10 @@ parse_ds_have_comma:
 
     add [ip], [rb + count], [ip]
 
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_ds_loop
+    cal parse_error
+
 parse_ds_loop:
     # TODO store the byte
     out [rb + data]
@@ -566,7 +570,7 @@ parse_symbol_have_identifier:
     add [value], 0, [rb - 1]
     add [rb + address], 0, [rb - 2]
     arb -2
-    cal set_symbol_address
+    cal set_global_symbol_address
 
     # free the symbol value
     add [value], 0, [rb - 1]
@@ -587,12 +591,85 @@ parse_symbol_done:
 
 ##########
 parse_directive_frame:
-.FRAME tmp
+.FRAME tmp, frame_block
+    arb -2
+
+    add 0, 0, [rb + frame_block]
+
+    # no nested frames, only one frame at a time
+    eq  [frame_head], 0, [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_loop
+    cal parse_error
+
+parse_directive_frame_loop:
+    # eat the 'FRAME' token (first parameter block) or the semicolon (subsequent parameter blocks)
+    cal get_token
+
+    add [rb + frame_block], 0, [rb - 1]
     arb -1
+    cal parse_directive_frame_block
+
+    # we support up to three identifier lists
+    add [rb + frame_block], 1, [rb + frame_block]
+    lt  [rb + frame_block], 3, [rb + tmp]
+    jnz [rb + tmp], parse_directive_more_blocks
+    cal parse_error
+
+parse_directive_more_blocks:
+    # are there any more blocks, or was this the last one?
+    eq  [token], ';', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_loop
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_eol
+    cal parse_error
+
+parse_directive_frame_eol:
+    # we have up to three identifier blocks stored in the frame list
+    # now decide which block represents parameters, local variables and downstream variables
+    # then assign offsets to all symbols in the frame
     # TODO
 
-    arb 1
+    arb 2
     ret 0
+.ENDFRAME
+
+##########
+parse_directive_frame_block:
+.FRAME frame_block; tmp
+    arb -1
+
+    # handle empty block
+    eq  [token], ';', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_block_done
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_block_done
+
+parse_directive_frame_block_loop:
+    eq  [token], 'i', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_block_identifier
+    cal parse_error
+
+parse_directive_frame_block_identifier:
+    # TODO store the symbol with frame_block, free the identifier
+    cal get_token
+
+    eq  [token], ',', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_block_comma
+    eq  [token], ';', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_block_done
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_block_done
+    cal parse_error
+
+parse_directive_frame_block_comma:
+    cal get_token
+    jz  0, parse_directive_frame_block_loop
+
+parse_directive_frame_block_done:
+    # TODO track number of identifiers, return it (needed for downstream variable offsets)
+
+    arb 1
+    ret 1
 .ENDFRAME
 
 ##########
@@ -1714,16 +1791,16 @@ free:
 .ENDFRAME
 
 ##########
-find_symbol:
+find_global_symbol:
 .FRAME identifier; record, tmp
     arb -2
 
-    add [symbol_head], 0, [rb + record]
+    add [global_head], 0, [rb + record]
 
-find_symbol_loop:
+find_global_symbol_loop:
     # are there any more records?
     eq  [rb + record], 0, [rb + tmp]
-    jnz [rb + tmp], find_symbol_done
+    jnz [rb + tmp], find_global_symbol_done
 
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
@@ -1733,22 +1810,22 @@ find_symbol_loop:
 
     # if strcmp result is 0, we are done
     eq  [rb - 4], 0, [rb + tmp]
-    jnz [rb + tmp], find_symbol_done
+    jnz [rb + tmp], find_global_symbol_done
 
     # move to next record
-    add [rb + record], 0, [find_symbol_next_record]
-+1 = find_symbol_next_record:
+    add [rb + record], 0, [find_global_symbol_next_record]
++1 = find_global_symbol_next_record:
     add [0], 0, [rb + record]
 
-    jz  0, find_symbol_loop
+    jz  0, find_global_symbol_loop
 
-find_symbol_done:
+find_global_symbol_done:
     arb 2
     ret 1
 .ENDFRAME
 
 ##########
-add_symbol:
+add_global_symbol:
 .FRAME identifier; record
     arb -1
 
@@ -1758,19 +1835,29 @@ add_symbol:
     cal alloc
     add [rb - 3], 0, [rb + record]
 
+    # set pointer to next symbol
+    add [rb + record], 0, [add_global_symbol_next_record]
++3 = add_global_symbol_next_record:
+    add [global_head], 0, [0]
+
     # store the identifier
     add [rb + identifier], 0, [rb - 1]
     add [rb + record], 1, [rb - 2]
     arb -2
     cal strcpy
 
-    # set pointer to next symbol
-    add [rb + record], 0, [add_symbol_next_record]
-+3 = add_symbol_next_record:
-    add [symbol_head], 0, [0]
+    # set address to -1, so we can detect when the address is set
+    add [rb + record], 48, [add_global_symbol_address_ptr]
++3 = add_global_symbol_address_ptr:
+    add -1, 0, [0]
+
+    # set fixup head to 0
+    add [rb + record], 49, [add_global_symbol_fixup_ptr]
++3 = add_global_symbol_fixup_ptr:
+    add 0, 0, [0]
 
     # set new symbol head
-    add [rb + record], 0, [symbol_head]
+    add [rb + record], 0, [global_head]
 
     arb 1
     ret 1
@@ -1796,7 +1883,7 @@ add_fixup:
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal find_symbol
+    cal find_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
     eq  [rb + symbol], 0, [rb + tmp]
@@ -1804,7 +1891,7 @@ add_fixup:
 
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal add_symbol
+    cal add_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
 add_fixup_have_symbol:
@@ -1840,7 +1927,7 @@ add_fixup_have_symbol:
 .ENDFRAME
 
 ##########
-set_symbol_address:
+set_global_symbol_address:
 .FRAME identifier, address; symbol, tmp
     arb -2
 
@@ -1859,25 +1946,161 @@ set_symbol_address:
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal find_symbol
+    cal find_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
     eq  [rb + symbol], 0, [rb + tmp]
-    jz  [rb + tmp], set_symbol_address_have_symbol
+    jz  [rb + tmp], set_global_symbol_address_check_duplicate
 
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal add_symbol
+    cal add_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
-set_symbol_address_have_symbol:
+    jz  0, set_global_symbol_address_have_symbol
+
+set_global_symbol_address_check_duplicate:
+    # check for duplicate symbol definitions
+    add [rb + symbol], 48, [set_global_symbol_address_ptr_1]
++1 = set_global_symbol_address_ptr_1:
+    add [0], 0, [rb + tmp]
+
+    eq  [rb + tmp], -1, [rb + tmp]
+    jnz [rb + tmp], set_global_symbol_address_have_symbol
+    cal parse_error
+
+set_global_symbol_address_have_symbol:
     # store the address of the symbol
-    add [rb + symbol], 48, [set_symbol_address_ptr]
-+3 = set_symbol_address_ptr:
+    add [rb + symbol], 48, [set_global_symbol_address_ptr_2]
++3 = set_global_symbol_address_ptr_2:
     add [rb + address], 0, [0]
 
     arb 2
     ret 2
+.ENDFRAME
+
+##########
+find_frame_symbol:
+.FRAME identifier; record, address, tmp
+    arb -3
+
+    add [frame_head], 0, [rb + record]
+
+find_frame_symbol_loop:
+    # are there any more records?
+    eq  [rb + record], 0, [rb + tmp]
+    jnz [rb + tmp], find_frame_symbol_done
+
+    # does this record contain the identifier?
+    add [rb + identifier], 0, [rb - 1]
+    add [rb + record], 1, [rb - 2]
+    arb -2
+    cal strcmp
+
+    # if strcmp result is 0, we are done
+    eq  [rb - 4], 0, [rb + tmp]
+    jnz [rb + tmp], find_frame_symbol_done
+
+    # move to next record
+    add [rb + record], 0, [find_frame_symbol_next_record]
++1 = find_frame_symbol_next_record:
+    add [0], 0, [rb + record]
+
+    jz  0, find_frame_symbol_loop
+
+find_frame_symbol_done:
+    # return the address, since that is what we usually need
+    add [rb + record], 48, [find_frame_symbol_address_ptr]
++1 = find_frame_symbol_address_ptr:
+    add [0], 0, [rb + address]
+
+    arb 3
+    ret 1
+.ENDFRAME
+
+##########
+add_frame_symbol:
+.FRAME identifier, address; record
+    arb -1
+
+    # DEBUG
+    out 's'
+    out ' '
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    cal print_str
+    out ' '
+    add [rb + address], 0, [rb - 1]
+    arb -1
+    cal print_num
+    out 10
+
+    # allocate a block
+    add 50, 0, [rb - 1]
+    arb -1
+    cal alloc
+    add [rb - 3], 0, [rb + record]
+
+    # set pointer to next symbol
+    add [rb + record], 0, [add_frame_symbol_next_record]
++3 = add_frame_symbol_next_record:
+    add [frame_head], 0, [0]
+
+    # store the identifier
+    add [rb + identifier], 0, [rb - 1]
+    add [rb + record], 1, [rb - 2]
+    arb -2
+    cal strcpy
+
+    # set address
+    add [rb + record], 48, [add_frame_symbol_address_ptr]
++3 = add_frame_symbol_address_ptr:
+    add [rb + address], 0, [0]
+
+    # set new symbol head
+    add [rb + record], 0, [frame_head]
+
+    arb 1
+    ret 2
+.ENDFRAME
+
+##########
+reset_frame:
+.FRAME tmp, record
+    arb -2
+
+    # DEBUG
+    out 'r'
+    out 10
+
+    add [frame_head], 0, [rb + record]
+
+reset_frame_symbol_loop:
+    # are there any more records?
+    eq  [rb + record], 0, [rb + tmp]
+    jnz [rb + tmp], reset_frame_symbol_done
+
+    # save current record pointer
+    add [rb + record], 0, [rb + tmp]
+
+    # move to next record
+    add [rb + record], 0, [reset_frame_symbol_next_record]
++1 = reset_frame_symbol_next_record:
+    add [0], 0, [rb + record]
+
+    # free current record
+    add [rb + tmp], 0, [rb - 1]
+    arb -1
+    cal free
+
+    jz  0, reset_frame_symbol_loop
+
+reset_frame_symbol_done:
+    # reset list head
+    add 0, 0, [frame_head]
+
+    arb 2
+    ret 0
 .ENDFRAME
 
 ##########
@@ -2006,8 +2229,12 @@ dump_loop:
 # 0: pointer to next fixup
 # 1: fixup address
 
-# head of the linked list of symbols
-symbol_head:
+# head of the linked list of global symbols
+global_head:
+    db  0
+
+# head of the linked list of frame symbols
+frame_head:
     db  0
 
 # head of the linked list of free blocks
