@@ -12,13 +12,14 @@
 # validations: nonsensical use of global and frame symbols
 # return address frame symbol?
 # allocate less than 50 for fixups
-# some testing framework
 # return non-zero to shell on compile fail
 # store line and column number with fixups
 # have a printf-like function to print more info about errors
 # check the typescript implementation for missing error handling
-# jnz parse_dir_frame_block_is_unique crashes
+# bug: jnz parse_dir_frame_block_is_unique crashes
 # simplify eq [x], 0, [tmp]; jnz [tmp] pattern
+# bug: detect missing .ENDFRAME at the end of file
+# test: overlapping global and frame; access frame outside of frame
 
 ##########
 parse:
