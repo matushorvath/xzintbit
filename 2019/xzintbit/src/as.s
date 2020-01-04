@@ -14,8 +14,8 @@
 # allocate less than 50 for fixups
 # some testing framework
 # check for duplicate and missing frame symbols
-# bug: seems nonexistent global symbols don't cause an error during fixup
 # return non-zero to shell on compile fail
+# store line and column number with fixups
 
 ##########
 parse:
@@ -2463,7 +2463,7 @@ do_fixups_symbol:
 +1 = do_fixups_symbol_address_ptr:
     add [0], 0, [rb + symbol_address]
 
-    eq  [rb + symbol_address], 0, [rb + tmp]
+    eq  [rb + symbol_address], -1, [rb + tmp]
     jz  [rb + tmp], do_fixups_have_address
 
     add err_unknown_symbol, 0, [rb + 0]
