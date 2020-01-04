@@ -137,21 +137,14 @@ parse_error:
 .FRAME
     cal print_mem
 
-    # TODO use strings once available
-    out 'P'
-    out 'a'
-    out 'r'
-    out 's'
-    out 'e'
-    out ' '
-    out 'e'
-    out 'r'
-    out 'r'
-    out 'o'
-    out 'r'
-    out 10
+    add parse_error_msg, 0, [rb - 1]
+    arb -1
+    cal print_str
 
     hlt
+
+parse_error_msg:
+    db  "Parse error", 10
 .ENDFRAME
 
 ##########
@@ -827,18 +820,6 @@ parse_dir_frame_offset_loop:
 +3 = parse_dir_frame_offset_offset_ptr:
     add [rb + offset], 0, [0]
 
-    # DEBUG
-    #out 'o'
-    #out ' '
-    #add [rb + record], 1, [rb - 1]
-    #arb -1
-    #cal print_str
-    #out ' '
-    #add [rb + offset], 0, [rb - 1]
-    #arb -1
-    #cal print_num
-    #out 10
-
     # increment offset for next symbol
     add [rb + offset], 1, [rb + offset]
 
@@ -1318,21 +1299,14 @@ get_token_number:
 ##########
 token_error:
 .FRAME
-    # TODO use strings once available
-    out 'T'
-    out 'o'
-    out 'k'
-    out 'e'
-    out 'n'
-    out ' '
-    out 'e'
-    out 'r'
-    out 'r'
-    out 'o'
-    out 'r'
-    out 10
+    add token_error_msg, 0, [rb - 1]
+    arb -1
+    cal print_str
 
     hlt
+
+token_error_msg:
+    db  "Token error", 10
 .ENDFRAME
 
 ##########
@@ -1664,83 +1638,35 @@ detect_keyword_is_not:
     ret 2
 
 detect_keyword_asso_values:
-    ds  2, 0
-    db  3
-    db  5
-    db  10
-    ds  2, 29
-    db  10
-    db  4
-    db  10
-    db  29
-    db  15
-    db  3
-    ds  2, 10
-    db  29
-    db  5
-    db  0
-    db  5
-    db  10
-    db  5
-    ds  4, 29
-    db  10
+    # copied from gperf.c
+    db                               0,  0,  3
+    db   5, 10, 29, 29, 10,  4, 10, 29, 15,  3
+    db  10, 10, 29,  5,  0,  5, 10,  5, 29, 29
+    db  29, 29, 10
 
 detect_keyword_wordlist:
-    # TODO use strings once supported
+    # copied from gperf.c
     ds  8, 0
-    db  'r'
-    db  'b'
-    ds  2, 0
-    db  'a'
-    db  'r'
-    db  'b'
-    ds  9, 0
-    db  'c'
-    db  'a'
-    db  'l'
-    db  0
-    db  'd'
-    db  'b'
-    ds  2, 0
-    db  'a'
-    db  'd'
-    db  'd'
-    ds  9, 0
-    db  'm'
-    db  'u'
-    db  'l'
-    db  0
-    db  'd'
-    db  's'
-    ds  2, 0
-    db  'r'
-    db  'e'
-    db  't'
-    ds  9, 0
-    db  'i'
-    db  'n'
-    ds  2, 0
-    db  'e'
-    db  'q'
-    ds  2, 0
-    db  'o'
-    db  'u'
-    db  't'
-    ds  13, 0
-    db  'j'
-    db  'z'
-    ds  2, 0
-    db  'j'
-    db  'n'
-    db  'z'
-    ds  13, 0
-    db  'l'
-    db  't'
-    ds  2, 0
-    db  'h'
-    db  'l'
-    db  't'
-    db  0
+    db  "rb", 0, 0
+    db  "arb", 0
+    ds  8, 0
+    db  "cal", 0
+    db  "db", 0, 0
+    db  "add", 0
+    ds  8, 0
+    db  "mul", 0
+    db  "ds", 0, 0
+    db  "ret", 0
+    ds  8, 0
+    db  "in", 0, 0
+    db  "eq", 0, 0
+    db  "out", 0
+    ds  12, 0
+    db  "jz", 0, 0
+    db  "jnz", 0
+    ds  12, 0
+    db  "lt", 0, 0
+    db  "hlt", 0
 
 detect_keyword_tokens:
     ds  2, 0
@@ -1945,20 +1871,14 @@ alloc_create_block:
     ret 1
 
 alloc_error:
-    out 'A'
-    out 'l'
-    out 'l'
-    out 'o'
-    out 'c'
-    out ' '
-    out 'e'
-    out 'r'
-    out 'r'
-    out 'o'
-    out 'r'
-    out 10
+    add alloc_error_msg, 0, [rb - 1]
+    arb -1
+    cal print_str
 
     hlt
+
+alloc_error_msg:
+    db  "Alloc error", 10
 .ENDFRAME
 
 ##########
@@ -2056,18 +1976,6 @@ add_fixup:
 .FRAME identifier, address; symbol, fixup, tmp
     arb -3
 
-    # DEBUG
-    #out 'F'
-    #out ' '
-    #add [rb + identifier], 0, [rb - 1]
-    #arb -1
-    #cal print_str
-    #out ' '
-    #add [rb + address], 0, [rb - 1]
-    #arb -1
-    #cal print_num
-    #out 10
-
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -2118,18 +2026,6 @@ add_fixup_have_symbol:
 set_global_symbol_address:
 .FRAME identifier, address; symbol, tmp
     arb -2
-
-    # DEBUG
-    #out 'S'
-    #out ' '
-    #add [rb + identifier], 0, [rb - 1]
-    #arb -1
-    #cal print_str
-    #out ' '
-    #add [rb + address], 0, [rb - 1]
-    #arb -1
-    #cal print_num
-    #out 10
 
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
@@ -2211,18 +2107,6 @@ add_frame_symbol:
 .FRAME identifier, block_index; record
     arb -1
 
-    # DEBUG
-    #out 's'
-    #out ' '
-    #add [rb + identifier], 0, [rb - 1]
-    #arb -1
-    #cal print_str
-    #out ' '
-    #add [rb + block_index], 0, [rb - 1]
-    #arb -1
-    #cal print_num
-    #out 10
-
     # allocate a block
     add 50, 0, [rb - 1]
     arb -1
@@ -2256,10 +2140,6 @@ add_frame_symbol:
 reset_frame:
 .FRAME tmp, record
     arb -2
-
-    # DEBUG
-    #out 'r'
-    #out 10
 
     add [frame_head], 0, [rb + record]
 
