@@ -1188,8 +1188,8 @@ get_input:
     arb -2
 
     # get input from the buffer if we have it
-    add [get_input_buffer], 0, [rb + char]
-    add 0, 0, [get_input_buffer]
+    add [input_buffer], 0, [rb + char]
+    add 0, 0, [input_buffer]
 
     jnz [rb + char], get_input_have_char
     in  [rb + char]
@@ -1200,14 +1200,14 @@ get_input_have_char:
     jz  [rb + tmp], get_input_same_line
 
     # we have a new line
-    add [line_num], 1, [line_num]
-    add [column_num], 0, [prev_column_num]
-    add 1, 0, [column_num]
+    add [input_line_num], 1, [input_line_num]
+    add [input_column_num], 0, [input_prev_column_num]
+    add 1, 0, [input_column_num]
     jz  0, get_input_done
 
 get_input_same_line:
     # we are on the same line
-    add [column_num], 1, [column_num]
+    add [input_column_num], 1, [input_column_num]
 
 get_input_done:
     arb 2
@@ -1220,19 +1220,19 @@ unget_input:
     arb -1
 
     # "unget" an unused char so we get it again later
-    add [rb + char], 0, [get_input_buffer]
+    add [rb + char], 0, [input_buffer]
 
     # track line and column number
     eq  [rb + char], 10, [rb + tmp]
     jz  [rb + tmp], unget_input_same_line
 
-    # we moved back to previous line, use [prev_column_num] as column num
-    add [line_num], -1, [line_num]
-    add [prev_column_num], 0, [column_num]
+    # we moved back to previous line, use [input_prev_column_num] as column num
+    add [input_line_num], -1, [input_line_num]
+    add [input_prev_column_num], 0, [input_column_num]
     jz  0, unget_input_done
 
 unget_input_same_line:
-    add [column_num], -1, [column_num]
+    add [input_column_num], -1, [input_column_num]
 
 unget_input_done:
     arb 1
@@ -2554,7 +2554,7 @@ report_error:
     arb -1
     cal print_str
 
-    add [line_num], 0, [rb - 1]
+    add [input_line_num], 0, [rb - 1]
     arb -1
     cal print_num
 
@@ -2562,7 +2562,7 @@ report_error:
     arb -1
     cal print_str
 
-    add [column_num], 0, [rb - 1]
+    add [input_column_num], 0, [rb - 1]
     arb -1
     cal print_num
 
@@ -2708,18 +2708,18 @@ free_head:
 heap_end:
     db  stack
 
-# current line and column number
-line_num:
+# line and column number of next input character
+input_line_num:
     db  1
-column_num:
+input_column_num:
     db  1
 
-# column number before we got last character
-prev_column_num:
+# column number before last input character
+input_prev_column_num:
     db  0
 
 # last input char buffer
-get_input_buffer:
+input_buffer:
     db  0
 
 # lookahead token type
