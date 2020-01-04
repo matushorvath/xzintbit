@@ -884,7 +884,8 @@ parse_dir_endframe_done:
 ##########
 parse_dir_eof:
 .FRAME
-    # TODO run fixups
+    # run fixups
+    cal do_fixups
 
     # print compiled memory contents
     cal print_mem
@@ -2381,6 +2382,47 @@ set_mem_str_done:
 .ENDFRAME
 
 ##########
+inc_mem_at:
+.FRAME byte, index, offset; buffer, tmp
+    arb -2
+
+    # increase memory location in index-th memory block, location offset
+    # assume this does not require creating new blocks
+
+    add [mem_head], 0, [rb + buffer]
+
+inc_mem_at_loop:
+    # any more blocks?
+    eq  [rb + buffer], 0, [rb + tmp]
+    jz  [rb + tmp], inc_mem_at_have_block
+    cal parse_error
+
+inc_mem_at_have_block:
+    # is this the block we need?
+    eq  [rb + index], 0, [rb + tmp]
+    jnz [rb + tmp], inc_mem_at_this_block
+    add [rb + index], -1, [rb + index]
+
+    # next block in linked list
+    add [rb + buffer], 0, [inc_mem_at_next_block_ptr]
++1 = inc_mem_at_next_block_ptr:
+    add [0], 0, [rb + buffer]
+
+    jz  0, inc_mem_at_loop
+
+inc_mem_at_this_block:
+    # set the value
+    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_1]
+    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_2]
++1 = inc_mem_at_ptr_1:
++3 = inc_mem_at_ptr_2:
+    add [0], [rb + byte], [0]
+
+    arb 2
+    ret 3
+.ENDFRAME
+
+##########
 print_mem:
 .FRAME tmp, buffer, limit, index, first
     arb -5
@@ -2437,6 +2479,101 @@ print_mem_done:
 
     arb 5
     ret 0
+.ENDFRAME
+
+##########
+do_fixups:
+.FRAME tmp, symbol, fixup, symbol_address, fixup_address, index, offset
+    arb -7
+
+    add [global_head], 0, [rb + symbol]
+
+do_fixups_symbol:
+    # do we have more symbols?
+    eq  [rb + symbol], 0, [rb + tmp]
+    jnz [rb + tmp], do_fixups_done
+
+    # each symbol needs to have an address
+    add [rb + symbol], 48, [do_fixups_symbol_address_ptr]
++1 = do_fixups_symbol_address_ptr:
+    add [0], 0, [rb + symbol_address]
+
+    eq  [rb + symbol_address], 0, [rb + tmp]
+    jz  [rb + tmp], do_fixups_have_address
+    cal parse_error
+
+do_fixups_have_address:
+    # iterate through all fixups for this symbol
+    add [rb + symbol], 49, [do_fixups_fixup_ptr]
++1 = do_fixups_fixup_ptr:
+    add [0], 0, [rb + fixup]
+
+do_fixups_fixup:
+    # do we have more fixups for this symbol?
+    eq  [rb + fixup], 0, [rb + tmp]
+    jnz [rb + tmp], do_fixups_symbol_done
+
+    # read fixup address
+    add [rb + fixup], 1, [do_fixups_fixup_address_ptr]
++1 = do_fixups_fixup_address_ptr:
+    add [0], 0, [rb + fixup_address]
+
+    # find out which memory block should be updated
+    add [rb + fixup_address], 0, [rb - 1]
+    arb -1
+    cal calc_fixup
+
+    # do the fixup
+    add [rb + symbol_address], 0, [rb - 1]
+    add [rb - 3], 0, [rb - 2]
+    add [rb - 4], 0, [rb - 3]
+    arb -3
+    cal inc_mem_at
+
+    # move to next fixup
+    add [rb + fixup], 0, [do_fixups_next_fixup_ptr]
++1 = do_fixups_next_fixup_ptr:
+    add [0], 0, [rb + fixup]
+
+    jz  0, do_fixups_fixup
+
+do_fixups_symbol_done:
+    # move to next symbol
+    add [rb + symbol], 0, [do_fixups_next_symbol_ptr]
++1 = do_fixups_next_symbol_ptr:
+    add [0], 0, [rb + symbol]
+
+    jz  0, do_fixups_symbol
+
+do_fixups_done:
+    arb 7
+    ret 0
+.ENDFRAME
+
+##########
+calc_fixup:
+.FRAME address; index, offset, tmp
+    arb -3
+
+    # calculate index = address / (50 - 1) ; offset = address % (50 - 1) + 1
+    add 0, 0, [rb + index]
+    add [rb + address], 0, [rb + offset]
+
+calc_fixup_loop:
+    lt  [rb + offset], 49, [rb + tmp]
+    jnz [rb + tmp], calc_fixup_done
+
+    add [rb + offset], -49, [rb + offset]
+    add [rb + index], 1, [rb + index]
+
+    jz  0, calc_fixup_loop
+
+calc_fixup_done:
+    # data in memory blocks starts at offset 1
+    add [rb + offset], 1, [rb + offset]
+
+    arb 3
+    ret 1
 .ENDFRAME
 
 ##########

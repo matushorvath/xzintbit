@@ -26,5 +26,5 @@ const main = async () => {
 };
 
 main()
-    .then(() => console.log(''))
+    .then(() => {})
     .catch(error => { console.log('error:', error); process.exit(1); });
