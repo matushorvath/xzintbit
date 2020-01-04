@@ -609,19 +609,21 @@ parse_directive_frame_loop:
     arb -1
     cal parse_directive_frame_block
 
-    # we support up to three identifier lists
-    add [rb + frame_block], 1, [rb + frame_block]
-    lt  [rb + frame_block], 3, [rb + tmp]
-    jnz [rb + tmp], parse_directive_more_blocks
-    cal parse_error
-
-parse_directive_more_blocks:
     # are there any more blocks, or was this the last one?
     eq  [token], ';', [rb + tmp]
-    jnz [rb + tmp], parse_directive_frame_loop
+    jnz [rb + tmp], parse_directive_frame_check_count
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_directive_frame_eol
     cal parse_error
+
+parse_directive_frame_check_count:
+    # we support up to three identifier lists
+    add [rb + frame_block], 1, [rb + frame_block]
+    lt  [rb + frame_block], 3, [rb + tmp]
+    jnz [rb + tmp], parse_directive_frame_loop
+    cal parse_error
+
+parse_directive_more_blocks:
 
 parse_directive_frame_eol:
     # we have up to three identifier blocks stored in the frame list
