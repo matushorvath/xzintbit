@@ -2500,6 +2500,10 @@ report_error:
 .FRAME message;
     #cal print_mem
 
+    add report_error_msg, 0, [rb - 1]
+    arb -1
+    cal print_str
+
     add [rb + message], 0, [rb - 1]
     arb -1
     cal print_str
@@ -2507,6 +2511,9 @@ report_error:
     out 10
 
     hlt
+
+report_error_msg:
+    db "Error: ", 0
 .ENDFRAME
 
 ##########
