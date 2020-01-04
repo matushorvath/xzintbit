@@ -43,6 +43,8 @@ if [ $failed_count = 0 ]; then
     echo "All tests ${green}PASSED${normal}"
 elif [ $failed_count = 1 ]; then
     echo "1 test ${red}FAILED${normal}"
+    exit 1
 else
     echo "${failed_count} tests ${red}FAILED${normal}"
+    exit 1
 fi
