@@ -17,7 +17,7 @@ const main = async () => {
     let line: number[] = [];
     for await (const char of vm.run(getIns())) {
         if (char === 10) {
-            console.log(line.map(n => String.fromCharCode(n)).join(''), [...line, char]);
+            console.log(line.map(n => String.fromCharCode(n)).join('')/*, [...line, char]*/);
             line = [];
         } else {
             line.push(char);

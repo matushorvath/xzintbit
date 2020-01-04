@@ -42,8 +42,8 @@ data:
     ds 50, 'x'
 stack:
 
-db  'a'
-db  data - 1, 11
-db  "string", 55, -1, 'z', "more"
+    db  'a'
+    db  data - 1 #, 11
+    #db  "string", 55, -1, 'z', "more"
 
 .EOF

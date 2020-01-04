@@ -135,6 +135,8 @@ parse_call_directive_eof:
 ##########
 parse_error:
 .FRAME
+    cal print_mem
+
     # TODO use strings once available
     out 'P'
     out 'a'
@@ -204,11 +206,21 @@ parse_add_mul_lt_eq_param2:
 parse_add_mul_lt_eq_done:
     add [ip], 1, [ip]
 
-    out [rb + op]
-    out [rb + param0]
-    out [rb + param1]
-    out [rb + param2]
-    out 10
+    add [rb + op], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param0], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param1], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param2], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     arb 5
     ret 0
@@ -252,10 +264,17 @@ parse_jnz_jz_param1:
 parse_jnz_jz_done:
     add [ip], 1, [ip]
 
-    out [rb + op]
-    out [rb + param0]
-    out [rb + param1]
-    out 10
+    add [rb + op], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param0], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param1], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     arb 4
     ret 0
@@ -285,9 +304,13 @@ parse_arb_out:
 parse_arb_out_done:
     add [ip], 1, [ip]
 
-    out [rb + op]
-    out [rb + param0]
-    out 10
+    add [rb + op], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param0], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     arb 3
     ret 0
@@ -317,9 +340,13 @@ parse_in:
 parse_in_done:
     add [ip], 1, [ip]
 
-    out [rb + op]
-    out [rb + param0]
-    out 10
+    add [rb + op], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param0], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     arb 3
     ret 0
@@ -341,8 +368,9 @@ parse_hlt:
 parse_hlt_done:
     add [ip], 1, [ip]
 
-    out [rb + op]
-    out 10
+    add [rb + op], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     arb 2
     ret 0
@@ -350,40 +378,61 @@ parse_hlt_done:
 
 ##########
 parse_cal:
-.FRAME tmp
-    arb -1
+.FRAME tmp, param, mode
+    arb -3
 
     # eat the 'cal' token
     cal get_token
 
     # generate code: arb -1
     # 109, -1
-    # TODO store, do not print
-    out 109
-    out -1
+    add 109, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add -1, 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     # generate code: add ip + 2 + 4 + 3, 0, [rb + 0]
     # 21101, ip + 9, 0, 0
-    # TODO store, do not print
-    out 21101
-    add [ip], 9, [rb + tmp]
-    out [rb + tmp]
-    out 0
-    out 0
+    add 21101, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [ip], 9, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add 0, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add 0, 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     # update ip to point to second parameter of the 'jz' below
     # this way parse_in_param will generate the correct fixup
     add [ip], 8, [ip]
     cal parse_in_param
+    add [rb - 2], 0, [rb + param]
+    add [rb - 3], 0, [rb + mode]
 
     # generate code: jz 0, $param
     # 106 + mode * 1000, 0, param
-    # TODO store, do not print
-    mul [rb - 3], 1000, [rb + tmp]
-    add 106, [rb + tmp], [rb + tmp]
-    out [rb + tmp]
-    out 0
-    out [rb - 2]
+    mul [rb + mode], 1000, [rb + tmp]
+    add 106, [rb + tmp], [rb - 1]
+    arb -1
+    cal set_mem
+
+    add 0, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_cal_done
@@ -393,9 +442,7 @@ parse_cal_done:
     # ip was already incremented, for fixup porposes, now move it past the last written byte
     add [ip], 1, [ip]
 
-    out 10
-
-    arb 1
+    arb 3
     ret 0
 .ENDFRAME
 
@@ -404,29 +451,40 @@ parse_cal_done:
 
 ##########
 parse_ret:
-.FRAME tmp
-    arb -1
+.FRAME tmp, param
+    arb -2
 
     # eat the 'ret' token
     cal get_token
 
     # parse the parameter
     cal parse_number_or_char
+    add [rb - 2], 0, [rb + param]
 
     # generate code: arb $param + 1
     # 109, param + 1
-    # TODO store, do not print
-    out 109
-    add [rb - 2], 1, [rb + tmp]
-    out [rb + tmp]
+    add 109, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param], 1, [rb - 1]
+    arb -1
+    cal set_mem
 
     # generate code: jz 0, [rb - ($param + 1)]
     # 2106, 0, -(param + 1)
-    # TODO store, do not print
-    out 2106
-    out 0
-    mul [rb + tmp], -1, [rb + tmp]
-    out [rb + tmp]
+    add 2106, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add 0, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + param], 1, [rb + tmp]
+    mul [rb + tmp], -1, [rb - 1]
+    arb -1
+    cal set_mem
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_ret_done
@@ -435,9 +493,7 @@ parse_ret:
 parse_ret_done:
     add [ip], 5, [ip]
 
-    out 10
-
-    arb 1
+    arb 2
     ret 0
 .ENDFRAME
 
@@ -457,19 +513,20 @@ parse_db_loop:
     cal parse_value
     add [rb - 2], 0, [rb + data]
 
-    # TODO store the value
-    out [rb + data]
+    add [rb + data], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     add [ip], 1, [ip]
     jz  0, parse_db_after_param
 
 parse_db_string:
-    # TODO store the string instead of printing it; don't store zero termination
+    # store the string, don't store zero termination
     add [value], 0, [rb - 1]
     arb -1
-    cal print_str
+    cal set_mem_str
 
-    # string length is returned by print_str (and also strcpy, but that needs testing)
+    # string length is returned by set_mem_str
     add [ip], [rb - 3], [ip]
 
     # free the string
@@ -489,8 +546,6 @@ parse_db_after_param:
     cal parse_error
 
 parse_db_done:
-    out 10
-
     arb 2
     ret 0
 .ENDFRAME
@@ -527,14 +582,13 @@ parse_ds_have_comma:
     cal parse_error
 
 parse_ds_loop:
-    # TODO store the byte
-    out [rb + data]
+    add [rb + data], 0, [rb - 1]
+    arb -1
+    cal set_mem
 
     add [rb + count], -1, [rb + count]
     lt  0, [rb + count], [rb + tmp]
     jnz [rb + tmp], parse_ds_loop
-
-    out 10
 
     arb 3
     ret 0
@@ -774,16 +828,16 @@ parse_dir_frame_offset_loop:
     add [rb + offset], 0, [0]
 
     # DEBUG
-    out 'o'
-    out ' '
-    add [rb + record], 1, [rb - 1]
-    arb -1
-    cal print_str
-    out ' '
-    add [rb + offset], 0, [rb - 1]
-    arb -1
-    cal print_num
-    out 10
+    #out 'o'
+    #out ' '
+    #add [rb + record], 1, [rb - 1]
+    #arb -1
+    #cal print_str
+    #out ' '
+    #add [rb + offset], 0, [rb - 1]
+    #arb -1
+    #cal print_num
+    #out 10
 
     # increment offset for next symbol
     add [rb + offset], 1, [rb + offset]
@@ -830,15 +884,10 @@ parse_dir_endframe_done:
 ##########
 parse_dir_eof:
 .FRAME
-    # TODO run fixups, then dump memory to output
-    out 'S'
-    out 'u'
-    out 'c'
-    out 'c'
-    out 'e'
-    out 's'
-    out 's'
-    out 10
+    # TODO run fixups
+
+    # print compiled memory contents
+    cal print_mem
 
     hlt
 .ENDFRAME
@@ -1807,34 +1856,6 @@ read_directive_fail:
 .ENDFRAME
 
 ##########
-#print_mem:
-#.FRAME byte, flag
-#    arb -2
-#
-#    jz  [size], print_mem_finish
-#
-#print_mem_byte:
-#+1 = print_size:
-#    add [mem], 0, [rb - 1]
-#    arb -1
-#    cal print_num
-#
-#    eq  [size], [print_size], [rb + flag]
-#    jnz [rb + flag], print_mem_finish
-#    add [print_size], 1, [print_size]
-#
-#    out 44
-#    jz  0, print_mem_byte
-#
-#print_mem_finish:
-#    out 10
-#
-#    add -1, 0, [print_size]
-#    arb 2
-#    ret 0
-#.ENDFRAME
-
-##########
 # convert number to string
 print_num:
 .FRAME num; tmp, order, digit; digits
@@ -2035,16 +2056,16 @@ add_fixup:
     arb -3
 
     # DEBUG
-    out 'F'
-    out ' '
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    cal print_str
-    out ' '
-    add [rb + address], 0, [rb - 1]
-    arb -1
-    cal print_num
-    out 10
+    #out 'F'
+    #out ' '
+    #add [rb + identifier], 0, [rb - 1]
+    #arb -1
+    #cal print_str
+    #out ' '
+    #add [rb + address], 0, [rb - 1]
+    #arb -1
+    #cal print_num
+    #out 10
 
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
@@ -2098,16 +2119,16 @@ set_global_symbol_address:
     arb -2
 
     # DEBUG
-    out 'S'
-    out ' '
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    cal print_str
-    out ' '
-    add [rb + address], 0, [rb - 1]
-    arb -1
-    cal print_num
-    out 10
+    #out 'S'
+    #out ' '
+    #add [rb + identifier], 0, [rb - 1]
+    #arb -1
+    #cal print_str
+    #out ' '
+    #add [rb + address], 0, [rb - 1]
+    #arb -1
+    #cal print_num
+    #out 10
 
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
@@ -2190,16 +2211,16 @@ add_frame_symbol:
     arb -1
 
     # DEBUG
-    out 's'
-    out ' '
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    cal print_str
-    out ' '
-    add [rb + block_index], 0, [rb - 1]
-    arb -1
-    cal print_num
-    out 10
+    #out 's'
+    #out ' '
+    #add [rb + identifier], 0, [rb - 1]
+    #arb -1
+    #cal print_str
+    #out ' '
+    #add [rb + block_index], 0, [rb - 1]
+    #arb -1
+    #cal print_num
+    #out 10
 
     # allocate a block
     add 50, 0, [rb - 1]
@@ -2236,8 +2257,8 @@ reset_frame:
     arb -2
 
     # DEBUG
-    out 'r'
-    out 10
+    #out 'r'
+    #out 10
 
     add [frame_head], 0, [rb + record]
 
@@ -2266,6 +2287,155 @@ reset_frame_symbol_done:
     add 0, 0, [frame_head]
 
     arb 2
+    ret 0
+.ENDFRAME
+
+##########
+set_mem:
+.FRAME byte; buffer, tmp
+    arb -2
+
+    add [mem_tail], 0, [rb + buffer]
+
+    # do we have a buffer at all?
+    eq  [rb + buffer], 0, [rb + tmp]
+    jz  [rb + tmp], set_mem_have_buffer
+
+    # no, create one
+    add 50, 0, [rb - 1]
+    arb -1
+    cal alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    # reset next buffer pointer
+    add [rb + buffer], 0, [set_mem_next_buffer_ptr_1]
++3 = set_mem_next_buffer_ptr_1:
+    add 0, 0, [0]
+
+    add [rb + buffer], 0, [mem_head]
+    add [rb + buffer], 0, [mem_tail]
+    add 1, 0, [mem_index]
+
+    jz  0, set_mem_have_space
+
+set_mem_have_buffer:
+    # is there enough space for one more byte?
+    lt  [mem_index], 50, [rb + tmp]
+    jnz [rb + tmp], set_mem_have_space
+
+    # no, create a new buffer
+    add 50, 0, [rb - 1]
+    arb -1
+    cal alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    # reset next buffer pointer
+    add [rb + buffer], 0, [set_mem_next_buffer_ptr_2]
++3 = set_mem_next_buffer_ptr_2:
+    add 0, 0, [0]
+
+    # add it to the tail of buffer linked list
+    add [mem_tail], 0, [set_mem_next_buffer_ptr_3]
++3 = set_mem_next_buffer_ptr_3:
+    add [rb + buffer], 0, [0]
+
+    add [rb + buffer], 0, [mem_tail]
+    add 1, 0, [mem_index]
+
+set_mem_have_space:
+    add [mem_tail], [mem_index], [set_mem_byte_ptr]
++3 = set_mem_byte_ptr:
+    add [rb + byte], 0, [0]
+
+    add [mem_index], 1, [mem_index]
+
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
+set_mem_str:
+.FRAME string; index, char, tmp
+    arb -3
+
+    add 0, 0, [rb + index]
+
+set_mem_str_loop:
+    add [rb + string], [rb + index], [set_mem_str_ptr]
++1 = set_mem_str_ptr:
+    add [0], 0, [rb + char]
+
+    eq  [rb + char], 0, [rb + tmp]
+    jnz [rb + tmp], set_mem_str_done
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add [rb + index], 1, [rb + index]
+    jz  0, set_mem_str_loop
+
+set_mem_str_done:
+    arb 3
+    ret 1
+.ENDFRAME
+
+##########
+print_mem:
+.FRAME tmp, buffer, limit, index, first
+    arb -5
+
+    add 1, 0, [rb + first]
+
+    add [mem_head], 0, [rb + buffer]
+    eq  [mem_head], 0, [rb + tmp]
+    jnz [rb + tmp], print_mem_done
+
+print_mem_block:
+    add 1, 0, [rb + index]
+
+    # maximum index within a block is 50, except for last block
+    add 50, 0, [rb + limit]
+    eq  [rb + buffer], [mem_tail], [rb + tmp]
+    jz  [rb + tmp], print_mem_byte
+    add [mem_index], 0, [rb + limit]
+
+print_mem_byte:
+    lt  [rb + index], [rb + limit], [rb + tmp]
+    jz  [rb + tmp], print_mem_block_done
+
+    # skip comma when printing first byte
+    eq  [rb + first], 1, [rb + tmp]
+    jnz [rb + tmp], print_mem_skip_comma
+    out ','
+
+print_mem_skip_comma:
+    add 0, 0, [rb + first]
+
+    add [rb + buffer], [rb + index], [print_mem_ptr]
++1 = print_mem_ptr:
+    add [0], 0, [rb + tmp]
+
+    add [rb + tmp], 0, [rb - 1]
+    arb -1
+    cal print_num
+
+    add [rb + index], 1, [rb + index]
+    jz  0, print_mem_byte
+
+print_mem_block_done:
+    # next block in linked list
+    add [rb + buffer], 0, [print_mem_next_block_ptr]
++1 = print_mem_next_block_ptr:
+    add [0], 0, [rb + buffer]
+
+    eq  [rb + buffer], 0, [rb + tmp]
+    jz  [rb + tmp], print_mem_block
+
+print_mem_done:
+    out 10
+
+    arb 5
     ret 0
 .ENDFRAME
 
@@ -2431,6 +2601,17 @@ value:
 
 # current instruction pointer
 ip:
+    db 0
+
+# output memory buffer
+mem_head:
+    db 0
+
+mem_tail:
+    db 0
+
+# index of next unused byte in last memory buffer
+mem_index:
     db 0
 
 ##########
