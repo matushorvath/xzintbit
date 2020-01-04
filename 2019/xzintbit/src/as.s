@@ -15,6 +15,7 @@
 # some testing framework
 # check for duplicate and missing frame symbols
 # bug: seems nonexistent global symbols don't cause an error during fixup
+# return non-zero to shell on compile fail
 
 ##########
 parse:
@@ -151,7 +152,6 @@ parse_add_mul_lt_eq:
     add [rb - 2], 0, [rb + param0]
 
     eq  [token], ',', [rb + tmp]
-    cal get_token
     jnz [rb + tmp], parse_add_mul_lt_eq_param1
 
     add err_expect_comma, 0, [rb + 0]
@@ -159,6 +159,8 @@ parse_add_mul_lt_eq:
 
 parse_add_mul_lt_eq_param1:
     add [ip], 1, [ip]
+
+    cal get_token
     cal parse_in_param
 
     # update opcode and param 1 value
@@ -167,7 +169,6 @@ parse_add_mul_lt_eq_param1:
     add [rb - 2], 0, [rb + param1]
 
     eq  [token], ',', [rb + tmp]
-    cal get_token
     jnz [rb + tmp], parse_add_mul_lt_eq_param2
 
     add err_expect_comma, 0, [rb + 0]
@@ -175,6 +176,8 @@ parse_add_mul_lt_eq_param1:
 
 parse_add_mul_lt_eq_param2:
     add [ip], 1, [ip]
+
+    cal get_token
     cal parse_out_param
 
     # update opcode and param 2 value
@@ -229,7 +232,6 @@ parse_jnz_jz:
     add [rb - 2], 0, [rb + param0]
 
     eq  [token], ',', [rb + tmp]
-    cal get_token
     jnz [rb + tmp], parse_jnz_jz_param1
 
     add err_expect_comma, 0, [rb + 0]
@@ -237,6 +239,8 @@ parse_jnz_jz:
 
 parse_jnz_jz_param1:
     add [ip], 1, [ip]
+
+    cal get_token
     cal parse_in_param
 
     # update opcode and param 1 value
@@ -919,17 +923,17 @@ parse_out_param:
     add 1, 0, [rb + sign]
 
     eq  [token], '[', [rb + tmp]
-    cal get_token
     jnz [rb + tmp], parse_out_param_try_rb
 
     add err_expect_open_brace, 0, [rb + 0]
     cal report_error
 
 parse_out_param_try_rb:
+    cal get_token
     eq  [token], 'P', [rb + tmp]
     jz  [rb + tmp], parse_out_param_after_rb
-    cal get_token
 
+    cal get_token
     eq  [token], '+', [rb + tmp]
     jnz [rb + tmp], parse_out_param_rb_plus
     eq  [token], '-', [rb + tmp]
@@ -964,13 +968,14 @@ parse_out_param_after_rb:
 
 parse_out_param_skip_neg_symbol_check:
     eq  [token], ']', [rb + tmp]
-    cal get_token
     jnz [rb + tmp], parse_out_param_done
 
     add err_expect_close_brace, 0, [rb + 0]
     cal report_error
 
 parse_out_param_done:
+    cal get_token
+
     arb 4
     ret 0
 .ENDFRAME
@@ -1068,15 +1073,15 @@ parse_value_after_global:
 
 parse_value_identifier_plus:
     add 1, 0, [rb + sign]
-    cal get_token
     jz  0, parse_value_identifier_after_sign
 
 parse_value_identifier_minus:
     add -1, 0, [rb + sign]
-    cal get_token
     jz  0, parse_value_identifier_after_sign
 
 parse_value_identifier_after_sign:
+    cal get_token
+
     # technically this is also valid: [abcd + -2] or even [abcd + +2]
     eq  [token], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_2
@@ -1245,6 +1250,11 @@ get_token:
     arb -2
 
 get_token_loop:
+    # remember position at the start of the token
+    add [input_line_num], 0, [token_line_num]
+    add [input_column_num], 0, [token_column_num]
+
+    # get next input character
     cal get_input
     add [rb - 2], 0, [rb + char]
 
@@ -2550,7 +2560,7 @@ report_error:
     arb -1
     cal print_str
 
-    add [input_line_num], 0, [rb - 1]
+    add [token_line_num], 0, [rb - 1]
     arb -1
     cal print_num
 
@@ -2558,7 +2568,7 @@ report_error:
     arb -1
     cal print_str
 
-    add [input_column_num], 0, [rb - 1]
+    add [token_column_num], 0, [rb - 1]
     arb -1
     cal print_num
 
