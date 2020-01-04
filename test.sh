@@ -3,7 +3,7 @@
 set -e
 
 # color support
-if test -t 1; then
+if test -n "$FORCE_COLOR" || test -t 1; then
     colors=$(tput colors)
     if test -n "$colors" && test $colors -ge 8; then
         normal="$(tput sgr0)"
