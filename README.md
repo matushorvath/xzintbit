@@ -103,7 +103,7 @@ $ ./make.sh
 
 It compiles the source `src/as.s` using binary `src/as.input` into a new binary `src/as.stg1.input`, then uses the new binary to compile the same source again into yet another binary `src/as.stg2.input`. If everything works, the two generated binaries should be the same.
 
-The shell script executes `vm.sh` to run the Intcode VM, so if you are using your own VM, update `vm.sh` to point to it. By default, `vm.sh` points to the TypeScript based VM in `vm` subdirectory.
+The `main.sh` script uses `vm.sh` to run the Intcode VM, so if you are using your own VM, update `vm.sh` to point to it. By default, `vm.sh` points to the TypeScript-based VM in `vm` subdirectory.
 
 What can it do?
 -----------------
