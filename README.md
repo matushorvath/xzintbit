@@ -55,7 +55,7 @@ $ ./vm.sh hello-world.input
 Hello, world!
 ```
 
-Hey, it worked!
+Hey, it works!
 
 Will it run on my (virtual) machine?
 --------------------------
