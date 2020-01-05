@@ -22,6 +22,9 @@ FOR %%i IN (test\*.s) DO (
 
     CMD /C vm.cmd src\as.input < "!input!" > "!output!" 2> NUL
 
+    REM Convert CR LF to just LF in expected files
+    PowerShell -Command "(Get-Content '!expect!') | Set-Content '!expect!'"
+
     ECHO n | COMP /A "!output!" "!expect!" > NUL 2> NUL
     IF NOT ERRORLEVEL 1 (
         ECHO OK
