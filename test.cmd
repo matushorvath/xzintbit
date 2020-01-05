@@ -1,6 +1,12 @@
 @ECHO OFF
 SETLOCAL EnableExtensions EnableDelayedExpansion
 
+REM Color suport
+REM Be careful, there are invisible ESC characters in the variables below
+SET normal=[0m
+SET red=[31m
+SET green=[32m
+
 SET failed_count=0
 
 :outdir_loop
@@ -24,9 +30,9 @@ FOR %%i IN (test\*.s) DO (
 
     ECHO n | COMP /A "!output!" "!expect!" > NUL 2> NUL
     IF NOT ERRORLEVEL 1 (
-        ECHO OK
+        ECHO %green%OK%normal%
     ) else (
-        ECHO FAILED
+        ECHO %red%FAILED%normal%
         ECHO n | COMP /A "!output!" "!expect!" 2> NUL
         SET /A "failed_count=(!failed_count! + 1)"
     )
@@ -35,11 +41,11 @@ FOR %%i IN (test\*.s) DO (
 ECHO.
 
 IF %failed_count% EQU 0 (
-    ECHO All tests PASSED
+    ECHO All tests %green%OK%normal%
 ) ELSE IF %failed_count% EQU 1 (
-    ECHO 1 test FAILED
+    ECHO 1 test %red%FAILED%normal%
     EXIT /B 1
 ) ELSE (
-    ECHO %failed_count% tests FAILED
+    ECHO %failed_count% tests %red%FAILED%normal%
     EXIT /B 1
 )
