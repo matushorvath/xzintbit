@@ -11,8 +11,10 @@ env:
   TERM: xterm-color
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-linux:
+    name: Test on ${{ matrix.os }}
+    matrix:
+      os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -20,14 +22,17 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-    - name: Build IntCode VM
-      run: |
-        cd vm
-        npm ci
-        npm run build --if-present
+
     - name: Build Assembler
-      run: |
-        ./make.sh
+      run: ./make.sh
+      if: runner.os != 'Windows'
+    - name: Build Assembler
+      run: make.cmd
+      if: runner.os == 'Windows'
+
     - name: Test Assembler
-      run: |
-        ./test.sh
+      run: ./test.sh
+      if: runner.os != 'Windows'
+    - name: Test Assembler
+      run: test.cmd
+      if: runner.os == 'Windows'

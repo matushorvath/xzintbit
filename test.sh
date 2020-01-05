@@ -27,12 +27,13 @@ for input in $(ls test/*.s) ; do
     echo -n "Test $id: "
 
     ./vm.sh src/as.input < "$input" > "$output" 2> /dev/null || true
-    diff "$output" "$expect" && status=$? || status=$?
+    diff "$output" "$expect" && status=$? || status=$? > /dev/null 2> /dev/null
 
     if [ $status = 0 ]; then
         echo "${green}OK${normal}"
     else
         echo "${red}FAILED${normal}"
+        diff "$output" "$expect" && status=$? || status=$?
         failed_count=$((failed_count + 1))
     fi
 done
