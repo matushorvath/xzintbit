@@ -1,3 +1,4 @@
+<div style="text-align: right">![](https://github.com/matushorvath/xzintbit/workflows/Build and Test/badge.svg)</div>
 What is this?
 -------------
 
