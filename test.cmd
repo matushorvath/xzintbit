@@ -29,9 +29,9 @@ FOR %%i IN (test\*.s) DO (
         ECHO FAILED
         ECHO n | COMP /A "!output!" "!expect!" 2> NUL
         ECHO Output:
-        TYPE "!output!"
+        PowerShell -Command Format-Hex "!output!"
         ECHO Expect:
-        TYPE "!expect!"
+        PowerShell -Command Format-Hex "!expect!"
         SET /A "failed_count=(!failed_count! + 1)"
     )
 )
