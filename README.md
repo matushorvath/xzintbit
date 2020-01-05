@@ -60,13 +60,13 @@ Hey, it works!
 Will it run on my (virtual) machine?
 --------------------------
 
-You should be able to run the assembler with your own Intcode virtual machine without problems, as long as it follows some basic principles:
+You should be able to execute the assembler on your own Intcode virtual machine, as long as it follows some basic principles:
 
 - It needs to be a complete Intcode computer, as specified in [Day 9](https://adventofcode.com/2019/day/9).
-- It needs automatically expanding memory. The program allocates memory in one continuous block starting at address 0, so a VM implementation based on reallocating arrays is good enough.
-- It needs the *Aft Scaffolding Control and Information Interface* (ASCII) from [Day 17](https://adventofcode.com/2019/day/17). Which just means that everything output by Intcode should be handled as ASCII characters, with character `10` meaning 'new line'.
-- It must not output any extra messages to stdout, other than what is issued by Intcode using `out` instructions. If your VM outputs any extra messages of its own, they will mix up with the Intcode output and the result will not be valid Intcode, obviously.
-- No need for arbitrary sized numbers, even implementations based on 32-bit integers should be fine.
+- Memory needs to expand automatically as needed. The assembler allocates memory in one continuous block starting at address 0, so a VM implementation based on reallocating arrays is good enough. A statically sized memory could also work, as long as it is large enough.
+- It needs the *Aft Scaffolding Control and Information Interface* (ASCII) from [Day 17](https://adventofcode.com/2019/day/17). Which just means that everything output by Intcode should be displayed as ASCII characters, with character `10` meaning 'new line'.
+- It must not output any extra messages, other than what is output by Intcode using `out` instructions. If your VM outputs any extra messages of its own, they will mix up with the Intcode output and the output will not be valid Intcode, obviously.
+- There is no need for arbitrary sized numbers, even implementations based on 32-bit integers should be fine.
 
 If you don't have an IntCode VM, you can try the one in `vm` directory, which is the one I use. It's written in TypeScript, and you will need node.js 10.x or newer to run it.
 
@@ -103,7 +103,7 @@ $ ./make.sh
 
 It compiles the source `src/as.s` using binary `src/as.input` into a new binary `src/as.stg1.input`, then uses the new binary to compile the same source again into yet another binary `src/as.stg2.input`. If everything works, the two generated binaries should be the same.
 
-The shell script uses `vm.sh` to run the Intcode VM, so if you are using your own VM, update the `vm.sh` to point to it. By default, `vm.sh` points to the TypeScript based VM in `vm` subdirectory.
+The shell script executes `vm.sh` to run the Intcode VM, so if you are using your own VM, update `vm.sh` to point to it. By default, `vm.sh` points to the TypeScript based VM in `vm` subdirectory.
 
 What can it do?
 -----------------
