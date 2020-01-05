@@ -4,11 +4,11 @@ Language Description
 Basics
 ------
 
-Programs are case sensitive. The assembler expects unix-like line ends (character 10).
+Programs are case sensitive. The assembler expects Unix-like line ends (character 10).
 Comments start with `#` and continue to the end of the line. Numbers are decimal.
 Maximum identifier length is 47 characters. Maximum string length is 49 characters.
 
-Since there is no way to detect end of input file in Intcode, each program must end with a line like this:
+Since there is no way to detect end of input file from Intcode, each program must end with a line like this:
 ```asm
 .EOF
 ```
@@ -40,7 +40,7 @@ Global Symbols
 
 ### Symbol Basics
 
-In addition to numbers, instruction parameters can you can also use symbols:
+In addition to numbers, instruction parameters also support symbols:
 ```asm
     out data
     out [data]
@@ -50,7 +50,7 @@ data:
 .EOF
 ```
 
-The symbol `data` is in compile time replaced by the memory address of the `data:` label. In the example above, each `out` instruction takes two bytes, so the value of `data` is 2 + 2 + 2 = 6. The program is equivalent to:
+The symbol `data` is replaced at compile time by the memory address of the `data:` label. In the example above, each `out` instruction takes two bytes, so the value of `data` is 2 + 2 + 2 = 6. The program is equivalent to:
 
 ```asm
     out 6
@@ -112,9 +112,9 @@ The compiled Intcode is:
 1001,8,0,7,1101,42,0,0,13
 ```
 
-This is the pattern used to dereference pointers. The value of the symbol `tmp` is the memory address `3` bytes forward. In other words, it points to the 3ʳᵈ parameter of the following instruction.
+This is the pattern used to dereference pointers. Value of the `tmp` symbol is the memory address 3 bytes forward. In other words, it points to the 3ʳᵈ parameter of the following instruction.
 
-Let's say the value stored at address `ptr` is 13, and we want to set the value at address 13 to 42. If we used C, we want to do this:
+Let's say the value stored at address `ptr` is 13, and we want to set the value at address 13 to 42. If we used C, this is what we want to do:
 
 ```c
 int *ptr = 13;
@@ -122,7 +122,7 @@ int *ptr = 13;
 ```
 
 The first `add` instruction will read the 13 from address `ptr` and use it to rewrite the 3ʳᵈ argument of the second `add` instruction.
-The second `add` instruction will write the value 42 to memory location 25. 
+The second `add` instruction will write the value 42 to memory location 13.
 
 An alternative way to write this would be:
 
@@ -161,7 +161,7 @@ Compiles to:
 ```
 
 ### Instruction `in a`
-Inputs a character and stores it to `a`.
+Inputs a character and stores it in `a`.
 
 ```asm
     in  [2]
@@ -272,7 +272,7 @@ Pseudo-instructions
 Pseudo-instructions look like instructions in the code, but do not directly correspond to an Intcode instruction.
 
 ### Pseudo-instruction `db`
-Define memory contents directly. Supports one or more arguments. Each argument can be a number, character symbol or a string.
+Define memory contents directly. Supports one or more arguments. Each argument can be a number, character, symbol or a string.
 
 ```asm
     db 42
@@ -284,7 +284,7 @@ Compiles to:
 42,120,97,32,115,116,114,105,110,103,0,12
 ```
 
-Notice in the compiled Intcode that the string was not zero-terminated on it's own, we had to explicitly zero-terminate it. We can also see that the value of the `data` symbol is memory address 12.
+In the compiled Intcode, notice that the string was not zero-terminated on its own, we had to explicitly zero-terminate it. We can also see that the `data` symbol corresponds to memory address 12.
 
 ### Pseudo-instruction `ds`
 Define memory contents directly. Has two arguments, *count* and *value*, and it causes *count* copies of *value* to be stored in memory. The value can be a number of a character only (no symbols or strings).
@@ -299,7 +299,7 @@ Compiles to:
 
 ### Pseudo-instructions `cal` and `ret`
 
-These instructions support function calls. They generates multiple actual Intcode instructions in the background. Essentially this is just syntactic sugar, you could implement functions without `cal` and `ret`, it would just be less convenient
+These instructions support function calls. They generate multiple actual Intcode instructions at compile time. Essentially these are just syntactic sugar. You could implement functions without `cal` and `ret`, it would just be less convenient.
 
 ```asm
     cal my_function
@@ -314,7 +314,7 @@ Compiles to:
 109,1, 2106,0,-1
 ```
 
-Function calls are described in detail [below](#functions).
+Functions are described in detail [below](#stack-and-functions).
 
 Stack and Functions
 -------------------
@@ -324,26 +324,25 @@ Stack and function features are what really makes the 60kB assembler source code
 ### Stack Convention
 
 To implement the stack, we use the relative mode of Intcode instructions. The relative base (`rb`) is the stack pointer, and local variables are addressed relative to `rb`.
-
 Stack grows in the negative direction as is usual on other architectures, and stack pointer points to the item on top of the stack.
 
-This is how you can initialize the stack in your program:
+This is how you initialize the stack in your program:
 ```asm
     arb stack       # initialize stack pointer
 
-    ...             # your code and data comes here
+    ...             # your code and data goes here
 
     ds 50, 0        # 50 bytes of zero-initialized stack space
-stack:              # stack pointer grows in negative direction
+stack:              # initial value for stack pointer
 ```
 
-This is how you push a value on stack:
+This is how you push a value to stack:
 ```asm
     add 42, 0, [rb - 1]
     arb -1
 ```
 
-The first instruction stores the value 42 just below the stack pointer (`rb`). The second instruction decrements the stack pointer.
+First instruction stores the value 42 just below the stack pointer (`rb`). Second instruction decrements the stack pointer.
 
 This is how you pop a value from stack:
 ```asm
@@ -353,7 +352,7 @@ This is how you pop a value from stack:
 
 ### Stack Frames
 
-In order to access local variables on stack, it is convenient to be able to assign symbols to them. This allows you to write `[rb + my_variable]` instead of `[rb + 7]` to access a local variable from within a function.
+In order to access local variables on stack, it is convenient to be able to assign symbols to them. This allows you to write `[rb + my_variable]` instead of `[rb + 7]` even for local variables. 
 The language has two directives to support this, `.FRAME` and `.ENDFRAME`.
 
 The `.FRAME` directive assigns symbols to stack offsets. These symbols are special, they only exist until the next `.ENDFRAME` directive.
@@ -376,10 +375,13 @@ You can see that local variables are stored on stack like this:
 ```
 rb -> var_b
       var_a
-(bottom of stack)
+...
+(bottom of the stack)
 ```
 
 There can be only one `.FRAME` active at one time. In other words, a `.FRAME` needs to be followed by an `.ENDFRAME` before another `.FRAME` can be started.
+
+### Function Parameters and Local Variables
 
 The `.FRAME` directive actually does more than just local variables. It in fact supports up to three symbol lists separated by semicolons:
 
@@ -387,11 +389,26 @@ The `.FRAME` directive actually does more than just local variables. It in fact 
 .FRAME param0, param1; local0, local1, local2; tmp0, tmp1
 ```
 
-The first list (`param0`, `param1`) creates symbols for function parameters. The second list (`local0`, `local1`, `local2`) creates symbols for local variables. The third list (`tmp0`, `tmp1`) creates symbols that exist below the stack pointer (so, outside of stack).
+If there are only two lists, it's assumed that the `tmp` list is empty. If there is just one list, it's assumed that the `param` list is empty as well.
+
+The first list (`param0`, `param1`) creates symbols for function parameters. The second list (`local0`, `local1`, `local2`) creates symbols for local variables. The third list (`tmp0`, `tmp1`) creates symbols that exist below the stack pointer (outside of stack).
 
 The values of these symbols will be 5, 4, 2, 1, 0, -1, -2. The offset of 3 between function parameters and local variables is skipped, as that will be where the return address is stored on stack when calling a function.
 
-If there are only two lists, it's assumed that the `tmp` list is empty. If there is just one list, it's assumed that the `param` list is empty as well.
+The memory in this stack frame will be layed out like this:
+
+```
+      tmp1
+      tmp0
+rb -> local2
+      local1
+      local0
+      (reserved for return address)
+      param1
+      param0
+...
+(bottom of the stack)
+```
 
 ### Function Call Convention
 
@@ -492,3 +509,44 @@ Or in Intcode:
 109,-1,
 109,3, 2106,0,-3
 ```
+
+Stack layout just before `cal my_function`:
+```
+rb -> 'i'
+      'H'
+...
+(bottom of the stack)
+```
+
+Stack layout in `my_function` after `arb -1`:
+```
+rb -> 
+      (return address)
+      'i'
+      'H'
+...
+(bottom of the stack)
+```
+
+Stack layout in `my_function` just before `ret 0`:
+```
+      '!'
+rb -> (return address)
+      'i'
+      'H'
+...
+(bottom of the stack)
+```
+
+Stack layout in after `my_function` returns:
+```
+      '!'
+      (return address)
+      'i'
+      'H'
+rb ->
+...
+(bottom of the stack)
+```
+
+Here you can see why return value is at location `[rb - 4]` from caller's point of view, and that it corresponds to the first local variable of the callee.
