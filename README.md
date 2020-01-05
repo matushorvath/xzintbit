@@ -1,7 +1,7 @@
 What is this?
 -------------
 
-Glad you asked! This is a [self-hosted](https://en.wikipedia.org/wiki/Self-hosting_(compilers)) [assembler](https://en.wikipedia.org/wiki/Assembly_language#Assembler) for [Intcode](https://adventofcode.com/2019/day/9). In other words, this is a program that helps you write Intcode programs in a human-readable language, and the program itself is written in the same human-readable language.
+Glad you asked! This is a [self-hosted](https://en.wikipedia.org/wiki/Self-hosting_(compilers)) [assembler](https://en.wikipedia.org/wiki/Assembly_language#Assembler) for [Intcode](https://adventofcode.com/2019/day/9). In other words, this is a compiler that helps you write Intcode programs in a human-readable assembly language, and the compile itself is written in the same human-readable assembly language.
 
 How can I try it out?
 ---------------------
@@ -30,7 +30,7 @@ message:
 Save this program into a file called `hello-world.s`.
 To run it, we will need to translate it to Intcode.
 
-Since the assembler itself is also written in Intcode, we will need an Intcode virtual machine (VM). For now, let's assume your Intcode VM can be run by executing `vm.sh`, that it reads from standard input and writes to standard output.
+Since the assembler itself is also written in Intcode, we will need an Intcode virtual machine (VM) to run it. For now, let's assume your Intcode VM can be run by executing `vm.sh`, that it reads from standard input and writes to standard output.
 
 ```sh
 $ ./vm.sh src/as.input < hello-world.s > hello-world.input
@@ -38,7 +38,7 @@ $ ./vm.sh src/as.input < hello-world.s > hello-world.input
 
 Here `src/as.input` is the assembler program, `hello-world.s` is our example from above, and `hello-world.input` is the compiled *"Hello, World!"* program in Intcode.
 
-If everything goes well, `hello-world.input` should now contain the following Intcode program:
+If everything went well, `hello-world.input` should now contain the following Intcode program:
 
 ```json
 109,13,1206,0,12,204,0,109,1,1106,0,2,99,72,101,108,108,111,44,32,119,111,114,108,100,33,0
@@ -57,7 +57,7 @@ Hello, world!
 
 Hey, it worked!
 
-Will it run on my machine?
+Will it run on my (virtual) machine?
 --------------------------
 
 You should be able to run the assembler with your own Intcode virtual machine without problems, as long as it follows some basic principles:
