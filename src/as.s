@@ -19,6 +19,8 @@
 # simplify eq [x], 0, [tmp]; jnz [tmp] pattern
 # bug: detect missing .ENDFRAME at the end of file
 # test: both global and frame symbol; access frame outside of frame
+# support [rb] instead of [rb + 0]
+# cal should do add first, then arb
 
 ##########
 parse:

@@ -1,8 +1,8 @@
 {
-  "name": "aoc",
+  "name": "xzintbit",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Self-hosted Intcode assembler",
+  "repository": "https://github.com/matushorvath/xzintbit.git",
   "scripts": {
     "build": "tsc",
     "start": "ts-node src/ic.ts",
