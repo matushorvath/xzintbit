@@ -1286,6 +1286,8 @@ get_token_loop:
     # end of line
     eq  [rb + char], 10, [rb + tmp]
     jnz [rb + tmp], get_token_eol
+    eq  [rb + char], 13, [rb + tmp]
+    jnz [rb + tmp], get_token_eol
 
     # identifiers and keywords
     eq  [rb + char], '_', [rb + tmp]
@@ -1328,12 +1330,29 @@ get_token_eat_comment:
 
 get_token_eat_comment_loop:
     cal get_input
-    eq  [rb - 2], 10, [rb + tmp]
-    jz  [rb + tmp], get_token_eat_comment_loop
+    add [rb - 2], 0, [rb + char]
 
-    # FALLTHROUGH: last char was EOL, so return it as a token
+    # the comment ends with an EOL, so we jump to EOL handling
+    eq  [rb + char], 10, [rb + tmp]
+    jnz [rb + tmp], get_token_eol
+    eq  [rb + char], 13, [rb + tmp]
+    jnz [rb + tmp], get_token_eol
+
+    jz  0, get_token_eat_comment_loop
 
 get_token_eol:
+    # handle Windows-style 13,10 line ends
+    eq  [rb + char], 13, [rb + tmp]
+    jz  [rb + tmp], get_token_eol_unix
+
+    cal get_input
+    eq  [rb - 2], 10, [rb + tmp]
+    jnz [rb + tmp], get_token_eol_unix
+
+    add err_expect_10_after_13, 0, [rb + 0]
+    cal report_error
+
+get_token_eol_unix:
     add '$', 0, [token]
     jz  0, get_token_done
 
@@ -2863,6 +2882,8 @@ err_invalid_fixup:
     db  "Invalid fixup location", 0
 err_unknown_symbol:
     db  "Unknown symbol", 0
+err_expect_10_after_13:
+    db  "Expecting character 10 after character 13", 0
 
 ##########
     ds  50, 0
