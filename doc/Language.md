@@ -5,16 +5,14 @@ Basics
 ------
 
 Programs are case sensitive. The assembler expects unix-like line ends (character 10).
-
 Comments start with `#` and continue to the end of the line. Numbers are decimal.
-
 Maximum identifier length is 47 characters. Maximum string length is 49 characters.
 
-Since there is no way to detect the end of file in Intcode, each program must end with a line like this:
+Since there is no way to detect end of input file in Intcode, each program must end with a line like this:
 ```asm
 .EOF
 ```
-If you are not getting any output from the assembler, missing `.EOF` at the end of file is the most likely reason.
+If you are not getting any output from the assembler, missing `.EOF` at the end of your program is the most likely reason.
 
 Instruction Modes
 -----------------
@@ -24,8 +22,10 @@ Intcode supports three instruction modes:
 - immediate: `out 42` outputs the value 42 itself
 - relative: `out [rb + 42]` outputs the value at address rb + 42, where rb is the relative base
 
-Symbols
--------
+Global Symbols
+--------------
+
+### Symbol Basics
 
 In addition to numbers, instruction parameters can you can also use symbols:
 ```asm
@@ -52,6 +52,8 @@ Or:
 104,6,4,6,204,6,42
 ```
 
+### Symbols with Numbers
+
 Symbols can be combined with numbers:
 
 ```asm
@@ -71,11 +73,53 @@ Which is equivalent to:
     out [rb + 9]
 data:
     db  42
+.EOF
 ```
 
 Or:
 ```json
 104,7,4,4,204,9,42
+```
+
+# Relative Symbols
+
+Symbols can also be defined to point to the middle of an instruction. This can be useful for self-modifying code:
+
+```asm
+    add [ptr], 0, [tmp]
++3 = tmp:
+    add 42, 0, [0]
+ptr:
+    db  13
+.EOF
+```
+
+The compiled Intcode is:
+```json
+1001,8,0,7,1101,42,0,0,13
+```
+
+This is the pattern used to dereference pointers. The value of the symbol `tmp` is the memory address `3` bytes forward. In other words, it points to the 3ʳᵈ parameter of the following instruction.
+
+Let's say the value stored at address `ptr` is 13, and we want to set the value at address 13 to 42. If we used C, we want to do this:
+
+```c
+int *ptr = 13;
+*ptr = 42;
+```
+
+The first `add` instruction will read the 13 from address `ptr` and use it to rewrite the 3ʳᵈ argument of the second `add` instruction.
+The second `add` instruction will write the value 42 to memory location 25. 
+
+An alternative way to write this would be:
+
+```asm
+    add [ptr], 0, [tmp + 3]
+tmp:
+    add 42, 0, [0]
+ptr:
+    db  13
+.EOF
 ```
 
 Instructions
