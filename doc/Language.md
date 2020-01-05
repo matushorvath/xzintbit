@@ -309,7 +309,7 @@ my_function:
 ```
 Compiles to:
 ```json
-109,-1, 21101,9,0,0, 1106,0,9,
+21101,9,0,-1, 109,-1, 1106,0,9,
 104,65,
 109,1, 2106,0,-1
 ```
@@ -457,11 +457,9 @@ The equivalent code without the syntactic sugar would be:
     add 'i', 1, [rb - 2]
     arb -2
 
-    # reserve stack space for return address
+    # push return address to stack
+    add return_address, 0, [rb - 1]
     arb -1
-
-    # store return address on stack
-    add return_address, 0, [rb + 0]
 
     # jump to my_function
     jz  0, my_function
@@ -497,7 +495,7 @@ Or in Intcode:
 21101,72,0,-1,
 21101,105,1,-2,
 109,-2,
-109,-1, 21101,19,0,0, 1106,0,21,
+21101,19,0,-1, 109,-1, 1106,0,21,
 204,-4,
 
 109,-1,
