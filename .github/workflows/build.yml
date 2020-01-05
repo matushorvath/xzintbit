@@ -26,18 +26,18 @@ jobs:
       with:
         node-version: 10.x
 
-    - name: Build Assembler (cmd)
+    - name: Build Assembler (bash)
       if: runner.os != 'Windows'
       run: ./make.sh
-    - name: Build Assembler (bash)
+    - name: Build Assembler (cmd)
       if: runner.os == 'Windows'
       shell: cmd
       run: make
 
-    - name: Test Assembler (cmd)
+    - name: Test Assembler (bash)
       if: runner.os != 'Windows'
       run: ./test.sh
-    - name: Test Assembler (bash)
+    - name: Test Assembler (cmd)
       if: runner.os == 'Windows'
       shell: cmd
       run: test
