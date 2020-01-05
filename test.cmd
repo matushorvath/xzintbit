@@ -28,6 +28,10 @@ FOR %%i IN (test\*.s) DO (
     ) else (
         ECHO FAILED
         ECHO n | COMP /A "!output!" "!expect!" 2> NUL
+        ECHO Output:
+        TYPE "!output!"
+        ECHO Expect:
+        TYPE "!expect!"
         SET /A "failed_count=(!failed_count! + 1)"
     )
 )
