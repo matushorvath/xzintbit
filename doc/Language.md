@@ -352,9 +352,9 @@ This is how you pop a value from stack:
 
 ### Stack Frames
 
-In order to access local variables on stack, it is convenient to be able to assign symbols to them. This allows you to write `[rb + my_variable]` instead of `[rb + 7]` even for local variables. 
-The language has two directives to support this, `.FRAME` and `.ENDFRAME`.
+In order to access local variables on stack, it is convenient to be able to assign symbols to them. This allows you to write `[rb + my_variable]` instead of `[rb + 7]` even for local variables.
 
+The language has two directives to support this, `.FRAME` and `.ENDFRAME`.
 The `.FRAME` directive assigns symbols to stack offsets. These symbols are special, they only exist until the next `.ENDFRAME` directive.
 
 For example, this is a frame with two local variables:
@@ -395,7 +395,7 @@ The first list (`param0`, `param1`) creates symbols for function parameters. The
 
 The values of these symbols will be 5, 4, 2, 1, 0, -1, -2. The offset of 3 between function parameters and local variables is skipped, as that will be where the return address is stored on stack when calling a function.
 
-The memory in this stack frame will be layed out like this:
+Memory in this stack frame will be laid out like this:
 
 ```
       tmp1
@@ -412,7 +412,7 @@ rb -> local2
 
 ### Function Call Convention
 
-Function calls are vaguely inspired by x86 thiscall. Function parameters are pushed to stack and cleaned up by callee, returned values are stored just below the stack after the callee returns.
+Function calls are vaguely inspired by x86 *thiscall*. Function parameters are pushed to stack and cleaned up by callee, returned values are stored below the stack pointer after callee returns.
 
 A function call with 2 parameters and a return value looks like this:
 ```asm
@@ -428,7 +428,6 @@ A function call with 2 parameters and a return value looks like this:
     # 4 = 2 + number of function parameters
     out [rb - 4]
 
-# function with two parameters and a local variable
 my_function:
 .FRAME param0, param1; var0
     # reserve stack space for 1 local variable, var0
