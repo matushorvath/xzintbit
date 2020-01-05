@@ -1,7 +1,7 @@
 What is this?
 -------------
 
-Glad you asked! This is a [self-hosted](https://en.wikipedia.org/wiki/Self-hosting_(compilers)) [assembler](https://en.wikipedia.org/wiki/Assembly_language#Assembler) for [Intcode](https://adventofcode.com/2019/day/9). In other words, this is a compiler that helps you write Intcode programs in a human-readable assembly language, and the compile itself is written in the same human-readable assembly language.
+Glad you asked! This is a [self-hosted](https://en.wikipedia.org/wiki/Self-hosting_(compilers)) [assembler](https://en.wikipedia.org/wiki/Assembly_language#Assembler) for [Intcode](https://adventofcode.com/2019/day/9). In other words, this is a compiler that helps you write Intcode programs in a human-readable assembly language, and the compiler itself is written in the same human-readable assembly language.
 
 How can I try it out?
 ---------------------
