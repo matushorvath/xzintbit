@@ -536,7 +536,7 @@ rb -> (return address)
 (bottom of the stack)
 ```
 
-Stack layout in after `my_function` returns:
+Stack layout after `my_function` returns:
 ```
       '!'
       (return address)
