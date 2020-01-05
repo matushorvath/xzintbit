@@ -11,10 +11,13 @@ env:
   TERM: xterm-color
 
 jobs:
-  build-linux:
+  build:
     name: Test on ${{ matrix.os }}
-    matrix:
-      os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
     - uses: actions/checkout@v1
