@@ -65,7 +65,7 @@ You should be able to execute the assembler on your own Intcode virtual machine,
 - It needs to be a complete Intcode computer, as specified in [Day 9](https://adventofcode.com/2019/day/9).
 - Memory needs to expand automatically as needed. The assembler allocates memory in one continuous block starting at address 0, so a VM implementation based on reallocating arrays is good enough. A statically sized memory could also work, as long as it is large enough.
 - It needs the *Aft Scaffolding Control and Information Interface* (ASCII) from [Day 17](https://adventofcode.com/2019/day/17). Which just means that everything output by Intcode should be displayed as ASCII characters, with character `10` meaning 'new line'.
-- It must not output any extra messages, other than what is output by Intcode using `out` instructions. If your VM outputs any extra messages of its own, they will mix up with the Intcode output and the output will not be valid Intcode, obviously.
+- It must not output any extra messages, other than what is output by Intcode using `out` instructions. If your VM outputs any extra messages of its own, they will mix up with the Intcode output and the result will not be valid Intcode, obviously.
 - There is no need for arbitrary sized numbers, even implementations based on 32-bit integers should be fine.
 
 If you don't have an IntCode VM, you can try the one in `vm` directory, which is the one I use. It's written in TypeScript, and you will need node.js 10.x or newer to run it.
