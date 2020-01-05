@@ -2,20 +2,20 @@
 
 set -xe
 
-./vm.sh src/as.input < src/as.s > src/as.stg1.input && status=$? || status=$?
+./vm.sh src/as.input < src/as.s > as.stg1.input && status=$? || status=$?
 if [ $status -ne 0 ]; then
-    awk '/[^-0-9,]/' < src/as.stg1.input
+    awk '/[^-0-9,]/' < as.stg1.input
     exit $status
 fi
 
-./vm.sh src/as.stg1.input < src/as.s > src/as.stg2.input && status=$? || status=$?
+./vm.sh as.stg1.input < src/as.s > as.stg2.input && status=$? || status=$?
 if [ $status -ne 0 ]; then
-    awk '/[^-0-9,]/' < src/as.stg2.input
+    awk '/[^-0-9,]/' < as.stg2.input
     exit $status
 fi
 
-diff src/as.stg1.input src/as.stg2.input
-cp src/as.stg2.input src/as.input
+diff as.stg1.input as.stg2.input
+cp as.stg2.input src/as.input
 
-rm src/as.stg1.input
-rm src/as.stg2.input
+rm as.stg1.input
+rm as.stg2.input

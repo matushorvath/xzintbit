@@ -12,7 +12,12 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -20,14 +25,19 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-    - name: Build IntCode VM
-      run: |
-        cd vm
-        npm ci
-        npm run build --if-present
-    - name: Build Assembler
-      run: |
-        ./make.sh
-    - name: Test Assembler
-      run: |
-        ./test.sh
+
+    - name: Build Assembler (bash)
+      if: runner.os != 'Windows'
+      run: ./make.sh
+    - name: Build Assembler (cmd)
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: make
+
+    - name: Test Assembler (bash)
+      if: runner.os != 'Windows'
+      run: ./test.sh
+    - name: Test Assembler (cmd)
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: test
