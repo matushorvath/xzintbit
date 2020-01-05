@@ -416,7 +416,7 @@ Function calls are vaguely inspired by x86 *thiscall*. Function parameters are p
 
 A function call with 2 parameters and a return value looks like this:
 ```asm
-    # push two parameters on stack
+    # push two parameters to stack
     add 'H', 0, [rb - 1]
     add 'i', 1, [rb - 2]
     arb -2
@@ -437,10 +437,10 @@ my_function:
     out [rb + param0]
     out [rb + param1]
 
-    # the first local variable will be what caller sees as the return value
+    # our first local variable will be what caller sees as the return value
     add '!', 0, [rb + var0]
 
-    # pop var0 from stack
+    # remove var0 from stack
     arb 1
 
     # return to caller, specifying that 2 function parameters
@@ -452,7 +452,7 @@ my_function:
 The equivalent code without the syntactic sugar would be:
 
 ```asm
-    # push two parameters on stack
+    # push two parameters to stack
     add 'H', 0, [rb - 1]
     add 'i', 1, [rb - 2]
     arb -2
@@ -471,7 +471,6 @@ return_address:
     # 4 = 2 + number of function parameters
     out [rb - 4]
 
-# function with two parameters and a local variable
 my_function:
     # reserve stack space for 1 local variable, var0
     arb -1
@@ -480,13 +479,13 @@ my_function:
     out [rb + 3]
     out [rb + 2]
 
-    # the first local variable will be what caller sees as the return value
+    # our first local variable will be what caller sees as the return value
     add '!', 0, [rb + 0]
 
-    # pop var0 from stack
+    # remove var0 from stack
     arb 1
 
-    # pop 2 function parameters and return address from stack
+    # remove 2 function parameters and return address from stack
     arb 3
 
     # jump to return address
