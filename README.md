@@ -1,4 +1,4 @@
-<div style="text-align: right">![](https://github.com/matushorvath/xzintbit/workflows/Build%20and%20Test/badge.svg)</div>
+![](https://github.com/matushorvath/xzintbit/workflows/Build%20and%20Test/badge.svg)
 What is this?
 -------------
 
