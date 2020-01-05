@@ -20,7 +20,6 @@
 # bug: detect missing .ENDFRAME at the end of file
 # test: both global and frame symbol; access frame outside of frame
 # support [rb] instead of [rb + 0]
-# cal should do add first, then arb
 
 ##########
 parse:
@@ -388,18 +387,8 @@ parse_cal:
     # eat the 'cal' token
     cal get_token
 
-    # generate code: arb -1
-    # 109, -1
-    add 109, 0, [rb - 1]
-    arb -1
-    cal set_mem
-
-    add -1, 0, [rb - 1]
-    arb -1
-    cal set_mem
-
-    # generate code: add ip + 2 + 4 + 3, 0, [rb + 0]
-    # 21101, ip + 9, 0, 0
+    # generate code: add ip + 2 + 4 + 3, 0, [rb - 1]
+    # 21101, ip + 9, 0, -1
     add 21101, 0, [rb - 1]
     arb -1
     cal set_mem
@@ -412,7 +401,17 @@ parse_cal:
     arb -1
     cal set_mem
 
-    add 0, 0, [rb - 1]
+    add -1, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    # generate code: arb -1
+    # 109, -1
+    add 109, 0, [rb - 1]
+    arb -1
+    cal set_mem
+
+    add -1, 0, [rb - 1]
     arb -1
     cal set_mem
 
