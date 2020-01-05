@@ -44,7 +44,7 @@ If everything goes well, `hello-world.input` should now contain the following In
 109,13,1206,0,12,204,0,109,1,1106,0,2,99,72,101,108,108,111,44,32,119,111,114,108,100,33,0
 ```
 
-You can see that the first instruction (`arb message`) is `109, 13`  which adjusts the relative base to 13, the address of `message` in memory.
+You can see that the first instruction (`arb message`) is `109, 13` which adjusts the relative base by 13, the address of `message` in memory.
 
 The next instruction (`jz [rb + 0], done`) is `1206,0,12`, which is a jump-if-false with one relative and one immediate parameter, jumping to address 12 which is the `done` label. And so on.
 
@@ -105,7 +105,7 @@ It compiles the source `src/as.s` using binary `src/as.input` into a new binary 
 
 The shell script uses `vm.sh` to run the Intcode VM, so if you are using your own VM, update the `vm.sh` to point to it. By default, `vm.sh` points to the TypeScript based VM in `vm` subdirectory.
 
-Language features
+What can it do?
 -----------------
 
 In addition to supporting all Intcode features specified in [Day 9](https://adventofcode.com/2019/day/9), the assembler also supports:
@@ -121,7 +121,7 @@ More detailed description of the language can be found in [doc/Language.md](doc/
 But why?
 --------
 
-[Because it's there.](https://en.wikiquote.org/wiki/George_Mallory).
+[Because it's there](https://en.wikiquote.org/wiki/George_Mallory).
 Also, I heard you liked assembler, so I assembled an assembler in assembler, so you can assemble while you assemble.
 
 ![Xzibit](https://i.kym-cdn.com/photos/images/small/000/001/122/xzibit-happy.jpg)
