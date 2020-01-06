@@ -16,9 +16,7 @@
 # have a printf-like function to print more info about errors
 # check the typescript implementation for missing error handling
 # simplify eq [x], 0, [tmp]; jnz [tmp] pattern
-# bug: detect missing .ENDFRAME at the end of file
 # test: both global and frame symbol; access frame outside of frame
-# support [rb] instead of [rb]
 
 ##########
 parse:
@@ -917,6 +915,13 @@ parse_dir_endframe_done:
 ##########
 parse_dir_eof:
 .FRAME
+    # detect missing .ENDFRAME
+    jz  [is_frame], parse_dir_eof_have_endframe
+
+    add err_expect_endframe, 0, [rb + 0]
+    cal report_error
+
+parse_dir_eof_have_endframe:
     # run fixups
     cal do_fixups
 
@@ -2880,6 +2885,8 @@ err_unknown_symbol:
     db  "Unknown symbol", 0
 err_expect_10_after_13:
     db  "Expecting character 10 after character 13", 0
+err_expect_endframe:
+    db  "Expecting .ENDFRAME", 0
 
 ##########
     ds  50, 0
