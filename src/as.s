@@ -3,7 +3,7 @@
 # return address frame symbol?
 # allocate less than 50 for fixups
 # have a printf-like function to print more info about errors
-# check the typescript implementation for missing error handling
+# check the typescript as implementation for missing error handling
 # test: both global and frame symbol; access frame outside of frame
 # compile-time constants: .SYMBOL abc = 42, use instead of 50
 

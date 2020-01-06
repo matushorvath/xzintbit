@@ -34,7 +34,7 @@ To run it, you will need to assemble it to Intcode.
 
 The assembler itself is also written in Intcode, so you will need an Intcode virtual machine (VM) to run it. You can definitely [use your own Intcode VM](#will-it-run-on-my-virtual-machine), or you could use mine.
 
-My Intcode VM is written in TypeScript, and it needs [Node.js 10.x or newer](https://nodejs.org/en/download/). It is started by executing `vm.sh` (or `vm.cmd` on Windows), reads from standard input and writes to standard output.
+My Intcode VM is written in C, so to build it you will need a (relatively modern) C compiler. It is started by executing `vm.sh` (or `vm.cmd` on Windows), reads from standard input and writes to standard output.
 
 ```sh
 $ ./vm.sh src/as.input < hello-world.s > hello-world.input
@@ -101,7 +101,7 @@ $ ./build.sh
 
 It compiles the source `src/as.s` using binary `src/as.input` into a new binary `src/as.stg1.input`, then uses the new binary to compile the same source again into yet another binary `src/as.stg2.input`. If everything works, the two generated binaries should be the same.
 
-The `main.sh` script uses `vm.sh` to run the Intcode VM, so if you are using your own VM, update `vm.sh` to point to it. By default, `vm.sh` points to the TypeScript-based VM in `vm` subdirectory.
+The `main.sh` script uses `vm.sh` to run the Intcode VM, so if you are using your own VM, update `vm.sh` to point to it. By default, `vm.sh` points to my Intcode VM in the `vm` subdirectory.
 
 What can it do?
 -----------------
