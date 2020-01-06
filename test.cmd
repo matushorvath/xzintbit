@@ -1,6 +1,8 @@
 @ECHO OFF
 SETLOCAL EnableExtensions EnableDelayedExpansion
 
+ECHO.
+
 REM Color suport
 REM Be careful, there are invisible ESC characters in the variables below
 SET normal=[0m
