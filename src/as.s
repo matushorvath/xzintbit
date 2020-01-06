@@ -15,7 +15,6 @@
 # store line and column number with fixups
 # have a printf-like function to print more info about errors
 # check the typescript implementation for missing error handling
-# simplify eq [x], 0, [tmp]; jnz [tmp] pattern
 # test: both global and frame symbol; access frame outside of frame
 
 ##########
@@ -680,8 +679,7 @@ parse_dir_frame:
 
     # no nested frames, only one frame at a time
     # we can't use frame_head, because a frame could have no symbols
-    eq  [is_frame], 0, [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_loop
+    jz  [is_frame], parse_dir_frame_loop
 
     add err_already_in_frame, 0, [rb]
     call report_error
@@ -849,8 +847,7 @@ parse_dir_frame_offset:
 
 parse_dir_frame_offset_loop:
     # are there any more records?
-    eq  [rb + record], 0, [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_offset_done
+    jz  [rb + record], parse_dir_frame_offset_done
 
     # read block index field
     add [rb + record], 49, [parse_dir_frame_offset_block_index_ptr]
@@ -1059,8 +1056,7 @@ parse_value_identifier:
     arb -1
     call find_frame_symbol
 
-    eq  [rb - 3], 0, [rb + tmp]
-    jnz [rb + tmp], parse_value_is_global
+    jz  [rb - 3], parse_value_is_global
 
     # it is a frame symbol, find_frame_symbol has also returned its offset
     add [rb - 4], 0, [rb + result]
@@ -1742,8 +1738,7 @@ detect_keyword:
     arb -2
     call strcmp
 
-    eq  [rb - 4], 0, [rb + tmp]
-    jz  [rb + tmp], detect_keyword_is_not
+    jnz [rb - 4], detect_keyword_is_not
 
     # find token id, return it
     add detect_keyword_tokens, [rb + char0], [detect_keyword_tokens_ptr]
@@ -1983,8 +1978,7 @@ alloc:
 
 alloc_size_ok:
     # do we have any free blocks?
-    eq  [free_head], 0, [rb + tmp]
-    jnz [rb + tmp], alloc_create_block
+    jz  [free_head], alloc_create_block
 
     # yes, remove first block from the list and return it
     add [free_head], 0, [rb + block]
@@ -2024,15 +2018,14 @@ free:
 
 ##########
 find_global_symbol:
-.FRAME identifier; record, tmp
-    arb -2
+.FRAME identifier; record
+    arb -1
 
     add [global_head], 0, [rb + record]
 
 find_global_symbol_loop:
     # are there any more records?
-    eq  [rb + record], 0, [rb + tmp]
-    jnz [rb + tmp], find_global_symbol_done
+    jz  [rb + record], find_global_symbol_done
 
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
@@ -2041,8 +2034,7 @@ find_global_symbol_loop:
     call strcmp
 
     # if strcmp result is 0, we are done
-    eq  [rb - 4], 0, [rb + tmp]
-    jnz [rb + tmp], find_global_symbol_done
+    jz  [rb - 4], find_global_symbol_done
 
     # move to next record
     add [rb + record], 0, [find_global_symbol_next_record]
@@ -2052,7 +2044,7 @@ find_global_symbol_loop:
     jz  0, find_global_symbol_loop
 
 find_global_symbol_done:
-    arb 2
+    arb 1
     ret 1
 .ENDFRAME
 
@@ -2106,8 +2098,7 @@ add_fixup:
     call find_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
-    eq  [rb + symbol], 0, [rb + tmp]
-    jz  [rb + tmp], add_fixup_have_symbol
+    jnz [rb + symbol], add_fixup_have_symbol
 
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -2157,8 +2148,7 @@ set_global_symbol_address:
     call find_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
-    eq  [rb + symbol], 0, [rb + tmp]
-    jz  [rb + tmp], set_global_symbol_address_check_duplicate
+    jnz [rb + symbol], set_global_symbol_address_check_duplicate
 
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -2191,15 +2181,14 @@ set_global_symbol_address_have_symbol:
 
 ##########
 find_frame_symbol:
-.FRAME identifier; record, address, tmp
-    arb -3
+.FRAME identifier; record, address
+    arb -2
 
     add [frame_head], 0, [rb + record]
 
 find_frame_symbol_loop:
     # are there any more records?
-    eq  [rb + record], 0, [rb + tmp]
-    jnz [rb + tmp], find_frame_symbol_done
+    jz  [rb + record], find_frame_symbol_done
 
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
@@ -2208,8 +2197,7 @@ find_frame_symbol_loop:
     call strcmp
 
     # if strcmp result is 0, we are done
-    eq  [rb - 4], 0, [rb + tmp]
-    jnz [rb + tmp], find_frame_symbol_done
+    jz  [rb - 4], find_frame_symbol_done
 
     # move to next record
     add [rb + record], 0, [find_frame_symbol_next_record]
@@ -2224,7 +2212,7 @@ find_frame_symbol_done:
 +1 = find_frame_symbol_address_ptr:
     add [0], 0, [rb + address]
 
-    arb 3
+    arb 2
     ret 1
 .ENDFRAME
 
@@ -2271,8 +2259,7 @@ reset_frame:
 
 reset_frame_symbol_loop:
     # are there any more records?
-    eq  [rb + record], 0, [rb + tmp]
-    jnz [rb + tmp], reset_frame_symbol_done
+    jz  [rb + record], reset_frame_symbol_done
 
     # save current record pointer
     add [rb + record], 0, [rb + tmp]
@@ -2305,8 +2292,7 @@ set_mem:
     add [mem_tail], 0, [rb + buffer]
 
     # do we have a buffer at all?
-    eq  [rb + buffer], 0, [rb + tmp]
-    jz  [rb + tmp], set_mem_have_buffer
+    jnz [rb + buffer], set_mem_have_buffer
 
     # no, create one
     add 50, 0, [rb - 1]
@@ -2362,8 +2348,8 @@ set_mem_have_space:
 
 ##########
 set_mem_str:
-.FRAME string; index, char, tmp
-    arb -3
+.FRAME string; index, char
+    arb -2
 
     add 0, 0, [rb + index]
 
@@ -2372,8 +2358,7 @@ set_mem_str_loop:
 +1 = set_mem_str_ptr:
     add [0], 0, [rb + char]
 
-    eq  [rb + char], 0, [rb + tmp]
-    jnz [rb + tmp], set_mem_str_done
+    jz  [rb + char], set_mem_str_done
 
     add [rb + char], 0, [rb - 1]
     arb -1
@@ -2383,14 +2368,14 @@ set_mem_str_loop:
     jz  0, set_mem_str_loop
 
 set_mem_str_done:
-    arb 3
+    arb 2
     ret 1
 .ENDFRAME
 
 ##########
 inc_mem_at:
-.FRAME byte, index, offset; buffer, tmp
-    arb -2
+.FRAME byte, index, offset; buffer
+    arb -1
 
     # increase memory location in index-th memory block, location offset
     # assume this does not require creating new blocks
@@ -2399,16 +2384,14 @@ inc_mem_at:
 
 inc_mem_at_loop:
     # any more blocks?
-    eq  [rb + buffer], 0, [rb + tmp]
-    jz  [rb + tmp], inc_mem_at_have_block
+    jnz [rb + buffer], inc_mem_at_have_block
 
     add err_invalid_fixup, 0, [rb]
     call report_error
 
 inc_mem_at_have_block:
     # is this the block we need?
-    eq  [rb + index], 0, [rb + tmp]
-    jnz [rb + tmp], inc_mem_at_this_block
+    jz  [rb + index], inc_mem_at_this_block
     add [rb + index], -1, [rb + index]
 
     # next block in linked list
@@ -2426,7 +2409,7 @@ inc_mem_at_this_block:
 +3 = inc_mem_at_ptr_2:
     add [0], [rb + byte], [0]
 
-    arb 2
+    arb 1
     ret 3
 .ENDFRAME
 
@@ -2438,8 +2421,7 @@ print_mem:
     add 1, 0, [rb + first]
 
     add [mem_head], 0, [rb + buffer]
-    eq  [mem_head], 0, [rb + tmp]
-    jnz [rb + tmp], print_mem_done
+    jz  [mem_head], print_mem_done
 
 print_mem_block:
     add 1, 0, [rb + index]
@@ -2479,8 +2461,7 @@ print_mem_block_done:
 +1 = print_mem_next_block_ptr:
     add [0], 0, [rb + buffer]
 
-    eq  [rb + buffer], 0, [rb + tmp]
-    jz  [rb + tmp], print_mem_block
+    jnz [rb + buffer], print_mem_block
 
 print_mem_done:
     out 10
@@ -2498,8 +2479,7 @@ do_fixups:
 
 do_fixups_symbol:
     # do we have more symbols?
-    eq  [rb + symbol], 0, [rb + tmp]
-    jnz [rb + tmp], do_fixups_done
+    jz  [rb + symbol], do_fixups_done
 
     # each symbol needs to have an address
     add [rb + symbol], 48, [do_fixups_symbol_address_ptr]
@@ -2520,8 +2500,7 @@ do_fixups_have_address:
 
 do_fixups_fixup:
     # do we have more fixups for this symbol?
-    eq  [rb + fixup], 0, [rb + tmp]
-    jnz [rb + tmp], do_fixups_symbol_done
+    jz  [rb + fixup], do_fixups_symbol_done
 
     # read fixup address
     add [rb + fixup], 1, [do_fixups_fixup_address_ptr]
@@ -2660,8 +2639,7 @@ strcmp_loop:
     jz  [rb + tmp], strcmp_done
 
     # same character, is it 0?
-    eq  [rb + char1], 0, [rb + tmp]
-    jnz [rb + tmp], strcmp_done
+    jz  [rb + char1], strcmp_done
 
     add [rb + index], 1, [rb + index]
     jz  0, strcmp_loop
@@ -2676,8 +2654,8 @@ strcmp_done:
 
 ##########
 strcpy:
-.FRAME src, tgt; index, tmp, char
-    arb -3
+.FRAME src, tgt; index, char
+    arb -2
 
     add 0, 0, [rb + index]
 
@@ -2690,14 +2668,13 @@ strcpy_loop:
 +3 = strcpy_tgt_ptr:
     add [rb + char], 0, [0]
 
-    eq  [rb + char], 0, [rb + tmp]
-    jnz [rb + tmp], strcpy_done
+    jz  [rb + char], strcpy_done
 
     add [rb + index], 1, [rb + index]
     jz  0, strcpy_loop
 
 strcpy_done:
-    arb 3
+    arb 2
     ret 2
 .ENDFRAME
 
@@ -2713,8 +2690,7 @@ print_str_loop:
 +1 = print_str_str_ptr:
     add [0], 0, [rb + char]
 
-    eq  [rb + char], 0, [rb + tmp]
-    jnz [rb + tmp], print_str_done
+    jz  [rb + char], print_str_done
 
     out [rb + char]
 
