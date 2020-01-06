@@ -6,6 +6,7 @@
 # have a printf-like function to print more info about errors
 # check the typescript implementation for missing error handling
 # test: both global and frame symbol; access frame outside of frame
+# compile-time constants: .SYMBOL abc = 42, use instead of 50
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
@@ -1058,8 +1059,10 @@ parse_value_identifier:
 
     jz  [rb - 3], parse_value_is_global
 
-    # it is a frame symbol, find_frame_symbol has also returned its offset
-    add [rb - 4], 0, [rb + result]
+    # it is a frame symbol, read its offset
+    add [rb - 3], 48, [parse_value_offset_ptr]
++1 = parse_value_offset_ptr:
+    add [0], 0, [rb + result]
 
     jz  0, parse_value_after_global
 
@@ -1582,7 +1585,7 @@ read_number_loop:
     jz  [rb - 3], read_number_end
 
     # convert ASCII to a number
-    add [rb + digit], -48, [rb + digit]
+    add [rb + digit], -'0', [rb + digit]
 
     # byte = byte * 10 + digit
     mul [rb + byte], 10, [rb + byte]
@@ -1989,14 +1992,14 @@ alloc_size_ok:
 +1 = alloc_next_block:
     add [0], 0, [free_head]
 
-    arb 2
-    ret 1
+    jz  0, alloc_done
 
 alloc_create_block:
-    # there is no block, create one
+    # there are no free blocks, create one
     add [heap_end], 0, [rb + block]
     add [heap_end], 50, [heap_end]
 
+alloc_done:
     arb 2
     ret 1
 .ENDFRAME
@@ -2193,8 +2196,8 @@ set_global_symbol_address_have_symbol:
 
 ##########
 find_frame_symbol:
-.FRAME identifier; record, address
-    arb -2
+.FRAME identifier; record
+    arb -1
 
     add [frame_head], 0, [rb + record]
 
@@ -2219,12 +2222,7 @@ find_frame_symbol_loop:
     jz  0, find_frame_symbol_loop
 
 find_frame_symbol_done:
-    # return the address, since that is what we usually need
-    add [rb + record], 48, [find_frame_symbol_address_ptr]
-+1 = find_frame_symbol_address_ptr:
-    add [0], 0, [rb + address]
-
-    arb 2
+    arb 1
     ret 1
 .ENDFRAME
 
@@ -2758,32 +2756,6 @@ print_str_done:
 .ENDFRAME
 
 ##########
-# this function was not tested yet!
-dump:
-.FRAME ptr, count; tmp, byte, index
-    arb -3
-
-    add 0, 0, [rb + index]
-
-dump_loop:
-    add [rb + ptr], [rb + index], [dump_ptr]
-+1 = dump_ptr:
-    add [0], 0, [rb + byte]
-
-    add [rb + ptr], [rb + index], [rb + tmp]
-    out [rb + tmp]
-    out [rb + byte]
-    out 10
-
-    add [rb + index], 1, [rb + index]
-    lt  [rb + count], [rb + index], [rb + tmp]
-    jz  [rb + tmp], dump_loop
-
-    arb 3
-    ret 2
-.ENDFRAME
-
-##########
 # globals
 
 # head of the linked list of free blocks
@@ -2867,7 +2839,9 @@ mem_tail:
 mem_index:
     db 0
 
+##########
 # error messages
+
 err_unexpected_token:
     db  "Unexpected token", 0
 err_expect_comma:
