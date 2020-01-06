@@ -12,7 +12,7 @@ async function* getIns() {
 const main = async () => {
     const input = await fs.readFile(process.argv[2], 'utf8');
     const mem = input.split(',').map(i => Number(i));
-    const vm = new Vm(0, mem);
+    const vm = new Vm(mem);
 
     let line: number[] = [];
     for await (const char of vm.run(getIns())) {

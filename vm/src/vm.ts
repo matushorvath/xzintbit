@@ -1,11 +1,9 @@
 export class Vm {
-    constructor(public id: number, private mem: number[]) {
-        this.ip = 0;
-        this.rb = 0;
+    constructor(private mem: number[]) {
     }
 
-    public ip: number;
-    private rb: number;
+    private ip = 0;
+    private rb = 0;
 
     private getParam = (idx: number) => {
         const mode = Math.trunc((this.mem[this.ip] ?? 0) / [100, 1000, 10000][idx]) % 10;
