@@ -8,7 +8,7 @@ eq  [0], [1], [2]
 
 # relative mode
 add 0, [rb - 1], [2]
-mul [rb + 0], 1, [2]
+mul [rb], 1, [2]
 lt  0, [1], [rb + 2]
 eq  [rb - 0], [rb + 1], [rb + 2]
 

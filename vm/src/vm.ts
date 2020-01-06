@@ -424,7 +424,7 @@ export class Vm {
                 return {
                     mem: [
                         109, -1,                                    // arb -1
-                        21101, this.ip + 9, 0, 0,                   // add ip + 2 + 4 + 3, 0, [rb + 0]
+                        21101, this.ip + 9, 0, 0,                   // add ip + 2 + 4 + 3, 0, [rb]
                         106 + this.oc(ps[0], 1), 0, ps[0].val       // jz 0, $0
                     ],
                     fixups: this.fixup(ps[0], 8)

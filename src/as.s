@@ -15,11 +15,10 @@
 # store line and column number with fixups
 # have a printf-like function to print more info about errors
 # check the typescript implementation for missing error handling
-# bug: jnz parse_dir_frame_block_is_unique crashes
 # simplify eq [x], 0, [tmp]; jnz [tmp] pattern
 # bug: detect missing .ENDFRAME at the end of file
 # test: both global and frame symbol; access frame outside of frame
-# support [rb] instead of [rb + 0]
+# support [rb] instead of [rb]
 
 ##########
 parse:
@@ -82,7 +81,7 @@ parse_loop:
     eq  [token], 'N', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_eof
 
-    add err_unexpected_token, 0, [rb + 0]
+    add err_unexpected_token, 0, [rb]
     cal report_error
 
 parse_call_add_mul_lt_eq:
@@ -158,7 +157,7 @@ parse_add_mul_lt_eq:
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_param1
 
-    add err_expect_comma, 0, [rb + 0]
+    add err_expect_comma, 0, [rb]
     cal report_error
 
 parse_add_mul_lt_eq_param1:
@@ -175,7 +174,7 @@ parse_add_mul_lt_eq_param1:
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_param2
 
-    add err_expect_comma, 0, [rb + 0]
+    add err_expect_comma, 0, [rb]
     cal report_error
 
 parse_add_mul_lt_eq_param2:
@@ -192,7 +191,7 @@ parse_add_mul_lt_eq_param2:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_add_mul_lt_eq_done:
@@ -238,7 +237,7 @@ parse_jnz_jz:
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_jnz_jz_param1
 
-    add err_expect_comma, 0, [rb + 0]
+    add err_expect_comma, 0, [rb]
     cal report_error
 
 parse_jnz_jz_param1:
@@ -255,7 +254,7 @@ parse_jnz_jz_param1:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_jnz_jz_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_jnz_jz_done:
@@ -297,7 +296,7 @@ parse_arb_out:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_arb_out_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_arb_out_done:
@@ -335,7 +334,7 @@ parse_in:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_in_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_in_done:
@@ -365,7 +364,7 @@ parse_hlt:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_hlt_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_hlt_done:
@@ -440,7 +439,7 @@ parse_cal:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_cal_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_cal_done:
@@ -494,7 +493,7 @@ parse_ret:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_ret_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_ret_done:
@@ -550,7 +549,7 @@ parse_db_after_param:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_db_done
 
-    add err_expect_comma_eol, 0, [rb + 0]
+    add err_expect_comma_eol, 0, [rb]
     cal report_error
 
 parse_db_done:
@@ -569,7 +568,7 @@ parse_ds:
     eq  [token], 'n', [rb + tmp]
     jnz [rb + tmp], parse_ds_have_count
 
-    add err_expect_number, 0, [rb + 0]
+    add err_expect_number, 0, [rb]
     cal report_error
 
 parse_ds_have_count:
@@ -579,7 +578,7 @@ parse_ds_have_count:
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_ds_have_comma
 
-    add err_expect_comma, 0, [rb + 0]
+    add err_expect_comma, 0, [rb]
     cal report_error
 
 parse_ds_have_comma:
@@ -592,7 +591,7 @@ parse_ds_have_comma:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_ds_loop
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_ds_loop:
@@ -624,7 +623,7 @@ parse_symbol:
     eq  [token], 'n', [rb + tmp]
     jnz [rb + tmp], parse_symbol_have_offset
 
-    add err_expect_number, 0, [rb + 0]
+    add err_expect_number, 0, [rb]
     cal report_error
 
 parse_symbol_have_offset:
@@ -635,7 +634,7 @@ parse_symbol_have_offset:
     eq  [token], '=', [rb + tmp]
     jnz [rb + tmp], parse_symbol_after_equals
 
-    add err_expect_equals, 0, [rb + 0]
+    add err_expect_equals, 0, [rb]
     cal report_error
 
 parse_symbol_after_equals:
@@ -645,7 +644,7 @@ parse_symbol_after_offset:
     eq  [token], 'i', [rb + tmp]
     jnz [rb + tmp], parse_symbol_have_identifier
 
-    add err_expect_identifier, 0, [rb + 0]
+    add err_expect_identifier, 0, [rb]
     cal report_error
 
 parse_symbol_have_identifier:
@@ -666,7 +665,7 @@ parse_symbol_have_identifier:
     eq  [token], ':', [rb + tmp]
     jnz [rb + tmp], parse_symbol_done
 
-    add err_expect_colon, 0, [rb + 0]
+    add err_expect_colon, 0, [rb]
     cal report_error
 
 parse_symbol_done:
@@ -686,7 +685,7 @@ parse_dir_frame:
     eq  [is_frame], 0, [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_loop
 
-    add err_already_in_frame, 0, [rb + 0]
+    add err_already_in_frame, 0, [rb]
     cal report_error
 
 parse_dir_frame_loop:
@@ -704,7 +703,7 @@ parse_dir_frame_loop:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_eol
 
-    add err_expect_semicolon_eol, 0, [rb + 0]
+    add err_expect_semicolon_eol, 0, [rb]
     cal report_error
 
 parse_dir_frame_check_count:
@@ -713,7 +712,7 @@ parse_dir_frame_check_count:
     lt  [rb + block_index], 3, [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_loop
 
-    add err_too_many_lists, 0, [rb + 0]
+    add err_too_many_lists, 0, [rb]
     cal report_error
 
 parse_dir_frame_eol:
@@ -748,7 +747,7 @@ parse_dir_frame_block_loop:
     eq  [token], 'i', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_identifier
 
-    add err_expect_identifier, 0, [rb + 0]
+    add err_expect_identifier, 0, [rb]
     cal report_error
 
 parse_dir_frame_block_identifier:
@@ -758,7 +757,7 @@ parse_dir_frame_block_identifier:
     cal find_frame_symbol
     jz  [rb - 3], parse_dir_frame_block_is_unique
 
-    add err_duplicate_symbol, 0, [rb + 0]
+    add err_duplicate_symbol, 0, [rb]
     cal report_error
 
 parse_dir_frame_block_is_unique:
@@ -783,7 +782,7 @@ parse_dir_frame_block_is_unique:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_done
 
-    add err_expect_comma_semicolon_eol, 0, [rb + 0]
+    add err_expect_comma_semicolon_eol, 0, [rb]
     cal report_error
 
 parse_dir_frame_block_comma:
@@ -895,7 +894,7 @@ parse_dir_endframe:
     eq  [is_frame], 1, [rb + tmp]
     jnz [rb + tmp], parse_dir_endframe_check_params
 
-    add err_not_in_frame, 0, [rb + 0]
+    add err_not_in_frame, 0, [rb]
     cal report_error
 
 parse_dir_endframe_check_params:
@@ -904,7 +903,7 @@ parse_dir_endframe_check_params:
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_endframe_done
 
-    add err_expect_eol, 0, [rb + 0]
+    add err_expect_eol, 0, [rb]
     cal report_error
 
 parse_dir_endframe_done:
@@ -933,13 +932,14 @@ parse_out_param:
     arb -4
 
     # default is position mode, unless we see a 'rb'
+    add 0, 0, [rb + result]
     add 0, 0, [rb + mode]
     add 1, 0, [rb + sign]
 
     eq  [token], '[', [rb + tmp]
     jnz [rb + tmp], parse_out_param_try_rb
 
-    add err_expect_open_brace, 0, [rb + 0]
+    add err_expect_open_brace, 0, [rb]
     cal report_error
 
 parse_out_param_try_rb:
@@ -947,24 +947,23 @@ parse_out_param_try_rb:
     eq  [token], 'P', [rb + tmp]
     jz  [rb + tmp], parse_out_param_after_rb
 
+    # rb means relative mode
+    add 2, 0, [rb + mode]
+
     cal get_token
     eq  [token], '+', [rb + tmp]
     jnz [rb + tmp], parse_out_param_rb_plus
     eq  [token], '-', [rb + tmp]
     jnz [rb + tmp], parse_out_param_rb_minus
 
-    add err_expect_plus_minus, 0, [rb + 0]
-    cal report_error
+    # if there is no +/i, this is just a plain [rb]
+    jz  0, parse_out_param_after_value
 
 parse_out_param_rb_minus:
     add -1, 0, [rb + sign]
 
 parse_out_param_rb_plus:
-    # relative mode
-    add 2, 0, [rb + mode]
-
     cal get_token
-    jz  0, parse_out_param_after_rb
 
 parse_out_param_after_rb:
     cal parse_value
@@ -972,19 +971,19 @@ parse_out_param_after_rb:
 
     # we don't support 'rb - symbol', the fixup is always positive
     eq  [rb - 3], 1, [rb + tmp]
-    jz  [rb + tmp], parse_out_param_skip_neg_symbol_check
+    jz  [rb + tmp], parse_out_param_after_value
 
     eq  [rb + sign], -1, [rb + tmp]
-    jz  [rb + tmp], parse_out_param_skip_neg_symbol_check
+    jz  [rb + tmp], parse_out_param_after_value
 
-    add err_subtract_symbol, 0, [rb + 0]
+    add err_subtract_symbol, 0, [rb]
     cal report_error
 
-parse_out_param_skip_neg_symbol_check:
+parse_out_param_after_value:
     eq  [token], ']', [rb + tmp]
     jnz [rb + tmp], parse_out_param_done
 
-    add err_expect_close_brace, 0, [rb + 0]
+    add err_expect_close_brace, 0, [rb]
     cal report_error
 
 parse_out_param_done:
@@ -1039,7 +1038,7 @@ parse_value:
     eq  [token], 'i', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier
 
-    add err_expect_number_char_identifier, 0, [rb + 0]
+    add err_expect_number_char_identifier, 0, [rb]
     cal report_error
 
 parse_value_number_or_char_1:
@@ -1106,7 +1105,7 @@ parse_value_identifier_after_sign:
     eq  [token], 'c', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_2
 
-    add err_expect_number_char, 0, [rb + 0]
+    add err_expect_number_char, 0, [rb]
     cal report_error
 
 parse_value_number_or_char_2:
@@ -1146,7 +1145,7 @@ parse_number_or_char_after_sign:
     eq  [token], 'c', [rb + tmp]
     jnz [rb + tmp], parse_number_or_char_have_value
 
-    add err_expect_number_char, 0, [rb + 0]
+    add err_expect_number_char, 0, [rb]
     cal report_error
 
 parse_number_or_char_have_value:
@@ -1321,7 +1320,7 @@ get_token_loop:
     cal is_digit
     jnz [rb - 3], get_token_number
 
-    add err_invalid_token, 0, [rb + 0]
+    add err_invalid_token, 0, [rb]
     cal report_error
 
 get_token_eat_comment:
@@ -1348,7 +1347,7 @@ get_token_eol:
     eq  [rb - 2], 10, [rb + tmp]
     jnz [rb + tmp], get_token_eol_unix
 
-    add err_expect_10_after_13, 0, [rb + 0]
+    add err_expect_10_after_13, 0, [rb]
     cal report_error
 
 get_token_eol_unix:
@@ -1397,7 +1396,7 @@ get_token_char:
     eq  [rb - 2], ''', [rb + tmp]
     jnz [rb + tmp], get_token_char_done
 
-    add err_expect_double_quote, 0, [rb + 0]
+    add err_expect_double_quote, 0, [rb]
     cal report_error
 
 get_token_char_done:
@@ -1548,7 +1547,7 @@ read_string_loop:
     lt  [rb + index], 49, [rb + tmp]
     jnz [rb + tmp], read_string_loop
 
-    add err_max_string_length, 0, [rb + 0]
+    add err_max_string_length, 0, [rb]
     cal report_error
 
 read_string_done:
@@ -1662,7 +1661,7 @@ read_identifier_loop:
     lt  [rb + index], 47, [rb + tmp]
     jnz [rb + tmp], read_identifier_loop
 
-    add err_max_identifier_length, 0, [rb + 0]
+    add err_max_identifier_length, 0, [rb]
     cal report_error
 
 read_identifier_done:
@@ -1898,7 +1897,7 @@ read_directive_frame:
     ret 0
 
 read_directive_fail:
-    add err_invalid_directive, 0, [rb + 0]
+    add err_invalid_directive, 0, [rb]
     cal report_error
 .ENDFRAME
 
@@ -1968,7 +1967,7 @@ alloc:
     lt  50, [rb + size], [rb + tmp]
     jz  [rb + tmp], alloc_size_ok
 
-    add err_allocation_size, 0, [rb + 0]
+    add err_allocation_size, 0, [rb]
     cal report_error
 
 alloc_size_ok:
@@ -2166,7 +2165,7 @@ set_global_symbol_address_check_duplicate:
     eq  [rb + tmp], -1, [rb + tmp]
     jnz [rb + tmp], set_global_symbol_address_have_symbol
 
-    add err_duplicate_symbol, 0, [rb + 0]
+    add err_duplicate_symbol, 0, [rb]
     cal report_error
 
 set_global_symbol_address_have_symbol:
@@ -2392,7 +2391,7 @@ inc_mem_at_loop:
     eq  [rb + buffer], 0, [rb + tmp]
     jz  [rb + tmp], inc_mem_at_have_block
 
-    add err_invalid_fixup, 0, [rb + 0]
+    add err_invalid_fixup, 0, [rb]
     cal report_error
 
 inc_mem_at_have_block:
@@ -2499,7 +2498,7 @@ do_fixups_symbol:
     eq  [rb + symbol_address], -1, [rb + tmp]
     jz  [rb + tmp], do_fixups_have_address
 
-    add err_unknown_symbol, 0, [rb + 0]
+    add err_unknown_symbol, 0, [rb]
     cal report_error
 
 do_fixups_have_address:
@@ -2855,8 +2854,6 @@ err_expect_open_brace:
     db  "Expecting an opening brace", 0
 err_expect_close_brace:
     db  "Expecting a closing brace", 0
-err_expect_plus_minus:
-    db  "Expecting a plus or minus sign", 0
 err_subtract_symbol:
     db  "Symbol value can't be subtracted", 0
 err_expect_number_char_identifier:

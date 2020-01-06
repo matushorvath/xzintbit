@@ -346,7 +346,7 @@ First instruction stores the value 42 just below the stack pointer (`rb`). Secon
 
 This is how you pop a value from stack:
 ```asm
-    out [rb + 0]
+    out [rb]
     arb 1
 ```
 
@@ -368,7 +368,7 @@ For example, this is a frame with two local variables:
 The equivalent code without `.FRAME` and `.ENDFRAME` would be:
 ```asm
     out [rb + 1]
-    out [rb + 0]
+    out [rb]
 ```
 
 You can see that local variables are stored on stack like this:
@@ -478,7 +478,7 @@ my_function:
     out [rb + 2]
 
     # our first local variable will be what caller sees as the return value
-    add '!', 0, [rb + 0]
+    add '!', 0, [rb]
 
     # remove var0 from stack
     arb 1
