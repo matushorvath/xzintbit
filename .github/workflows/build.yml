@@ -28,11 +28,11 @@ jobs:
 
     - name: Build Assembler (bash)
       if: runner.os != 'Windows'
-      run: ./make.sh
+      run: ./build.sh
     - name: Build Assembler (cmd)
       if: runner.os == 'Windows'
       shell: cmd
-      run: make
+      run: build
 
     - name: Test Assembler (bash)
       if: runner.os != 'Windows'

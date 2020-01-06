@@ -86,7 +86,7 @@ That's why in addition to the assembler source code in `src/as.s`, the git repo 
 How can you [trust](https://www.cs.cmu.edu/~rdriley/487/papers/Thompson_1984_ReflectionsonTrustingTrust.pdf) me that my binary was compiled from this source? You could try compiling it yourself and comparing your binary with mine. There is a helpful shell script in the repo that does that for you:
 
 ```sh
-$ ./make.sh
+$ ./build.sh
 + ./vm.sh src/as.input
 + status=0
 + '[' 0 -ne 0 ']'
