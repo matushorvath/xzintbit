@@ -135,10 +135,10 @@ ptr:
 .EOF
 ```
 
-Another alternative way is to use the pseudo-symbol `ip` which refers to the address of current instruction:
+Another alternative way is to use the pseudo-symbol `ip` which refers to the address of next instruction:
 
 ```asm
-    add [ptr], 0, [ip + 7]
+    add [ptr], 0, [ip + 3]
     add 42, 0, [0]
 ptr:
     db  13
