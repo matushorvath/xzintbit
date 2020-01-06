@@ -440,7 +440,7 @@ parse_call:
     call report_error
 
 parse_call_done:
-    # current_address was already incremented, for fixup porposes, now move it past the last written byte
+    # current_address was already incremented, for fixup purposes, now move it past the last written byte
     add [current_address], 1, [current_address]
 
     arb 3
