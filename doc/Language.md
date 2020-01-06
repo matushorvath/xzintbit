@@ -65,7 +65,7 @@ Or:
 104,6,4,6,204,6,42
 ```
 
-### Symbols with Numbers
+### Symbol Arithmetic
 
 Symbols can be combined with numbers:
 
@@ -94,7 +94,7 @@ Or:
 104,7,4,4,204,9,42
 ```
 
-# Relative Symbols
+# Offset Symbols
 
 Symbols can also be defined to point to the middle of an instruction. This can be useful for self-modifying code:
 
@@ -112,7 +112,7 @@ The compiled Intcode is:
 1001,8,0,7,1101,42,0,0,13
 ```
 
-This is the pattern used to dereference pointers. Value of the `tmp` symbol is the memory address 3 bytes forward. In other words, it points to the 3ʳᵈ parameter of the following instruction.
+This pattern can be used to dereference pointers. Value of the `tmp` symbol is the memory address 3 bytes forward. In other words, it points to the 3ʳᵈ parameter of the following instruction.
 
 Let's say the value stored at address `ptr` is 13, and we want to set the value at address 13 to 42. If we used C, this is what we want to do:
 
@@ -135,7 +135,10 @@ ptr:
 .EOF
 ```
 
-Another alternative way is to use the pseudo-symbol `ip` which refers to the address of next instruction:
+# The `ip` Symbol
+
+The symbol `ip` is a keyword that always points to the address just after the current instruction.
+This is now the preferred way to dereference pointers. The examples from above can be rewritten like this:
 
 ```asm
     add [ptr], 0, [ip + 3]
@@ -144,6 +147,10 @@ ptr:
     db  13
 .EOF
 ```
+
+The `db` instruction is a special case, since it is not easy to determine its size at compile time.
+When `ip` used in a parameter of a `db` instructions, it points to the address of next `db` value
+(not to the address after the whole `db` instruction as you might expect).
 
 Instructions
 ------------

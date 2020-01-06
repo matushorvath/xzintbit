@@ -870,8 +870,7 @@ parse_dir_frame_offset_loop:
     jz  [rb + record], parse_dir_frame_offset_done
 
     # read block index field
-    add [rb + record], 49, [parse_dir_frame_offset_block_index_ptr]
-+1 = parse_dir_frame_offset_block_index_ptr:
+    add [rb + record], 49, [ip + 1]
     add [0], 0, [rb + record_block]
 
     # for records where block matches the block we are processing, set offset
@@ -879,8 +878,7 @@ parse_dir_frame_offset_loop:
     jz  [rb + tmp], parse_dir_frame_offset_after_update
 
     # write offset field
-    add [rb + record], 48, [parse_dir_frame_offset_offset_ptr]
-+3 = parse_dir_frame_offset_offset_ptr:
+    add [rb + record], 48, [ip + 3]
     add [rb + offset], 0, [0]
 
     # increment offset for next symbol
@@ -888,8 +886,7 @@ parse_dir_frame_offset_loop:
 
 parse_dir_frame_offset_after_update:
     # move to next record
-    add [rb + record], 0, [parse_dir_frame_offset_next_record]
-+1 = parse_dir_frame_offset_next_record:
+    add [rb + record], 0, [ip + 1]
     add [0], 0, [rb + record]
 
     jz  0, parse_dir_frame_offset_loop
@@ -1093,8 +1090,7 @@ parse_value_identifier:
     jz  [rb - 3], parse_value_is_global
 
     # it is a frame symbol, read its offset
-    add [rb - 3], 48, [parse_value_offset_ptr]
-+1 = parse_value_offset_ptr:
+    add [rb - 3], 48, [ip + 1]
     add [0], 0, [rb + result]
 
     jz  0, parse_value_after_global
@@ -1585,8 +1581,7 @@ read_string_loop:
     jnz [rb + tmp], read_string_done
 
     # store the character in buffer
-    add [rb + buffer], [rb + index], [read_string_buffer_char_ptr]
-+3 = read_string_buffer_char_ptr:
+    add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
     # increase index and check for maximum string length (50 - 1)
@@ -1599,8 +1594,7 @@ read_string_loop:
 
 read_string_done:
     # zero terminate
-    add [rb + buffer], [rb + index], [read_string_buffer_zero_ptr]
-+3 = read_string_buffer_zero_ptr:
+    add [rb + buffer], [rb + index], [ip + 3]
     add 0, 0, [0]
 
     arb 4
@@ -1699,8 +1693,7 @@ read_identifier_loop:
     jz  [rb - 3], read_identifier_done
 
     # store the character in buffer
-    add [rb + buffer], [rb + index], [read_identifier_buffer_char_ptr]
-+3 = read_identifier_buffer_char_ptr:
+    add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
     # increase index and check for maximum identifier length (50 - 3)
@@ -1713,8 +1706,7 @@ read_identifier_loop:
 
 read_identifier_done:
     # zero terminate
-    add [rb + buffer], [rb + index], [read_identifier_buffer_zero_ptr]
-+3 = read_identifier_buffer_zero_ptr:
+    add [rb + buffer], [rb + index], [ip + 3]
     add 0, 0, [0]
 
     # unget last char
@@ -1741,8 +1733,7 @@ detect_keyword:
     jnz [rb + tmp], detect_keyword_is_not
 
     # read first character, check that it is a lowercase letter
-    add [rb + string], 0, [detect_keyword_char0_ptr]
-+1 = detect_keyword_char0_ptr:
+    add [rb + string], 0, [ip + 1]
     add [0], 0, [rb + char0]
 
     lt  [rb + char0], 'a', [rb + tmp]
@@ -1751,8 +1742,7 @@ detect_keyword:
     jnz [rb + tmp], detect_keyword_is_not
 
     # read second character, check that it is a lowercase letter
-    add [rb + string], 1, [detect_keyword_char1_ptr]
-+1 = detect_keyword_char1_ptr:
+    add [rb + string], 1, [ip + 1]
     add [0], 0, [rb + char1]
 
     lt  [rb + char1], 'a', [rb + tmp]
@@ -1765,12 +1755,10 @@ detect_keyword:
     add [rb + char1], -97, [rb + char1]
 
     # look up the hash value (store to char0)
-    add detect_keyword_asso_values, [rb + char0], [detect_keyword_asso_values_ptr0]
-+1 = detect_keyword_asso_values_ptr0:
+    add detect_keyword_asso_values, [rb + char0], [ip + 1]
     add [0], [rb + length], [rb + char0]
 
-    add detect_keyword_asso_values, [rb + char1], [detect_keyword_asso_values_ptr1]
-+1 = detect_keyword_asso_values_ptr1:
+    add detect_keyword_asso_values, [rb + char1], [ip + 1]
     add [0], [rb + char0], [rb + char0]
 
     # check hash limit MAX_HASH_VALUE
@@ -1787,8 +1775,7 @@ detect_keyword:
     jnz [rb - 4], detect_keyword_is_not
 
     # find token id, return it
-    add detect_keyword_tokens, [rb + char0], [detect_keyword_tokens_ptr]
-+1 = detect_keyword_tokens_ptr:
+    add detect_keyword_tokens, [rb + char0], [ip + 1]
     add [0], 0, [rb + tmp]
 
     arb 3
@@ -2029,8 +2016,7 @@ alloc_size_ok:
     # yes, remove first block from the list and return it
     add [free_head], 0, [rb + block]
 
-    add [free_head], 0, [alloc_next_block]
-+1 = alloc_next_block:
+    add [free_head], 0, [ip + 1]
     add [0], 0, [free_head]
 
     jz  0, alloc_done
@@ -2051,8 +2037,7 @@ free:
     arb -1
 
     # set pointer to next free block in the block we are returning
-    add [rb + block], 0, [free_next_block]
-+3 = free_next_block:
+    add [rb + block], 0, [ip + 3]
     add [free_head], 0, [0]
 
     # set new free block head
@@ -2083,8 +2068,7 @@ find_global_symbol_loop:
     jz  [rb - 4], find_global_symbol_done
 
     # move to next record
-    add [rb + record], 0, [find_global_symbol_next_record]
-+1 = find_global_symbol_next_record:
+    add [rb + record], 0, [ip + 1]
     add [0], 0, [rb + record]
 
     jz  0, find_global_symbol_loop
@@ -2106,8 +2090,7 @@ add_global_symbol:
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol
-    add [rb + record], 0, [add_global_symbol_next_record]
-+3 = add_global_symbol_next_record:
+    add [rb + record], 0, [ip + 3]
     add [global_head], 0, [0]
 
     # store the identifier
@@ -2117,13 +2100,11 @@ add_global_symbol:
     call strcpy
 
     # set address to -1, so we can detect when the address is set
-    add [rb + record], 48, [add_global_symbol_address_ptr]
-+3 = add_global_symbol_address_ptr:
+    add [rb + record], 48, [ip + 3]
     add -1, 0, [0]
 
     # set fixup head to 0
-    add [rb + record], 49, [add_global_symbol_fixup_ptr]
-+3 = add_global_symbol_fixup_ptr:
+    add [rb + record], 49, [ip + 3]
     add 0, 0, [0]
 
     # set new symbol head
@@ -2160,33 +2141,27 @@ add_fixup_have_symbol:
     add [rb - 3], 0, [rb + fixup]
 
     # store the address of the fixup
-    add [rb + fixup], 1, [add_fixup_address_ptr]
-+3 = add_fixup_address_ptr:
+    add [rb + fixup], 1, [ip + 3]
     add [rb + address], 0, [0]
 
     # store line number
-    add [rb + fixup], 2, [add_fixup_line_num_ptr]
-+3 = add_fixup_line_num_ptr:
+    add [rb + fixup], 2, [ip + 3]
     add [rb + line_num], 0, [0]
 
     # store column number
-    add [rb + fixup], 3, [add_fixup_column_num_ptr]
-+3 = add_fixup_column_num_ptr:
+    add [rb + fixup], 3, [ip + 3]
     add [rb + column_num], 0, [0]
 
     # read current fixup list head
-    add [rb + symbol], 49, [add_fixup_list_head_1]
-+1 = add_fixup_list_head_1:
+    add [rb + symbol], 49, [ip + 1]
     add [0], 0, [rb + tmp]
 
     # set pointer to next fixup
-    add [rb + fixup], 0, [add_fixup_next_record]
-+3 = add_fixup_next_record:
+    add [rb + fixup], 0, [ip + 3]
     add [rb + tmp], 0, [0]
 
     # set new fixup list head
-    add [rb + symbol], 49, [add_fixup_list_head_2]
-+3 = add_fixup_list_head_2:
+    add [rb + symbol], 49, [ip + 3]
     add [rb + fixup], 0, [0]
 
     arb 3
@@ -2215,8 +2190,7 @@ set_global_symbol_address:
 
 set_global_symbol_address_check_duplicate:
     # check for duplicate symbol definitions
-    add [rb + symbol], 48, [set_global_symbol_address_ptr_1]
-+1 = set_global_symbol_address_ptr_1:
+    add [rb + symbol], 48, [ip + 1]
     add [0], 0, [rb + tmp]
 
     eq  [rb + tmp], -1, [rb + tmp]
@@ -2227,8 +2201,7 @@ set_global_symbol_address_check_duplicate:
 
 set_global_symbol_address_have_symbol:
     # store the address of the symbol
-    add [rb + symbol], 48, [set_global_symbol_address_ptr_2]
-+3 = set_global_symbol_address_ptr_2:
+    add [rb + symbol], 48, [ip + 3]
     add [rb + address], 0, [0]
 
     arb 2
@@ -2256,8 +2229,7 @@ find_frame_symbol_loop:
     jz  [rb - 4], find_frame_symbol_done
 
     # move to next record
-    add [rb + record], 0, [find_frame_symbol_next_record]
-+1 = find_frame_symbol_next_record:
+    add [rb + record], 0, [ip + 1]
     add [0], 0, [rb + record]
 
     jz  0, find_frame_symbol_loop
@@ -2279,8 +2251,7 @@ add_frame_symbol:
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol
-    add [rb + record], 0, [add_frame_symbol_next_record]
-+3 = add_frame_symbol_next_record:
+    add [rb + record], 0, [ip + 3]
     add [frame_head], 0, [0]
 
     # store the identifier
@@ -2290,8 +2261,7 @@ add_frame_symbol:
     call strcpy
 
     # set block index
-    add [rb + record], 49, [add_frame_symbol_address_ptr]
-+3 = add_frame_symbol_address_ptr:
+    add [rb + record], 49, [ip + 3]
     add [rb + block_index], 0, [0]
 
     # set new symbol head
@@ -2316,8 +2286,7 @@ reset_frame_symbol_loop:
     add [rb + record], 0, [rb + tmp]
 
     # move to next record
-    add [rb + record], 0, [reset_frame_symbol_next_record]
-+1 = reset_frame_symbol_next_record:
+    add [rb + record], 0, [ip + 1]
     add [0], 0, [rb + record]
 
     # free current record
@@ -2352,8 +2321,7 @@ set_mem:
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer
-    add [rb + buffer], 0, [set_mem_next_buffer_ptr_1]
-+3 = set_mem_next_buffer_ptr_1:
+    add [rb + buffer], 0, [ip + 3]
     add 0, 0, [0]
 
     add [rb + buffer], 0, [mem_head]
@@ -2374,21 +2342,18 @@ set_mem_have_buffer:
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer
-    add [rb + buffer], 0, [set_mem_next_buffer_ptr_2]
-+3 = set_mem_next_buffer_ptr_2:
+    add [rb + buffer], 0, [ip + 3]
     add 0, 0, [0]
 
     # add it to the tail of buffer linked list
-    add [mem_tail], 0, [set_mem_next_buffer_ptr_3]
-+3 = set_mem_next_buffer_ptr_3:
+    add [mem_tail], 0, [ip + 3]
     add [rb + buffer], 0, [0]
 
     add [rb + buffer], 0, [mem_tail]
     add 1, 0, [mem_index]
 
 set_mem_have_space:
-    add [mem_tail], [mem_index], [set_mem_byte_ptr]
-+3 = set_mem_byte_ptr:
+    add [mem_tail], [mem_index], [ip + 3]
     add [rb + byte], 0, [0]
 
     add [mem_index], 1, [mem_index]
@@ -2405,8 +2370,7 @@ set_mem_str:
     add 0, 0, [rb + index]
 
 set_mem_str_loop:
-    add [rb + string], [rb + index], [set_mem_str_ptr]
-+1 = set_mem_str_ptr:
+    add [rb + string], [rb + index], [ip + 1]
     add [0], 0, [rb + char]
 
     jz  [rb + char], set_mem_str_done
@@ -2446,18 +2410,17 @@ inc_mem_at_have_block:
     add [rb + index], -1, [rb + index]
 
     # next block in linked list
-    add [rb + buffer], 0, [inc_mem_at_next_block_ptr]
-+1 = inc_mem_at_next_block_ptr:
+    add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
     jz  0, inc_mem_at_loop
 
 inc_mem_at_this_block:
     # set the value
-    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_1]
-    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_2]
-+1 = inc_mem_at_ptr_1:
-+3 = inc_mem_at_ptr_2:
+    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_in]
+    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_out]
++1 = inc_mem_at_ptr_in:
++3 = inc_mem_at_ptr_out:
     add [0], [rb + byte], [0]
 
     arb 1
@@ -2495,8 +2458,7 @@ print_mem_byte:
 print_mem_skip_comma:
     add 0, 0, [rb + first]
 
-    add [rb + buffer], [rb + index], [print_mem_ptr]
-+1 = print_mem_ptr:
+    add [rb + buffer], [rb + index], [ip + 1]
     add [0], 0, [rb + tmp]
 
     add [rb + tmp], 0, [rb - 1]
@@ -2508,8 +2470,7 @@ print_mem_skip_comma:
 
 print_mem_block_done:
     # next block in linked list
-    add [rb + buffer], 0, [print_mem_next_block_ptr]
-+1 = print_mem_next_block_ptr:
+    add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
     jnz [rb + buffer], print_mem_block
@@ -2533,8 +2494,7 @@ do_fixups_symbol:
     jz  [rb + symbol], do_fixups_done
 
     # each symbol needs to have an address
-    add [rb + symbol], 48, [do_fixups_symbol_address_ptr]
-+1 = do_fixups_symbol_address_ptr:
+    add [rb + symbol], 48, [ip + 1]
     add [0], 0, [rb + symbol_address]
 
     eq  [rb + symbol_address], -1, [rb + tmp]
@@ -2546,8 +2506,7 @@ do_fixups_symbol:
 
 do_fixups_have_address:
     # iterate through all fixups for this symbol
-    add [rb + symbol], 49, [do_fixups_fixup_ptr]
-+1 = do_fixups_fixup_ptr:
+    add [rb + symbol], 49, [ip + 1]
     add [0], 0, [rb + fixup]
 
 do_fixups_fixup:
@@ -2555,8 +2514,7 @@ do_fixups_fixup:
     jz  [rb + fixup], do_fixups_symbol_done
 
     # read fixup address
-    add [rb + fixup], 1, [do_fixups_fixup_address_ptr]
-+1 = do_fixups_fixup_address_ptr:
+    add [rb + fixup], 1, [ip + 1]
     add [0], 0, [rb + fixup_address]
 
     # find out which memory block should be updated
@@ -2572,16 +2530,14 @@ do_fixups_fixup:
     call inc_mem_at
 
     # move to next fixup
-    add [rb + fixup], 0, [do_fixups_next_fixup_ptr]
-+1 = do_fixups_next_fixup_ptr:
+    add [rb + fixup], 0, [ip + 1]
     add [0], 0, [rb + fixup]
 
     jz  0, do_fixups_fixup
 
 do_fixups_symbol_done:
     # move to next symbol
-    add [rb + symbol], 0, [do_fixups_next_symbol_ptr]
-+1 = do_fixups_next_symbol_ptr:
+    add [rb + symbol], 0, [ip + 1]
     add [0], 0, [rb + symbol]
 
     jz  0, do_fixups_symbol
@@ -2600,19 +2556,16 @@ report_symbol_error:
     add 0, 0, [rb + column_num]
 
     # get first fixup for this symbol
-    add [rb + symbol], 49, [report_symbol_error_fixup_ptr]
-+1 = report_symbol_error_fixup_ptr:
+    add [rb + symbol], 49, [ip + 1]
     add [0], 0, [rb + fixup]
     jz  [rb + fixup], report_symbol_error_after_location
 
     # read fixup line num
-    add [rb + fixup], 2, [report_symbol_error_line_num_ptr]
-+1 = report_symbol_error_line_num_ptr:
+    add [rb + fixup], 2, [ip + 1]
     add [0], 0, [rb + line_num]
 
     # read fixup column num
-    add [rb + fixup], 3, [report_symbol_error_column_num_ptr]
-+1 = report_symbol_error_column_num_ptr:
+    add [rb + fixup], 3, [ip + 1]
     add [0], 0, [rb + column_num]
 
 report_symbol_error_after_location:
@@ -2720,12 +2673,10 @@ strcmp:
     add 0, 0, [rb + index]
 
 strcmp_loop:
-    add [rb + str1], [rb + index], [strcmp_str1_ptr]
-+1 = strcmp_str1_ptr:
+    add [rb + str1], [rb + index], [ip + 1]
     add [0], 0, [rb + char1]
 
-    add [rb + str2], [rb + index], [strcmp_str2_ptr]
-+1 = strcmp_str2_ptr:
+    add [rb + str2], [rb + index], [ip + 1]
     add [0], 0, [rb + char2]
 
     # different characters, we are done
@@ -2754,12 +2705,10 @@ strcpy:
     add 0, 0, [rb + index]
 
 strcpy_loop:
-    add [rb + src], [rb + index], [strcpy_src_ptr]
-+1 = strcpy_src_ptr:
+    add [rb + src], [rb + index], [ip + 1]
     add [0], 0, [rb + char]
 
-    add [rb + tgt], [rb + index], [strcpy_tgt_ptr]
-+3 = strcpy_tgt_ptr:
+    add [rb + tgt], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
     jz  [rb + char], strcpy_done
@@ -2780,8 +2729,7 @@ print_str:
     add 0, 0, [rb + index]
 
 print_str_loop:
-    add [rb + str], [rb + index], [print_str_str_ptr]
-+1 = print_str_str_ptr:
+    add [rb + str], [rb + index], [ip + 1]
     add [0], 0, [rb + char]
 
     jz  [rb + char], print_str_done
