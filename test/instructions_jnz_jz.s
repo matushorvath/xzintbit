@@ -8,7 +8,7 @@ jz  [0], [1]
 
 # relative mode
 jz  0, [rb - 1]
-jnz [rb + 0], 1
+jnz [rb], 1
 jz  [1], [rb + 2]
 
 global0:

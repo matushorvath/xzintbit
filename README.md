@@ -14,8 +14,8 @@ Let's write a sample *"Hello, World!"* program:
     arb message
 
 loop:
-    jz  [rb + 0], done
-    out [rb + 0]
+    jz  [rb], done
+    out [rb]
     arb 1
     jz  0, loop
 
@@ -50,7 +50,7 @@ If everything went well, `hello-world.input` should now contain this compiled In
 
 You can see that the first instruction (`arb message`) is `109, 13` which adjusts the relative base by 13, the address of `message` in memory.
 
-The next instruction (`jz [rb + 0], done`) is `1206,0,12`, which is a jump-if-false with one relative and one immediate parameter, jumping to address 12 which is the `done` label. And so on. The program loops over the characters of `message` while increasing the relative base (`rb`) by one, until it finds a zero character, then outputs a new line (`10`) and halts.
+The next instruction (`jz [rb], done`) is `1206,0,12`, which is a jump-if-false with one relative and one immediate parameter, jumping to address 12 which is the `done` label. And so on. The program loops over the characters of `message` while increasing the relative base (`rb`) by one, until it finds a zero character, then outputs a new line (`10`) and halts.
 
 Now we can run the program. Of course, we will need our Intcode VM again:
 

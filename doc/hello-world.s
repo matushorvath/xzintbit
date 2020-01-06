@@ -1,8 +1,8 @@
     arb message
 
 loop:
-    jz  [rb + 0], done
-    out [rb + 0]
+    jz  [rb], done
+    out [rb]
     arb 1
     jz  0, loop
 
