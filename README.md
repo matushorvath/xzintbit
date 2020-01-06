@@ -110,7 +110,7 @@ In addition to supporting all Intcode features specified in [Day 9](https://adve
 
 - Symbols that can be used instead of numeric addresses.
 - Stack based on relative addressing mode.
-- Pseudo-instructions cal and ret to simplify using functions.
+- Pseudo-instructions call and ret to simplify using functions.
 - Directives .FRAME and .ENDFRAME to simplify using local variables.
 - Pseudo-instructions db and ds to define memory contents directly.
 

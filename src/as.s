@@ -2,8 +2,8 @@
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
-# C cal; R ret; B db; S ds
-# F .FRAME; D .ENDFRAME; N EOF; $ EOL; P rb
+# C call; R ret; B db; S ds
+# F .FRAME; D .ENDFRAME; N EOF; $ EOL; P rb; I ip
 # + - = , : ; [ ]
 # n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
@@ -24,7 +24,7 @@ parse:
     arb -1
 
 parse_loop:
-    cal get_token
+    call get_token
 
     # skip empty lines
     eq  [token], '$', [rb + tmp]
@@ -57,7 +57,7 @@ parse_loop:
 
     # pseudo-instructions
     eq  [token], 'C', [rb + tmp]
-    jnz [rb + tmp], parse_call_cal
+    jnz [rb + tmp], parse_call_call
     eq  [token], 'R', [rb + tmp]
     jnz [rb + tmp], parse_call_ret
     eq  [token], 'B', [rb + tmp]
@@ -80,58 +80,58 @@ parse_loop:
     jnz [rb + tmp], parse_call_directive_eof
 
     add err_unexpected_token, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_call_add_mul_lt_eq:
-    cal parse_add_mul_lt_eq
+    call parse_add_mul_lt_eq
     jz  0, parse_loop
 
 parse_call_jnz_jz:
-    cal parse_jnz_jz
+    call parse_jnz_jz
     jz  0, parse_loop
 
 parse_call_arb_out:
-    cal parse_arb_out
+    call parse_arb_out
     jz  0, parse_loop
 
 parse_call_in:
-    cal parse_in
+    call parse_in
     jz  0, parse_loop
 
 parse_call_hlt:
-    cal parse_hlt
+    call parse_hlt
     jz  0, parse_loop
 
-parse_call_cal:
-    cal parse_cal
+parse_call_call:
+    call parse_call
     jz  0, parse_loop
 
 parse_call_ret:
-    cal parse_ret
+    call parse_ret
     jz  0, parse_loop
 
 parse_call_db:
-    cal parse_db
+    call parse_db
     jz  0, parse_loop
 
 parse_call_ds:
-    cal parse_ds
+    call parse_ds
     jz  0, parse_loop
 
 parse_call_symbol:
-    cal parse_symbol
+    call parse_symbol
     jz  0, parse_loop
 
 parse_call_directive_frame:
-    cal parse_dir_frame
+    call parse_dir_frame
     jz  0, parse_loop
 
 parse_call_directive_endframe:
-    cal parse_dir_endframe
+    call parse_dir_endframe
     jz  0, parse_loop
 
 parse_call_directive_eof:
-    cal parse_dir_eof
+    call parse_dir_eof
     jz  0, parse_loop
 .ENDFRAME
 
@@ -142,10 +142,10 @@ parse_add_mul_lt_eq:
 
     # token type is conveniently also the op code
     add [token], 0, [rb + op]
-    cal get_token
+    call get_token
 
-    add [ip], 1, [ip]
-    cal parse_in_param
+    add [current_address], 1, [current_address]
+    call parse_in_param
 
     # update opcode and param 0 value
     mul [rb - 3], 100, [rb - 3]
@@ -156,13 +156,13 @@ parse_add_mul_lt_eq:
     jnz [rb + tmp], parse_add_mul_lt_eq_param1
 
     add err_expect_comma, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_add_mul_lt_eq_param1:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
-    cal get_token
-    cal parse_in_param
+    call get_token
+    call parse_in_param
 
     # update opcode and param 1 value
     mul [rb - 3], 1000, [rb - 3]
@@ -173,13 +173,13 @@ parse_add_mul_lt_eq_param1:
     jnz [rb + tmp], parse_add_mul_lt_eq_param2
 
     add err_expect_comma, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_add_mul_lt_eq_param2:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
-    cal get_token
-    cal parse_out_param
+    call get_token
+    call parse_out_param
 
     # update opcode and param 2 value
     mul [rb - 3], 10000, [rb - 3]
@@ -190,26 +190,26 @@ parse_add_mul_lt_eq_param2:
     jnz [rb + tmp], parse_add_mul_lt_eq_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_add_mul_lt_eq_done:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param1], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param2], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     arb 5
     ret 0
@@ -222,10 +222,10 @@ parse_jnz_jz:
 
     # token type is conveniently also the op code
     add [token], 0, [rb + op]
-    cal get_token
+    call get_token
 
-    add [ip], 1, [ip]
-    cal parse_in_param
+    add [current_address], 1, [current_address]
+    call parse_in_param
 
     # update opcode and param 0 value
     mul [rb - 3], 100, [rb - 3]
@@ -236,13 +236,13 @@ parse_jnz_jz:
     jnz [rb + tmp], parse_jnz_jz_param1
 
     add err_expect_comma, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_jnz_jz_param1:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
-    cal get_token
-    cal parse_in_param
+    call get_token
+    call parse_in_param
 
     # update opcode and param 1 value
     mul [rb - 3], 1000, [rb - 3]
@@ -253,22 +253,22 @@ parse_jnz_jz_param1:
     jnz [rb + tmp], parse_jnz_jz_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_jnz_jz_done:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param1], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     arb 4
     ret 0
@@ -281,10 +281,10 @@ parse_arb_out:
 
     # token type is conveniently also the op code
     add [token], 0, [rb + op]
-    cal get_token
+    call get_token
 
-    add [ip], 1, [ip]
-    cal parse_in_param
+    add [current_address], 1, [current_address]
+    call parse_in_param
 
     # update opcode and param 0 value
     mul [rb - 3], 100, [rb - 3]
@@ -295,18 +295,18 @@ parse_arb_out:
     jnz [rb + tmp], parse_arb_out_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_arb_out_done:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     arb 3
     ret 0
@@ -319,10 +319,10 @@ parse_in:
 
     # token type is conveniently also the op code
     add [token], 0, [rb + op]
-    cal get_token
+    call get_token
 
-    add [ip], 1, [ip]
-    cal parse_out_param
+    add [current_address], 1, [current_address]
+    call parse_out_param
 
     # update opcode and param 0 value
     mul [rb - 3], 100, [rb - 3]
@@ -333,18 +333,18 @@ parse_in:
     jnz [rb + tmp], parse_in_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_in_done:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     arb 3
     ret 0
@@ -357,65 +357,65 @@ parse_hlt:
 
     # token type is conveniently also the op code
     add [token], 0, [rb + op]
-    cal get_token
+    call get_token
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_hlt_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_hlt_done:
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     arb 2
     ret 0
 .ENDFRAME
 
 ##########
-parse_cal:
+parse_call:
 .FRAME tmp, param, mode
     arb -3
 
-    # eat the 'cal' token
-    cal get_token
+    # eat the 'call' token
+    call get_token
 
-    # generate code: add ip + 2 + 4 + 3, 0, [rb - 1]
-    # 21101, ip + 9, 0, -1
+    # generate code: add current_address + 2 + 4 + 3, 0, [rb - 1]
+    # 21101, current_address + 9, 0, -1
     add 21101, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
-    add [ip], 9, [rb - 1]
+    add [current_address], 9, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add 0, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add -1, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     # generate code: arb -1
     # 109, -1
     add 109, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add -1, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
-    # update ip to point to second parameter of the 'jz' below
+    # update current_address to point to second parameter of the 'jz' below
     # this way parse_in_param will generate the correct fixup
-    add [ip], 8, [ip]
-    cal parse_in_param
+    add [current_address], 8, [current_address]
+    call parse_in_param
     add [rb - 2], 0, [rb + param]
     add [rb - 3], 0, [rb + mode]
 
@@ -424,25 +424,25 @@ parse_cal:
     mul [rb + mode], 1000, [rb + tmp]
     add 106, [rb + tmp], [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add 0, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     eq  [token], '$', [rb + tmp]
-    jnz [rb + tmp], parse_cal_done
+    jnz [rb + tmp], parse_call_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
-parse_cal_done:
-    # ip was already incremented, for fixup porposes, now move it past the last written byte
-    add [ip], 1, [ip]
+parse_call_done:
+    # current_address was already incremented, for fixup porposes, now move it past the last written byte
+    add [current_address], 1, [current_address]
 
     arb 3
     ret 0
@@ -457,45 +457,45 @@ parse_ret:
     arb -2
 
     # eat the 'ret' token
-    cal get_token
+    call get_token
 
     # parse the parameter
-    cal parse_number_or_char
+    call parse_number_or_char
     add [rb - 2], 0, [rb + param]
 
     # generate code: arb $param + 1
     # 109, param + 1
     add 109, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param], 1, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     # generate code: jz 0, [rb - ($param + 1)]
     # 2106, 0, -(param + 1)
     add 2106, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add 0, 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + param], 1, [rb + tmp]
     mul [rb + tmp], -1, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_ret_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_ret_done:
-    add [ip], 5, [ip]
+    add [current_address], 5, [current_address]
 
     arb 2
     ret 0
@@ -508,38 +508,38 @@ parse_db:
 
 parse_db_loop:
     # eat the 'db' token (first parameter) or the comma (subsequent parameters)
-    cal get_token
+    call get_token
 
     eq  [token], 's', [rb + tmp]
     jnz [rb + tmp], parse_db_string
 
     # not a string, so it must be a value
-    cal parse_value
+    call parse_value
     add [rb - 2], 0, [rb + data]
 
     add [rb + data], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
-    add [ip], 1, [ip]
+    add [current_address], 1, [current_address]
     jz  0, parse_db_after_param
 
 parse_db_string:
     # store the string, don't store zero termination
     add [value], 0, [rb - 1]
     arb -1
-    cal set_mem_str
+    call set_mem_str
 
     # string length is returned by set_mem_str
-    add [ip], [rb - 3], [ip]
+    add [current_address], [rb - 3], [current_address]
 
     # free the string
     add [value], 0, [rb - 1]
     arb -1
-    cal free
+    call free
     add 0, 0, [value]
 
-    cal get_token
+    call get_token
 
 parse_db_after_param:
     eq  [token], ',', [rb + tmp]
@@ -548,7 +548,7 @@ parse_db_after_param:
     jnz [rb + tmp], parse_db_done
 
     add err_expect_comma_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_db_done:
     arb 2
@@ -561,41 +561,41 @@ parse_ds:
     arb -3
 
     # eat the 'ds' token
-    cal get_token
+    call get_token
 
     eq  [token], 'n', [rb + tmp]
     jnz [rb + tmp], parse_ds_have_count
 
     add err_expect_number, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_ds_have_count:
     add [value], 0, [rb + count]
-    cal get_token
+    call get_token
 
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_ds_have_comma
 
     add err_expect_comma, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_ds_have_comma:
-    cal get_token
-    cal parse_number_or_char
+    call get_token
+    call parse_number_or_char
     add [rb - 2], 0, [rb + data]
 
-    add [ip], [rb + count], [ip]
+    add [current_address], [rb + count], [current_address]
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_ds_loop
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_ds_loop:
     add [rb + data], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + count], -1, [rb + count]
     lt  0, [rb + count], [rb + tmp]
@@ -610,61 +610,61 @@ parse_symbol:
 .FRAME tmp, address
     arb -2
 
-    # default symbol address is current ip
-    add [ip], 0, [rb + address]
+    # default symbol address is current_address
+    add [current_address], 0, [rb + address]
 
     # check if there is an offset
     eq  [token], '+', [rb + tmp]
     jz  [rb + tmp], parse_symbol_after_offset
 
-    cal get_token
+    call get_token
     eq  [token], 'n', [rb + tmp]
     jnz [rb + tmp], parse_symbol_have_offset
 
     add err_expect_number, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_symbol_have_offset:
     # add offset to symbol address
     add [rb + address], [value], [rb + address]
-    cal get_token
+    call get_token
 
     eq  [token], '=', [rb + tmp]
     jnz [rb + tmp], parse_symbol_after_equals
 
     add err_expect_equals, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_symbol_after_equals:
-    cal get_token
+    call get_token
 
 parse_symbol_after_offset:
     eq  [token], 'i', [rb + tmp]
     jnz [rb + tmp], parse_symbol_have_identifier
 
     add err_expect_identifier, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_symbol_have_identifier:
     # add the symbol to symbol table
     add [value], 0, [rb - 1]
     add [rb + address], 0, [rb - 2]
     arb -2
-    cal set_global_symbol_address
+    call set_global_symbol_address
 
     # free the symbol value
     add [value], 0, [rb - 1]
     arb -1
-    cal free
+    call free
     add 0, 0, [value]
 
-    cal get_token
+    call get_token
 
     eq  [token], ':', [rb + tmp]
     jnz [rb + tmp], parse_symbol_done
 
     add err_expect_colon, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_symbol_done:
     arb 2
@@ -684,15 +684,15 @@ parse_dir_frame:
     jnz [rb + tmp], parse_dir_frame_loop
 
     add err_already_in_frame, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_frame_loop:
     # eat the 'FRAME' token (first parameter block) or the semicolon (subsequent parameter blocks)
-    cal get_token
+    call get_token
 
     add [rb + block_index], 0, [rb - 1]
     arb -1
-    cal parse_dir_frame_block
+    call parse_dir_frame_block
     add [rb - 3], 0, [rb + symbol_count]
 
     # are there any more blocks, or was this the last one?
@@ -702,7 +702,7 @@ parse_dir_frame_loop:
     jnz [rb + tmp], parse_dir_frame_eol
 
     add err_expect_semicolon_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_frame_check_count:
     # we support up to three identifier lists
@@ -711,7 +711,7 @@ parse_dir_frame_check_count:
     jnz [rb + tmp], parse_dir_frame_loop
 
     add err_too_many_lists, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_frame_eol:
     # we have up to three identifier blocks stored in the frame list
@@ -720,7 +720,7 @@ parse_dir_frame_eol:
     add [rb + block_index], 1, [rb - 1]
     add [rb + symbol_count], 0, [rb - 2]
     arb -2
-    cal parse_dir_frame_offset_blocks
+    call parse_dir_frame_offset_blocks
 
     add 1, 0, [is_frame]
 
@@ -746,32 +746,32 @@ parse_dir_frame_block_loop:
     jnz [rb + tmp], parse_dir_frame_block_identifier
 
     add err_expect_identifier, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_frame_block_identifier:
     # check for duplicate symbols
     add [value], 0, [rb - 1]
     arb -1
-    cal find_frame_symbol
+    call find_frame_symbol
     jz  [rb - 3], parse_dir_frame_block_is_unique
 
     add err_duplicate_symbol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_frame_block_is_unique:
     # store the symbol with block index
     add [value], 0, [rb - 1]
     add [rb + block_count], 0, [rb - 2]
     arb -2
-    cal add_frame_symbol
+    call add_frame_symbol
 
     # free the identifier
     add [value], 0, [rb - 1]
     arb -1
-    cal free
+    call free
 
     add [rb + symbol_count], 1, [rb + symbol_count]
-    cal get_token
+    call get_token
 
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_comma
@@ -781,10 +781,10 @@ parse_dir_frame_block_is_unique:
     jnz [rb + tmp], parse_dir_frame_block_done
 
     add err_expect_comma_semicolon_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_frame_block_comma:
-    cal get_token
+    call get_token
     jz  0, parse_dir_frame_block_loop
 
 parse_dir_frame_block_done:
@@ -807,7 +807,7 @@ parse_dir_frame_offset_blocks:
     add 2, 0, [rb - 1]
     mul [rb + symbol_count], -1, [rb - 2]
     arb -2
-    cal parse_dir_frame_offset
+    call parse_dir_frame_offset
 
 parse_dir_frame_offset_blocks_after_downstream:
     # if there is at least one block, that will be local variables
@@ -818,7 +818,7 @@ parse_dir_frame_offset_blocks_after_downstream:
     lt  1, [rb + block_count], [rb - 1]
     add 0, 0, [rb - 2]
     arb -2
-    cal parse_dir_frame_offset
+    call parse_dir_frame_offset
 
     # save ending offset for local variables so we know where to continue
     # we will skip one offset for return value stored on stack
@@ -832,7 +832,7 @@ parse_dir_frame_offset_blocks_after_downstream:
     add 0, 0, [rb - 1]
     add [rb + offset], 0, [rb - 2]
     arb -2
-    cal parse_dir_frame_offset
+    call parse_dir_frame_offset
 
 parse_dir_frame_offset_blocks_done:
     arb 2
@@ -893,19 +893,19 @@ parse_dir_endframe:
     jnz [rb + tmp], parse_dir_endframe_check_params
 
     add err_not_in_frame, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_endframe_check_params:
-    cal get_token
+    call get_token
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_endframe_done
 
     add err_expect_eol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_dir_endframe_done:
-    cal reset_frame
+    call reset_frame
     add  0, 0, [is_frame]
 
     arb 1
@@ -919,14 +919,14 @@ parse_dir_eof:
     jz  [is_frame], parse_dir_eof_have_endframe
 
     add err_expect_endframe, 0, [rb + 0]
-    cal report_error
+    call report_error
 
 parse_dir_eof_have_endframe:
     # run fixups
-    cal do_fixups
+    call do_fixups
 
     # print compiled memory contents
-    cal print_mem
+    call print_mem
 
     hlt
 .ENDFRAME
@@ -945,17 +945,17 @@ parse_out_param:
     jnz [rb + tmp], parse_out_param_try_rb
 
     add err_expect_open_brace, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_out_param_try_rb:
-    cal get_token
+    call get_token
     eq  [token], 'P', [rb + tmp]
     jz  [rb + tmp], parse_out_param_after_rb
 
     # rb means relative mode
     add 2, 0, [rb + mode]
 
-    cal get_token
+    call get_token
     eq  [token], '+', [rb + tmp]
     jnz [rb + tmp], parse_out_param_rb_plus
     eq  [token], '-', [rb + tmp]
@@ -968,10 +968,10 @@ parse_out_param_rb_minus:
     add -1, 0, [rb + sign]
 
 parse_out_param_rb_plus:
-    cal get_token
+    call get_token
 
 parse_out_param_after_rb:
-    cal parse_value
+    call parse_value
     mul [rb - 2], [rb + sign], [rb + result]
 
     # we don't support 'rb - symbol', the fixup is always positive
@@ -982,17 +982,17 @@ parse_out_param_after_rb:
     jz  [rb + tmp], parse_out_param_after_value
 
     add err_subtract_symbol, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_out_param_after_value:
     eq  [token], ']', [rb + tmp]
     jnz [rb + tmp], parse_out_param_done
 
     add err_expect_close_brace, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_out_param_done:
-    cal get_token
+    call get_token
 
     arb 4
     ret 0
@@ -1007,13 +1007,13 @@ parse_in_param:
     eq  [token], '[', [rb + tmp]
     jz  [rb + tmp], parse_in_param_immediate
 
-    cal parse_out_param
+    call parse_out_param
     add [rb - 2], 0, [rb + result]
     add [rb - 3], 0, [rb + mode]
     jz  0, parse_in_param_done
 
 parse_in_param_immediate:
-    cal parse_value
+    call parse_value
 
     # return the value and immediate mode
     add [rb - 2], 0, [rb + result]
@@ -1044,10 +1044,10 @@ parse_value:
     jnz [rb + tmp], parse_value_identifier
 
     add err_expect_number_char_identifier, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_value_number_or_char_1:
-    cal parse_number_or_char
+    call parse_number_or_char
     add [rb - 2], 0, [rb + result]
     jz  0, parse_value_done
 
@@ -1057,7 +1057,7 @@ parse_value_identifier:
     # check if this is a frame symbol, we can resolve those immediately
     add [value], 0, [rb - 1]
     arb -1
-    cal find_frame_symbol
+    call find_frame_symbol
 
     eq  [rb - 3], 0, [rb + tmp]
     jnz [rb + tmp], parse_value_is_global
@@ -1070,19 +1070,19 @@ parse_value_identifier:
 parse_value_is_global:
     # it is a global symbol, add a fixup for this identifier
     add [value], 0, [rb - 1]
-    add [ip], 0, [rb - 2]
+    add [current_address], 0, [rb - 2]
     arb -2
-    cal add_fixup
+    call add_fixup
 
 parse_value_after_global:
     # free the symbol value
     add [value], 0, [rb - 1]
     arb -1
-    cal free
+    call free
     add 0, 0, [value]
 
     # optionally followed by + or - and a number or char
-    cal get_token
+    call get_token
     eq  [token], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier_plus
     eq  [token], '-', [rb + tmp]
@@ -1098,7 +1098,7 @@ parse_value_identifier_minus:
     jz  0, parse_value_identifier_after_sign
 
 parse_value_identifier_after_sign:
-    cal get_token
+    call get_token
 
     # technically this is also valid: [abcd + -2] or even [abcd + +2]
     eq  [token], '+', [rb + tmp]
@@ -1111,10 +1111,10 @@ parse_value_identifier_after_sign:
     jnz [rb + tmp], parse_value_number_or_char_2
 
     add err_expect_number_char, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_value_number_or_char_2:
-    cal parse_number_or_char
+    call parse_number_or_char
     mul [rb - 2], [rb + sign], [rb + tmp]
     add [rb + result], [rb + tmp], [rb + result]
     jz  0, parse_value_done
@@ -1142,7 +1142,7 @@ parse_number_or_char_minus:
     add -1, 0, [rb + sign]
 
 parse_number_or_char_plus:
-    cal get_token
+    call get_token
 
 parse_number_or_char_after_sign:
     eq  [token], 'n', [rb + tmp]
@@ -1151,12 +1151,12 @@ parse_number_or_char_after_sign:
     jnz [rb + tmp], parse_number_or_char_have_value
 
     add err_expect_number_char, 0, [rb]
-    cal report_error
+    call report_error
 
 parse_number_or_char_have_value:
     # return the number/char value
     mul [value], [rb + sign], [rb + result]
-    cal get_token
+    call get_token
 
     arb 3
     ret 0
@@ -1183,7 +1183,7 @@ dump_token_print_n:
     out ' '
     add [value], 0, [rb - 1]
     arb -1
-    cal print_num
+    call print_num
     jz  0, dump_token_finish
 
 dump_token_print_c:
@@ -1195,7 +1195,7 @@ dump_token_print_i:
     out ' '
     add [value], 0, [rb - 1]
     arb -1
-    cal print_str
+    call print_str
     jz  0, dump_token_finish
 
 dump_token_finish:
@@ -1273,7 +1273,7 @@ get_token_loop:
     add [input_column_num], 0, [token_column_num]
 
     # get next input character
-    cal get_input
+    call get_input
     add [rb - 2], 0, [rb + char]
 
     # skip whitespace
@@ -1298,7 +1298,7 @@ get_token_loop:
 
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal is_alpha
+    call is_alpha
     jnz [rb - 3], get_token_identifier
 
     # directives
@@ -1308,7 +1308,7 @@ get_token_loop:
     # symbols
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal is_symbol
+    call is_symbol
     jnz [rb - 3], get_token_symbol
 
     # string literals
@@ -1322,17 +1322,17 @@ get_token_loop:
     # number literals
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal is_digit
+    call is_digit
     jnz [rb - 3], get_token_number
 
     add err_invalid_token, 0, [rb]
-    cal report_error
+    call report_error
 
 get_token_eat_comment:
     # eat everything until end of line
 
 get_token_eat_comment_loop:
-    cal get_input
+    call get_input
     add [rb - 2], 0, [rb + char]
 
     # the comment ends with an EOL, so we jump to EOL handling
@@ -1348,12 +1348,12 @@ get_token_eol:
     eq  [rb + char], 13, [rb + tmp]
     jz  [rb + tmp], get_token_eol_unix
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 10, [rb + tmp]
     jnz [rb + tmp], get_token_eol_unix
 
     add err_expect_10_after_13, 0, [rb]
-    cal report_error
+    call report_error
 
 get_token_eol_unix:
     add '$', 0, [token]
@@ -1363,18 +1363,18 @@ get_token_identifier:
     # unget last char, read_identifier will get it again
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal unget_input
+    call unget_input
 
     # return read identifier pointer in [value]
     # this memory needs to be freed by caller of get_token
-    cal read_identifier_or_keyword
+    call read_identifier_or_keyword
     add [rb - 2], 0, [token]
     add [rb - 3], 0, [value]
 
     jz  0, get_token_done
 
 get_token_directive:
-    cal read_directive
+    call read_directive
     add [rb - 2], 0, [token]
     jz  0, get_token_done
 
@@ -1385,7 +1385,7 @@ get_token_symbol:
 get_token_string:
     # return read string pointer in [value]
     # this memory needs to be freed by caller of get_token
-    cal read_string
+    call read_string
     add [rb - 2], 0, [value]
 
     add 's', 0, [token]
@@ -1393,16 +1393,16 @@ get_token_string:
 
 get_token_char:
     # get one character and return it as token value
-    cal get_input
+    call get_input
     add [rb - 2], 0, [value]
 
     # get closing quote
-    cal get_input
+    call get_input
     eq  [rb - 2], ''', [rb + tmp]
     jnz [rb + tmp], get_token_char_done
 
     add err_expect_double_quote, 0, [rb]
-    cal report_error
+    call report_error
 
 get_token_char_done:
     add 'c', 0, [token]
@@ -1412,10 +1412,10 @@ get_token_number:
     # unget last char, read_number will get it again
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal unget_input
+    call unget_input
 
     # return read number in [value]
-    cal read_number
+    call read_number
     add [rb - 2], 0, [value]
 
     add 'n', 0, [token]
@@ -1501,13 +1501,13 @@ is_alphanum:
 
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal is_alpha
+    call is_alpha
     add [rb - 3], 0, [rb + tmp]
     jnz [rb + tmp], is_alphanum_end
 
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal is_digit
+    call is_digit
     add [rb - 3], 0, [rb + tmp]
     jnz [rb + tmp], is_alphanum_end
 
@@ -1526,7 +1526,7 @@ read_string:
     # we will store the string in dynamic memory that needs to be freed by caller
     add 50, 0, [rb - 1]
     arb -1
-    cal alloc
+    call alloc
     add [rb - 3], 0, [rb + buffer]
 
     add 0, 0, [rb + index]
@@ -1534,7 +1534,7 @@ read_string:
     # the opening quote was already processed by caller
 
 read_string_loop:
-    cal get_input
+    call get_input
     add [rb - 2], 0, [rb + char]
 
     # when we find a quote character, we are done
@@ -1553,7 +1553,7 @@ read_string_loop:
     jnz [rb + tmp], read_string_loop
 
     add err_max_string_length, 0, [rb]
-    cal report_error
+    call report_error
 
 read_string_done:
     # zero terminate
@@ -1574,13 +1574,13 @@ read_number:
 
 read_number_loop:
     # get next character
-    cal get_input
+    call get_input
     add [rb - 2], 0, [rb + digit]
 
     # if it is not a digit, end
     add [rb + digit], 0, [rb - 1]
     arb -1
-    cal is_digit
+    call is_digit
     jz  [rb - 3], read_number_end
 
     # convert ASCII to a number
@@ -1596,7 +1596,7 @@ read_number_end:
     # unget last char
     add [rb + digit], 0, [rb - 1]
     arb -1
-    cal unget_input
+    call unget_input
 
     arb 3
     ret 0
@@ -1608,13 +1608,13 @@ read_identifier_or_keyword:
     arb -3
 
     # read the identifier into a buffer
-    cal read_identifier
+    call read_identifier
     add [rb - 2], 0, [rb + buffer]
 
     # check if the identifier is actually a keyword
     # reuse buffer [rb - 2] and length [rb - 3] as parameters
     arb -3
-    cal detect_keyword
+    call detect_keyword
     arb 1
     add [rb - 5], 0, [rb + token]
 
@@ -1624,7 +1624,7 @@ read_identifier_or_keyword:
 
     add [rb + buffer], 0, [rb - 1]
     arb -1
-    cal free
+    call free
     add 0, 0, [rb + buffer]
 
 read_identifier_or_keyword_skip_free:
@@ -1641,19 +1641,19 @@ read_identifier:
     # we will store the identifier in dynamic memory that needs to be freed by caller
     add 50, 0, [rb - 1]
     arb -1
-    cal alloc
+    call alloc
     add [rb - 3], 0, [rb + buffer]
 
     add 0, 0, [rb + index]
 
 read_identifier_loop:
-    cal get_input
+    call get_input
     add [rb - 2], 0, [rb + char]
 
     # when we find first non-alphanumeric character, we are done
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal is_alphanum
+    call is_alphanum
     jz  [rb - 3], read_identifier_done
 
     # store the character in buffer
@@ -1667,7 +1667,7 @@ read_identifier_loop:
     jnz [rb + tmp], read_identifier_loop
 
     add err_max_identifier_length, 0, [rb]
-    cal report_error
+    call report_error
 
 read_identifier_done:
     # zero terminate
@@ -1678,7 +1678,7 @@ read_identifier_done:
     # unget last char
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal unget_input
+    call unget_input
 
     arb 4
     ret 0
@@ -1692,8 +1692,8 @@ detect_keyword:
     # this uses a perfect hash function, generated using gperf and a list of keywords
     # gperf < src/gperf.in
 
-    # check string length
-    lt  3, [rb + length], [rb + tmp]
+    # check string length against MAX_WORD_LENGTH and MIN_WORD_LENGTH
+    lt  4, [rb + length], [rb + tmp]
     jnz [rb + tmp], detect_keyword_is_not
     lt  [rb + length], 2, [rb + tmp]
     jnz [rb + tmp], detect_keyword_is_not
@@ -1731,16 +1731,16 @@ detect_keyword:
 +1 = detect_keyword_asso_values_ptr1:
     add [0], [rb + char0], [rb + char0]
 
-    # check hash limit
-    lt  28, [rb + char0], [rb + tmp]
+    # check hash limit MAX_HASH_VALUE
+    lt  37, [rb + char0], [rb + tmp]
     jnz [rb + tmp], detect_keyword_is_not
 
     # find candidate keyword, compare input string with the candidate
-    mul [rb + char0], 4, [rb + tmp]
+    mul [rb + char0], 5, [rb + tmp]
     add detect_keyword_wordlist, [rb + tmp], [rb - 1]
     add [rb + string], 0, [rb - 2]
     arb -2
-    cal strcmp
+    call strcmp
 
     eq  [rb - 4], 0, [rb + tmp]
     jz  [rb + tmp], detect_keyword_is_not
@@ -1762,57 +1762,63 @@ detect_keyword_is_not:
 
 detect_keyword_asso_values:
     # copied from gperf.c
-    db                               0,  0,  3
-    db   5, 10, 29, 29, 10,  4, 10, 29, 15,  3
-    db  10, 10, 29,  5,  0,  5, 10,  5, 29, 29
-    db  29, 29, 10
+    db                               0,  0,  0
+    db   5, 10, 38, 38, 10, 20, 10, 38, 20, 15
+    db   5, 10, 10,  5,  0,  5, 15, 10, 38, 38
+    db  38, 38, 10
 
 detect_keyword_wordlist:
     # copied from gperf.c
-    ds  8, 0
-    db  "rb", 0, 0
-    db  "arb", 0
-    ds  8, 0
-    db  "cal", 0
-    db  "db", 0, 0
-    db  "add", 0
-    ds  8, 0
-    db  "mul", 0
-    db  "ds", 0, 0
-    db  "ret", 0
-    ds  8, 0
-    db  "in", 0, 0
-    db  "eq", 0, 0
-    db  "out", 0
-    ds  12, 0
-    db  "jz", 0, 0
-    db  "jnz", 0
-    ds  12, 0
-    db  "lt", 0, 0
-    db  "hlt", 0
+    ds  10, 0
+    db  "rb", 0, 0, 0
+    db  "arb", 0, 0
+    db  "call", 0
+    ds  10, 0
+    db  "db", 0, 0, 0
+    db  "add", 0, 0
+    ds  15, 0
+    db  "ds", 0, 0, 0
+    db  "ret", 0, 0
+    ds  15, 0
+    db  "eq", 0, 0, 0
+    db  "jnz", 0, 0
+    ds  15, 0
+    db  "jz", 0, 0, 0
+    db  "out", 0, 0
+    ds  15, 0
+    db  "in", 0, 0, 0
+    db  "mul", 0, 0
+    ds  15, 0
+    db  "ip", 0, 0, 0
+    db  "hlt", 0, 0
+    ds  15, 0
+    db  "lt", 0, 0, 0
 
 detect_keyword_tokens:
     ds  2, 0
     db  'P'
     db  9
-    ds  2, 0
     db  'C'
+    ds  2, 0
     db  'B'
     db  1
-    ds  2, 0
-    db  2
+    ds  3, 0
     db  'S'
     db  'R'
-    ds  2, 0
-    db  3
-    db  8
-    db  4
     ds  3, 0
-    db  6
+    db  8
     db  5
     ds  3, 0
-    db  7
+    db  6
+    db  4
+    ds  3, 0
+    db  3
+    db  2
+    ds  3, 0
+    db  'I'
     db  99
+    ds  3, 0
+    db  7
 .ENDFRAME
 
 ##########
@@ -1823,7 +1829,7 @@ read_directive:
     # TODO consider reading the whole string and doing a gperf
     # TODO perhaps use the same gperf code as above, just parametrized
 
-    cal get_input
+    call get_input
 
     eq  [rb - 2], 'E', [rb + tmp]
     jnz [rb + tmp], read_directive_e
@@ -1833,7 +1839,7 @@ read_directive:
     jz  0, read_directive_fail
 
 read_directive_e:
-    cal get_input
+    call get_input
 
     eq  [rb - 2], 'N', [rb + tmp]
     jnz [rb + tmp], read_directive_endframe
@@ -1843,27 +1849,27 @@ read_directive_e:
     jz  0, read_directive_fail
 
 read_directive_endframe:
-    cal get_input
+    call get_input
     eq  [rb - 2], 'D', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'F', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'R', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'A', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'M', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'E', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
@@ -1872,7 +1878,7 @@ read_directive_endframe:
     ret 0
 
 read_directive_eof:
-    cal get_input
+    call get_input
     eq  [rb - 2], 'F', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
@@ -1881,19 +1887,19 @@ read_directive_eof:
     ret 0
 
 read_directive_frame:
-    cal get_input
+    call get_input
     eq  [rb - 2], 'R', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'A', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'M', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
-    cal get_input
+    call get_input
     eq  [rb - 2], 'E', [rb + tmp]
     jz  [rb + tmp], read_directive_fail
 
@@ -1903,7 +1909,7 @@ read_directive_frame:
 
 read_directive_fail:
     add err_invalid_directive, 0, [rb]
-    cal report_error
+    call report_error
 .ENDFRAME
 
 ##########
@@ -1973,7 +1979,7 @@ alloc:
     jz  [rb + tmp], alloc_size_ok
 
     add err_allocation_size, 0, [rb]
-    cal report_error
+    call report_error
 
 alloc_size_ok:
     # do we have any free blocks?
@@ -2032,7 +2038,7 @@ find_global_symbol_loop:
     add [rb + identifier], 0, [rb - 1]
     add [rb + record], 1, [rb - 2]
     arb -2
-    cal strcmp
+    call strcmp
 
     # if strcmp result is 0, we are done
     eq  [rb - 4], 0, [rb + tmp]
@@ -2058,7 +2064,7 @@ add_global_symbol:
     # allocate a block
     add 50, 0, [rb - 1]
     arb -1
-    cal alloc
+    call alloc
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol
@@ -2070,7 +2076,7 @@ add_global_symbol:
     add [rb + identifier], 0, [rb - 1]
     add [rb + record], 1, [rb - 2]
     arb -2
-    cal strcpy
+    call strcpy
 
     # set address to -1, so we can detect when the address is set
     add [rb + record], 48, [add_global_symbol_address_ptr]
@@ -2097,7 +2103,7 @@ add_fixup:
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal find_global_symbol
+    call find_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
     eq  [rb + symbol], 0, [rb + tmp]
@@ -2105,7 +2111,7 @@ add_fixup:
 
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal add_global_symbol
+    call add_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
 add_fixup_have_symbol:
@@ -2113,7 +2119,7 @@ add_fixup_have_symbol:
     # TODO use smaller blocks, or collect multiple fixups in one block
     add 50, 0, [rb - 1]
     arb -1
-    cal alloc
+    call alloc
     add [rb - 3], 0, [rb + fixup]
 
     # store the address of the fixup
@@ -2148,7 +2154,7 @@ set_global_symbol_address:
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal find_global_symbol
+    call find_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
     eq  [rb + symbol], 0, [rb + tmp]
@@ -2156,7 +2162,7 @@ set_global_symbol_address:
 
     add [rb + identifier], 0, [rb - 1]
     arb -1
-    cal add_global_symbol
+    call add_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
     jz  0, set_global_symbol_address_have_symbol
@@ -2171,7 +2177,7 @@ set_global_symbol_address_check_duplicate:
     jnz [rb + tmp], set_global_symbol_address_have_symbol
 
     add err_duplicate_symbol, 0, [rb]
-    cal report_error
+    call report_error
 
 set_global_symbol_address_have_symbol:
     # store the address of the symbol
@@ -2199,7 +2205,7 @@ find_frame_symbol_loop:
     add [rb + identifier], 0, [rb - 1]
     add [rb + record], 1, [rb - 2]
     arb -2
-    cal strcmp
+    call strcmp
 
     # if strcmp result is 0, we are done
     eq  [rb - 4], 0, [rb + tmp]
@@ -2230,7 +2236,7 @@ add_frame_symbol:
     # allocate a block
     add 50, 0, [rb - 1]
     arb -1
-    cal alloc
+    call alloc
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol
@@ -2242,7 +2248,7 @@ add_frame_symbol:
     add [rb + identifier], 0, [rb - 1]
     add [rb + record], 1, [rb - 2]
     arb -2
-    cal strcpy
+    call strcpy
 
     # set block index
     add [rb + record], 49, [add_frame_symbol_address_ptr]
@@ -2279,7 +2285,7 @@ reset_frame_symbol_loop:
     # free current record
     add [rb + tmp], 0, [rb - 1]
     arb -1
-    cal free
+    call free
 
     jz  0, reset_frame_symbol_loop
 
@@ -2305,7 +2311,7 @@ set_mem:
     # no, create one
     add 50, 0, [rb - 1]
     arb -1
-    cal alloc
+    call alloc
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer
@@ -2327,7 +2333,7 @@ set_mem_have_buffer:
     # no, create a new buffer
     add 50, 0, [rb - 1]
     arb -1
-    cal alloc
+    call alloc
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer
@@ -2371,7 +2377,7 @@ set_mem_str_loop:
 
     add [rb + char], 0, [rb - 1]
     arb -1
-    cal set_mem
+    call set_mem
 
     add [rb + index], 1, [rb + index]
     jz  0, set_mem_str_loop
@@ -2397,7 +2403,7 @@ inc_mem_at_loop:
     jz  [rb + tmp], inc_mem_at_have_block
 
     add err_invalid_fixup, 0, [rb]
-    cal report_error
+    call report_error
 
 inc_mem_at_have_block:
     # is this the block we need?
@@ -2462,7 +2468,7 @@ print_mem_skip_comma:
 
     add [rb + tmp], 0, [rb - 1]
     arb -1
-    cal print_num
+    call print_num
 
     add [rb + index], 1, [rb + index]
     jz  0, print_mem_byte
@@ -2504,7 +2510,7 @@ do_fixups_symbol:
     jz  [rb + tmp], do_fixups_have_address
 
     add err_unknown_symbol, 0, [rb]
-    cal report_error
+    call report_error
 
 do_fixups_have_address:
     # iterate through all fixups for this symbol
@@ -2525,14 +2531,14 @@ do_fixups_fixup:
     # find out which memory block should be updated
     add [rb + fixup_address], 0, [rb - 1]
     arb -1
-    cal calc_fixup
+    call calc_fixup
 
     # do the fixup
     add [rb + symbol_address], 0, [rb - 1]
     add [rb - 3], 0, [rb - 2]
     add [rb - 4], 0, [rb - 3]
     arb -3
-    cal inc_mem_at
+    call inc_mem_at
 
     # move to next fixup
     add [rb + fixup], 0, [do_fixups_next_fixup_ptr]
@@ -2583,35 +2589,35 @@ calc_fixup_done:
 ##########
 report_error:
 .FRAME message;
-    #cal print_mem
+    #call print_mem
 
     add report_error_msg_start, 0, [rb - 1]
     arb -1
-    cal print_str
+    call print_str
 
     add [rb + message], 0, [rb - 1]
     arb -1
-    cal print_str
+    call print_str
 
     add report_error_msg_line, 0, [rb - 1]
     arb -1
-    cal print_str
+    call print_str
 
     add [token_line_num], 0, [rb - 1]
     arb -1
-    cal print_num
+    call print_num
 
     add report_error_msg_column, 0, [rb - 1]
     arb -1
-    cal print_str
+    call print_str
 
     add [token_column_num], 0, [rb - 1]
     arb -1
-    cal print_num
+    call print_num
 
     add report_error_msg_end, 0, [rb - 1]
     arb -1
-    cal print_str
+    call print_str
 
     out 10
 
@@ -2814,7 +2820,7 @@ is_frame:
     db  0
 
 # current instruction pointer
-ip:
+current_address:
     db 0
 
 # output memory buffer
