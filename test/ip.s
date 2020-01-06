@@ -36,4 +36,7 @@ out [rb + ip - 'x']
 out [rb + ip - +'y']
 out [rb + ip - -'a']
 
+db  0, ip, ip + 0, ip + 5, ip + +7, ip + -3
+db  ip + 'x', ip + +'y', ip + -'a'
+
 .EOF
