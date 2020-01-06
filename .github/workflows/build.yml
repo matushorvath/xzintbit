@@ -21,10 +21,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Setup Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: 10.x
 
     - name: Build Assembler (bash)
       if: runner.os != 'Windows'
