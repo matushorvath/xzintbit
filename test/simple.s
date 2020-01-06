@@ -11,7 +11,7 @@
     add 40, 0, [rb - 1]
     add 40, 1, [rb - 2]
     arb -2
-    cal test
+    call test
     hlt
 
 # test function

@@ -33,7 +33,7 @@ instruction =
     | "out" in_param
     | "in" out_param
     | "hlt"
-    | "cal" in_param
+    | "call" in_param
     | "ret" number_or_char
     | "db" db_param { "," db_param }
     | "ds" NUMBER, number_or_char

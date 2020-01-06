@@ -297,12 +297,12 @@ Compiles to:
 42,42,42,42,42,42,42
 ```
 
-### Pseudo-instructions `cal` and `ret`
+### Pseudo-instructions `call` and `ret`
 
-These instructions support function calls. They generate multiple actual Intcode instructions at compile time. Essentially these are just syntactic sugar. You could implement functions without `cal` and `ret`, it would just be less convenient.
+These instructions support function calls. They generate multiple actual Intcode instructions at compile time. Essentially these are just syntactic sugar. You could implement functions without `call` and `ret`, it would just be less convenient.
 
 ```asm
-    cal my_function
+    call my_function
 my_function:
     out 'A'
     ret 0
@@ -422,7 +422,7 @@ A function call with 2 parameters and a return value looks like this:
     arb -2
 
     # call the function
-    cal my_function
+    call my_function
 
     # output the value returned by my_function
     # 4 = 2 + number of function parameters
@@ -506,7 +506,7 @@ Or in Intcode:
 109,3, 2106,0,-3
 ```
 
-Stack layout just before `cal my_function`:
+Stack layout just before `call my_function`:
 ```
 rb -> 'i'
       'H'

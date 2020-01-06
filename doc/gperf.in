@@ -1,11 +1,12 @@
 add
 arb
-cal
+call
 db
 ds
 eq
 hlt
 in
+ip
 jnz
 jz
 lt
