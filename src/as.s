@@ -1,4 +1,11 @@
-    arb stack
+# TODO:
+# ip pseudoregister as global symbol for reading
+# validations: invalid use of global and frame symbols (e.g. [local] or [rb + global])
+# return address frame symbol?
+# allocate less than 50 for fixups
+# have a printf-like function to print more info about errors
+# check the typescript implementation for missing error handling
+# test: both global and frame symbol; access frame outside of frame
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
@@ -7,15 +14,8 @@
 # + - = , : ; [ ]
 # n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
-# TODO
-# ip pseudoregister as global symbol for reading
-# validations: nonsensical use of global and frame symbols
-# return address frame symbol?
-# allocate less than 50 for fixups
-# store line and column number with fixups
-# have a printf-like function to print more info about errors
-# check the typescript implementation for missing error handling
-# test: both global and frame symbol; access frame outside of frame
+##########
+    arb stack
 
 ##########
 parse:
@@ -1067,7 +1067,9 @@ parse_value_is_global:
     # it is a global symbol, add a fixup for this identifier
     add [value], 0, [rb - 1]
     add [current_address], 0, [rb - 2]
-    arb -2
+    add [token_line_num], 0, [rb - 3]
+    add [token_column_num], 0, [rb - 4]
+    arb -4
     call add_fixup
 
 parse_value_after_global:
@@ -2089,7 +2091,7 @@ add_global_symbol:
 
 ##########
 add_fixup:
-.FRAME identifier, address; symbol, fixup, tmp
+.FRAME identifier, address, line_num, column_num; symbol, fixup, tmp
     arb -3
 
     # find or create the symbol record
@@ -2118,6 +2120,16 @@ add_fixup_have_symbol:
 +3 = add_fixup_address_ptr:
     add [rb + address], 0, [0]
 
+    # store line number
+    add [rb + fixup], 2, [add_fixup_line_num_ptr]
++3 = add_fixup_line_num_ptr:
+    add [rb + line_num], 0, [0]
+
+    # store column number
+    add [rb + fixup], 3, [add_fixup_column_num_ptr]
++3 = add_fixup_column_num_ptr:
+    add [rb + column_num], 0, [0]
+
     # read current fixup list head
     add [rb + symbol], 49, [add_fixup_list_head_1]
 +1 = add_fixup_list_head_1:
@@ -2134,7 +2146,7 @@ add_fixup_have_symbol:
     add [rb + fixup], 0, [0]
 
     arb 3
-    ret 2
+    ret 4
 .ENDFRAME
 
 ##########
@@ -2489,8 +2501,9 @@ do_fixups_symbol:
     eq  [rb + symbol_address], -1, [rb + tmp]
     jz  [rb + tmp], do_fixups_have_address
 
+    add [rb + symbol], 0, [rb + 1]
     add err_unknown_symbol, 0, [rb]
-    call report_error
+    call report_symbol_error
 
 do_fixups_have_address:
     # iterate through all fixups for this symbol
@@ -2540,6 +2553,38 @@ do_fixups_done:
 .ENDFRAME
 
 ##########
+report_symbol_error:
+.FRAME symbol, message; fixup, line_num, column_num
+    arb -3
+
+    add 0, 0, [rb + line_num]
+    add 0, 0, [rb + column_num]
+
+    # get first fixup for this symbol
+    add [rb + symbol], 49, [report_symbol_error_fixup_ptr]
++1 = report_symbol_error_fixup_ptr:
+    add [0], 0, [rb + fixup]
+    jz  [rb + fixup], report_symbol_error_after_location
+
+    # read fixup line num
+    add [rb + fixup], 2, [report_symbol_error_line_num_ptr]
++1 = report_symbol_error_line_num_ptr:
+    add [0], 0, [rb + line_num]
+
+    # read fixup column num
+    add [rb + fixup], 3, [report_symbol_error_column_num_ptr]
++1 = report_symbol_error_column_num_ptr:
+    add [0], 0, [rb + column_num]
+
+report_symbol_error_after_location:
+    # we don't bother with updating the stack pointer, this function never returns
+    add [rb + message], 0, [rb + 2]
+    add [rb + line_num], 0, [rb + 1]
+    add [rb + column_num], 0, [rb]
+    call report_error_at_location
+.ENDFRAME
+
+##########
 calc_fixup:
 .FRAME address; index, offset, tmp
     arb -3
@@ -2568,6 +2613,16 @@ calc_fixup_done:
 ##########
 report_error:
 .FRAME message;
+    # we don't bother with updating the stack pointer, this function never returns
+    add [rb + message], 0, [rb + 2]
+    add [token_line_num], 0, [rb + 1]
+    add [token_column_num], 0, [rb]
+    call report_error_at_location
+.ENDFRAME
+
+##########
+report_error_at_location:
+.FRAME message, line_num, column_num;
     #call print_mem
 
     add report_error_msg_start, 0, [rb - 1]
@@ -2582,7 +2637,7 @@ report_error:
     arb -1
     call print_str
 
-    add [token_line_num], 0, [rb - 1]
+    add [rb + line_num], 0, [rb - 1]
     arb -1
     call print_num
 
@@ -2590,7 +2645,7 @@ report_error:
     arb -1
     call print_str
 
-    add [token_column_num], 0, [rb - 1]
+    add [rb + column_num], 0, [rb - 1]
     arb -1
     call print_num
 
@@ -2776,6 +2831,8 @@ value:
 # fixup record layout:
 # 0: pointer to next fixup
 # 1: fixup address
+# 2: fixup line number
+# 3: fixup column number
 
 # head of the linked list of global symbols
 global_head:

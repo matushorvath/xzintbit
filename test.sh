@@ -2,6 +2,8 @@
 
 set -e
 
+echo
+
 # color support
 if test -n "$FORCE_COLOR" || test -t 1; then
     colors=$(tput colors)
@@ -27,7 +29,7 @@ for input in $(ls test/*.s) ; do
     echo -n "Test $id: "
 
     ./vm.sh src/as.input < "$input" > "$output" 2> /dev/null || true
-    diff "$output" "$expect" && status=$? || status=$? > /dev/null 2> /dev/null
+    diff "$output" "$expect" > /dev/null 2> /dev/null && status=$? || status=$?
 
     if [ $status = 0 ]; then
         echo "${green}OK${normal}"
