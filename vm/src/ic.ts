@@ -11,20 +11,11 @@ async function* getIns() {
 
 const main = async () => {
     const input = await fs.readFile(process.argv[2], 'utf8');
-    const mem = input.split(',').map(i => Number(i));
-    const vm = new Vm(mem);
+    const vm = new Vm(input.split(',').map(i => Number(i)));
 
-    let line: number[] = [];
     for await (const char of vm.run(getIns())) {
-        if (char === 10) {
-            console.log(line.map(n => String.fromCharCode(n)).join(''));
-            line = [];
-        } else {
-            line.push(char);
-        }
+        await new Promise(resolve => process.stdout.write(String.fromCharCode(char), resolve));
     }
 };
 
-main()
-    .then(() => {})
-    .catch(error => { console.error(error); process.exit(1); });
+main().catch(error => { console.error(error); process.exit(1); });
