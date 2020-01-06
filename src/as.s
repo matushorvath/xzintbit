@@ -1,5 +1,4 @@
 # TODO:
-# ip pseudoregister as global symbol for reading
 # validations: invalid use of global and frame symbols (e.g. [local] or [rb + global])
 # return address frame symbol?
 # allocate less than 50 for fixups
@@ -7,6 +6,7 @@
 # check the typescript implementation for missing error handling
 # test: both global and frame symbol; access frame outside of frame
 # compile-time constants: .SYMBOL abc = 42, use instead of 50
+# make ip point to after current instruction
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
@@ -144,13 +144,14 @@ parse_add_mul_lt_eq:
     add [token], 0, [rb + op]
     call get_token
 
-    add [current_address], 1, [current_address]
+    add 1, 0, [rb - 1]
+    arb -1
     call parse_in_param
 
     # update opcode and param 0 value
-    mul [rb - 3], 100, [rb - 3]
-    add [rb + op], [rb - 3], [rb + op]
-    add [rb - 2], 0, [rb + param0]
+    mul [rb - 4], 100, [rb - 4]
+    add [rb + op], [rb - 4], [rb + op]
+    add [rb - 3], 0, [rb + param0]
 
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_param1
@@ -159,15 +160,16 @@ parse_add_mul_lt_eq:
     call report_error
 
 parse_add_mul_lt_eq_param1:
-    add [current_address], 1, [current_address]
-
     call get_token
+
+    add 2, 0, [rb - 1]
+    arb -1
     call parse_in_param
 
     # update opcode and param 1 value
-    mul [rb - 3], 1000, [rb - 3]
-    add [rb + op], [rb - 3], [rb + op]
-    add [rb - 2], 0, [rb + param1]
+    mul [rb - 4], 1000, [rb - 4]
+    add [rb + op], [rb - 4], [rb + op]
+    add [rb - 3], 0, [rb + param1]
 
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_param2
@@ -176,15 +178,16 @@ parse_add_mul_lt_eq_param1:
     call report_error
 
 parse_add_mul_lt_eq_param2:
-    add [current_address], 1, [current_address]
-
     call get_token
+
+    add 3, 0, [rb - 1]
+    arb -1
     call parse_out_param
 
     # update opcode and param 2 value
-    mul [rb - 3], 10000, [rb - 3]
-    add [rb + op], [rb - 3], [rb + op]
-    add [rb - 2], 0, [rb + param2]
+    mul [rb - 4], 10000, [rb - 4]
+    add [rb + op], [rb - 4], [rb + op]
+    add [rb - 3], 0, [rb + param2]
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_done
@@ -193,7 +196,7 @@ parse_add_mul_lt_eq_param2:
     call report_error
 
 parse_add_mul_lt_eq_done:
-    add [current_address], 1, [current_address]
+    add [current_address], 4, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
@@ -224,13 +227,14 @@ parse_jnz_jz:
     add [token], 0, [rb + op]
     call get_token
 
-    add [current_address], 1, [current_address]
+    add 1, 0, [rb - 1]
+    arb -1
     call parse_in_param
 
     # update opcode and param 0 value
-    mul [rb - 3], 100, [rb - 3]
-    add [rb + op], [rb - 3], [rb + op]
-    add [rb - 2], 0, [rb + param0]
+    mul [rb - 4], 100, [rb - 4]
+    add [rb + op], [rb - 4], [rb + op]
+    add [rb - 3], 0, [rb + param0]
 
     eq  [token], ',', [rb + tmp]
     jnz [rb + tmp], parse_jnz_jz_param1
@@ -239,15 +243,16 @@ parse_jnz_jz:
     call report_error
 
 parse_jnz_jz_param1:
-    add [current_address], 1, [current_address]
-
     call get_token
+
+    add 2, 0, [rb - 1]
+    arb -1
     call parse_in_param
 
     # update opcode and param 1 value
-    mul [rb - 3], 1000, [rb - 3]
-    add [rb + op], [rb - 3], [rb + op]
-    add [rb - 2], 0, [rb + param1]
+    mul [rb - 4], 1000, [rb - 4]
+    add [rb + op], [rb - 4], [rb + op]
+    add [rb - 3], 0, [rb + param1]
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_jnz_jz_done
@@ -256,7 +261,7 @@ parse_jnz_jz_param1:
     call report_error
 
 parse_jnz_jz_done:
-    add [current_address], 1, [current_address]
+    add [current_address], 3, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
@@ -283,13 +288,14 @@ parse_arb_out:
     add [token], 0, [rb + op]
     call get_token
 
-    add [current_address], 1, [current_address]
+    add 1, 0, [rb - 1]
+    arb -1
     call parse_in_param
 
     # update opcode and param 0 value
-    mul [rb - 3], 100, [rb - 3]
-    add [rb + op], [rb - 3], [rb + op]
-    add [rb - 2], 0, [rb + param0]
+    mul [rb - 4], 100, [rb - 4]
+    add [rb + op], [rb - 4], [rb + op]
+    add [rb - 3], 0, [rb + param0]
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_arb_out_done
@@ -298,7 +304,7 @@ parse_arb_out:
     call report_error
 
 parse_arb_out_done:
-    add [current_address], 1, [current_address]
+    add [current_address], 2, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
@@ -321,13 +327,14 @@ parse_in:
     add [token], 0, [rb + op]
     call get_token
 
-    add [current_address], 1, [current_address]
+    add 1, 0, [rb - 1]
+    arb -1
     call parse_out_param
 
     # update opcode and param 0 value
-    mul [rb - 3], 100, [rb - 3]
-    add [rb + op], [rb - 3], [rb + op]
-    add [rb - 2], 0, [rb + param0]
+    mul [rb - 4], 100, [rb - 4]
+    add [rb + op], [rb - 4], [rb + op]
+    add [rb - 3], 0, [rb + param0]
 
     eq  [token], '$', [rb + tmp]
     jnz [rb + tmp], parse_in_done
@@ -336,7 +343,7 @@ parse_in:
     call report_error
 
 parse_in_done:
-    add [current_address], 1, [current_address]
+    add [current_address], 2, [current_address]
 
     add [rb + op], 0, [rb - 1]
     arb -1
@@ -412,12 +419,13 @@ parse_call:
     arb -1
     call set_mem
 
-    # update current_address to point to second parameter of the 'jz' below
-    # this way parse_in_param will generate the correct fixup
-    add [current_address], 8, [current_address]
+    # this parameter is located at current_address + 8
+    add 8, 0, [rb - 1]
+    arb -1
     call parse_in_param
-    add [rb - 2], 0, [rb + param]
-    add [rb - 3], 0, [rb + mode]
+
+    add [rb - 3], 0, [rb + param]
+    add [rb - 4], 0, [rb + mode]
 
     # generate code: jz 0, $param
     # 106 + mode * 1000, 0, param
@@ -441,15 +449,11 @@ parse_call:
     call report_error
 
 parse_call_done:
-    # current_address was already incremented, for fixup purposes, now move it past the last written byte
-    add [current_address], 1, [current_address]
+    add [current_address], 9, [current_address]
 
     arb 3
     ret 0
 .ENDFRAME
-
-# 109, ps[0].val + 1,                         // arb $0 + 1
-# 2106, 0, -(ps[0].val + 1)                   // jz 0, [rb - ($0 + 1)]
 
 ##########
 parse_ret:
@@ -503,8 +507,10 @@ parse_ret_done:
 
 ##########
 parse_db:
-.FRAME tmp, data
-    arb -2
+.FRAME tmp, data, offset
+    arb -3
+
+    add 0, 0, [rb + offset]
 
 parse_db_loop:
     # eat the 'db' token (first parameter) or the comma (subsequent parameters)
@@ -514,14 +520,16 @@ parse_db_loop:
     jnz [rb + tmp], parse_db_string
 
     # not a string, so it must be a value
+    add [rb + offset], 0, [rb - 1]
+    arb -1
     call parse_value
-    add [rb - 2], 0, [rb + data]
+    add [rb - 3], 0, [rb + data]
 
     add [rb + data], 0, [rb - 1]
     arb -1
     call set_mem
 
-    add [current_address], 1, [current_address]
+    add [rb + offset], 1, [rb + offset]
     jz  0, parse_db_after_param
 
 parse_db_string:
@@ -531,7 +539,7 @@ parse_db_string:
     call set_mem_str
 
     # string length is returned by set_mem_str
-    add [current_address], [rb - 3], [current_address]
+    add [rb + offset], [rb - 3], [rb + offset]
 
     # free the string
     add [value], 0, [rb - 1]
@@ -551,7 +559,9 @@ parse_db_after_param:
     call report_error
 
 parse_db_done:
-    arb 2
+    add [current_address], [rb + offset], [current_address]
+
+    arb 3
     ret 0
 .ENDFRAME
 
@@ -931,7 +941,7 @@ parse_dir_eof_have_endframe:
 
 ##########
 parse_out_param:
-.FRAME result, mode, sign, tmp
+.FRAME offset; result, mode, sign, tmp
     arb -4
 
     # default is position mode, unless we see a 'rb'
@@ -969,11 +979,13 @@ parse_out_param_rb_plus:
     call get_token
 
 parse_out_param_after_rb:
+    add [rb + offset], 0, [rb - 1]
+    arb -1
     call parse_value
-    mul [rb - 2], [rb + sign], [rb + result]
+    mul [rb - 3], [rb + sign], [rb + result]
 
     # we don't support 'rb - symbol', the fixup is always positive
-    eq  [rb - 3], 1, [rb + tmp]
+    eq  [rb - 4], 1, [rb + tmp]
     jz  [rb + tmp], parse_out_param_after_value
 
     eq  [rb + sign], -1, [rb + tmp]
@@ -993,38 +1005,43 @@ parse_out_param_done:
     call get_token
 
     arb 4
-    ret 0
+    ret 1
 .ENDFRAME
 
 ##########
 parse_in_param:
-.FRAME result, mode, tmp
+.FRAME offset; result, mode, tmp
     arb -3
 
     # position and relative are handled same as out_param
     eq  [token], '[', [rb + tmp]
     jz  [rb + tmp], parse_in_param_immediate
 
+    add [rb + offset], 0, [rb - 1]
+    arb -1
     call parse_out_param
-    add [rb - 2], 0, [rb + result]
-    add [rb - 3], 0, [rb + mode]
+
+    add [rb - 3], 0, [rb + result]
+    add [rb - 4], 0, [rb + mode]
     jz  0, parse_in_param_done
 
 parse_in_param_immediate:
+    add [rb + offset], 0, [rb - 1]
+    arb -1
     call parse_value
 
     # return the value and immediate mode
-    add [rb - 2], 0, [rb + result]
+    add [rb - 3], 0, [rb + result]
     add 1, 0, [rb + mode]
 
 parse_in_param_done:
     arb 3
-    ret 0
+    ret 1
 .ENDFRAME
 
 ##########
 parse_value:
-.FRAME result, has_symbol, sign, tmp
+.FRAME offset; result, has_symbol, sign, tmp
     arb -4
 
     add 0, 0, [rb + result]
@@ -1040,6 +1057,8 @@ parse_value:
     jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token], 'i', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier
+    eq  [token], 'I', [rb + tmp]
+    jnz [rb + tmp], parse_value_ip
 
     add err_expect_number_char_identifier, 0, [rb]
     call report_error
@@ -1069,7 +1088,7 @@ parse_value_identifier:
 parse_value_is_global:
     # it is a global symbol, add a fixup for this identifier
     add [value], 0, [rb - 1]
-    add [current_address], 0, [rb - 2]
+    add [current_address], [rb + offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
     arb -4
@@ -1082,6 +1101,14 @@ parse_value_after_global:
     call free
     add 0, 0, [value]
 
+    jz  0, parse_value_after_symbol
+
+parse_value_ip:
+    # [ip + 123] behaves similarly to [symbol + 123]
+    add 1, 0, [rb + has_symbol]
+    add [current_address], 0, [rb + result]
+
+parse_value_after_symbol:
     # optionally followed by + or - and a number or char
     call get_token
     eq  [token], '+', [rb + tmp]
@@ -1122,7 +1149,7 @@ parse_value_number_or_char_2:
 
 parse_value_done:
     arb 4
-    ret 0
+    ret 1
 .ENDFRAME
 
 ##########
