@@ -1,4 +1,4 @@
-REM @ECHO OFF
+@ECHO OFF
 SETLOCAL
 
 REM Edit this script to run your ASCII-enabled IntCode VM
