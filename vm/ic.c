@@ -5,6 +5,11 @@
 #include <inttypes.h>
 #include <string.h>
 
+#ifdef _WIN32
+#   include <fcntl.h>
+#   include <io.h>
+#endif
+
 int64_t *mem = NULL;
 int64_t mem_size = 0;
 
@@ -15,7 +20,7 @@ void resize_mem(int64_t addr) {
     if (addr >= mem_size) {
         int64_t old_mem_size = mem_size;
         while (addr >= mem_size) mem_size <<= 1;
-        mem = realloc(mem, mem_size * sizeof(int64_t));
+        mem = (int64_t *)realloc(mem, mem_size * sizeof(int64_t));
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int64_t));
     }
 }
@@ -25,7 +30,7 @@ int64_t get_mem(int64_t addr) {
     return mem[addr];
 }
 
-int64_t set_mem(int64_t addr, int64_t val) {
+void set_mem(int64_t addr, int64_t val) {
     resize_mem(addr);
     mem[addr] = val;
 }
@@ -47,7 +52,7 @@ int64_t get_param(int idx) {
     }
 }
 
-int64_t set_param(int idx, int64_t val) {
+void set_param(int idx, int64_t val) {
     int mode = get_mem(ip) / MODE_MUL[idx] % 10;
     switch (mode) {
         case 0: // position mode
@@ -135,6 +140,10 @@ void set_output(int64_t val) {
 }
 
 int main(int argc, char **argv) {
+#ifdef _WIN32
+    _setmode(_fileno(stdout), _O_BINARY);
+#endif
+
     mem_size = 64;
     mem = (int64_t*)malloc(mem_size * sizeof(int64_t));
     memset(mem, 0, mem_size * sizeof(int64_t));
@@ -151,4 +160,6 @@ int main(int argc, char **argv) {
     }
 
     run(get_input, set_output);
+
+    return 0;
 }
