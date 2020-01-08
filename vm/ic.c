@@ -155,7 +155,10 @@ int main(int argc, char **argv) {
     int64_t num = 0;
 
     while (ch == ',') {
-        fscanf(input, "%" SCNd64 "%c", &num, &ch);
+        if (fscanf(input, "%" SCNd64 "%c", &num, &ch) != 2) {
+            fprintf(stderr, "parse error");
+            exit(1);
+        }
         set_mem(idx++, num);
     }
 
