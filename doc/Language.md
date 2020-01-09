@@ -429,7 +429,7 @@ rb -> local2
 
 ### Function Call Convention
 
-Function calls are vaguely inspired by x86 *thiscall*. Function parameters are pushed to stack and cleaned up by callee, returned values are stored below the stack pointer after callee returns.
+Function calls are vaguely inspired by x86 *thiscall*. Function parameters are pushed to stack by caller and cleaned up by callee, returned values are stored below the stack pointer after callee returns.
 
 A function call with 2 parameters and a return value looks like this:
 ```asm
@@ -563,3 +563,5 @@ rb ->
 ```
 
 Here you can see why return value is at location `[rb - 4]` from caller's point of view, and that it corresponds to the first local variable of the callee.
+
+Since there is only one register usable for relative addressing (or actually, only one register at all), we have to use the same `rb` register for both base pointer and stack pointer. This means that pushing stuff to stack will mess up your access to local variables, since their offset from `rb` will change.
