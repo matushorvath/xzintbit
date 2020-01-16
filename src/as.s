@@ -6,6 +6,7 @@
 # check the typescript as implementation for missing error handling
 # test: both global and frame symbol; access frame outside of frame
 # compile-time constants: .SYMBOL abc = 42, use instead of 50
+# rename value to token_value or something
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
@@ -76,6 +77,8 @@ parse_loop:
     jnz [rb + tmp], parse_call_directive_frame
     eq  [token], 'D', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_endframe
+    eq  [token], 'Y', [rb + tmp]
+    jnz [rb + tmp], parse_call_directive_symbol
     eq  [token], 'N', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_eof
 
@@ -128,6 +131,10 @@ parse_call_directive_frame:
 
 parse_call_directive_endframe:
     call parse_dir_endframe
+    jz  0, parse_loop
+
+parse_call_directive_symbol:
+    call parse_dir_symbol
     jz  0, parse_loop
 
 parse_call_directive_eof:
@@ -734,7 +741,7 @@ parse_dir_frame_check_count:
 
 parse_dir_frame_eol:
     # we have up to three identifier blocks stored in the frame list
-    # now decide which block represents parameters, local variables and downstream variables
+    # now decide which block represents parameters, local variables and negative variables
     # then assign offsets to all symbols in the frame
     add [rb + block_index], 1, [rb - 1]
     add [rb + symbol_count], 0, [rb - 2]
@@ -818,17 +825,17 @@ parse_dir_frame_offset_blocks:
 
     # we have stored all frame symbols, now we can assign offsets to them
 
-    # are there any downstream symbols?
+    # are there any negative symbols?
     lt  [rb + block_count], 3, [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_offset_blocks_after_downstream
+    jnz [rb + tmp], parse_dir_frame_offset_blocks_after_negative
 
-    # process block 2 as downstream variables
+    # process block 2 as negative variables
     add 2, 0, [rb - 1]
     mul [rb + symbol_count], -1, [rb - 2]
     arb -2
     call parse_dir_frame_offset
 
-parse_dir_frame_offset_blocks_after_downstream:
+parse_dir_frame_offset_blocks_after_negative:
     # if there is at least one block, that will be local variables
     lt  [rb + block_count], 1, [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_offset_blocks_done
@@ -924,6 +931,66 @@ parse_dir_endframe_done:
     add  0, 0, [is_frame]
 
     arb 1
+    ret 0
+.ENDFRAME
+
+##########
+parse_dir_symbol:
+.FRAME tmp, identifier
+    arb -2
+
+    # get the identifier
+    call get_token
+
+    eq  [token], 'i', [rb + tmp]
+    jnz [rb + tmp], parse_dir_symbol_have_identifier
+
+    add err_expect_identifier, 0, [rb]
+    call report_error
+
+parse_dir_symbol_have_identifier:
+    # save the identifier
+    add [value], 0, [rb + identifier]
+
+    # read the comma
+    call get_token
+
+    eq  [token], ',', [rb + tmp]
+    jnz [rb + tmp], parse_dir_symbol_have_comma
+
+    add err_expect_comma, 0, [rb]
+    call report_error
+
+parse_dir_symbol_have_comma:
+    # get the value
+    call get_token
+
+    call parse_number_or_char
+    add [rb - 2], 0, [rb + tmp]
+
+    # add the symbol to symbol table
+    add [rb + identifier], 0, [rb - 1]
+    add [rb + tmp], 0, [rb - 2]
+    arb -2
+    call set_global_symbol_address
+
+    # free the identifier
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call free
+    add 0, 0, [rb + identifier]
+
+    # read end of line
+    call get_token
+
+    eq  [token], '$', [rb + tmp]
+    jnz [rb + tmp], parse_dir_symbol_done
+
+    add err_expect_eol, 0, [rb]
+    call report_error
+
+parse_dir_symbol_done:
+    arb 2
     ret 0
 .ENDFRAME
 
@@ -1699,7 +1766,7 @@ read_identifier_loop:
 
     # increase index and check for maximum identifier length (50 - 3)
     add [rb + index], 1, [rb + index]
-    lt  [rb + index], 47, [rb + tmp]
+    lt  [rb + index], 45, [rb + tmp]
     jnz [rb + tmp], read_identifier_loop
 
     add err_max_identifier_length, 0, [rb]
@@ -2612,7 +2679,8 @@ calc_fixup_loop:
     lt  [rb + offset], 49, [rb + tmp]
     jnz [rb + tmp], calc_fixup_done
 
-    add [rb + offset], -49, [rb + offset]
+    mul 49, -1, [rb + tmp]
+    add [rb + offset], [rb + tmp], [rb + offset]
     add [rb + index], 1, [rb + index]
 
     jz  0, calc_fixup_loop
@@ -2808,7 +2876,7 @@ value:
 
 # global symbol record layout:
 # 0: pointer to next symbol
-# 1-47: zero-terminated symbol identifier
+# 1-45: zero-terminated symbol identifier
 # 48: symbol value (address)
 # 49: linked list of fixups
 
@@ -2824,7 +2892,7 @@ global_head:
 
 # frame symbol record layout:
 # 0: pointer to next symbol
-# 1-47: zero-terminated symbol identifier
+# 1-45: zero-terminated symbol identifier
 # 48: symbol value (offset)
 # 49: block index (.FRAME block0; block1; block2)
 
