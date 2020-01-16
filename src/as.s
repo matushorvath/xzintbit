@@ -4,7 +4,6 @@
 # have a printf-like function to print more info about errors
 # check the typescript as implementation for missing error handling
 # test: both global and frame symbol; access frame outside of frame
-# rename value to token_value or something
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
@@ -26,58 +25,58 @@ parse_loop:
     call get_token
 
     # skip empty lines
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_loop
 
     # instructions
-    eq  [token], 1, [rb + tmp]
+    eq  [token_type], 1, [rb + tmp]
     jnz [rb + tmp], parse_call_add_mul_lt_eq
-    eq  [token], 2, [rb + tmp]
+    eq  [token_type], 2, [rb + tmp]
     jnz [rb + tmp], parse_call_add_mul_lt_eq
-    eq  [token], 7, [rb + tmp]
+    eq  [token_type], 7, [rb + tmp]
     jnz [rb + tmp], parse_call_add_mul_lt_eq
-    eq  [token], 8, [rb + tmp]
+    eq  [token_type], 8, [rb + tmp]
     jnz [rb + tmp], parse_call_add_mul_lt_eq
 
-    eq  [token], 5, [rb + tmp]
+    eq  [token_type], 5, [rb + tmp]
     jnz [rb + tmp], parse_call_jnz_jz
-    eq  [token], 6, [rb + tmp]
+    eq  [token_type], 6, [rb + tmp]
     jnz [rb + tmp], parse_call_jnz_jz
 
-    eq  [token], 9, [rb + tmp]
+    eq  [token_type], 9, [rb + tmp]
     jnz [rb + tmp], parse_call_arb_out
-    eq  [token], 4, [rb + tmp]
+    eq  [token_type], 4, [rb + tmp]
     jnz [rb + tmp], parse_call_arb_out
 
-    eq  [token], 3, [rb + tmp]
+    eq  [token_type], 3, [rb + tmp]
     jnz [rb + tmp], parse_call_in
-    eq  [token], 99, [rb + tmp]
+    eq  [token_type], 99, [rb + tmp]
     jnz [rb + tmp], parse_call_hlt
 
     # pseudo-instructions
-    eq  [token], 'C', [rb + tmp]
+    eq  [token_type], 'C', [rb + tmp]
     jnz [rb + tmp], parse_call_call
-    eq  [token], 'R', [rb + tmp]
+    eq  [token_type], 'R', [rb + tmp]
     jnz [rb + tmp], parse_call_ret
-    eq  [token], 'B', [rb + tmp]
+    eq  [token_type], 'B', [rb + tmp]
     jnz [rb + tmp], parse_call_db
-    eq  [token], 'S', [rb + tmp]
+    eq  [token_type], 'S', [rb + tmp]
     jnz [rb + tmp], parse_call_ds
 
     # symbols
-    eq  [token], 'i', [rb + tmp]
+    eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_call_symbol
-    eq  [token], '+', [rb + tmp]
+    eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_call_symbol
 
     # directives
-    eq  [token], 'F', [rb + tmp]
+    eq  [token_type], 'F', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_frame
-    eq  [token], 'D', [rb + tmp]
+    eq  [token_type], 'D', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_endframe
-    eq  [token], 'Y', [rb + tmp]
+    eq  [token_type], 'Y', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_symbol
-    eq  [token], 'N', [rb + tmp]
+    eq  [token_type], 'N', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_eof
 
     add err_unexpected_token, 0, [rb]
@@ -146,7 +145,7 @@ parse_add_mul_lt_eq:
     arb -5
 
     # token type is conveniently also the op code
-    add [token], 0, [rb + op]
+    add [token_type], 0, [rb + op]
     call get_token
 
     add 1, 0, [rb - 1]
@@ -159,7 +158,7 @@ parse_add_mul_lt_eq:
     add [rb + op], [rb - 5], [rb + op]
     add [rb - 4], 0, [rb + param0]
 
-    eq  [token], ',', [rb + tmp]
+    eq  [token_type], ',', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_param1
 
     add err_expect_comma, 0, [rb]
@@ -178,7 +177,7 @@ parse_add_mul_lt_eq_param1:
     add [rb + op], [rb - 5], [rb + op]
     add [rb - 4], 0, [rb + param1]
 
-    eq  [token], ',', [rb + tmp]
+    eq  [token_type], ',', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_param2
 
     add err_expect_comma, 0, [rb]
@@ -197,7 +196,7 @@ parse_add_mul_lt_eq_param2:
     add [rb + op], [rb - 5], [rb + op]
     add [rb - 4], 0, [rb + param2]
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_add_mul_lt_eq_done
 
     add err_expect_eol, 0, [rb]
@@ -232,7 +231,7 @@ parse_jnz_jz:
     arb -4
 
     # token type is conveniently also the op code
-    add [token], 0, [rb + op]
+    add [token_type], 0, [rb + op]
     call get_token
 
     add 1, 0, [rb - 1]
@@ -245,7 +244,7 @@ parse_jnz_jz:
     add [rb + op], [rb - 5], [rb + op]
     add [rb - 4], 0, [rb + param0]
 
-    eq  [token], ',', [rb + tmp]
+    eq  [token_type], ',', [rb + tmp]
     jnz [rb + tmp], parse_jnz_jz_param1
 
     add err_expect_comma, 0, [rb]
@@ -264,7 +263,7 @@ parse_jnz_jz_param1:
     add [rb + op], [rb - 5], [rb + op]
     add [rb - 4], 0, [rb + param1]
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_jnz_jz_done
 
     add err_expect_eol, 0, [rb]
@@ -295,7 +294,7 @@ parse_arb_out:
     arb -3
 
     # token type is conveniently also the op code
-    add [token], 0, [rb + op]
+    add [token_type], 0, [rb + op]
     call get_token
 
     add 1, 0, [rb - 1]
@@ -308,7 +307,7 @@ parse_arb_out:
     add [rb + op], [rb - 5], [rb + op]
     add [rb - 4], 0, [rb + param0]
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_arb_out_done
 
     add err_expect_eol, 0, [rb]
@@ -335,7 +334,7 @@ parse_in:
     arb -3
 
     # token type is conveniently also the op code
-    add [token], 0, [rb + op]
+    add [token_type], 0, [rb + op]
     call get_token
 
     add 1, 0, [rb - 1]
@@ -348,7 +347,7 @@ parse_in:
     add [rb + op], [rb - 5], [rb + op]
     add [rb - 4], 0, [rb + param0]
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_in_done
 
     add err_expect_eol, 0, [rb]
@@ -375,10 +374,10 @@ parse_hlt:
     arb -2
 
     # token type is conveniently also the op code
-    add [token], 0, [rb + op]
+    add [token_type], 0, [rb + op]
     call get_token
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_hlt_done
 
     add err_expect_eol, 0, [rb]
@@ -455,7 +454,7 @@ parse_call:
     arb -1
     call set_mem
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_call_done
 
     add err_expect_eol, 0, [rb]
@@ -505,7 +504,7 @@ parse_ret:
     arb -1
     call set_mem
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_ret_done
 
     add err_expect_eol, 0, [rb]
@@ -529,7 +528,7 @@ parse_db_loop:
     # eat the 'db' token (first parameter) or the comma (subsequent parameters)
     call get_token
 
-    eq  [token], 's', [rb + tmp]
+    eq  [token_type], 's', [rb + tmp]
     jnz [rb + tmp], parse_db_string
 
     # not a string, so it must be a value
@@ -551,7 +550,7 @@ parse_db_loop:
 
 parse_db_string:
     # store the string, don't store zero termination
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call set_mem_str
 
@@ -559,17 +558,17 @@ parse_db_string:
     add [rb + offset], [rb - 3], [rb + offset]
 
     # free the string
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call free
-    add 0, 0, [value]
+    add 0, 0, [token_value]
 
     call get_token
 
 parse_db_after_param:
-    eq  [token], ',', [rb + tmp]
+    eq  [token_type], ',', [rb + tmp]
     jnz [rb + tmp], parse_db_loop
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_db_done
 
     add err_expect_comma_eol, 0, [rb]
@@ -590,17 +589,17 @@ parse_ds:
     # eat the 'ds' token
     call get_token
 
-    eq  [token], 'n', [rb + tmp]
+    eq  [token_type], 'n', [rb + tmp]
     jnz [rb + tmp], parse_ds_have_count
 
     add err_expect_number, 0, [rb]
     call report_error
 
 parse_ds_have_count:
-    add [value], 0, [rb + count]
+    add [token_value], 0, [rb + count]
     call get_token
 
-    eq  [token], ',', [rb + tmp]
+    eq  [token_type], ',', [rb + tmp]
     jnz [rb + tmp], parse_ds_have_comma
 
     add err_expect_comma, 0, [rb]
@@ -613,7 +612,7 @@ parse_ds_have_comma:
 
     add [current_address], [rb + count], [current_address]
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_ds_loop
 
     add err_expect_eol, 0, [rb]
@@ -641,11 +640,11 @@ parse_symbol:
     add [current_address], 0, [rb + address]
 
     # check if there is an offset
-    eq  [token], '+', [rb + tmp]
+    eq  [token_type], '+', [rb + tmp]
     jz  [rb + tmp], parse_symbol_after_offset
 
     call get_token
-    eq  [token], 'n', [rb + tmp]
+    eq  [token_type], 'n', [rb + tmp]
     jnz [rb + tmp], parse_symbol_have_offset
 
     add err_expect_number, 0, [rb]
@@ -653,10 +652,10 @@ parse_symbol:
 
 parse_symbol_have_offset:
     # add offset to symbol address
-    add [rb + address], [value], [rb + address]
+    add [rb + address], [token_value], [rb + address]
     call get_token
 
-    eq  [token], '=', [rb + tmp]
+    eq  [token_type], '=', [rb + tmp]
     jnz [rb + tmp], parse_symbol_after_equals
 
     add err_expect_equals, 0, [rb]
@@ -666,7 +665,7 @@ parse_symbol_after_equals:
     call get_token
 
 parse_symbol_after_offset:
-    eq  [token], 'i', [rb + tmp]
+    eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_symbol_have_identifier
 
     add err_expect_identifier, 0, [rb]
@@ -674,20 +673,20 @@ parse_symbol_after_offset:
 
 parse_symbol_have_identifier:
     # add the symbol to symbol table
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     add [rb + address], 0, [rb - 2]
     arb -2
     call set_global_symbol_address
 
     # free the symbol value
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call free
-    add 0, 0, [value]
+    add 0, 0, [token_value]
 
     call get_token
 
-    eq  [token], ':', [rb + tmp]
+    eq  [token_type], ':', [rb + tmp]
     jnz [rb + tmp], parse_symbol_done
 
     add err_expect_colon, 0, [rb]
@@ -722,9 +721,9 @@ parse_dir_frame_loop:
     add [rb - 3], 0, [rb + symbol_count]
 
     # are there any more blocks, or was this the last one?
-    eq  [token], ';', [rb + tmp]
+    eq  [token_type], ';', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_check_count
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_eol
 
     add err_expect_semicolon_eol, 0, [rb]
@@ -762,13 +761,13 @@ parse_dir_frame_block:
     add 0, 0, [rb + symbol_count]
 
     # handle empty block
-    eq  [token], ';', [rb + tmp]
+    eq  [token_type], ';', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_done
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_done
 
 parse_dir_frame_block_loop:
-    eq  [token], 'i', [rb + tmp]
+    eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_identifier
 
     add err_expect_identifier, 0, [rb]
@@ -776,7 +775,7 @@ parse_dir_frame_block_loop:
 
 parse_dir_frame_block_identifier:
     # check for duplicate symbols
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call find_frame_symbol
     jz  [rb - 3], parse_dir_frame_block_is_unique
@@ -786,24 +785,24 @@ parse_dir_frame_block_identifier:
 
 parse_dir_frame_block_is_unique:
     # store the symbol with block index
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     add [rb + block_count], 0, [rb - 2]
     arb -2
     call add_frame_symbol
 
     # free the identifier
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call free
 
     add [rb + symbol_count], 1, [rb + symbol_count]
     call get_token
 
-    eq  [token], ',', [rb + tmp]
+    eq  [token_type], ',', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_comma
-    eq  [token], ';', [rb + tmp]
+    eq  [token_type], ';', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_done
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_frame_block_done
 
     add err_expect_comma_semicolon_eol, 0, [rb]
@@ -920,7 +919,7 @@ parse_dir_endframe:
 parse_dir_endframe_check_params:
     call get_token
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_endframe_done
 
     add err_expect_eol, 0, [rb]
@@ -942,7 +941,7 @@ parse_dir_symbol:
     # get the identifier
     call get_token
 
-    eq  [token], 'i', [rb + tmp]
+    eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_dir_symbol_have_identifier
 
     add err_expect_identifier, 0, [rb]
@@ -950,7 +949,7 @@ parse_dir_symbol:
 
 parse_dir_symbol_have_identifier:
     # save the identifier
-    add [value], 0, [rb + identifier]
+    add [token_value], 0, [rb + identifier]
 
     # get the value
     call get_token
@@ -973,7 +972,7 @@ parse_dir_symbol_have_identifier:
     # read end of line
     call get_token
 
-    eq  [token], '$', [rb + tmp]
+    eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_symbol_done
 
     add err_expect_eol, 0, [rb]
@@ -1014,7 +1013,7 @@ parse_out_param:
     add 1, 0, [rb + sign]
     add 0, 0, [rb + is_rb]
 
-    eq  [token], '[', [rb + tmp]
+    eq  [token_type], '[', [rb + tmp]
     jnz [rb + tmp], parse_out_param_try_rb
 
     add err_expect_open_brace, 0, [rb]
@@ -1022,7 +1021,7 @@ parse_out_param:
 
 parse_out_param_try_rb:
     call get_token
-    eq  [token], 'P', [rb + tmp]
+    eq  [token_type], 'P', [rb + tmp]
     jz  [rb + tmp], parse_out_param_after_rb
 
     # rb means relative mode
@@ -1030,9 +1029,9 @@ parse_out_param_try_rb:
     add 2, 0, [rb + mode]
 
     call get_token
-    eq  [token], '+', [rb + tmp]
+    eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_out_param_rb_plus
-    eq  [token], '-', [rb + tmp]
+    eq  [token_type], '-', [rb + tmp]
     jnz [rb + tmp], parse_out_param_rb_minus
 
     # if there is no +/i, this is just a plain [rb]
@@ -1064,7 +1063,7 @@ parse_out_param_after_rb:
     call report_error
 
 parse_out_param_after_value:
-    eq  [token], ']', [rb + tmp]
+    eq  [token_type], ']', [rb + tmp]
     jnz [rb + tmp], parse_out_param_done
 
     add err_expect_close_brace, 0, [rb]
@@ -1083,7 +1082,7 @@ parse_in_param:
     arb -3
 
     # position and relative are handled same as out_param
-    eq  [token], '[', [rb + tmp]
+    eq  [token_type], '[', [rb + tmp]
     jz  [rb + tmp], parse_in_param_immediate
 
     add [rb + param_offset], 0, [rb - 1]
@@ -1122,17 +1121,17 @@ parse_value:
     add 0, 0, [rb + result]
     add 0, 0, [rb + has_symbol]
 
-    eq  [token], '+', [rb + tmp]
+    eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_1
-    eq  [token], '-', [rb + tmp]
+    eq  [token_type], '-', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_1
-    eq  [token], 'n', [rb + tmp]
+    eq  [token_type], 'n', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_1
-    eq  [token], 'c', [rb + tmp]
+    eq  [token_type], 'c', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_1
-    eq  [token], 'i', [rb + tmp]
+    eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier
-    eq  [token], 'I', [rb + tmp]
+    eq  [token_type], 'I', [rb + tmp]
     jnz [rb + tmp], parse_value_ip
 
     add err_expect_number_char_identifier, 0, [rb]
@@ -1147,7 +1146,7 @@ parse_value_identifier:
     add 1, 0, [rb + has_symbol]
 
     # check if this is a frame symbol, we can resolve those immediately
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call find_frame_symbol
 
@@ -1175,7 +1174,7 @@ parse_value_is_global:
 
 parse_value_global_symbol_allowed:
     # add a fixup for this identifier
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
@@ -1184,10 +1183,10 @@ parse_value_global_symbol_allowed:
 
 parse_value_after_global:
     # free the symbol value
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call free
-    add 0, 0, [value]
+    add 0, 0, [token_value]
 
     jz  0, parse_value_after_symbol
 
@@ -1199,9 +1198,9 @@ parse_value_ip:
 parse_value_after_symbol:
     # optionally followed by + or - and a number or char
     call get_token
-    eq  [token], '+', [rb + tmp]
+    eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier_plus
-    eq  [token], '-', [rb + tmp]
+    eq  [token_type], '-', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier_minus
     jz  0, parse_value_done
 
@@ -1217,13 +1216,13 @@ parse_value_identifier_after_sign:
     call get_token
 
     # technically this is also valid: [abcd + -2] or even [abcd + +2]
-    eq  [token], '+', [rb + tmp]
+    eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_2
-    eq  [token], '-', [rb + tmp]
+    eq  [token_type], '-', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_2
-    eq  [token], 'n', [rb + tmp]
+    eq  [token_type], 'n', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_2
-    eq  [token], 'c', [rb + tmp]
+    eq  [token_type], 'c', [rb + tmp]
     jnz [rb + tmp], parse_value_number_or_char_2
 
     add err_expect_number_char, 0, [rb]
@@ -1248,9 +1247,9 @@ parse_number_or_char:
     add 1, 0, [rb + sign]
 
     # is there a sign?
-    eq  [token], '+', [rb + tmp]
+    eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_number_or_char_plus
-    eq  [token], '-', [rb + tmp]
+    eq  [token_type], '-', [rb + tmp]
     jnz [rb + tmp], parse_number_or_char_minus
     jz  0, parse_number_or_char_after_sign
 
@@ -1261,9 +1260,9 @@ parse_number_or_char_plus:
     call get_token
 
 parse_number_or_char_after_sign:
-    eq  [token], 'n', [rb + tmp]
+    eq  [token_type], 'n', [rb + tmp]
     jnz [rb + tmp], parse_number_or_char_have_value
-    eq  [token], 'c', [rb + tmp]
+    eq  [token_type], 'c', [rb + tmp]
     jnz [rb + tmp], parse_number_or_char_have_value
 
     add err_expect_number_char, 0, [rb]
@@ -1271,7 +1270,7 @@ parse_number_or_char_after_sign:
 
 parse_number_or_char_have_value:
     # return the number/char value
-    mul [value], [rb + sign], [rb + result]
+    mul [token_value], [rb + sign], [rb + result]
     call get_token
 
     arb 3
@@ -1284,32 +1283,32 @@ dump_token:
     arb -1
 
     # print token type
-    out [token]
+    out [token_type]
 
     # print token value if relevant
-    eq  [token], 'n', [rb + tmp]
+    eq  [token_type], 'n', [rb + tmp]
     jnz [rb + tmp], dump_token_print_n
-    eq  [token], 'c', [rb + tmp]
+    eq  [token_type], 'c', [rb + tmp]
     jnz [rb + tmp], dump_token_print_c
-    eq  [token], 'i', [rb + tmp]
+    eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], dump_token_print_i
     jz  0, dump_token_finish
 
 dump_token_print_n:
     out ' '
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call print_num
     jz  0, dump_token_finish
 
 dump_token_print_c:
     out ' '
-    out [value]
+    out [token_value]
     jz  0, dump_token_finish
 
 dump_token_print_i:
     out ' '
-    add [value], 0, [rb - 1]
+    add [token_value], 0, [rb - 1]
     arb -1
     call print_str
     jz  0, dump_token_finish
@@ -1472,7 +1471,7 @@ get_token_eol:
     call report_error
 
 get_token_eol_unix:
-    add '$', 0, [token]
+    add '$', 0, [token_type]
     jz  0, get_token_done
 
 get_token_identifier:
@@ -1481,36 +1480,36 @@ get_token_identifier:
     arb -1
     call unget_input
 
-    # return read identifier pointer in [value]
+    # return read identifier pointer in [token_value]
     # this memory needs to be freed by caller of get_token
     call read_identifier_or_keyword
-    add [rb - 2], 0, [token]
-    add [rb - 3], 0, [value]
+    add [rb - 2], 0, [token_type]
+    add [rb - 3], 0, [token_value]
 
     jz  0, get_token_done
 
 get_token_directive:
     call read_directive
-    add [rb - 2], 0, [token]
+    add [rb - 2], 0, [token_type]
     jz  0, get_token_done
 
 get_token_symbol:
-    add [rb + char], 0, [token]
+    add [rb + char], 0, [token_type]
     jz  0, get_token_done
 
 get_token_string:
-    # return read string pointer in [value]
+    # return read string pointer in [token_value]
     # this memory needs to be freed by caller of get_token
     call read_string
-    add [rb - 2], 0, [value]
+    add [rb - 2], 0, [token_value]
 
-    add 's', 0, [token]
+    add 's', 0, [token_type]
     jz  0, get_token_done
 
 get_token_char:
     # get one character and return it as token value
     call get_input
-    add [rb - 2], 0, [value]
+    add [rb - 2], 0, [token_value]
 
     # get closing quote
     call get_input
@@ -1521,7 +1520,7 @@ get_token_char:
     call report_error
 
 get_token_char_done:
-    add 'c', 0, [token]
+    add 'c', 0, [token_type]
     jz  0, get_token_done
 
 get_token_number:
@@ -1530,11 +1529,11 @@ get_token_number:
     arb -1
     call unget_input
 
-    # return read number in [value]
+    # return read number in [token_value]
     call read_number
-    add [rb - 2], 0, [value]
+    add [rb - 2], 0, [token_value]
 
-    add 'n', 0, [token]
+    add 'n', 0, [token_type]
     jz  0, get_token_done
 
 get_token_done:
@@ -2880,11 +2879,11 @@ token_column_num:
     db  1
 
 # lookahead token type
-token:
+token_type:
     db  0
 
 # lookahead token value, if any
-value:
+token_value:
     db  0
 
 .SYMBOL IDENTIFIER_LENGTH 45
