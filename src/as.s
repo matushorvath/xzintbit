@@ -951,16 +951,6 @@ parse_dir_symbol_have_identifier:
     # save the identifier
     add [value], 0, [rb + identifier]
 
-    # read the comma
-    call get_token
-
-    eq  [token], ',', [rb + tmp]
-    jnz [rb + tmp], parse_dir_symbol_have_comma
-
-    add err_expect_comma, 0, [rb]
-    call report_error
-
-parse_dir_symbol_have_comma:
     # get the value
     call get_token
 
@@ -2846,7 +2836,7 @@ heap_end:
     db  stack
 
 # allocation block size
-.SYMBOL MEM_BLOCK_SIZE, 50
+.SYMBOL MEM_BLOCK_SIZE 50
 
 # line and column number of next input character
 input_line_num:
@@ -2876,7 +2866,7 @@ token:
 value:
     db  0
 
-.SYMBOL IDENTIFIER_LENGTH, 45
+.SYMBOL IDENTIFIER_LENGTH 45
 
 # global symbol record layout:
 # 0: pointer to next symbol
