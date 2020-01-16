@@ -52,24 +52,6 @@ out [global + 'x']
 out [global + +'y']
 out [global + -'a']
 
-out [rb + global]
-
-out [rb + global + 0]
-out [rb + global + 5]
-out [rb + global + +7]
-out [rb + global + -3]
-out [rb + global + 'x']
-out [rb + global + +'y']
-out [rb + global + -'a']
-
-out [rb + global - 0]
-out [rb + global - 5]
-out [rb + global - +7]
-out [rb + global - -3]
-out [rb + global - 'x']
-out [rb + global - +'y']
-out [rb + global - -'a']
-
 .FRAME local
 out local
 out local + 0
@@ -79,15 +61,6 @@ out local + -3
 out local + 'x'
 out local + +'y'
 out local + -'a'
-
-out [local]
-out [local + 0]
-out [local + 5]
-out [local + +7]
-out [local + -3]
-out [local + 'x']
-out [local + +'y']
-out [local + -'a']
 
 out [rb + local]
 
