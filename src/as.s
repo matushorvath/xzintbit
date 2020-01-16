@@ -10,7 +10,8 @@
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
 # C call; R ret; B db; S ds
-# F .FRAME; D .ENDFRAME; N EOF; $ EOL; P rb; I ip
+# F .FRAME; D .ENDFRAME; Y .SYMBOL; E .EXPORT; N .EOF
+# $ EOL; P rb; I ip
 # + - = , : ; [ ]
 # n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
@@ -1724,7 +1725,7 @@ detect_keyword:
     arb -3
 
     # this uses a perfect hash function, generated using gperf and a list of keywords
-    # gperf < src/gperf.in
+    # gperf < doc/gperf-keyword.in
 
     # check string length against MAX_WORD_LENGTH and MIN_WORD_LENGTH
     lt  4, [rb + length], [rb + tmp]
@@ -1751,8 +1752,8 @@ detect_keyword:
     jnz [rb + tmp], detect_keyword_is_not
 
     # calculate indexes into the asso_values table
-    add [rb + char0], -97, [rb + char0]
-    add [rb + char1], -97, [rb + char1]
+    add [rb + char0], -'a', [rb + char0]
+    add [rb + char1], -'a', [rb + char1]
 
     # look up the hash value (store to char0)
     add detect_keyword_asso_values, [rb + char0], [ip + 1]
@@ -1789,14 +1790,14 @@ detect_keyword_is_not:
     ret 2
 
 detect_keyword_asso_values:
-    # copied from gperf.c
+    # copied from gperf-keyword.c
     db                               0,  0,  0
     db   5, 10, 38, 38, 10, 20, 10, 38, 20, 15
     db   5, 10, 10,  5,  0,  5, 15, 10, 38, 38
     db  38, 38, 10
 
 detect_keyword_wordlist:
-    # copied from gperf.c
+    # copied from gperf-keyword.c
     ds  10, 0
     db  "rb", 0, 0, 0
     db  "arb", 0, 0
@@ -1851,93 +1852,115 @@ detect_keyword_tokens:
 
 ##########
 read_directive:
-.FRAME tmp
+.FRAME token, buffer, tmp
+    arb -3
+
+    # read an identifier (which is actually the directive without the initial dot) into a buffer
+    call read_identifier
+    add [rb - 2], 0, [rb + buffer]
+
+    # check if the identifier is a valid directive
+    # reuse buffer [rb - 2] and length [rb - 3] as parameters
+    arb -3
+    call detect_directive
+    arb 1
+    add [rb - 5], 0, [rb + token]
+
+    # free the buffer, we don't need it anymore
+    add [rb + buffer], 0, [rb - 1]
     arb -1
+    call free
+    add 0, 0, [rb + buffer]
 
-    # TODO consider reading the whole string and doing a gperf
-    # TODO perhaps use the same gperf code as above, just parametrized
-
-    call get_input
-
-    eq  [rb - 2], 'E', [rb + tmp]
-    jnz [rb + tmp], read_directive_e
-    eq  [rb - 2], 'F', [rb + tmp]
-    jnz [rb + tmp], read_directive_frame
-
-    jz  0, read_directive_fail
-
-read_directive_e:
-    call get_input
-
-    eq  [rb - 2], 'N', [rb + tmp]
-    jnz [rb + tmp], read_directive_endframe
-    eq  [rb - 2], 'O', [rb + tmp]
-    jnz [rb + tmp], read_directive_eof
-
-    jz  0, read_directive_fail
-
-read_directive_endframe:
-    call get_input
-    eq  [rb - 2], 'D', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
-
-    call get_input
-    eq  [rb - 2], 'F', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
-
-    call get_input
-    eq  [rb - 2], 'R', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
-
-    call get_input
-    eq  [rb - 2], 'A', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
-
-    call get_input
-    eq  [rb - 2], 'M', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
-
-    call get_input
-    eq  [rb - 2], 'E', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
-
-    add 'D', 0, [rb + tmp]
-    arb 1
+    arb 3
     ret 0
+.ENDFRAME
 
-read_directive_eof:
-    call get_input
-    eq  [rb - 2], 'F', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
+##########
+detect_directive:
+.FRAME string, length; tmp, char0
+    arb -2
 
-    add 'N', 0, [rb + tmp]
-    arb 1
-    ret 0
+    # this uses a perfect hash function, generated using gperf and a list of directives
+    # gperf < doc/gperf-directive.in
 
-read_directive_frame:
-    call get_input
-    eq  [rb - 2], 'R', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
+    # check string length against MAX_WORD_LENGTH and MIN_WORD_LENGTH
+    lt  8, [rb + length], [rb + tmp]
+    jnz [rb + tmp], detect_directive_is_not
+    lt  [rb + length], 3, [rb + tmp]
+    jnz [rb + tmp], detect_directive_is_not
 
-    call get_input
-    eq  [rb - 2], 'A', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
+    # read first character, check that it is an uppercase letter
+    add [rb + string], 0, [ip + 1]
+    add [0], 0, [rb + char0]
 
-    call get_input
-    eq  [rb - 2], 'M', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
+    lt  [rb + char0], 'A', [rb + tmp]
+    jnz [rb + tmp], detect_directive_is_not
+    lt  'Z', [rb + char0], [rb + tmp]
+    jnz [rb + tmp], detect_directive_is_not
 
-    call get_input
-    eq  [rb - 2], 'E', [rb + tmp]
-    jz  [rb + tmp], read_directive_fail
+    # calculate indexes into the asso_values table
+    add [rb + char0], -'A', [rb + char0]
 
-    add 'F', 0, [rb + tmp]
-    arb 1
-    ret 0
+    # look up the hash value (store to char0)
+    add detect_directive_asso_values, [rb + char0], [ip + 1]
+    add [0], [rb + length], [rb + char0]
 
-read_directive_fail:
+    # check hash limit MAX_HASH_VALUE
+    lt  13, [rb + char0], [rb + tmp]
+    jnz [rb + tmp], detect_directive_is_not
+
+    # find candidate keyword, compare input string with the candidate
+    mul [rb + char0], 10, [rb + tmp]
+    add detect_directive_wordlist, [rb + tmp], [rb - 1]
+    add [rb + string], 0, [rb - 2]
+    arb -2
+    call strcmp
+
+    jnz [rb - 4], detect_directive_is_not
+
+    # find token id, return it
+    add detect_directive_tokens, [rb + char0], [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    arb 2
+    ret 2
+
+detect_directive_is_not:
+    # not a directive
     add err_invalid_directive, 0, [rb]
     call report_error
+
+detect_directive_asso_values:
+    # copied from gperf-directive.c
+    db                      14, 14, 14, 14,  5
+    db   0, 14, 14, 14, 14, 14, 14, 14, 14, 14
+    db  14, 14, 14,  0, 14, 14, 14, 14, 14, 14
+    db  14, 14, 14, 14, 14, 14, 14, 14, 14, 14
+    db  14
+
+detect_directive_wordlist:
+    # copied from gperf-directive.c
+    ds  50, 0
+    db  "FRAME", 0, 0, 0, 0, 0
+    db  "SYMBOL", 0, 0, 0, 0
+    ds  10, 0
+    db  "EOF", 0, 0, 0, 0, 0, 0, 0
+    ds  20, 0
+    db  "EXPORT", 0, 0, 0, 0
+    ds  10, 0
+    db  "ENDFRAME", 0, 0
+
+detect_directive_tokens:
+    ds  5, 0
+    db  'F'
+    db  'Y'
+    ds  1, 0
+    db  'N'
+    ds  2, 0
+    db  'E'
+    ds  1, 0
+    db  'D'
 .ENDFRAME
 
 ##########
