@@ -972,6 +972,11 @@ parse_dir_symbol_have_identifier:
     arb -2
     call set_global_symbol_address
 
+    add [rb + identifier], 0, [rb - 1]
+    add 3, 0, [rb - 2]
+    arb -2
+    call set_global_symbol_type
+
     # free the identifier
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -1057,6 +1062,7 @@ parse_dir_eof_have_endframe:
     # print exported and imported symbols
     call print_imports
     call print_exports
+    call print_reloc
 
     # print .$ to mark end of file
     out '.'
@@ -1068,14 +1074,13 @@ parse_dir_eof_have_endframe:
 
 ##########
 parse_out_param:
-.FRAME param_offset, instruction_length; result, mode, sign, is_rb, tmp
-    arb -5
+.FRAME param_offset, instruction_length; result, mode, sign, tmp
+    arb -4
 
     # default is position mode, unless we see a 'rb'
     add 0, 0, [rb + result]
     add 0, 0, [rb + mode]
     add 1, 0, [rb + sign]
-    add 0, 0, [rb + is_rb]
 
     eq  [token_type], '[', [rb + tmp]
     jnz [rb + tmp], parse_out_param_try_rb
@@ -1089,7 +1094,6 @@ parse_out_param_try_rb:
     jz  [rb + tmp], parse_out_param_after_rb
 
     # rb means relative mode
-    add 1, 0, [rb + is_rb]
     add 2, 0, [rb + mode]
 
     call get_token
@@ -1110,8 +1114,8 @@ parse_out_param_rb_plus:
 parse_out_param_after_rb:
     add [rb + param_offset], 0, [rb - 1]
     add [rb + instruction_length], 0, [rb - 2]
-    eq  [rb + is_rb], 0, [rb - 3]  # global symbols
-    eq  [rb + is_rb], 1, [rb - 4]  # frame symbols
+    eq  [rb + mode], 0, [rb - 3]  # global symbols
+    eq  [rb + mode], 2, [rb - 4]  # frame symbols
     arb -4
     call parse_value
     mul [rb - 6], [rb + sign], [rb + result]
@@ -1136,7 +1140,7 @@ parse_out_param_after_value:
 parse_out_param_done:
     call get_token
 
-    arb 5
+    arb 4
     ret 2
 .ENDFRAME
 
@@ -2407,18 +2411,24 @@ set_global_symbol_type_check:
     eq  [rb + tmp], [rb + type], [rb + tmp]
     jnz [rb + tmp], set_global_symbol_type_check_same
 
-    add err_symbol_imported_and_exported, 0, [rb]
+    add err_symbol_symbol_type_mix, 0, [rb]
     call report_error
 
 set_global_symbol_type_check_same:
     eq  [rb + type], 1, [rb + tmp]
     jnz [rb + tmp], set_global_symbol_type_error_imported
+    eq  [rb + type], 2, [rb + tmp]
+    jnz [rb + tmp], set_global_symbol_type_error_exported
 
-    add err_symbol_already_exported, 0, [rb]
+    add err_constant_already_defined, 0, [rb]
     call report_error
 
 set_global_symbol_type_error_imported:
     add err_symbol_already_imported, 0, [rb]
+    call report_error
+
+set_global_symbol_type_error_exported:
+    add err_symbol_already_exported, 0, [rb]
     call report_error
 
 set_global_symbol_type_have_symbol:
@@ -2673,8 +2683,7 @@ print_mem_byte:
     jz  [rb + tmp], print_mem_block_done
 
     # skip comma when printing first byte
-    eq  [rb + first], 1, [rb + tmp]
-    jnz [rb + tmp], print_mem_skip_comma
+    jnz [rb + first], print_mem_skip_comma
     out ','
 
 print_mem_skip_comma:
@@ -2915,6 +2924,75 @@ print_exports_symbol_done:
 
 print_exports_done:
     arb 3
+    ret 0
+.ENDFRAME
+
+##########
+print_reloc:
+.FRAME tmp, symbol, fixup, symbol_address, fixup_address, first
+    arb -6
+
+    add 1, 0, [rb + first]
+
+    # print .R
+    out '.'
+    out 'R'
+    out 10
+
+    add [global_head], 0, [rb + symbol]
+
+print_reloc_symbol:
+    # do we have more symbols?
+    jz  [rb + symbol], print_reloc_done
+
+    # check symbol type
+    add [rb + symbol], 47, [ip + 1]
+    eq  [0], 0, [rb + tmp]
+    jz  [rb + tmp], print_reloc_symbol_done
+
+    # iterate through all fixups for this symbol
+    add [rb + symbol], 49, [ip + 1]
+    add [0], 0, [rb + fixup]
+
+    jz  [rb + fixup], print_reloc_symbol_done
+
+print_reloc_fixup:
+    # do we have more fixups for this symbol?
+    jz  [rb + fixup], print_reloc_symbol_done
+
+    # skip comma when printing first reloc
+    jnz [rb + first], print_reloc_skip_comma
+    out ','
+
+print_reloc_skip_comma:
+    add 0, 0, [rb + first]
+
+    # read fixup address
+    add [rb + fixup], 1, [ip + 1]
+    add [0], 0, [rb + fixup_address]
+
+    # print the fixup
+    add [rb + fixup_address], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    # move to next fixup
+    add [rb + fixup], 0, [ip + 1]
+    add [0], 0, [rb + fixup]
+
+    jz  0, print_reloc_fixup
+
+print_reloc_symbol_done:
+    # move to next symbol
+    add [rb + symbol], 0, [ip + 1]
+    add [0], 0, [rb + symbol]
+
+    jz  0, print_reloc_symbol
+
+print_reloc_done:
+    out 10
+
+    arb 6
     ret 0
 .ENDFRAME
 
@@ -3163,7 +3241,7 @@ token_value:
 # global symbol record layout:
 # 0: pointer to next symbol
 # 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
-# 47: 0 - local symbol, 1 - imported symbol, 2 - exported symbol
+# 47: 0 - local symbol, 1 - imported symbol, 2 - exported symbol, 3 - constant
 # 48: symbol value (address)
 # 49: linked list of fixups
 
@@ -3198,7 +3276,6 @@ current_address:
 # output memory buffer
 mem_head:
     db 0
-
 mem_tail:
     db 0
 
@@ -3271,12 +3348,14 @@ err_global_symbol_not_allowed:
     db  "Global symbol is not allowed here", 0
 err_frame_symbol_not_allowed:
     db  "Frame symbol is not allowed here", 0
-err_symbol_imported_and_exported:
-    db  "Symbol can't be both imported and exported", 0
+err_symbol_symbol_type_mix:
+    db  "Redefining symbol type is not allowed", 0
 err_symbol_already_imported:
     db  "Symbol is already imported", 0
 err_symbol_already_exported:
     db  "Symbol is already exported", 0
+err_constant_already_defined:
+    db  "Constant symbol is already defined", 0
 err_imported_symbol_defined:
     db  "Imported symbol must not have an address defined", 0
 
