@@ -2398,13 +2398,13 @@ set_global_symbol_type_check:
     jz  [rb + tmp], set_global_symbol_type_have_symbol
 
     eq  [rb + tmp], [rb + type], [rb + tmp]
-    jz  [rb + tmp], set_global_symbol_type_check_same
+    jnz [rb + tmp], set_global_symbol_type_check_same
 
     add err_symbol_imported_and_exported, 0, [rb]
     call report_error
 
 set_global_symbol_type_check_same:
-    eq  [rb + type], 'I', [rb + tmp]
+    eq  [rb + type], 1, [rb + tmp]
     jnz [rb + tmp], set_global_symbol_type_error_imported
 
     add err_symbol_already_exported, 0, [rb]
@@ -2708,7 +2708,12 @@ do_fixups_symbol:
     # do we have more symbols?
     jz  [rb + symbol], do_fixups_done
 
-    # each symbol needs to have an address
+    # special handling of imported symbols
+    add [rb + symbol], 47, [ip + 1]
+    eq  [0], 1, [rb + tmp]
+    jnz [rb + tmp], do_fixups_symbol_imported
+
+    # each non-imported symbol needs to have an address
     add [rb + symbol], 48, [ip + 1]
     add [0], 0, [rb + symbol_address]
 
@@ -2749,6 +2754,18 @@ do_fixups_fixup:
     add [0], 0, [rb + fixup]
 
     jz  0, do_fixups_fixup
+
+do_fixups_symbol_imported:
+    # imported symbols must not have an address
+    add [rb + symbol], 48, [ip + 1]
+    add [0], 0, [rb + symbol_address]
+
+    eq  [rb + symbol_address], -1, [rb + tmp]
+    jnz [rb + tmp], do_fixups_symbol_done
+
+    add [rb + symbol], 0, [rb + 1]
+    add err_imported_symbol_defined, 0, [rb]
+    call report_symbol_error
 
 do_fixups_symbol_done:
     # move to next symbol
@@ -3121,6 +3138,8 @@ err_symbol_already_imported:
     db  "Symbol is already imported", 0
 err_symbol_already_exported:
     db  "Symbol is already exported", 0
+err_imported_symbol_defined:
+    db  "Imported symbol must not have an address defined", 0
 
 ##########
     ds  50, 0
