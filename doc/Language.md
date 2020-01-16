@@ -6,7 +6,7 @@ Basics
 
 Programs are case sensitive. The assembler expects Unix-like line ends (character 10).
 Comments start with `#` and continue to the end of the line. Numbers are decimal.
-Maximum identifier length is 47 characters. Maximum string length is 49 characters.
+Maximum identifier length is 45 characters. Maximum string length is 49 characters.
 
 Since there is no way to detect end of input file from Intcode, each program must end with a line like this:
 ```asm
@@ -151,6 +151,16 @@ ptr:
 The `db` instruction is a special case, since it is not easy to determine its size at compile time.
 When `ip` used in a parameter of a `db` instructions, it points to the address of next `db` value
 (not to the address after the whole `db` instruction as you might expect).
+
+# The .SYMBOL Directive
+
+You can define a symbol with an arbitrary constant value like this:
+```asm
+.SYMBOL my_symbol 42
+.SYMBOL my_symbol 'S'
+```
+
+This feature can be used to define compile time constants. Symbols defined like this are handled the same as any other global symbol.
 
 Instructions
 ------------

@@ -29,7 +29,7 @@ message:
 .EOF
 ```
 
-Save this program into a file called `hello-world.s`.
+Save this program into a file called [`hello-world.s`](test/hello-world.s).
 To run it, you will need to assemble it to Intcode.
 
 The assembler itself is also written in Intcode, so you will need an Intcode virtual machine (VM) to run it. You can definitely [use your own Intcode VM](#will-it-run-on-my-virtual-machine), or you could use mine.
