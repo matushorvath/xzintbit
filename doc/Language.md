@@ -160,7 +160,7 @@ You can define a symbol with an arbitrary constant value like this:
 .SYMBOL my_symbol 'S'
 ```
 
-This feature can be used to define compile time constants. Symbols defined like this are handled the same as any other global symbol.
+This feature can be used to define compile-time constants. Symbols defined like this are handled the same as any other global symbol.
 
 Instructions
 ------------
