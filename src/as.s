@@ -4,6 +4,7 @@
 # have a printf-like function to print more info about errors
 # check the typescript as implementation for missing error handling
 # test: both global and frame symbol; access frame outside of frame
+# remember line and column for .EXPORT (perhaps in a dummy fixup record)
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
@@ -76,6 +77,8 @@ parse_loop:
     jnz [rb + tmp], parse_call_directive_endframe
     eq  [token_type], 'Y', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_symbol
+    eq  [token_type], 'E', [rb + tmp]
+    jnz [rb + tmp], parse_call_directive_export
     eq  [token_type], 'N', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_eof
 
@@ -132,6 +135,10 @@ parse_call_directive_endframe:
 
 parse_call_directive_symbol:
     call parse_dir_symbol
+    jz  0, parse_loop
+
+parse_call_directive_export:
+    call parse_dir_export
     jz  0, parse_loop
 
 parse_call_directive_eof:
@@ -980,6 +987,46 @@ parse_dir_symbol_have_identifier:
 
 parse_dir_symbol_done:
     arb 2
+    ret 0
+.ENDFRAME
+
+##########
+parse_dir_export:
+.FRAME tmp
+    arb -1
+
+    # get the identifier
+    call get_token
+
+    eq  [token_type], 'i', [rb + tmp]
+    jnz [rb + tmp], parse_dir_export_have_identifier
+
+    add err_expect_identifier, 0, [rb]
+    call report_error
+
+parse_dir_export_have_identifier:
+    # set the global symbol as exported
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call set_global_symbol_exported
+
+    # free the identifier
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call free
+    add 0, 0, [token_value]
+
+    # read end of line
+    call get_token
+
+    eq  [token_type], '$', [rb + tmp]
+    jnz [rb + tmp], parse_dir_export_done
+
+    add err_expect_eol, 0, [rb]
+    call report_error
+
+parse_dir_export_done:
+    arb 1
     ret 0
 .ENDFRAME
 
@@ -2198,6 +2245,10 @@ add_global_symbol:
     arb -2
     call strcpy
 
+    # set the symbol as not exported
+    add [rb + record], 47, [ip + 3]
+    add 0, 0, [0]
+
     # set address to -1, so we can detect when the address is set
     add [rb + record], 48, [ip + 3]
     add -1, 0, [0]
@@ -2305,6 +2356,45 @@ set_global_symbol_address_have_symbol:
 
     arb 2
     ret 2
+.ENDFRAME
+
+##########
+set_global_symbol_exported:
+.FRAME identifier; symbol, tmp
+    arb -2
+
+    # find or create the symbol record
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call find_global_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+    jnz [rb + symbol], set_global_symbol_exported_check_already
+
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call add_global_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+    jz  0, set_global_symbol_exported_have_symbol
+
+set_global_symbol_exported_check_already:
+    # check for symbol already exported
+    add [rb + symbol], 47, [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    jz  [rb + tmp], set_global_symbol_exported_have_symbol
+
+    add err_symbol_already_exported, 0, [rb]
+    call report_error
+
+set_global_symbol_exported_have_symbol:
+    # set the symbol as exported
+    add [rb + symbol], 47, [ip + 3]
+    add 1, 0, [0]
+
+    arb 2
+    ret 1
 .ENDFRAME
 
 ##########
@@ -2891,6 +2981,7 @@ token_value:
 # global symbol record layout:
 # 0: pointer to next symbol
 # 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
+# 47: 0 - symbol not exported, 1 - symbol exported
 # 48: symbol value (address)
 # 49: linked list of fixups
 
@@ -2998,6 +3089,8 @@ err_global_symbol_not_allowed:
     db  "Global symbol is not allowed here", 0
 err_frame_symbol_not_allowed:
     db  "Frame symbol is not allowed here", 0
+err_symbol_already_exported:
+    db  "Symbol is already exported", 0
 
 ##########
     ds  50, 0
