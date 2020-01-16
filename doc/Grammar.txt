@@ -16,6 +16,7 @@ directive =
       "FRAME" identifier_list [ ";" identifier_list [ ";" identifier_list ] ]
     | "ENDFRAME"
     | "EOF"
+    | "SYMBOL" identifier number_or_char
     .
 
 identifier_list = 
