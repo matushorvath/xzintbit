@@ -30,7 +30,7 @@
 #endif
 
 
-#define TOTAL_KEYWORDS 5
+#define TOTAL_KEYWORDS 6
 #define MIN_WORD_LENGTH 3
 #define MAX_WORD_LENGTH 8
 #define MIN_HASH_VALUE 5
@@ -56,7 +56,7 @@ hash (register const char *str, register size_t len)
       14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
       14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
       14, 14, 14, 14, 14, 14, 14, 14, 14,  5,
-       0, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+       0, 14, 14,  4, 14, 14, 14, 14, 14, 14,
       14, 14, 14,  0, 14, 14, 14, 14, 14, 14,
       14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
       14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
@@ -89,7 +89,8 @@ in_word_set (register const char *str, register size_t len)
       "SYMBOL",
       "",
       "EOF",
-      "", "",
+      "",
+      "IMPORT",
       "EXPORT",
       "",
       "ENDFRAME"

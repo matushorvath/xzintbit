@@ -9,7 +9,7 @@
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
 # C call; R ret; B db; S ds
-# F .FRAME; D .ENDFRAME; Y .SYMBOL; E .EXPORT; N .EOF
+# F .FRAME; D .ENDFRAME; Y .SYMBOL; E .EXPORT; I .IMPORT; N .EOF
 # $ EOL; P rb; I ip
 # + - = , : ; [ ]
 # n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
@@ -78,7 +78,9 @@ parse_loop:
     eq  [token_type], 'Y', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_symbol
     eq  [token_type], 'E', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_export
+    jnz [rb + tmp], parse_call_directive_import_export
+    eq  [token_type], 'I', [rb + tmp]
+    jnz [rb + tmp], parse_call_directive_import_export
     eq  [token_type], 'N', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_eof
 
@@ -137,8 +139,8 @@ parse_call_directive_symbol:
     call parse_dir_symbol
     jz  0, parse_loop
 
-parse_call_directive_export:
-    call parse_dir_export
+parse_call_directive_import_export:
+    call parse_dir_import_export
     jz  0, parse_loop
 
 parse_call_directive_eof:
@@ -991,24 +993,32 @@ parse_dir_symbol_done:
 .ENDFRAME
 
 ##########
-parse_dir_export:
-.FRAME tmp
-    arb -1
+parse_dir_import_export:
+.FRAME tmp, type
+    arb -2
 
+    # determine if it's import (1) or export (2)
+    add 1, 0, [rb + type]
+    eq  [token_type], 'I', [rb + tmp]
+    jnz [rb + tmp], parse_dir_import_export_have_type
+    add 2, 0, [rb + type]
+
+parse_dir_import_export_have_type:
     # get the identifier
     call get_token
 
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_dir_export_have_identifier
+    jnz [rb + tmp], parse_dir_import_export_have_identifier
 
     add err_expect_identifier, 0, [rb]
     call report_error
 
-parse_dir_export_have_identifier:
+parse_dir_import_export_have_identifier:
     # set the global symbol as exported
     add [token_value], 0, [rb - 1]
-    arb -1
-    call set_global_symbol_exported
+    add [rb + type], 0, [rb - 2]
+    arb -2
+    call set_global_symbol_type
 
     # free the identifier
     add [token_value], 0, [rb - 1]
@@ -1020,13 +1030,13 @@ parse_dir_export_have_identifier:
     call get_token
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_dir_export_done
+    jnz [rb + tmp], parse_dir_import_export_done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_dir_export_done:
-    arb 1
+parse_dir_import_export_done:
+    arb 2
     ret 0
 .ENDFRAME
 
@@ -2057,7 +2067,7 @@ detect_directive_is_not:
 detect_directive_asso_values:
     # copied from gperf-directive.c
     db                      14, 14, 14, 14,  5
-    db   0, 14, 14, 14, 14, 14, 14, 14, 14, 14
+    db   0, 14, 14,  4, 14, 14, 14, 14, 14, 14
     db  14, 14, 14,  0, 14, 14, 14, 14, 14, 14
     db  14, 14, 14, 14, 14, 14, 14, 14, 14, 14
     db  14
@@ -2069,7 +2079,8 @@ detect_directive_wordlist:
     db  "SYMBOL", 0, 0, 0, 0
     ds  10, 0
     db  "EOF", 0, 0, 0, 0, 0, 0, 0
-    ds  20, 0
+    ds  10, 0
+    db  "IMPORT", 0, 0, 0, 0
     db  "EXPORT", 0, 0, 0, 0
     ds  10, 0
     db  "ENDFRAME", 0, 0
@@ -2080,7 +2091,8 @@ detect_directive_tokens:
     db  'Y'
     ds  1, 0
     db  'N'
-    ds  2, 0
+    ds  1, 0
+    db  'I'
     db  'E'
     ds  1, 0
     db  'D'
@@ -2359,8 +2371,8 @@ set_global_symbol_address_have_symbol:
 .ENDFRAME
 
 ##########
-set_global_symbol_exported:
-.FRAME identifier; symbol, tmp
+set_global_symbol_type:
+.FRAME identifier, type; symbol, tmp
     arb -2
 
     # find or create the symbol record
@@ -2369,32 +2381,46 @@ set_global_symbol_exported:
     call find_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
-    jnz [rb + symbol], set_global_symbol_exported_check_already
+    jnz [rb + symbol], set_global_symbol_type_check
 
     add [rb + identifier], 0, [rb - 1]
     arb -1
     call add_global_symbol
     add [rb - 3], 0, [rb + symbol]
 
-    jz  0, set_global_symbol_exported_have_symbol
+    jz  0, set_global_symbol_type_have_symbol
 
-set_global_symbol_exported_check_already:
-    # check for symbol already exported
+set_global_symbol_type_check:
+    # check for symbol already imported/exported
     add [rb + symbol], 47, [ip + 1]
     add [0], 0, [rb + tmp]
 
-    jz  [rb + tmp], set_global_symbol_exported_have_symbol
+    jz  [rb + tmp], set_global_symbol_type_have_symbol
+
+    eq  [rb + tmp], [rb + type], [rb + tmp]
+    jz  [rb + tmp], set_global_symbol_type_check_same
+
+    add err_symbol_imported_and_exported, 0, [rb]
+    call report_error
+
+set_global_symbol_type_check_same:
+    eq  [rb + type], 'I', [rb + tmp]
+    jnz [rb + tmp], set_global_symbol_type_error_imported
 
     add err_symbol_already_exported, 0, [rb]
     call report_error
 
-set_global_symbol_exported_have_symbol:
-    # set the symbol as exported
+set_global_symbol_type_error_imported:
+    add err_symbol_already_imported, 0, [rb]
+    call report_error
+
+set_global_symbol_type_have_symbol:
+    # set symbol type
     add [rb + symbol], 47, [ip + 3]
-    add 1, 0, [0]
+    add [rb + type], 0, [0]
 
     arb 2
-    ret 1
+    ret 2
 .ENDFRAME
 
 ##########
@@ -2981,7 +3007,7 @@ token_value:
 # global symbol record layout:
 # 0: pointer to next symbol
 # 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
-# 47: 0 - symbol not exported, 1 - symbol exported
+# 47: 0 - local symbol, 1 - imported symbol, 2 - exported symbol
 # 48: symbol value (address)
 # 49: linked list of fixups
 
@@ -3089,6 +3115,10 @@ err_global_symbol_not_allowed:
     db  "Global symbol is not allowed here", 0
 err_frame_symbol_not_allowed:
     db  "Frame symbol is not allowed here", 0
+err_symbol_imported_and_exported:
+    db  "Symbol can't be both imported and exported", 0
+err_symbol_already_imported:
+    db  "Symbol is already imported", 0
 err_symbol_already_exported:
     db  "Symbol is already exported", 0
 
