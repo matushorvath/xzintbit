@@ -1,5 +1,4 @@
 # TODO:
-# validations: invalid use of global and frame symbols (e.g. [local] or [rb + global])
 # return address frame symbol?
 # allocate less than MEM_BLOCK_SIZE for fixups
 # have a printf-like function to print more info about errors
@@ -537,9 +536,11 @@ parse_db_loop:
     add [rb + offset], 0, [rb - 1]
     # next instruction address with db would need a fixup, so we just pass next value address
     add [rb + offset], 1, [rb - 2]
-    arb -2
+    add 1, 0, [rb - 3]  # global symbols
+    add 1, 0, [rb - 4]  # frame symbols
+    arb -4
     call parse_value
-    add [rb - 4], 0, [rb + data]
+    add [rb - 6], 0, [rb + data]
 
     add [rb + data], 0, [rb - 1]
     arb -1
@@ -1004,13 +1005,14 @@ parse_dir_eof_have_endframe:
 
 ##########
 parse_out_param:
-.FRAME param_offset, instruction_length; result, mode, sign, tmp
-    arb -4
+.FRAME param_offset, instruction_length; result, mode, sign, is_rb, tmp
+    arb -5
 
     # default is position mode, unless we see a 'rb'
     add 0, 0, [rb + result]
     add 0, 0, [rb + mode]
     add 1, 0, [rb + sign]
+    add 0, 0, [rb + is_rb]
 
     eq  [token], '[', [rb + tmp]
     jnz [rb + tmp], parse_out_param_try_rb
@@ -1024,6 +1026,7 @@ parse_out_param_try_rb:
     jz  [rb + tmp], parse_out_param_after_rb
 
     # rb means relative mode
+    add 1, 0, [rb + is_rb]
     add 2, 0, [rb + mode]
 
     call get_token
@@ -1044,12 +1047,14 @@ parse_out_param_rb_plus:
 parse_out_param_after_rb:
     add [rb + param_offset], 0, [rb - 1]
     add [rb + instruction_length], 0, [rb - 2]
-    arb -2
+    eq  [rb + is_rb], 0, [rb - 3]  # global symbols
+    eq  [rb + is_rb], 1, [rb - 4]  # frame symbols
+    arb -4
     call parse_value
-    mul [rb - 4], [rb + sign], [rb + result]
+    mul [rb - 6], [rb + sign], [rb + result]
 
     # we don't support 'rb - symbol', the fixup is always positive
-    eq  [rb - 5], 1, [rb + tmp]
+    eq  [rb - 7], 1, [rb + tmp]
     jz  [rb + tmp], parse_out_param_after_value
 
     eq  [rb + sign], -1, [rb + tmp]
@@ -1068,7 +1073,7 @@ parse_out_param_after_value:
 parse_out_param_done:
     call get_token
 
-    arb 4
+    arb 5
     ret 2
 .ENDFRAME
 
@@ -1093,11 +1098,13 @@ parse_in_param:
 parse_in_param_immediate:
     add [rb + param_offset], 0, [rb - 1]
     add [rb + instruction_length], 0, [rb - 2]
-    arb -2
+    add 1, 0, [rb - 3]  # global symbols
+    add 1, 0, [rb - 4]  # frame symbols
+    arb -4
     call parse_value
 
     # return the value and immediate mode
-    add [rb - 4], 0, [rb + result]
+    add [rb - 6], 0, [rb + result]
     add 1, 0, [rb + mode]
 
 parse_in_param_done:
@@ -1107,7 +1114,7 @@ parse_in_param_done:
 
 ##########
 parse_value:
-.FRAME param_offset, instruction_length; result, has_symbol, sign, tmp
+.FRAME param_offset, instruction_length, allow_global_symbol, allow_frame_symbol; result, has_symbol, sign, tmp
     # param_offset: offset of the current parameter from current_address
     # instruction_length: current instruction length
     arb -4
@@ -1146,14 +1153,28 @@ parse_value_identifier:
 
     jz  [rb - 3], parse_value_is_global
 
-    # it is a frame symbol, read its offset
+    # it is a frame symbol
+    jnz [rb + allow_frame_symbol], parse_value_frame_symbol_allowed
+
+    add err_frame_symbol_not_allowed, 0, [rb]
+    call report_error
+
+parse_value_frame_symbol_allowed:
+    # read its offset
     add [rb - 3], 48, [ip + 1]
     add [0], 0, [rb + result]
 
     jz  0, parse_value_after_global
 
 parse_value_is_global:
-    # it is a global symbol, add a fixup for this identifier
+    # it is a global symbol
+    jnz [rb + allow_global_symbol], parse_value_global_symbol_allowed
+
+    add err_global_symbol_not_allowed, 0, [rb]
+    call report_error
+
+parse_value_global_symbol_allowed:
+    # add a fixup for this identifier
     add [value], 0, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
@@ -1216,7 +1237,7 @@ parse_value_number_or_char_2:
 
 parse_value_done:
     arb 4
-    ret 2
+    ret 4
 .ENDFRAME
 
 ##########
@@ -2974,6 +2995,10 @@ err_expect_10_after_13:
     db  "Expecting character 10 after character 13", 0
 err_expect_endframe:
     db  "Expecting .ENDFRAME", 0
+err_global_symbol_not_allowed:
+    db  "Global symbol is not allowed here", 0
+err_frame_symbol_not_allowed:
+    db  "Frame symbol is not allowed here", 0
 
 ##########
     ds  50, 0
