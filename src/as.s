@@ -1,11 +1,10 @@
 # TODO:
 # validations: invalid use of global and frame symbols (e.g. [local] or [rb + global])
 # return address frame symbol?
-# allocate less than 50 for fixups
+# allocate less than MEM_BLOCK_SIZE for fixups
 # have a printf-like function to print more info about errors
 # check the typescript as implementation for missing error handling
 # test: both global and frame symbol; access frame outside of frame
-# compile-time constants: .SYMBOL abc = 42, use instead of 50
 # rename value to token_value or something
 
 # token types:
@@ -1630,7 +1629,7 @@ read_string:
     arb -4
 
     # we will store the string in dynamic memory that needs to be freed by caller
-    add 50, 0, [rb - 1]
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + buffer]
@@ -1652,9 +1651,9 @@ read_string_loop:
     add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
-    # increase index and check for maximum string length (50 - 1)
+    # increase index and check for maximum string length
     add [rb + index], 1, [rb + index]
-    lt  [rb + index], 49, [rb + tmp]
+    lt  [rb + index], MEM_BLOCK_SIZE - 1, [rb + tmp]
     jnz [rb + tmp], read_string_loop
 
     add err_max_string_length, 0, [rb]
@@ -1743,7 +1742,7 @@ read_identifier:
     arb -4
 
     # we will store the identifier in dynamic memory that needs to be freed by caller
-    add 50, 0, [rb - 1]
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + buffer]
@@ -1764,9 +1763,9 @@ read_identifier_loop:
     add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
-    # increase index and check for maximum identifier length (50 - 3)
+    # increase index and check for maximum identifier length
     add [rb + index], 1, [rb + index]
-    lt  [rb + index], 45, [rb + tmp]
+    lt  [rb + index], IDENTIFIER_LENGTH, [rb + tmp]
     jnz [rb + tmp], read_identifier_loop
 
     add err_max_identifier_length, 0, [rb]
@@ -2093,7 +2092,7 @@ alloc:
     arb -2
 
     # we only support certain block sizes
-    lt  50, [rb + size], [rb + tmp]
+    lt  MEM_BLOCK_SIZE, [rb + size], [rb + tmp]
     jz  [rb + tmp], alloc_size_ok
 
     add err_allocation_size, 0, [rb]
@@ -2114,7 +2113,7 @@ alloc_size_ok:
 alloc_create_block:
     # there are no free blocks, create one
     add [heap_end], 0, [rb + block]
-    add [heap_end], 50, [heap_end]
+    add [heap_end], MEM_BLOCK_SIZE, [heap_end]
 
 alloc_done:
     arb 2
@@ -2174,7 +2173,7 @@ add_global_symbol:
     arb -1
 
     # allocate a block
-    add 50, 0, [rb - 1]
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + record]
@@ -2225,7 +2224,7 @@ add_fixup:
 add_fixup_have_symbol:
     # allocate a block
     # TODO use smaller blocks, or collect multiple fixups in one block
-    add 50, 0, [rb - 1]
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + fixup]
@@ -2335,7 +2334,7 @@ add_frame_symbol:
     arb -1
 
     # allocate a block
-    add 50, 0, [rb - 1]
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + record]
@@ -2405,7 +2404,7 @@ set_mem:
     jnz [rb + buffer], set_mem_have_buffer
 
     # no, create one
-    add 50, 0, [rb - 1]
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + buffer]
@@ -2422,11 +2421,11 @@ set_mem:
 
 set_mem_have_buffer:
     # is there enough space for one more byte?
-    lt  [mem_index], 50, [rb + tmp]
+    lt  [mem_index], MEM_BLOCK_SIZE, [rb + tmp]
     jnz [rb + tmp], set_mem_have_space
 
     # no, create a new buffer
-    add 50, 0, [rb - 1]
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + buffer]
@@ -2530,8 +2529,8 @@ print_mem:
 print_mem_block:
     add 1, 0, [rb + index]
 
-    # maximum index within a block is 50, except for last block
-    add 50, 0, [rb + limit]
+    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
+    add MEM_BLOCK_SIZE, 0, [rb + limit]
     eq  [rb + buffer], [mem_tail], [rb + tmp]
     jz  [rb + tmp], print_mem_byte
     add [mem_index], 0, [rb + limit]
@@ -2671,15 +2670,15 @@ calc_fixup:
 .FRAME address; index, offset, tmp
     arb -3
 
-    # calculate index = address / (50 - 1) ; offset = address % (50 - 1) + 1
+    # calculate index = address / (MEM_BLOCK_SIZE - 1) ; offset = address % (MEM_BLOCK_SIZE - 1) + 1
     add 0, 0, [rb + index]
     add [rb + address], 0, [rb + offset]
 
 calc_fixup_loop:
-    lt  [rb + offset], 49, [rb + tmp]
+    lt  [rb + offset], MEM_BLOCK_SIZE - 1, [rb + tmp]
     jnz [rb + tmp], calc_fixup_done
 
-    mul 49, -1, [rb + tmp]
+    mul MEM_BLOCK_SIZE - 1, -1, [rb + tmp]
     add [rb + offset], [rb + tmp], [rb + offset]
     add [rb + index], 1, [rb + index]
 
@@ -2846,6 +2845,9 @@ free_head:
 heap_end:
     db  stack
 
+# allocation block size
+.SYMBOL MEM_BLOCK_SIZE, 50
+
 # line and column number of next input character
 input_line_num:
     db  1
@@ -2874,9 +2876,11 @@ token:
 value:
     db  0
 
+.SYMBOL IDENTIFIER_LENGTH, 45
+
 # global symbol record layout:
 # 0: pointer to next symbol
-# 1-45: zero-terminated symbol identifier
+# 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
 # 48: symbol value (address)
 # 49: linked list of fixups
 
@@ -2892,7 +2896,7 @@ global_head:
 
 # frame symbol record layout:
 # 0: pointer to next symbol
-# 1-45: zero-terminated symbol identifier
+# 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
 # 48: symbol value (offset)
 # 49: block index (.FRAME block0; block1; block2)
 
