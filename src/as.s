@@ -1056,6 +1056,15 @@ parse_dir_eof_have_endframe:
     # print compiled memory contents
     call print_mem
 
+    # print exported and imported symbols
+    call print_imports
+#    call print_exports
+
+    # print .$ to mark end of file
+    out '.'
+    out '$'
+    out 10
+
     hlt
 .ENDFRAME
 
@@ -2699,8 +2708,8 @@ print_mem_done:
 
 ##########
 do_fixups:
-.FRAME tmp, symbol, fixup, symbol_address, fixup_address, index, offset
-    arb -7
+.FRAME tmp, symbol, fixup, symbol_address, fixup_address
+    arb -5
 
     add [global_head], 0, [rb + symbol]
 
@@ -2711,7 +2720,7 @@ do_fixups_symbol:
     # special handling of imported symbols
     add [rb + symbol], 47, [ip + 1]
     eq  [0], 1, [rb + tmp]
-    jnz [rb + tmp], do_fixups_symbol_imported
+    jnz [rb + tmp], do_fixups_symbol_done
 
     # each non-imported symbol needs to have an address
     add [rb + symbol], 48, [ip + 1]
@@ -2755,18 +2764,6 @@ do_fixups_fixup:
 
     jz  0, do_fixups_fixup
 
-do_fixups_symbol_imported:
-    # imported symbols must not have an address
-    add [rb + symbol], 48, [ip + 1]
-    add [0], 0, [rb + symbol_address]
-
-    eq  [rb + symbol_address], -1, [rb + tmp]
-    jnz [rb + tmp], do_fixups_symbol_done
-
-    add [rb + symbol], 0, [rb + 1]
-    add err_imported_symbol_defined, 0, [rb]
-    call report_symbol_error
-
 do_fixups_symbol_done:
     # move to next symbol
     add [rb + symbol], 0, [ip + 1]
@@ -2775,7 +2772,91 @@ do_fixups_symbol_done:
     jz  0, do_fixups_symbol
 
 do_fixups_done:
-    arb 7
+    arb 5
+    ret 0
+.ENDFRAME
+
+##########
+print_imports:
+.FRAME tmp, symbol, fixup, symbol_address, fixup_address
+    arb -5
+
+    # print .I
+    out '.'
+    out 'I'
+    out 10
+
+    add [global_head], 0, [rb + symbol]
+
+print_imports_symbol:
+    # do we have more symbols?
+    jz  [rb + symbol], print_imports_done
+
+    # check symbol type
+    add [rb + symbol], 47, [ip + 1]
+    eq  [0], 1, [rb + tmp]
+    jz  [rb + tmp], print_imports_symbol_done
+
+    # imported symbols must not have an address
+    add [rb + symbol], 48, [ip + 1]
+    add [0], 0, [rb + symbol_address]
+
+    eq  [rb + symbol_address], -1, [rb + tmp]
+    jnz [rb + tmp], print_imports_no_address
+
+    add [rb + symbol], 0, [rb + 1]
+    add err_imported_symbol_defined, 0, [rb]
+    call report_symbol_error
+
+print_imports_no_address:
+    # print the identifier
+    add [rb + symbol], 1, [rb - 1]
+    arb -1
+    call print_str
+
+    # print a colon followed by a list of fixup addresses
+    out ':'
+
+    # iterate through all fixups for this symbol
+    add [rb + symbol], 49, [ip + 1]
+    add [0], 0, [rb + fixup]
+
+    jz  [rb + fixup], print_imports_symbol_line_end
+
+print_imports_fixup:
+    # read fixup address
+    add [rb + fixup], 1, [ip + 1]
+    add [0], 0, [rb + fixup_address]
+
+    # print the fixup
+    add [rb + fixup_address], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    # move to next fixup
+    add [rb + fixup], 0, [ip + 1]
+    add [0], 0, [rb + fixup]
+
+    # do we have more fixups for this symbol?
+    jz  [rb + fixup], print_imports_symbol_line_end
+
+    # print a comma
+    out ','
+
+    jz  0, print_imports_fixup
+
+print_imports_symbol_line_end:
+    out 10
+
+print_imports_symbol_done:
+    # move to next symbol
+    add [rb + symbol], 0, [ip + 1]
+    add [0], 0, [rb + symbol]
+
+    jz  0, print_imports_symbol
+
+print_imports_done:
+    arb 5
     ret 0
 .ENDFRAME
 
