@@ -1,10 +1,15 @@
 db  42
-ds  5, 0
 
 symbol1:
 .EXPORT symbol0
+
+ds  5, 0
+
 symbol0:
 .EXPORT symbol1
+
+.SYMBOL constant 123
+.EXPORT constant
 
 .IMPORT symbol2
 db  symbol2 + 1

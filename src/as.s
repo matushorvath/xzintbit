@@ -978,9 +978,7 @@ parse_dir_symbol_have_identifier:
     call free
     add 0, 0, [rb + identifier]
 
-    # read end of line
-    call get_token
-
+    # check end of line
     eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_symbol_done
 
@@ -1058,7 +1056,7 @@ parse_dir_eof_have_endframe:
 
     # print exported and imported symbols
     call print_imports
-#    call print_exports
+    call print_exports
 
     # print .$ to mark end of file
     out '.'
@@ -2857,6 +2855,66 @@ print_imports_symbol_done:
 
 print_imports_done:
     arb 5
+    ret 0
+.ENDFRAME
+
+##########
+print_exports:
+.FRAME tmp, symbol, symbol_address
+    arb -3
+
+    # print .E
+    out '.'
+    out 'E'
+    out 10
+
+    add [global_head], 0, [rb + symbol]
+
+print_exports_symbol:
+    # do we have more symbols?
+    jz  [rb + symbol], print_exports_done
+
+    # check symbol type
+    add [rb + symbol], 47, [ip + 1]
+    eq  [0], 2, [rb + tmp]
+    jz  [rb + tmp], print_exports_symbol_done
+
+    # exported symbols must have an address
+    add [rb + symbol], 48, [ip + 1]
+    add [0], 0, [rb + symbol_address]
+
+    eq  [rb + symbol_address], -1, [rb + tmp]
+    jz  [rb + tmp], print_exports_have_address
+
+    add [rb + symbol], 0, [rb + 1]
+    add err_unknown_symbol, 0, [rb]
+    call report_symbol_error
+
+print_exports_have_address:
+    # print the identifier
+    add [rb + symbol], 1, [rb - 1]
+    arb -1
+    call print_str
+
+    out ':'
+
+    # print the address
+    add [rb + symbol], 48, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+
+print_exports_symbol_done:
+    # move to next symbol
+    add [rb + symbol], 0, [ip + 1]
+    add [0], 0, [rb + symbol]
+
+    jz  0, print_exports_symbol
+
+print_exports_done:
+    arb 3
     ret 0
 .ENDFRAME
 
