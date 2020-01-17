@@ -1064,11 +1064,6 @@ parse_dir_eof_have_endframe:
     call print_exports
     call print_reloc
 
-    # print .$ to mark end of file
-    out '.'
-    out '$'
-    out 10
-
     hlt
 .ENDFRAME
 
@@ -2663,6 +2658,11 @@ inc_mem_at_this_block:
 print_mem:
 .FRAME tmp, buffer, limit, index, first
     arb -5
+
+    # print .C
+    out '.'
+    out 'C'
+    out 10
 
     add 1, 0, [rb + first]
 
