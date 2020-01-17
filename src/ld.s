@@ -42,12 +42,10 @@ link_loop:
     # we have .E, load exported symbols
     call load_exported
 
-    # TODO relocate
-
     jz  0, link_loop
 
 link_done:
-    # TODO link exported and imported symbols
+    call print_mem
 
     hlt
 .ENDFRAME
@@ -144,17 +142,46 @@ read_directive_error:
 
 ##########
 load_code:
+.FRAME byte, char, tmp
+    arb -3
+
+load_code_loop:
+    call read_number
+    add [rb - 2], 0, [rb + byte]
+    add [rb - 3], 0, [rb + char]
+
+    # store the byte
+    add [rb + byte], 0, [rb - 1]
+    arb -1
+    call set_mem
+
+    # next character should be comma or line end
+    eq  [rb + char], ',', [rb + tmp]
+    jnz [rb + tmp], load_code_loop
+    eq  [rb + char], 10, [rb + tmp]
+    jnz [rb + tmp], load_code_done
+
+    add [err_expect_comma_eol], 0, [rb]
+    call report_error
+
+load_code_done:
+    arb 3
+    ret 0
+.ENDFRAME
+
+##########
+load_relocated:
 .FRAME
     # TODO implement
-    add load_code_str, 0, [rb - 1]
+    add load_relocated_str, 0, [rb - 1]
     arb -1
     call print_str
     out 10
 
     ret 0
 
-load_code_str:
-    db  "load code", 0
+load_relocated_str:
+    db  "load relocated", 0
 .ENDFRAME
 
 ##########
@@ -188,18 +215,115 @@ load_exported_str:
 .ENDFRAME
 
 ##########
-load_relocated:
-.FRAME
-    # TODO implement
-    add load_relocated_str, 0, [rb - 1]
+set_mem:
+.FRAME byte; buffer, tmp
+    arb -2
+
+    add [mem_tail], 0, [rb + buffer]
+
+    # do we have a buffer at all?
+    jnz [rb + buffer], set_mem_have_buffer
+
+    # no, create one
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
     arb -1
-    call print_str
+    call alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    # reset next buffer pointer
+    add [rb + buffer], 0, [ip + 3]
+    add 0, 0, [0]
+
+    add [rb + buffer], 0, [mem_head]
+    add [rb + buffer], 0, [mem_tail]
+    add 1, 0, [mem_index]
+
+    jz  0, set_mem_have_space
+
+set_mem_have_buffer:
+    # is there enough space for one more byte?
+    lt  [mem_index], MEM_BLOCK_SIZE, [rb + tmp]
+    jnz [rb + tmp], set_mem_have_space
+
+    # no, create a new buffer
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    # reset next buffer pointer
+    add [rb + buffer], 0, [ip + 3]
+    add 0, 0, [0]
+
+    # add it to the tail of buffer linked list
+    add [mem_tail], 0, [ip + 3]
+    add [rb + buffer], 0, [0]
+
+    add [rb + buffer], 0, [mem_tail]
+    add 1, 0, [mem_index]
+
+set_mem_have_space:
+    add [mem_tail], [mem_index], [ip + 3]
+    add [rb + byte], 0, [0]
+
+    add [mem_index], 1, [mem_index]
+
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
+print_mem:
+.FRAME tmp, buffer, limit, index, first
+    arb -5
+
+    add 1, 0, [rb + first]
+
+    add [mem_head], 0, [rb + buffer]
+    jz  [mem_head], print_mem_done
+
+print_mem_block:
+    add 1, 0, [rb + index]
+
+    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
+    add MEM_BLOCK_SIZE, 0, [rb + limit]
+    eq  [rb + buffer], [mem_tail], [rb + tmp]
+    jz  [rb + tmp], print_mem_byte
+    add [mem_index], 0, [rb + limit]
+
+print_mem_byte:
+    lt  [rb + index], [rb + limit], [rb + tmp]
+    jz  [rb + tmp], print_mem_block_done
+
+    # skip comma when printing first byte
+    jnz [rb + first], print_mem_skip_comma
+    out ','
+
+print_mem_skip_comma:
+    add 0, 0, [rb + first]
+
+    add [rb + buffer], [rb + index], [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    add [rb + tmp], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add [rb + index], 1, [rb + index]
+    jz  0, print_mem_byte
+
+print_mem_block_done:
+    # next block in linked list
+    add [rb + buffer], 0, [ip + 1]
+    add [0], 0, [rb + buffer]
+
+    jnz [rb + buffer], print_mem_block
+
+print_mem_done:
     out 10
 
+    arb 5
     ret 0
-
-load_relocated_str:
-    db  "load relocated", 0
 .ENDFRAME
 
 ##########
@@ -251,6 +375,166 @@ print_str_done:
 .ENDFRAME
 
 ##########
+# convert number to string
+print_num:
+.FRAME num; tmp, order, digit; digits
+    arb -3
+
+    # determine highest power of 10
+    add 1, 0, [rb + order]
+
+    # handle sign if negative
+    lt  [rb + num], 0, [rb + tmp]
+    jz  [rb + tmp], print_num_next_order
+    out '-'
+    mul [rb + num], -1, [rb + num]
+
+print_num_next_order:
++3 = print_num_digit_ptr_1:
+    add [rb + order], 0, [rb + digits]
+    add [print_num_digit_ptr_1], -1, [print_num_digit_ptr_1]
+
+    mul [rb + order], 10, [rb + order]
+    lt  [rb + num], [rb + order], [rb + tmp]
+    jz  [rb + tmp], print_num_next_order
+
+print_num_finish_order:
+    add [print_num_digit_ptr_1], 1, [print_num_digit_ptr_2]
+
+print_num_next_digit:
++1 = print_num_digit_ptr_2:
+    add [rb + digits], 0, [rb + order]
+    add -1, 0, [rb + digit]
+
+print_num_increase:
+    add [rb + digit], 1, [rb + digit]
+    mul [rb + order], -1, [rb + tmp]
+    add [rb + num], [rb + tmp], [rb + num]
+    lt  [rb + num], 0, [rb + tmp]
+    jz  [rb + tmp], print_num_increase
+
+    add [rb + num], [rb + order], [rb + num]
+    add [rb + digit], '0', [rb + digit]
+    out [rb + digit]
+
+    eq  [rb + order], 1, [rb + tmp]
+    jnz [rb + tmp], print_num_finish
+
+    add [print_num_digit_ptr_2], 1, [print_num_digit_ptr_2]
+    jz  0, print_num_next_digit
+
+print_num_finish:
+    add digits, 0, [print_num_digit_ptr_2]
+    add digits, 0, [print_num_digit_ptr_1]
+
+    arb 3
+    ret 1
+.ENDFRAME
+
+##########
+read_number:
+.FRAME byte, digit, tmp
+    arb -3
+
+    add 0, 0, [rb + byte]
+
+read_number_loop:
+    # get next character
+    in [rb + digit]
+
+    # if it is not a digit, end
+    add [rb + digit], 0, [rb - 1]
+    arb -1
+    call is_digit
+    jz  [rb - 3], read_number_end
+
+    # convert ASCII to a number
+    add [rb + digit], -'0', [rb + digit]
+
+    # byte = byte * 10 + digit
+    mul [rb + byte], 10, [rb + byte]
+    add [rb + byte], [rb + digit], [rb + byte]
+
+    jz  0, read_number_loop
+
+read_number_end:
+    # return:
+    # [rb + byte] is the numbner
+    # [rb + digit] is the next non-digit character
+
+    arb 3
+    ret 0
+.ENDFRAME
+
+##########
+is_digit:
+.FRAME char; tmp
+    arb -1
+
+    # check if 0 <= char <= 9
+    lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
+    jnz [rb + tmp], is_digit_end
+    lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
+
+is_digit_end:
+    # the result is a logical negation of [rb + tmp]
+    eq  [rb + tmp], 0, [rb + tmp]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+alloc:
+.FRAME size; block, tmp
+    arb -2
+
+    # we only support certain block sizes
+    lt  MEM_BLOCK_SIZE, [rb + size], [rb + tmp]
+    jz  [rb + tmp], alloc_size_ok
+
+    add err_allocation_size, 0, [rb]
+    call report_error
+
+alloc_size_ok:
+    # do we have any free blocks?
+    jz  [free_head], alloc_create_block
+
+    # yes, remove first block from the list and return it
+    add [free_head], 0, [rb + block]
+
+    add [free_head], 0, [ip + 1]
+    add [0], 0, [free_head]
+
+    jz  0, alloc_done
+
+alloc_create_block:
+    # there are no free blocks, create one
+    add [heap_end], 0, [rb + block]
+    add [heap_end], MEM_BLOCK_SIZE, [heap_end]
+
+alloc_done:
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
+free:
+.FRAME block; tmp
+    arb -1
+
+    # set pointer to next free block in the block we are returning
+    add [rb + block], 0, [ip + 3]
+    add [free_head], 0, [0]
+
+    # set new free block head
+    add [rb + block], 0, [free_head]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
 # globals
 
 # head of the linked list of free blocks
@@ -264,7 +548,7 @@ heap_end:
 # allocation block size
 .SYMBOL MEM_BLOCK_SIZE 50
 
-.SYMBOL IDENTIFIER_LENGTH 45
+#.SYMBOL IDENTIFIER_LENGTH 45
 
 # symbol record layout:
 # 0: pointer to next symbol
@@ -277,12 +561,12 @@ heap_end:
 # 1: fixup address
 
 # head of the linked list of global symbols
-global_head:
-    db  0
+#global_head:
+#    db  0
 
 # current instruction pointer
-current_address:
-    db 0
+#current_address:
+#    db 0
 
 # output memory buffer
 mem_head:
@@ -297,6 +581,8 @@ mem_index:
 ##########
 # error messages
 
+err_allocation_size:
+    db  "Unsupported allocation size", 0
 err_expect_dot_c_l_at:
     db  "Expecting a .C, .L or or .$", 0
 err_expect_dot_c_at:
@@ -307,6 +593,8 @@ err_expect_dot_e:
     db  "Expecting a .E", 0
 err_expect_dot_r:
     db  "Expecting a .R", 0
+err_expect_comma_eol:
+    db  "Expecting a comma or line end", 0
 
 ##########
     ds  50, 0
