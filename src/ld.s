@@ -45,6 +45,10 @@ link_loop:
     jz  0, link_loop
 
 link_done:
+    add [mem_head], 0, [rb - 1]
+    add [mem_tail], 0, [rb - 2]
+    add [mem_index], 0, [rb - 3]
+    arb -3
     call print_mem
 
     hlt
@@ -151,8 +155,11 @@ load_code_loop:
     add [rb - 3], 0, [rb + char]
 
     # store the byte
-    add [rb + byte], 0, [rb - 1]
-    arb -1
+    add mem_head, 0, [rb - 1]
+    add mem_tail, 0, [rb - 2]
+    add mem_index, 0, [rb - 3]
+    add [rb + byte], 0, [rb - 4]
+    arb -4
     call set_mem
 
     # next character should be comma or line end
@@ -216,10 +223,11 @@ load_exported_str:
 
 ##########
 set_mem:
-.FRAME byte; buffer, tmp
+.FRAME head_ptr, tail_ptr, tail_index_ptr, byte; buffer, tmp
     arb -2
 
-    add [mem_tail], 0, [rb + buffer]
+    add [rb + tail_ptr], 0, [ip + 1]
+    add [0], 0, [rb + buffer]
 
     # do we have a buffer at all?
     jnz [rb + buffer], set_mem_have_buffer
@@ -234,15 +242,21 @@ set_mem:
     add [rb + buffer], 0, [ip + 3]
     add 0, 0, [0]
 
-    add [rb + buffer], 0, [mem_head]
-    add [rb + buffer], 0, [mem_tail]
-    add 1, 0, [mem_index]
+    add [rb + head_ptr], 0, [ip + 3]
+    add [rb + buffer], 0, [0]
+
+    add [rb + tail_ptr], 0, [ip + 3]
+    add [rb + buffer], 0, [0]
+
+    add [rb + tail_index_ptr], 0, [ip + 3]
+    add 1, 0, [0]
 
     jz  0, set_mem_have_space
 
 set_mem_have_buffer:
     # is there enough space for one more byte?
-    lt  [mem_index], MEM_BLOCK_SIZE, [rb + tmp]
+    add [rb + tail_index_ptr], 0, [ip + 1]
+    lt  [0], MEM_BLOCK_SIZE, [rb + tmp]
     jnz [rb + tmp], set_mem_have_space
 
     # no, create a new buffer
@@ -256,40 +270,51 @@ set_mem_have_buffer:
     add 0, 0, [0]
 
     # add it to the tail of buffer linked list
-    add [mem_tail], 0, [ip + 3]
+    add [rb + tail_ptr], 0, [ip + 1]
+    add [0], 0, [ip + 3]
     add [rb + buffer], 0, [0]
 
-    add [rb + buffer], 0, [mem_tail]
-    add 1, 0, [mem_index]
+    add [rb + tail_ptr], 0, [ip + 3]
+    add [rb + buffer], 0, [0]
+
+    add [rb + tail_index_ptr], 0, [ip + 3]
+    add 1, 0, [0]
 
 set_mem_have_space:
-    add [mem_tail], [mem_index], [ip + 3]
+    add [rb + tail_index_ptr], 0, [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    add [rb + tail_ptr], 0, [ip + 1]
+    add [0], [rb + tmp], [ip + 3]
     add [rb + byte], 0, [0]
 
-    add [mem_index], 1, [mem_index]
+    add [rb + tail_index_ptr], 0, [ip + 1]
+    add [0], 0, [rb + tmp]
+    add [rb + tail_index_ptr], 0, [ip + 3]
+    add [rb + tmp], 1, [0]
 
     arb 2
-    ret 1
+    ret 4
 .ENDFRAME
 
 ##########
 print_mem:
-.FRAME tmp, buffer, limit, index, first
+.FRAME head, tail, tail_index; tmp, buffer, limit, index, first
     arb -5
 
     add 1, 0, [rb + first]
 
-    add [mem_head], 0, [rb + buffer]
-    jz  [mem_head], print_mem_done
+    add [rb + head], 0, [rb + buffer]
+    jz  [rb + head], print_mem_done
 
 print_mem_block:
     add 1, 0, [rb + index]
 
     # maximum index within a block is MEM_BLOCK_SIZE, except for last block
     add MEM_BLOCK_SIZE, 0, [rb + limit]
-    eq  [rb + buffer], [mem_tail], [rb + tmp]
+    eq  [rb + buffer], [rb + tail], [rb + tmp]
     jz  [rb + tmp], print_mem_byte
-    add [mem_index], 0, [rb + limit]
+    add [rb + tail_index], 0, [rb + limit]
 
 print_mem_byte:
     lt  [rb + index], [rb + limit], [rb + tmp]
@@ -323,7 +348,7 @@ print_mem_done:
     out 10
 
     arb 5
-    ret 0
+    ret 3
 .ENDFRAME
 
 ##########
