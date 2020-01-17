@@ -15,6 +15,15 @@ link_loop:
     # we have .C, load the code
     call load_code
 
+    # next expect .R
+    add 'R', 0, [rb - 1]
+    add err_expect_dot_r, 0, [rb - 2]
+    arb -2
+    call expect_directive
+
+    # we have .R, load addresses for relocation
+    call load_relocated
+
     # next expect .I
     add 'I', 0, [rb - 1]
     add err_expect_dot_i, 0, [rb - 2]
@@ -33,15 +42,6 @@ link_loop:
     # we have .E, load exported symbols
     call load_exported
 
-    # next expect .R
-    add 'R', 0, [rb - 1]
-    add err_expect_dot_r, 0, [rb - 2]
-    arb -2
-    call expect_directive
-
-    # we have .R, load addresses for relocation
-    call load_relocated
-
     # TODO relocate
 
     jz  0, link_loop
@@ -57,29 +57,44 @@ expect_next_file:
 .FRAME char, tmp
     arb -2
 
-    # every file begins with .C, after the last file we expect a .$
-    in  [rb + char]
-    eq  [rb + char], '.', [rb + tmp]
-    jz  [rb + tmp], expect_next_file_error
+    add err_expect_dot_c_l_at, 0, [rb - 1]
+    arb -1
+    call read_directive
+    add [rb - 3], 0, [rb + char]
 
-    in  [rb + char]
+    # object files begin with a .C, libraries begin with a .L, after the last file we expect a .$
     eq  [rb + char], '$', [rb + tmp]
-    jnz [rb + tmp], expect_next_file_eol
+    jnz [rb + tmp], expect_next_file_done
     eq  [rb + char], 'C', [rb + tmp]
-    jz  [rb + tmp], expect_next_file_error
+    jnz [rb + tmp], expect_next_file_done
+    eq  [rb + char], 'L', [rb + tmp]
+    jnz [rb + tmp], expect_next_file_library
 
-expect_next_file_eol:
-    in  [rb + tmp]
-    eq  [rb + tmp], 10, [rb + tmp]
-    jz  [rb + tmp], expect_next_file_error
+    add err_expect_dot_c_l_at, 0, [rb]
+    call report_error
 
+expect_next_file_library:
+    # TODO mark that we are now processing libraries
+
+    add err_expect_dot_c_at, 0, [rb - 1]
+    arb -1
+    call read_directive
+    add [rb - 3], 0, [rb + char]
+
+    # we are already in a library, so now we only accept a .C and .$
+    eq  [rb + char], '$', [rb + tmp]
+    jnz [rb + tmp], expect_next_file_done
+    eq  [rb + char], 'C', [rb + tmp]
+    jnz [rb + tmp], expect_next_file_done
+
+    add err_expect_dot_c_at, 0, [rb]
+    call report_error
+
+expect_next_file_done:
     # return [rb + char]
+
     arb 2
     ret 0
-
-expect_next_file_error:
-    add err_expect_dot_c_dot_at, 0, [rb]
-    call report_error
 .ENDFRAME
 
 ##########
@@ -87,22 +102,42 @@ expect_directive:
 .FRAME directive, error_message; char, tmp
     arb -2
 
-    in  [rb + char]
-    eq  [rb + char], '.', [rb + tmp]
-    jz  [rb + tmp], expect_directive_error
+    add [rb + error_message], 0, [rb - 1]
+    arb -1
+    call read_directive
 
-    in  [rb + char]
-    eq  [rb + char], [rb + directive], [rb + tmp]
-    jz  [rb + tmp], expect_directive_error
-
-    in  [rb + char]
-    eq  [rb + char], 10, [rb + tmp]
+    eq  [rb - 3], [rb + directive], [rb + tmp]
     jz  [rb + tmp], expect_directive_error
 
     arb 2
     ret 2
 
 expect_directive_error:
+    add [rb + error_message], 0, [rb]
+    call report_error
+.ENDFRAME
+
+##########
+read_directive:
+.FRAME error_message; char, tmp
+    arb -2
+
+    in  [rb + char]
+    eq  [rb + char], '.', [rb + tmp]
+    jz  [rb + tmp], read_directive_error
+
+    in  [rb + char]
+
+    in  [rb + tmp]
+    eq  [rb + tmp], 10, [rb + tmp]
+    jz  [rb + tmp], read_directive_error
+
+    # return [rb + char]
+
+    arb 2
+    ret 1
+
+read_directive_error:
     add [rb + error_message], 0, [rb]
     call report_error
 .ENDFRAME
@@ -262,8 +297,10 @@ mem_index:
 ##########
 # error messages
 
-err_expect_dot_c_dot_at:
-    db  "Expecting a .C or .$", 0
+err_expect_dot_c_l_at:
+    db  "Expecting a .C, .L or or .$", 0
+err_expect_dot_c_at:
+    db  "Expecting a .C or or .$", 0
 err_expect_dot_i:
     db  "Expecting a .I", 0
 err_expect_dot_e:
