@@ -575,23 +575,19 @@ heap_end:
 
 #.SYMBOL IDENTIFIER_LENGTH 45
 
-# symbol record layout:
-# 0: pointer to next symbol
-# 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
-# 48: symbol value (address)
-# 49: linked list of fixups
-
-# fixup record layout:
-# 0: pointer to next fixup
-# 1: fixup address
-
-# head of the linked list of global symbols
-#global_head:
-#    db  0
-
-# current instruction pointer
-#current_address:
-#    db 0
+# module record layout:
+# 0: pointer to next module
+# 1: code_head
+# 2: code_tail
+# 3: code_index
+# 4: reloc_head
+# 5: reloc_tail
+# 6: reloc_index
+# 7: imported_head
+# 8: exported_head
+# 9: 0 = optional, 1 = mandatory
+# 10: 0 = not included, 1 = included
+# 11: relocation_address
 
 # output memory buffer
 mem_head:
