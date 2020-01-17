@@ -1059,10 +1059,10 @@ parse_dir_eof_have_endframe:
     # print compiled memory contents
     call print_mem
 
-    # print exported and imported symbols
+    # print relocations, imported and exported symbols
+    call print_reloc
     call print_imports
     call print_exports
-    call print_reloc
 
     hlt
 .ENDFRAME
