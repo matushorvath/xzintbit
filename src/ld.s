@@ -713,26 +713,17 @@ heap_end:
 
 # module record layout:
 .SYMBOL MODULE_NEXT_PTR             0
-
 .SYMBOL MODULE_CODE_HEAD            1
 .SYMBOL MODULE_CODE_TAIL            2
 .SYMBOL MODULE_CODE_INDEX           3
-
 .SYMBOL MODULE_RELOC_HEAD           4
 .SYMBOL MODULE_RELOC_TAIL           5
 .SYMBOL MODULE_RELOC_INDEX          6
-
 .SYMBOL MODULE_IMPORTED_HEAD        7
 .SYMBOL MODULE_EXPORTED_HEAD        8
-
-# 0 = optional, 1 = mandatory
-.SYMBOL MODULE_MANDATORY            9
-
-# 0 = not included, 1 = included
-.SYMBOL MODULE_INCLUDED             10
-
+.SYMBOL MODULE_MANDATORY            9           # 0 = optional, 1 = mandatory
+.SYMBOL MODULE_INCLUDED             10          # 0 = not included, 1 = included
 .SYMBOL MODULE_RELOC_ADDRESS        11
-
 .SYMBOL MODULE_SIZE                 12
 
 # loaded modules
@@ -740,6 +731,16 @@ module_head:
     db 0
 module_tail:
     db 0
+
+# imported symbol record layout:
+.SYMBOL IMPORTED_NEXT_PTR           0
+.SYMBOL IMPORTED_IDENTIFIER         1
+.SYMBOL IMPORTED_FIXUP_HEAD         46
+
+# exported symbol record layout:
+.SYMBOL EXPORTED_NEXT_PTR           0
+.SYMBOL EXPORTED_IDENTIFIER         1
+.SYMBOL EXPORTED_ADDRESS            46
 
 ##########
 # error messages
