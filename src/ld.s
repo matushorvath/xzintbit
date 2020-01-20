@@ -168,7 +168,7 @@ load_code_loop:
     eq  [rb + char], 10, [rb + tmp]
     jnz [rb + tmp], load_code_done
 
-    add [err_expect_comma_eol], 0, [rb]
+    add err_expect_comma_eol, 0, [rb]
     call report_error
 
 load_code_done:
@@ -178,27 +178,44 @@ load_code_done:
 
 ##########
 load_relocated:
-.FRAME
-    # TODO implement
-    add load_relocated_str, 0, [rb - 1]
-    arb -1
-    call print_str
-    out 10
+.FRAME byte, char, tmp
+    arb -3
 
+load_relocated_loop:
+    call read_number
+    add [rb - 2], 0, [rb + byte]
+    add [rb - 3], 0, [rb + char]
+
+    # store the byte
+    add reloc_head, 0, [rb - 1]
+    add reloc_tail, 0, [rb - 2]
+    add reloc_index, 0, [rb - 3]
+    add [rb + byte], 0, [rb - 4]
+    arb -4
+    call set_mem
+
+    # next character should be comma or line end
+    eq  [rb + char], ',', [rb + tmp]
+    jnz [rb + tmp], load_relocated_loop
+    eq  [rb + char], 10, [rb + tmp]
+    jnz [rb + tmp], load_relocated_done
+
+    add err_expect_comma_eol, 0, [rb]
+    call report_error
+
+load_relocated_done:
+    arb 3
     ret 0
-
-load_relocated_str:
-    db  "load relocated", 0
 .ENDFRAME
 
 ##########
 load_imported:
 .FRAME
     # TODO implement
-    add load_imported_str, 0, [rb - 1]
-    arb -1
-    call print_str
-    out 10
+#    add load_imported_str, 0, [rb - 1]
+#    arb -1
+#    call print_str
+#    out 10
 
     ret 0
 
@@ -210,10 +227,10 @@ load_imported_str:
 load_exported:
 .FRAME
     # TODO implement
-    add load_exported_str, 0, [rb - 1]
-    arb -1
-    call print_str
-    out 10
+#    add load_exported_str, 0, [rb - 1]
+#    arb -1
+#    call print_str
+#    out 10
 
     ret 0
 
@@ -458,15 +475,21 @@ print_num_finish:
 
 ##########
 read_number:
-.FRAME byte, digit, tmp
-    arb -3
+.FRAME byte, digit, sign, tmp
+    arb -4
 
     add 0, 0, [rb + byte]
+    add 1, 0, [rb + sign]
+
+    # get first character, process the minus sign if present
+    in  [rb + digit]
+    eq  [rb + digit], '-', [rb + tmp]
+    jz  [rb + tmp], read_number_loop
+
+    add -1, 0, [rb + sign]
+    in  [rb + digit]
 
 read_number_loop:
-    # get next character
-    in [rb + digit]
-
     # if it is not a digit, end
     add [rb + digit], 0, [rb - 1]
     arb -1
@@ -480,14 +503,19 @@ read_number_loop:
     mul [rb + byte], 10, [rb + byte]
     add [rb + byte], [rb + digit], [rb + byte]
 
+    # get next character
+    in  [rb + digit]
+
     jz  0, read_number_loop
 
 read_number_end:
+    mul [rb + byte], [rb + sign], [rb + byte]
+
     # return:
     # [rb + byte] is the numbner
     # [rb + digit] is the next non-digit character
 
-    arb 3
+    arb 4
     ret 0
 .ENDFRAME
 
@@ -595,8 +623,18 @@ mem_head:
 mem_tail:
     db 0
 
-# index of next unused byte in last memory buffer
+# index of next unused byte in last output memory buffer
 mem_index:
+    db 0
+
+# relocated symbol buffer
+reloc_head:
+    db 0
+reloc_tail:
+    db 0
+
+# index of next unused byte in last relocated symbol buffer
+reloc_index:
     db 0
 
 ##########
