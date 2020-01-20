@@ -3,8 +3,8 @@
 
 ##########
 link:
-.FRAME tmp
-    arb -1
+.FRAME module, tmp
+    arb -2
 
 link_loop:
     # check for more files
@@ -12,7 +12,13 @@ link_loop:
     eq  [rb - 2], '$', [rb + tmp]
     jnz [rb + tmp], link_done
 
+    # create a module
+    call create_module
+    add [rb - 2], 0, [rb + module]
+
     # we have .C, load the code
+    add [rb + module], 0, [rb - 1]
+    arb -1
     call load_code
 
     # next expect .R
@@ -22,6 +28,8 @@ link_loop:
     call expect_directive
 
     # we have .R, load addresses for relocation
+    add [rb + module], 0, [rb - 1]
+    arb -1
     call load_relocated
 
     # next expect .I
@@ -31,6 +39,8 @@ link_loop:
     call expect_directive
 
     # we have .I, load imported symbols
+    add [rb + module], 0, [rb - 1]
+    arb -1
     call load_imported
 
     # next expect .E
@@ -40,16 +50,14 @@ link_loop:
     call expect_directive
 
     # we have .E, load exported symbols
+    add [rb + module], 0, [rb - 1]
+    arb -1
     call load_exported
 
     jz  0, link_loop
 
 link_done:
-    add [mem_head], 0, [rb - 1]
-    add [mem_tail], 0, [rb - 2]
-    add [mem_index], 0, [rb - 3]
-    arb -3
-    call print_mem
+    call print_modules
 
     hlt
 .ENDFRAME
@@ -145,8 +153,47 @@ read_directive_error:
 .ENDFRAME
 
 ##########
+create_module:
+.FRAME module
+    arb -1
+
+    # allocate a block
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc
+    add [rb - 3], 0, [rb + module]
+
+    # initialize to zeros
+    add [rb + module], 0, [rb - 1]
+    add MODULE_SIZE, 0, [rb - 2]
+    arb -2
+    call zeromem
+
+    # TODO set up 'included' flag correctly
+    add [rb + module], MODULE_INCLUDED, [ip + 3]
+    add 1, 0, [0]
+
+    # append to the tail if any
+    jz  [module_tail], create_module_is_first
+
+    add [module_tail], MODULE_NEXT_PTR, [ip + 3]
+    add [rb + module], 0, [0]
+    add [rb + module], 0, [module_tail]
+
+    jz  0, create_module_done
+
+create_module_is_first:
+    add [rb + module], 0, [module_head]
+    add [rb + module], 0, [module_tail]
+
+create_module_done:
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
 load_code:
-.FRAME byte, char, tmp
+.FRAME module; byte, char, tmp
     arb -3
 
 load_code_loop:
@@ -155,9 +202,9 @@ load_code_loop:
     add [rb - 3], 0, [rb + char]
 
     # store the byte
-    add mem_head, 0, [rb - 1]
-    add mem_tail, 0, [rb - 2]
-    add mem_index, 0, [rb - 3]
+    add [rb + module], MODULE_CODE_HEAD, [rb - 1]
+    add [rb + module], MODULE_CODE_TAIL, [rb - 2]
+    add [rb + module], MODULE_CODE_INDEX, [rb - 3]
     add [rb + byte], 0, [rb - 4]
     arb -4
     call set_mem
@@ -173,12 +220,12 @@ load_code_loop:
 
 load_code_done:
     arb 3
-    ret 0
+    ret 1
 .ENDFRAME
 
 ##########
 load_relocated:
-.FRAME byte, char, tmp
+.FRAME module; byte, char, tmp
     arb -3
 
 load_relocated_loop:
@@ -187,9 +234,9 @@ load_relocated_loop:
     add [rb - 3], 0, [rb + char]
 
     # store the byte
-    add reloc_head, 0, [rb - 1]
-    add reloc_tail, 0, [rb - 2]
-    add reloc_index, 0, [rb - 3]
+    add [rb + module], MODULE_RELOC_HEAD, [rb - 1]
+    add [rb + module], MODULE_RELOC_TAIL, [rb - 2]
+    add [rb + module], MODULE_RELOC_INDEX, [rb - 3]
     add [rb + byte], 0, [rb - 4]
     arb -4
     call set_mem
@@ -205,19 +252,19 @@ load_relocated_loop:
 
 load_relocated_done:
     arb 3
-    ret 0
+    ret 1
 .ENDFRAME
 
 ##########
 load_imported:
-.FRAME
+.FRAME module;
     # TODO implement
 #    add load_imported_str, 0, [rb - 1]
 #    arb -1
 #    call print_str
 #    out 10
 
-    ret 0
+    ret 1
 
 load_imported_str:
     db  "load imported", 0
@@ -225,17 +272,60 @@ load_imported_str:
 
 ##########
 load_exported:
-.FRAME
+.FRAME module;
     # TODO implement
 #    add load_exported_str, 0, [rb - 1]
 #    arb -1
 #    call print_str
 #    out 10
 
-    ret 0
+    ret 1
 
 load_exported_str:
     db  "load exported", 0
+.ENDFRAME
+
+##########
+print_modules:
+.FRAME module, first, tmp
+    arb -3
+
+    # print all included modules
+    add [module_head], 0, [rb + module]
+    add 1, 0, [rb + first]
+
+print_modules_loop:
+    jz  [rb + module], print_modules_done
+
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jz  [0], print_modules_next
+
+    jnz [rb + first], print_modules_skip_comma
+    out ','
+
+print_modules_skip_comma:
+    add 0, 0, [rb + first]
+
+    add [rb + module], MODULE_CODE_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
+    add [rb + module], MODULE_CODE_TAIL, [ip + 1]
+    add [0], 0, [rb - 2]
+    add [rb + module], MODULE_CODE_INDEX, [ip + 1]
+    add [0], 0, [rb - 3]
+    arb -3
+    call print_mem
+
+print_modules_next:
+    add [rb + module], MODULE_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + module]
+
+    jz  0, print_modules_loop
+
+print_modules_done:
+    out 10
+
+    arb 3
+    ret 0
 .ENDFRAME
 
 ##########
@@ -362,8 +452,6 @@ print_mem_block_done:
     jnz [rb + buffer], print_mem_block
 
 print_mem_done:
-    out 10
-
     arb 5
     ret 3
 .ENDFRAME
@@ -588,6 +676,26 @@ free:
 .ENDFRAME
 
 ##########
+zeromem:
+.FRAME ptr, size; tmp
+    arb -1
+
+zeromem_loop:
+    add [rb + size], -1, [rb + size]
+    lt  [rb + size], 0, [rb + tmp]
+    jnz [rb + tmp], zeromem_done
+
+    add [rb + ptr], [rb + size], [ip + 3]
+    add 0, 0, [0]
+
+    jz  0, zeromem_loop
+
+zeromem_done:
+    arb 1
+    ret 2
+.ENDFRAME
+
+##########
 # globals
 
 # head of the linked list of free blocks
@@ -604,37 +712,33 @@ heap_end:
 #.SYMBOL IDENTIFIER_LENGTH 45
 
 # module record layout:
-# 0: pointer to next module
-# 1: code_head
-# 2: code_tail
-# 3: code_index
-# 4: reloc_head
-# 5: reloc_tail
-# 6: reloc_index
-# 7: imported_head
-# 8: exported_head
-# 9: 0 = optional, 1 = mandatory
-# 10: 0 = not included, 1 = included
-# 11: relocation_address
+.SYMBOL MODULE_NEXT_PTR             0
 
-# output memory buffer
-mem_head:
-    db 0
-mem_tail:
-    db 0
+.SYMBOL MODULE_CODE_HEAD            1
+.SYMBOL MODULE_CODE_TAIL            2
+.SYMBOL MODULE_CODE_INDEX           3
 
-# index of next unused byte in last output memory buffer
-mem_index:
-    db 0
+.SYMBOL MODULE_RELOC_HEAD           4
+.SYMBOL MODULE_RELOC_TAIL           5
+.SYMBOL MODULE_RELOC_INDEX          6
 
-# relocated symbol buffer
-reloc_head:
-    db 0
-reloc_tail:
-    db 0
+.SYMBOL MODULE_IMPORTED_HEAD        7
+.SYMBOL MODULE_EXPORTED_HEAD        8
 
-# index of next unused byte in last relocated symbol buffer
-reloc_index:
+# 0 = optional, 1 = mandatory
+.SYMBOL MODULE_MANDATORY            9
+
+# 0 = not included, 1 = included
+.SYMBOL MODULE_INCLUDED             10
+
+.SYMBOL MODULE_RELOC_ADDRESS        11
+
+.SYMBOL MODULE_SIZE                 12
+
+# loaded modules
+module_head:
+    db 0
+module_tail:
     db 0
 
 ##########
