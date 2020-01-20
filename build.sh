@@ -5,25 +5,25 @@ set -xe
 # Use submitted binaries to compile stage 1
 mkdir -p stage1
 
-./vm.sh src/as.input < src/as.s > stage1/as.o && status=$? || status=$?
+./vm.sh bin/as.input < src/as.s > stage1/as.o && status=$? || status=$?
 if [ $status -ne 0 ]; then
     awk '/[^-0-9,]/' < stage1/as.o
     exit $status
 fi
 
-echo .$ | cat stage1/as.o - | ./vm.sh src/ld.input > stage1/as.input && status=$? || status=$?
+echo .$ | cat stage1/as.o - | ./vm.sh bin/ld.input > stage1/as.input && status=$? || status=$?
 if [ $status -ne 0 ]; then
     awk '/[^-0-9,]/' < stage1/as.input
     exit $status
 fi
 
-./vm.sh src/as.input < src/ld.s > stage1/ld.o && status=$? || status=$?
+./vm.sh bin/as.input < src/ld.s > stage1/ld.o && status=$? || status=$?
 if [ $status -ne 0 ]; then
     awk '/[^-0-9,]/' < stage1/ld.o
     exit $status
 fi
 
-echo .$ | cat stage1/ld.o - | ./vm.sh src/ld.input > stage1/ld.input && status=$? || status=$?
+echo .$ | cat stage1/ld.o - | ./vm.sh bin/ld.input > stage1/ld.input && status=$? || status=$?
 if [ $status -ne 0 ]; then
     awk '/[^-0-9,]/' < stage1/ld.input
     exit $status
@@ -60,8 +60,8 @@ fi
 
 diff -r stage1 stage2
 
-cp stage2/as.input src/as.input
-cp stage2/ld.input src/ld.input
+cp stage2/as.input bin/as.input
+cp stage2/ld.input bin/ld.input
 
 rm -rf stage1
 rm -rf stage2
