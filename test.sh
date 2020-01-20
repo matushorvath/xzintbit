@@ -21,30 +21,42 @@ echo "Output dir: $outdir"
 
 echo
 
-for input in $(ls test/*.s) ; do
-    id="$(basename -s .s $input)"
+for expect in $(ls test/*.o) ; do
+    id="$(basename -s .o $expect)"
 
-    output_object="$outdir/$id.o"
-    output_binary="$outdir/$id.input"
-    expect_object="test/$id.o"
-    expect_binary="test/$id.input"
+    echo -n "Test compiling $id: "
 
-    echo -n "Test $id: "
+    input="test/$id.s"
+    output="$outdir/$id.o"
 
-    ./vm.sh bin/as.input < "$input" > "$output_object" 2> /dev/null && echo .$ | cat "$output_object" - | ./vm.sh bin/ld.input > "$output_binary" 2> /dev/null || true
+    ./vm.sh bin/as.input < "$input" > "$output" 2> /dev/null || true
+    diff "$output" "$expect" > /dev/null 2> /dev/null && status=$? || status=$?
 
-    object_status=0
-    diff "$output_object" "$expect_object" > /dev/null 2> /dev/null || object_status=$?
-
-    binary_status=0
-    [ ! -e "$expect_binary" ] || diff "$output_binary" "$expect_binary" > /dev/null 2> /dev/null || binary_status=$?
-
-    if [ $object_status = 0 ] && [ $binary_status = 0 ]; then
+    if [ $status = 0 ] && [ $status = 0 ]; then
         echo "${green}OK${normal}"
     else
         echo "${red}FAILED${normal}"
-        diff "$output_object" "$expect_object" || true
-        [ ! -e "$expect_binary" ] || diff "$output_binary" "$expect_binary" || true
+        diff "$output" "$expect" || true
+        failed_count=$((failed_count + 1))
+    fi
+done
+
+for expect in $(ls test/*.input) ; do
+    id="$(basename -s .input $expect)"
+
+    echo -n "Test linking $id: "
+
+    inputs=$(find test -name $id.o -o -name $id.*.o)
+    output="$outdir/$id.input"
+
+    echo .$ | cat ${inputs[@]} - | ./vm.sh bin/ld.input > "$output" 2> /dev/null || true
+    diff "$output" "$expect" > /dev/null 2> /dev/null && status=$? || status=$?
+
+    if [ $status = 0 ] && [ $status = 0 ]; then
+        echo "${green}OK${normal}"
+    else
+        echo "${red}FAILED${normal}"
+        diff "$output" "$expect" || true
         failed_count=$((failed_count + 1))
     fi
 done
