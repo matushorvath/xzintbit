@@ -23,19 +23,28 @@ echo
 
 for input in $(ls test/*.s) ; do
     id="$(basename -s .s $input)"
-    output="$outdir/$id.input"
-    expect="test/$id.input"
+
+    output_object="$outdir/$id.o"
+    output_binary="$outdir/$id.input"
+    expect_object="test/$id.o"
+    expect_binary="test/$id.input"
 
     echo -n "Test $id: "
 
-    ./vm.sh src/as.input < "$input" > "$output" 2> /dev/null || true
-    diff "$output" "$expect" > /dev/null 2> /dev/null && status=$? || status=$?
+    ./vm.sh bin/as.input < "$input" > "$output_object" 2> /dev/null && echo .$ | cat "$output_object" - | ./vm.sh bin/ld.input > "$output_binary" 2> /dev/null || true
 
-    if [ $status = 0 ]; then
+    object_status=0
+    diff "$output_object" "$expect_object" > /dev/null 2> /dev/null || object_status=$?
+
+    binary_status=0
+    [ ! -e "$expect_binary" ] || diff "$output_binary" "$expect_binary" > /dev/null 2> /dev/null || binary_status=$?
+
+    if [ $object_status = 0 ] && [ $binary_status = 0 ]; then
         echo "${green}OK${normal}"
     else
         echo "${red}FAILED${normal}"
-        diff "$output" "$expect" && status=$? || status=$?
+        diff "$output_object" "$expect_object" || true
+        [ ! -e "$expect_binary" ] || diff "$output_binary" "$expect_binary" || true
         failed_count=$((failed_count + 1))
     fi
 done
