@@ -30,13 +30,13 @@ for expect in $(ls test/*.o) ; do
     output="$outdir/$id.o"
 
     ./vm.sh bin/as.input < "$input" > "$output" 2> /dev/null || true
-    diff "$output" "$expect" > /dev/null 2> /dev/null && status=$? || status=$?
+    diff "$expect" "$output" > /dev/null 2> /dev/null && status=$? || status=$?
 
     if [ $status = 0 ] && [ $status = 0 ]; then
         echo "${green}OK${normal}"
     else
         echo "${red}FAILED${normal}"
-        diff "$output" "$expect" || true
+        diff "$expect" "$output" || true
         failed_count=$((failed_count + 1))
     fi
 done
@@ -46,17 +46,17 @@ for expect in $(ls test/*.input) ; do
 
     echo -n "Test linking $id: "
 
-    inputs=$(find test -name $id.o -o -name $id.*.o)
+    inputs=$(find test -name $id.o -o -name $id.*.o | sort)
     output="$outdir/$id.input"
 
     echo .$ | cat ${inputs[@]} - | ./vm.sh bin/ld.input > "$output" 2> /dev/null || true
-    diff "$output" "$expect" > /dev/null 2> /dev/null && status=$? || status=$?
+    diff "$expect" "$output" > /dev/null 2> /dev/null && status=$? || status=$?
 
     if [ $status = 0 ] && [ $status = 0 ]; then
         echo "${green}OK${normal}"
     else
         echo "${red}FAILED${normal}"
-        diff "$output" "$expect" || true
+        diff "$expect" "$output" || true
         failed_count=$((failed_count + 1))
     fi
 done
