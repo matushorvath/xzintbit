@@ -41,12 +41,32 @@ for expect in $(ls test/*.o) ; do
     fi
 done
 
+for expect in $(ls test/*.a) ; do
+    id="$(basename -s .a $expect)"
+
+    echo -n "Archive $id: "
+
+    inputs=$(find test -name $id.*.a.o | sort)
+    output="$outdir/$id.a"
+
+    echo .L | cat - ${inputs[@]} > "$output"
+    diff "$expect" "$output" > /dev/null 2> /dev/null && status=$? || status=$?
+
+    if [ $status = 0 ] && [ $status = 0 ]; then
+        echo "${green}OK${normal}"
+    else
+        echo "${red}FAILED${normal}"
+        diff "$expect" "$output" || true
+        failed_count=$((failed_count + 1))
+    fi
+done
+
 for expect in $(ls test/*.input) ; do
     id="$(basename -s .input $expect)"
 
     echo -n "Test linking $id: "
 
-    inputs=$(find test -name $id.o -o -name $id.*.o | sort)
+    inputs=$(find test -name $id.o -o \( -name $id.*.o -a \! -name *.a.o \) -o -name $id.a -o -name $id.*.a | sort)
     output="$outdir/$id.input"
 
     echo .$ | cat ${inputs[@]} - | ./vm.sh bin/ld.input > "$output" 2> /dev/null || true
