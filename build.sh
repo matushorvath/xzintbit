@@ -58,7 +58,8 @@ fi
 
 # Compare outputs and install the new compiler
 
-diff -r stage1 stage2
+diff -r stage1/as.input stage2/as.input
+diff -r stage1/ld.input stage2/ld.input
 
 cp stage2/as.input bin/as.input
 cp stage2/ld.input bin/ld.input

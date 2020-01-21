@@ -274,8 +274,11 @@ load_imported_loop:
     add err_expect_colon, 0, [rb]
     call report_error
 
-    # TODO create a symbol
-    # TODO store module pointer in the symbol
+    add [rb + module], 0, [rb - 1]
+    add [rb + module], MODULE_IMPORTED_HEAD, [rb - 2]
+    arb -2
+    call create_symbol
+    add [rb - 4], 0, [rb + symbol]
 
 load_imported_fixup_loop:
     call read_number
@@ -283,9 +286,9 @@ load_imported_fixup_loop:
     add [rb - 3], 0, [rb + char]
 
     # store the byte
-    add [rb + module], SYMBOL_FIXUP_HEAD, [rb - 1]
-    add [rb + module], SYMBOL_FIXUP_TAIL, [rb - 2]
-    add [rb + module], SYMBOL_FIXUP_INDEX, [rb - 3]
+    add [rb + symbol], SYMBOL_FIXUP_HEAD, [rb - 1]
+    add [rb + symbol], SYMBOL_FIXUP_TAIL, [rb - 2]
+    add [rb + symbol], SYMBOL_FIXUP_INDEX, [rb - 3]
     add [rb + byte], 0, [rb - 4]
     arb -4
     call set_mem
@@ -300,8 +303,8 @@ load_imported_fixup_loop:
     call report_error
 
 load_imported_endline:
-    in  [rb + tmp]
-    eq  [rb + tmp], 10, [rb + tmp]
+    # character read after the (empty) identifier should be EOL
+    eq  [rb - 3], 10, [rb + tmp]
     jnz [rb + tmp], load_imported_done
 
     add err_expect_eol, 0, [rb]
@@ -329,8 +332,8 @@ load_exported_str:
 
 ##########
 create_symbol:
-.FRAME module, symbol_head_ptr; symbol
-    arb -1
+.FRAME module, symbol_head_ptr; symbol, tmp
+    arb -2
 
     # allocate a block
     add MEM_BLOCK_SIZE, 0, [rb - 1]
@@ -365,7 +368,7 @@ create_symbol:
     add [rb + symbol_head_ptr], 0, [ip + 3]
     add [rb + symbol], 0, [0]
 
-    arb 1
+    arb 2
     ret 1
 .ENDFRAME
 
@@ -735,6 +738,48 @@ read_number_end:
 .ENDFRAME
 
 ##########
+is_digit:
+.FRAME char; tmp
+    arb -1
+
+    # check if 0 <= char <= 9
+    lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
+    jnz [rb + tmp], is_digit_end
+    lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
+
+is_digit_end:
+    # the result is a logical negation of [rb + tmp]
+    eq  [rb + tmp], 0, [rb + tmp]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+is_alpha:
+.FRAME char; tmp
+    arb -1
+
+    # check if a <= char <= z
+    lt  'z', [rb + char], [rb + tmp]                        # if char > z, not a letter
+    jnz [rb + tmp], is_alpha_end
+    lt  [rb + char], 'a', [rb + tmp]                        # if !(char < a), is a letter
+    jz  [rb + tmp], is_alpha_end
+
+    # check if A <= char <= Z
+    lt  'Z', [rb + char], [rb + tmp]                        # if char > Z, not a letter
+    jnz [rb + tmp], is_alpha_end
+    lt  [rb + char], 'A', [rb + tmp]                        # if !(char < A), is a letter
+
+is_alpha_end:
+    # the result is a logical negation of [rb + tmp]
+    eq  [rb + tmp], 0, [rb + tmp]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
 is_alphanum:
 .FRAME char; tmp
     arb -1
@@ -754,24 +799,6 @@ is_alphanum:
     eq  [rb + char], '_', [rb + tmp]
 
 is_alphanum_end:
-    arb 1
-    ret 1
-.ENDFRAME
-
-##########
-is_digit:
-.FRAME char; tmp
-    arb -1
-
-    # check if 0 <= char <= 9
-    lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
-    jnz [rb + tmp], is_digit_end
-    lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
-
-is_digit_end:
-    # the result is a logical negation of [rb + tmp]
-    eq  [rb + tmp], 0, [rb + tmp]
-
     arb 1
     ret 1
 .ENDFRAME
@@ -860,7 +887,7 @@ heap_end:
 # allocation block size
 .SYMBOL MEM_BLOCK_SIZE 50
 
-#.SYMBOL IDENTIFIER_LENGTH 45
+.SYMBOL IDENTIFIER_LENGTH 45
 
 # module record layout:
 .SYMBOL MODULE_NEXT_PTR             0
@@ -884,14 +911,15 @@ module_tail:
     db 0
 
 # imported symbol record layout:
-.SYMBOL IMPORTED_NEXT_PTR           0
-.SYMBOL IMPORTED_IDENTIFIER         1
-.SYMBOL IMPORTED_FIXUP_HEAD         47
-
-# exported symbol record layout:
-.SYMBOL EXPORTED_NEXT_PTR           0
-.SYMBOL EXPORTED_IDENTIFIER         1
-.SYMBOL EXPORTED_ADDRESS            47
+.SYMBOL SYMBOL_NEXT_PTR             0
+.SYMBOL SYMBOL_PREV_PTR             1
+.SYMBOL SYMBOL_RELOC_ADDRESS        2
+.SYMBOL SYMBOL_MODULE               3
+.SYMBOL SYMBOL_FIXUP_HEAD           4
+.SYMBOL SYMBOL_FIXUP_TAIL           5
+.SYMBOL SYMBOL_FIXUP_INDEX          6
+.SYMBOL SYMBOL_IDENTIFIER           7
+.SYMBOL SYMBOL_SIZE                 50
 
 ##########
 # error messages
@@ -914,6 +942,8 @@ err_expect_eol:
     db  "Expecting a line end", 0
 err_expect_colon:
     db  "Expecting a colon", 0
+err_max_identifier_length:
+    db  "Maximum identifier length exceeded", 0
 
 ##########
     ds  50, 0
