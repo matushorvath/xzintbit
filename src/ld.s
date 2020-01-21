@@ -257,17 +257,59 @@ load_relocated_done:
 
 ##########
 load_imported:
-.FRAME module;
-    # TODO implement
-#    add load_imported_str, 0, [rb - 1]
-#    arb -1
-#    call print_str
-#    out 10
+.FRAME module; symbol, byte, char, tmp
+    arb -4
 
+load_imported_loop:
+    # read the identifier
+    call read_identifier
+
+    # if there is no identifier, finish
+    jz  [rb - 4], load_imported_endline
+
+    in  [rb + char]
+    eq  [rb + char], ':', [rb + tmp]
+    jnz [rb + tmp], load_imported_fixup_loop
+
+    add err_expect_colon, 0, [rb]
+    call report_error
+
+    # TODO create a symbol
+    # TODO store module pointer in the symbol
+
+load_imported_fixup_loop:
+    call read_number
+    add [rb - 2], 0, [rb + byte]
+    add [rb - 3], 0, [rb + char]
+
+    # store the byte
+    add [rb + module], SYMBOL_FIXUP_HEAD, [rb - 1]
+    add [rb + module], SYMBOL_FIXUP_TAIL, [rb - 2]
+    add [rb + module], SYMBOL_FIXUP_INDEX, [rb - 3]
+    add [rb + byte], 0, [rb - 4]
+    arb -4
+    call set_mem
+
+    # next character should be comma or line end
+    eq  [rb + char], ',', [rb + tmp]
+    jnz [rb + tmp], load_imported_fixup_loop
+    eq  [rb + char], 10, [rb + tmp]
+    jnz [rb + tmp], load_imported_loop
+
+    add err_expect_comma_eol, 0, [rb]
+    call report_error
+
+load_imported_endline:
+    in  [rb + tmp]
+    eq  [rb + tmp], 10, [rb + tmp]
+    jnz [rb + tmp], load_imported_done
+
+    add err_expect_eol, 0, [rb]
+    call report_error
+
+load_imported_done:
+    arb 4
     ret 1
-
-load_imported_str:
-    db  "load imported", 0
 .ENDFRAME
 
 ##########
@@ -283,6 +325,48 @@ load_exported:
 
 load_exported_str:
     db  "load exported", 0
+.ENDFRAME
+
+##########
+create_symbol:
+.FRAME module, symbol_head_ptr; symbol
+    arb -1
+
+    # allocate a block
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc
+    add [rb - 3], 0, [rb + symbol]
+
+    # initialize to zeros
+    add [rb + symbol], 0, [rb - 1]
+    add SYMBOL_SIZE, 0, [rb - 2]
+    arb -2
+    call zeromem
+
+    # save module pointer
+    add [rb + symbol], SYMBOL_MODULE, [ip + 3]
+    add [rb + module], 0, [0]
+
+    # default symbol address is -1, not 0
+    add [rb + symbol], SYMBOL_RELOC_ADDRESS, [ip + 3]
+    add -1, 0, [0]
+
+    # add to the head of doubly-linked list
+    add [rb + symbol_head_ptr], 0, [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    add [rb + symbol], SYMBOL_NEXT_PTR, [ip + 3]
+    add [rb + tmp], 0, [0]
+
+    add [rb + symbol], SYMBOL_PREV_PTR, [ip + 3]
+    add 0, 0, [0]
+
+    add [rb + symbol_head_ptr], 0, [ip + 3]
+    add [rb + symbol], 0, [0]
+
+    arb 1
+    ret 1
 .ENDFRAME
 
 ##########
@@ -562,6 +646,49 @@ print_num_finish:
 .ENDFRAME
 
 ##########
+read_identifier:
+.FRAME buffer, char, index, tmp
+    arb -4
+
+    # we will store the identifier in dynamic memory that needs to be freed by caller
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    add 0, 0, [rb + index]
+
+read_identifier_loop:
+    in  [rb + char]
+
+    # when we find first non-alphanumeric character, we are done
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    call is_alphanum
+    jz  [rb - 3], read_identifier_done
+
+    # store the character in buffer
+    add [rb + buffer], [rb + index], [ip + 3]
+    add [rb + char], 0, [0]
+
+    # increase index and check for maximum identifier length
+    add [rb + index], 1, [rb + index]
+    lt  [rb + index], IDENTIFIER_LENGTH, [rb + tmp]
+    jnz [rb + tmp], read_identifier_loop
+
+    add err_max_identifier_length, 0, [rb]
+    call report_error
+
+read_identifier_done:
+    # zero terminate
+    add [rb + buffer], [rb + index], [ip + 3]
+    add 0, 0, [0]
+
+    arb 4
+    ret 0
+.ENDFRAME
+
+##########
 read_number:
 .FRAME byte, digit, sign, tmp
     arb -4
@@ -605,6 +732,30 @@ read_number_end:
 
     arb 4
     ret 0
+.ENDFRAME
+
+##########
+is_alphanum:
+.FRAME char; tmp
+    arb -1
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    call is_alpha
+    add [rb - 3], 0, [rb + tmp]
+    jnz [rb + tmp], is_alphanum_end
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    call is_digit
+    add [rb - 3], 0, [rb + tmp]
+    jnz [rb + tmp], is_alphanum_end
+
+    eq  [rb + char], '_', [rb + tmp]
+
+is_alphanum_end:
+    arb 1
+    ret 1
 .ENDFRAME
 
 ##########
@@ -735,12 +886,12 @@ module_tail:
 # imported symbol record layout:
 .SYMBOL IMPORTED_NEXT_PTR           0
 .SYMBOL IMPORTED_IDENTIFIER         1
-.SYMBOL IMPORTED_FIXUP_HEAD         46
+.SYMBOL IMPORTED_FIXUP_HEAD         47
 
 # exported symbol record layout:
 .SYMBOL EXPORTED_NEXT_PTR           0
 .SYMBOL EXPORTED_IDENTIFIER         1
-.SYMBOL EXPORTED_ADDRESS            46
+.SYMBOL EXPORTED_ADDRESS            47
 
 ##########
 # error messages
@@ -759,6 +910,10 @@ err_expect_dot_r:
     db  "Expecting a .R", 0
 err_expect_comma_eol:
     db  "Expecting a comma or line end", 0
+err_expect_eol:
+    db  "Expecting a line end", 0
+err_expect_colon:
+    db  "Expecting a colon", 0
 
 ##########
     ds  50, 0
