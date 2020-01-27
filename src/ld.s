@@ -290,6 +290,16 @@ load_relocated:
 .FRAME module; byte, char, tmp
     arb -3
 
+    # peek one character to see if we have relocated data at all
+    call get_input
+    add [rb - 2], 0, [rb + char]
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    call unget_input
+
+    eq  [rb + char], '.', [rb + tmp]
+    jnz [rb + tmp], load_relocated_done
+
 load_relocated_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]

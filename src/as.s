@@ -2990,8 +2990,11 @@ print_reloc_symbol_done:
     jz  0, print_reloc_symbol
 
 print_reloc_done:
+    # skip endline if nothing was printed
+    jnz [rb + first], print_reloc_after_eol
     out 10
 
+print_reloc_after_eol:
     arb 6
     ret 0
 .ENDFRAME
