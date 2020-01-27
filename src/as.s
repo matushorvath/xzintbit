@@ -2863,8 +2863,6 @@ print_imports_symbol_done:
     jz  0, print_imports_symbol
 
 print_imports_done:
-    out 10
-
     arb 5
     ret 0
 .ENDFRAME
@@ -2925,8 +2923,6 @@ print_exports_symbol_done:
     jz  0, print_exports_symbol
 
 print_exports_done:
-    out 10
-
     arb 3
     ret 0
 .ENDFRAME
