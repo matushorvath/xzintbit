@@ -141,7 +141,8 @@ expect_next_file:
     call report_error
 
 expect_next_file_library:
-    # TODO mark that we are now processing libraries
+    # mark that we are now processing libraries
+    add 1, 0, [is_library]
 
     add err_expect_dot_c_at, 0, [rb - 1]
     arb -1
@@ -231,7 +232,11 @@ create_module:
     arb -2
     call zeromem
 
-    # TODO set up 'included' flag correctly
+    # object files are mandatory, libraries are optional
+    add [rb + module], MODULE_OPTIONAL, [ip + 3]
+    add [is_library], 0, [0]
+
+    # TODO set 'included' after the module is processed
     add [rb + module], MODULE_INCLUDED, [ip + 3]
     add 1, 0, [0]
 
@@ -1115,7 +1120,7 @@ heap_end:
 .SYMBOL MODULE_RELOC_INDEX          6
 .SYMBOL MODULE_IMPORTS_HEAD         7
 .SYMBOL MODULE_EXPORTS_HEAD         8
-.SYMBOL MODULE_MANDATORY            9           # 0 = optional, 1 = mandatory
+.SYMBOL MODULE_OPTIONAL             9           # 0 = mandatory, 1 = optional
 .SYMBOL MODULE_INCLUDED             10          # 0 = not included, 1 = included
 .SYMBOL MODULE_ADDRESS              11
 .SYMBOL MODULE_SIZE                 12
@@ -1145,6 +1150,10 @@ module_tail:
 .SYMBOL IMPORT_FIXUPS_TAIL          5
 .SYMBOL IMPORT_FIXUPS_INDEX         6
 .SYMBOL IMPORT_SIZE                 7
+
+# 0 = processing object files, 1 = processing libraries
+is_library:
+    db  0
 
 ##########
 # error messages
