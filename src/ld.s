@@ -10,7 +10,7 @@ link_loop:
     # check for more files
     call expect_next_file
     eq  [rb - 2], '$', [rb + tmp]
-    jnz [rb + tmp], link_done
+    jnz [rb + tmp], link_load_done
 
     # create a module
     call create_module
@@ -56,7 +56,9 @@ link_loop:
 
     jz  0, link_loop
 
-link_done:
+link_load_done:
+    call resolve_symbols
+
     call print_modules
 
     hlt
@@ -233,12 +235,8 @@ create_module:
     call zeromem
 
     # object files are mandatory, libraries are optional
-    add [rb + module], MODULE_OPTIONAL, [ip + 3]
-    add [is_library], 0, [0]
-
-    # TODO set 'included' after the module is processed
-    add [rb + module], MODULE_INCLUDED, [ip + 3]
-    add 1, 0, [0]
+    add [rb + module], MODULE_NEEDED, [ip + 3]
+    eq  [is_library], 0, [0]
 
     # append to the tail if any
     jz  [module_tail], create_module_is_first
@@ -534,6 +532,90 @@ create_export:
     add [rb + export], 0, [0]
 
     arb 2
+    ret 1
+.ENDFRAME
+
+##########
+resolve_symbols:
+.FRAME module, tmp
+    arb -2
+
+resolve_symbols_restart:
+    # process all modules
+    add [module_head], 0, [rb + module]
+
+resolve_symbols_loop:
+    jz  [rb + module], resolve_symbols_done
+
+    add [rb + module], MODULE_NEEDED, [ip + 1]
+    jz  [0], resolve_symbols_next
+
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jnz [0], resolve_symbols_next
+
+    # module is needed, but not yet included
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call include_module
+
+    # new modules may be needed, process all modules from the start
+    jz  0, resolve_symbols_restart
+
+resolve_symbols_next:
+    add [rb + module], MODULE_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + module]
+
+    jz  0, resolve_symbols_loop
+
+resolve_symbols_done:
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+include_module:
+.FRAME module; tmp
+    arb -1
+
+    # process exported
+    add [rb + module], MODULE_EXPORTS_HEAD, [rb - 1]
+    arb -1
+    call include_exported
+
+    # process imported
+    add [rb + module], MODULE_IMPORTS_HEAD, [rb - 1]
+    arb -1
+    call include_imported
+
+    # set the module as included
+    add [rb + module], MODULE_INCLUDED, [ip + 3]
+    add 1, 0, [0]
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+include_exported:
+.FRAME exported_head; tmp
+    arb -1
+
+    out 'E'
+    out 10
+
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+include_imported:
+.FRAME imported_head; tmp
+    arb -1
+
+    out 'I'
+    out 10
+
+    arb 1
     ret 1
 .ENDFRAME
 
@@ -1120,7 +1202,7 @@ heap_end:
 .SYMBOL MODULE_RELOC_INDEX          6
 .SYMBOL MODULE_IMPORTS_HEAD         7
 .SYMBOL MODULE_EXPORTS_HEAD         8
-.SYMBOL MODULE_OPTIONAL             9           # 0 = mandatory, 1 = optional
+.SYMBOL MODULE_NEEDED               9           # 0 = not needed, 1 = needed
 .SYMBOL MODULE_INCLUDED             10          # 0 = not included, 1 = included
 .SYMBOL MODULE_ADDRESS              11
 .SYMBOL MODULE_SIZE                 12
