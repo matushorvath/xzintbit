@@ -63,6 +63,31 @@ link_done:
 .ENDFRAME
 
 ##########
+get_input:
+.FRAME char, tmp
+    arb -2
+
+    in  [rb + char]
+
+    # track line and column number
+    eq  [rb + char], 10, [rb + tmp]
+    jz  [rb + tmp], get_input_same_line
+
+    # we have a new line
+    add [input_line_num], 1, [input_line_num]
+    add 1, 0, [input_column_num]
+    jz  0, get_input_done
+
+get_input_same_line:
+    # we are on the same line
+    add [input_column_num], 1, [input_column_num]
+
+get_input_done:
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
 expect_next_file:
 .FRAME char, tmp
     arb -2
@@ -132,13 +157,18 @@ read_directive:
 .FRAME error_message; char, tmp
     arb -2
 
-    in  [rb + char]
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
     eq  [rb + char], '.', [rb + tmp]
     jz  [rb + tmp], read_directive_error
 
-    in  [rb + char]
+    call get_input
+    add [rb - 2], 0, [rb + char]
 
-    in  [rb + tmp]
+    call get_input
+    add [rb - 2], 0, [rb + tmp]
+
     eq  [rb + tmp], 10, [rb + tmp]
     jz  [rb + tmp], read_directive_error
 
@@ -267,7 +297,9 @@ load_imported_loop:
     # if there is no identifier, finish
     jz  [rb - 4], load_imported_endline
 
-    in  [rb + char]
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
     eq  [rb + char], ':', [rb + tmp]
     jnz [rb + tmp], load_imported_fixup_loop
 
@@ -546,11 +578,41 @@ print_mem_done:
 ##########
 report_error:
 .FRAME message;
+    # we don't bother with updating the stack pointer, this function never returns
+    add [rb + message], 0, [rb + 2]
+    add [input_line_num], 0, [rb + 1]
+    add [input_line_num], 0, [rb]
+    call report_error_at_location
+.ENDFRAME
+
+##########
+report_error_at_location:
+.FRAME message, line_num, column_num;
     add report_error_msg_start, 0, [rb - 1]
     arb -1
     call print_str
 
     add [rb + message], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add report_error_msg_line, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + line_num], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add report_error_msg_column, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + column_num], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add report_error_msg_end, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -566,6 +628,12 @@ report_error_loop:
 
 report_error_msg_start:
     db "Error: ", 0
+report_error_msg_line:
+    db " (line ", 0
+report_error_msg_column:
+    db ", column ", 0
+report_error_msg_end:
+    db ")", 0
 .ENDFRAME
 
 ##########
@@ -662,7 +730,8 @@ read_identifier:
     add 0, 0, [rb + index]
 
 read_identifier_loop:
-    in  [rb + char]
+    call get_input
+    add [rb - 2], 0, [rb + char]
 
     # when we find first non-alphanumeric character, we are done
     add [rb + char], 0, [rb - 1]
@@ -700,12 +769,16 @@ read_number:
     add 1, 0, [rb + sign]
 
     # get first character, process the minus sign if present
-    in  [rb + digit]
+    call get_input
+    add [rb - 2], 0, [rb + digit]
+
     eq  [rb + digit], '-', [rb + tmp]
     jz  [rb + tmp], read_number_loop
 
     add -1, 0, [rb + sign]
-    in  [rb + digit]
+
+    call get_input
+    add [rb - 2], 0, [rb + digit]
 
 read_number_loop:
     # if it is not a digit, end
@@ -722,7 +795,8 @@ read_number_loop:
     add [rb + byte], [rb + digit], [rb + byte]
 
     # get next character
-    in  [rb + digit]
+    call get_input
+    add [rb - 2], 0, [rb + digit]
 
     jz  0, read_number_loop
 
@@ -875,6 +949,12 @@ zeromem_done:
 
 ##########
 # globals
+
+# line and column number of next input character
+input_line_num:
+    db  1
+input_column_num:
+    db  1
 
 # head of the linked list of free blocks
 free_head:
