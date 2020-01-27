@@ -3069,8 +3069,6 @@ report_error:
 ##########
 report_error_at_location:
 .FRAME message, line_num, column_num;
-    #call print_mem
-
     add report_error_msg_start, 0, [rb - 1]
     arb -1
     call print_str
