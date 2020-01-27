@@ -67,14 +67,21 @@ get_input:
 .FRAME char, tmp
     arb -2
 
+    # get input from the buffer if we have it
+    add [input_buffer], 0, [rb + char]
+    add 0, 0, [input_buffer]
+
+    jnz [rb + char], get_input_have_char
     in  [rb + char]
 
+get_input_have_char:
     # track line and column number
     eq  [rb + char], 10, [rb + tmp]
     jz  [rb + tmp], get_input_same_line
 
     # we have a new line
     add [input_line_num], 1, [input_line_num]
+    add [input_column_num], 0, [input_prev_column_num]
     add 1, 0, [input_column_num]
     jz  0, get_input_done
 
@@ -85,6 +92,31 @@ get_input_same_line:
 get_input_done:
     arb 2
     ret 0
+.ENDFRAME
+
+##########
+unget_input:
+.FRAME char; tmp
+    arb -1
+
+    # "unget" an unused char so we get it again later
+    add [rb + char], 0, [input_buffer]
+
+    # track line and column number
+    eq  [rb + char], 10, [rb + tmp]
+    jz  [rb + tmp], unget_input_same_line
+
+    # we moved back to previous line, use [input_prev_column_num] as column num
+    add [input_line_num], -1, [input_line_num]
+    add [input_prev_column_num], 0, [input_column_num]
+    jz  0, unget_input_done
+
+unget_input_same_line:
+    add [input_column_num], -1, [input_column_num]
+
+unget_input_done:
+    arb 1
+    ret 1
 .ENDFRAME
 
 ##########
@@ -293,11 +325,12 @@ load_imported:
 load_imported_loop:
     # read the identifier
     call read_identifier
-    add [rb - 4], 0, [rb + identifier]
-    add [rb - 5], 0, [rb + char]
+    add [rb - 2], 0, [rb + identifier]
+    add [rb - 3], 0, [rb + char]
 
     # if there is no identifier, finish
-    jz  [rb + identifier], load_imported_endline
+    add [rb + identifier], 0, [ip + 1]
+    jz  [0], load_imported_done
 
     eq  [rb + char], ':', [rb + tmp]
     jnz [rb + tmp], load_imported_save_identifier
@@ -336,15 +369,16 @@ load_imported_fixup_loop:
     add err_expect_comma_eol, 0, [rb]
     call report_error
 
-load_imported_endline:
-    # character read after the (empty) identifier should be EOL
-    eq  [rb - 3], 10, [rb + tmp]
-    jnz [rb + tmp], load_imported_done
-
-    add err_expect_eol, 0, [rb]
-    call report_error
-
 load_imported_done:
+    # free the empty identifier
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call free
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    call unget_input
+
     arb 5
     ret 1
 .ENDFRAME
@@ -357,11 +391,12 @@ load_exported:
 load_exported_loop:
     # read the identifier
     call read_identifier
-    add [rb - 4], 0, [rb + identifier]
-    add [rb - 5], 0, [rb + char]
+    add [rb - 2], 0, [rb + identifier]
+    add [rb - 3], 0, [rb + char]
 
     # if there is no identifier, finish
-    jz  [rb + identifier], load_exported_endline
+    add [rb + identifier], 0, [ip + 1]
+    jz  [0], load_exported_done
 
     eq  [rb + char], ':', [rb + tmp]
     jnz [rb + tmp], load_exported_save_identifier
@@ -393,15 +428,16 @@ load_exported_save_identifier:
     add err_expect_eol, 0, [rb]
     call report_error
 
-load_exported_endline:
-    # character read after the (empty) identifier should be EOL
-    eq  [rb - 3], 10, [rb + tmp]
-    jnz [rb + tmp], load_exported_done
-
-    add err_expect_eol, 0, [rb]
-    call report_error
-
 load_exported_done:
+    # free the empty identifier
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call free
+
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    call unget_input
+
     arb 5
     ret 1
 .ENDFRAME
@@ -663,7 +699,7 @@ report_error:
     # we don't bother with updating the stack pointer, this function never returns
     add [rb + message], 0, [rb + 2]
     add [input_line_num], 0, [rb + 1]
-    add [input_line_num], 0, [rb]
+    add [input_column_num], 0, [rb]
     call report_error_at_location
 .ENDFRAME
 
@@ -1037,6 +1073,14 @@ input_line_num:
     db  1
 input_column_num:
     db  1
+
+# column number before last input character
+input_prev_column_num:
+    db  0
+
+# last input char buffer
+input_buffer:
+    db  0
 
 # head of the linked list of free blocks
 free_head:
