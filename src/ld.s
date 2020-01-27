@@ -188,7 +188,7 @@ create_module:
     arb -1
 
     # allocate a block
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add MODULE_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + module]
@@ -287,30 +287,32 @@ load_relocated_done:
 
 ##########
 load_imported:
-.FRAME module; symbol, byte, char, tmp
-    arb -4
+.FRAME module; import, identifier, byte, char, tmp
+    arb -5
 
 load_imported_loop:
     # read the identifier
     call read_identifier
+    add [rb - 4], 0, [rb + identifier]
+    add [rb - 5], 0, [rb + char]
 
     # if there is no identifier, finish
-    jz  [rb - 4], load_imported_endline
-
-    call get_input
-    add [rb - 2], 0, [rb + char]
+    jz  [rb + identifier], load_imported_endline
 
     eq  [rb + char], ':', [rb + tmp]
-    jnz [rb + tmp], load_imported_fixup_loop
+    jnz [rb + tmp], load_imported_save_identifier
 
     add err_expect_colon, 0, [rb]
     call report_error
 
+load_imported_save_identifier:
     add [rb + module], 0, [rb - 1]
-    add [rb + module], MODULE_IMPORTED_HEAD, [rb - 2]
-    arb -2
-    call create_symbol
-    add [rb - 4], 0, [rb + symbol]
+    arb -1
+    call create_import
+    add [rb - 3], 0, [rb + import]
+
+    add [rb + import], IMPORT_IDENTIFIER, [ip + 3]
+    add [rb + identifier], 0, [0]
 
 load_imported_fixup_loop:
     call read_number
@@ -318,9 +320,9 @@ load_imported_fixup_loop:
     add [rb - 3], 0, [rb + char]
 
     # store the byte
-    add [rb + symbol], SYMBOL_FIXUP_HEAD, [rb - 1]
-    add [rb + symbol], SYMBOL_FIXUP_TAIL, [rb - 2]
-    add [rb + symbol], SYMBOL_FIXUP_INDEX, [rb - 3]
+    add [rb + import], IMPORT_FIXUPS_HEAD, [rb - 1]
+    add [rb + import], IMPORT_FIXUPS_TAIL, [rb - 2]
+    add [rb + import], IMPORT_FIXUPS_INDEX, [rb - 3]
     add [rb + byte], 0, [rb - 4]
     arb -4
     call set_mem
@@ -343,62 +345,142 @@ load_imported_endline:
     call report_error
 
 load_imported_done:
-    arb 4
+    arb 5
     ret 1
 .ENDFRAME
 
 ##########
 load_exported:
-.FRAME module;
-    # TODO implement
-#    add load_exported_str, 0, [rb - 1]
-#    arb -1
-#    call print_str
-#    out 10
+.FRAME module; export, identifier, byte, char, tmp
+    arb -5
 
+load_exported_loop:
+    # read the identifier
+    call read_identifier
+    add [rb - 4], 0, [rb + identifier]
+    add [rb - 5], 0, [rb + char]
+
+    # if there is no identifier, finish
+    jz  [rb + identifier], load_exported_endline
+
+    eq  [rb + char], ':', [rb + tmp]
+    jnz [rb + tmp], load_exported_save_identifier
+
+    add err_expect_colon, 0, [rb]
+    call report_error
+
+load_exported_save_identifier:
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call create_export
+    add [rb - 3], 0, [rb + export]
+
+    add [rb + export], EXPORT_IDENTIFIER, [ip + 3]
+    add [rb + identifier], 0, [0]
+
+    call read_number
+    add [rb - 2], 0, [rb + byte]
+    add [rb - 3], 0, [rb + char]
+
+    # store the byte
+    add [rb + export], EXPORT_ADDRESS, [ip + 3]
+    add [rb + byte], 0, [0]
+
+    # next character should be line end
+    eq  [rb + char], 10, [rb + tmp]
+    jnz [rb + tmp], load_exported_loop
+
+    add err_expect_eol, 0, [rb]
+    call report_error
+
+load_exported_endline:
+    # character read after the (empty) identifier should be EOL
+    eq  [rb - 3], 10, [rb + tmp]
+    jnz [rb + tmp], load_exported_done
+
+    add err_expect_eol, 0, [rb]
+    call report_error
+
+load_exported_done:
+    arb 5
     ret 1
-
-load_exported_str:
-    db  "load exported", 0
 .ENDFRAME
 
 ##########
-create_symbol:
-.FRAME module, symbol_head_ptr; symbol, tmp
+create_import:
+.FRAME module; import, tmp
     arb -2
 
     # allocate a block
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add IMPORT_SIZE, 0, [rb - 1]
     arb -1
     call alloc
-    add [rb - 3], 0, [rb + symbol]
+    add [rb - 3], 0, [rb + import]
 
     # initialize to zeros
-    add [rb + symbol], 0, [rb - 1]
-    add SYMBOL_SIZE, 0, [rb - 2]
+    add [rb + import], 0, [rb - 1]
+    add IMPORT_SIZE, 0, [rb - 2]
     arb -2
     call zeromem
 
     # save module pointer
-    add [rb + symbol], SYMBOL_MODULE, [ip + 3]
+    add [rb + import], IMPORT_MODULE, [ip + 3]
     add [rb + module], 0, [0]
 
-    # default symbol address is -1, not 0
-    add [rb + symbol], SYMBOL_RELOC_ADDRESS, [ip + 3]
+    # add to the head of doubly-linked list
+    add [rb + module], MODULE_IMPORTS_HEAD, [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    add [rb + import], IMPORT_NEXT_PTR, [ip + 3]
+    add [rb + tmp], 0, [0]
+
+    add [rb + import], IMPORT_PREV_PTR, [ip + 3]
+    add 0, 0, [0]
+
+    add [rb + module], MODULE_IMPORTS_HEAD, [ip + 3]
+    add [rb + import], 0, [0]
+
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
+create_export:
+.FRAME module; export, tmp
+    arb -2
+
+    # allocate a block
+    add EXPORT_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc
+    add [rb - 3], 0, [rb + export]
+
+    # initialize to zeros
+    add [rb + export], 0, [rb - 1]
+    add EXPORT_SIZE, 0, [rb - 2]
+    arb -2
+    call zeromem
+
+    # save module pointer
+    add [rb + export], EXPORT_MODULE, [ip + 3]
+    add [rb + module], 0, [0]
+
+    # default export address is -1, not 0
+    add [rb + export], EXPORT_ADDRESS, [ip + 3]
     add -1, 0, [0]
 
     # add to the head of doubly-linked list
-    add [rb + symbol_head_ptr], 0, [ip + 1]
+    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 1]
     add [0], 0, [rb + tmp]
 
-    add [rb + symbol], SYMBOL_NEXT_PTR, [ip + 3]
+    add [rb + export], EXPORT_NEXT_PTR, [ip + 3]
     add [rb + tmp], 0, [0]
 
-    add [rb + symbol], SYMBOL_PREV_PTR, [ip + 3]
+    add [rb + export], EXPORT_PREV_PTR, [ip + 3]
     add 0, 0, [0]
 
-    add [rb + symbol_head_ptr], 0, [ip + 3]
-    add [rb + symbol], 0, [0]
+    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 3]
+    add [rb + export], 0, [0]
 
     arb 2
     ret 1
@@ -977,11 +1059,11 @@ heap_end:
 .SYMBOL MODULE_RELOC_HEAD           4
 .SYMBOL MODULE_RELOC_TAIL           5
 .SYMBOL MODULE_RELOC_INDEX          6
-.SYMBOL MODULE_IMPORTED_HEAD        7
-.SYMBOL MODULE_EXPORTED_HEAD        8
+.SYMBOL MODULE_IMPORTS_HEAD         7
+.SYMBOL MODULE_EXPORTS_HEAD         8
 .SYMBOL MODULE_MANDATORY            9           # 0 = optional, 1 = mandatory
 .SYMBOL MODULE_INCLUDED             10          # 0 = not included, 1 = included
-.SYMBOL MODULE_RELOC_ADDRESS        11
+.SYMBOL MODULE_ADDRESS              11
 .SYMBOL MODULE_SIZE                 12
 
 # loaded modules
@@ -990,16 +1072,25 @@ module_head:
 module_tail:
     db 0
 
-# imported symbol record layout:
-.SYMBOL SYMBOL_NEXT_PTR             0
-.SYMBOL SYMBOL_PREV_PTR             1
-.SYMBOL SYMBOL_RELOC_ADDRESS        2
-.SYMBOL SYMBOL_MODULE               3
-.SYMBOL SYMBOL_FIXUP_HEAD           4
-.SYMBOL SYMBOL_FIXUP_TAIL           5
-.SYMBOL SYMBOL_FIXUP_INDEX          6
-.SYMBOL SYMBOL_IDENTIFIER           7
-.SYMBOL SYMBOL_SIZE                 50
+# export record layout:
+.SYMBOL EXPORT_NEXT_PTR             0
+.SYMBOL EXPORT_PREV_PTR             1
+.SYMBOL EXPORT_IDENTIFIER           2
+.SYMBOL EXPORT_MODULE               3
+.SYMBOL EXPORT_ADDRESS              4
+.SYMBOL EXPORT_IMPORTS_HEAD         5
+.SYMBOL EXPORT_IMPORTS_TAIL         6
+.SYMBOL EXPORT_SIZE                 7
+
+# import record layout:
+.SYMBOL IMPORT_NEXT_PTR             0
+.SYMBOL IMPORT_PREV_PTR             1
+.SYMBOL IMPORT_IDENTIFIER           2
+.SYMBOL IMPORT_MODULE               3
+.SYMBOL IMPORT_FIXUPS_HEAD          4
+.SYMBOL IMPORT_FIXUPS_TAIL          5
+.SYMBOL IMPORT_FIXUPS_INDEX         6
+.SYMBOL IMPORT_SIZE                 7
 
 ##########
 # error messages

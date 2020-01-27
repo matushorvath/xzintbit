@@ -2925,7 +2925,7 @@ print_exports_symbol_done:
     jz  0, print_exports_symbol
 
 print_exports_done:
-    # TODO out 10
+    out 10
 
     arb 3
     ret 0
