@@ -601,8 +601,35 @@ include_exported:
     arb -1
 
 include_exported_loop:
-    
+    jz  [rb + exported_head], include_exported_done
 
+    add [rb + exported_head], EXPORT_IDENTIFIER, [rb - 1]
+    arb -1
+    call find_resolved
+
+    jz  [rb - 3], include_exported_is_new
+
+    add err_duplicate_export, 0, [rb]
+    call report_error
+
+include_exported_is_new:
+    # move to next exported symbol
+    add [rb + exported_head], 0, [rb + tmp]
+    add [rb + exported_head], EXPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + exported_head]
+
+    # append this symbol to list of resolved symbols
+    add [rb + tmp], 0, [rb - 1]
+    add resolved_head, 0, [rb - 2]
+    add resolved_tail, 0, [rb - 3]
+    arb -3
+    call append_double_linked
+
+    # TODO resolve imported symbol using this newly added exported symbol
+
+    jz  0, include_exported_loop
+
+include_exported_done:
     arb 1
     ret 1
 .ENDFRAME
@@ -612,8 +639,8 @@ include_imported:
 .FRAME imported_head; tmp
     arb -1
 
-    out 'I'
-    out 10
+    #out 'I'
+    #out 10
 
     arb 1
     ret 1
@@ -643,6 +670,46 @@ find_resolved_done:
     # result is in [rb + head]
     arb 1
     ret 1
+.ENDFRAME
+
+.SYMBOL DOUBLE_LINKED_NEXT_PTR 0
+.SYMBOL DOUBLE_LINKED_PREV_PTR 1
+
+##########
+append_double_linked:
+.FRAME item, head_ptr, tail_ptr; tmp
+    arb -1
+
+    add [rb + head_ptr], 0, [ip + 1]
+    jnz [0], append_double_linked_have_head
+
+    # empty list, set head
+    add [rb + head_ptr], 0, [ip + 3]
+    add [rb + item], 0, [0]
+
+    jz  0, append_double_linked_common
+
+append_double_linked_have_head:
+    # non-empty list, set next item in tail
+    add [rb + tail_ptr], 0, [ip + 1]
+    add [0], DOUBLE_LINKED_NEXT_PTR, [ip + 3]
+    add [rb + item], 0, [0]
+
+append_double_linked_common:
+    # set our prev item to old tail
+    add [rb + item], DOUBLE_LINKED_PREV_PTR, [ip + 3]
+    add [rb + tail_ptr], 0, [0]
+
+    # set our next item to 0
+    add [rb + item], DOUBLE_LINKED_NEXT_PTR, [ip + 3]
+    add 0, 0, [0]
+
+    # set tail
+    add [rb + tail_ptr], 0, [ip + 3]
+    add [rb + item], 0, [0]
+
+    arb 1
+    ret 3
 .ENDFRAME
 
 ##########
@@ -1330,6 +1397,8 @@ err_expect_colon:
     db  "Expecting a colon", 0
 err_max_identifier_length:
     db  "Maximum identifier length exceeded", 0
+err_duplicate_export:
+    db  "Duplicate exported symbol", 0
 
 ##########
     ds  50, 0
