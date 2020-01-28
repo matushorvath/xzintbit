@@ -600,8 +600,8 @@ include_exported:
 .FRAME exported_head; tmp
     arb -1
 
-    out 'E'
-    out 10
+include_exported_loop:
+    
 
     arb 1
     ret 1
@@ -615,6 +615,32 @@ include_imported:
     out 'I'
     out 10
 
+    arb 1
+    ret 1
+.ENDFRAME
+
+##########
+find_resolved:
+.FRAME identifier; head
+    arb -1
+
+    add [resolved_head], 0, [rb + head]
+
+find_resolved_loop:
+    add [rb + head], EXPORT_IDENTIFIER, [rb - 1]
+    add [rb + identifier], 0, [rb - 2]
+    arb -2
+    call strcmp
+
+    jz  [rb - 4], find_resolved_done
+
+    add [rb + head], EXPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + head]
+
+    jnz [rb + head], find_resolved_loop
+
+find_resolved_done:
+    # result is in [rb + head]
     arb 1
     ret 1
 .ENDFRAME
@@ -1093,6 +1119,38 @@ is_alphanum_end:
 .ENDFRAME
 
 ##########
+strcmp:
+.FRAME str1, str2; tmp, char1, char2, index
+    arb -4
+
+    add 0, 0, [rb + index]
+
+strcmp_loop:
+    add [rb + str1], [rb + index], [ip + 1]
+    add [0], 0, [rb + char1]
+
+    add [rb + str2], [rb + index], [ip + 1]
+    add [0], 0, [rb + char2]
+
+    # different characters, we are done
+    eq  [rb + char1], [rb + char2], [rb + tmp]
+    jz  [rb + tmp], strcmp_done
+
+    # same character, is it 0?
+    jz  [rb + char1], strcmp_done
+
+    add [rb + index], 1, [rb + index]
+    jz  0, strcmp_loop
+
+strcmp_done:
+    mul [rb + char2], -1, [rb + tmp]
+    add [rb + char1], [rb + tmp], [rb + tmp]
+
+    arb 4
+    ret 2
+.ENDFRAME
+
+##########
 alloc:
 .FRAME size; block, tmp
     arb -2
@@ -1232,6 +1290,18 @@ module_tail:
 .SYMBOL IMPORT_FIXUPS_TAIL          5
 .SYMBOL IMPORT_FIXUPS_INDEX         6
 .SYMBOL IMPORT_SIZE                 7
+
+# resolved (exported) symbols
+resolved_head:
+    db 0
+resolved_tail:
+    db 0
+
+# unresolved (exported) symbols
+unresolved_head:
+    db 0
+unresolved_tail:
+    db 0
 
 # 0 = processing object files, 1 = processing libraries
 is_library:
