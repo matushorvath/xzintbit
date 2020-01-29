@@ -1,3 +1,6 @@
 *.tmp
+vm/ic
+vm/ic.exe
+vm/ic.o
 stage1
 stage2
