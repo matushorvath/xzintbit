@@ -1,7 +1,5 @@
-test:
-	echo Test
+include ../test.mk
 
-clean:
-	echo Clean
+test: prep output/$(NAME).input
 
-.PHONY: test clean
+.PHONY: test
