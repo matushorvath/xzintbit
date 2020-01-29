@@ -4,3 +4,4 @@ vm/ic.exe
 vm/ic.o
 stage1
 stage2
+test/*/output
