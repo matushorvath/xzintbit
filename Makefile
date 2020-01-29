@@ -50,7 +50,7 @@ install: build
 
 # Test
 test: install
-	failed=0 ; for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir test || failed=1 ; done ; [ $$failed == 0 ] || exit 1
+	failed=0 ; for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir test || failed=1 ; done ; [ $$failed = 0 ] || exit 1
 
 # Clean
 clean:
