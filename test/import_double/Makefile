@@ -1,5 +1,5 @@
 include ../test.mk
 
-test: prep output/$(NAME).input
+test: prep output/$(NAME).o
 
 .PHONY: test
