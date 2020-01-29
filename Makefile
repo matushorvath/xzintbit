@@ -6,7 +6,8 @@ else
 	RMRF = rm -rf $1
 endif
 
-CFLAGS=-O3 -Wall -Werror -std=c11
+TESTDIRS = $(sort $(dir $(wildcard test/*/)))
+CFLAGS = -O3 -Wall -Werror -std=c11
 
 build: build-vm build-stage1 build-stage2 compare-stages
 
@@ -51,16 +52,17 @@ compare-stages:
 	diff -r stage1/as.input stage2/as.input
 	diff -r stage1/ld.input stage2/ld.input
 
-install: build test
+install: build
 	cp stage2/as.input bin/as.input
 	cp stage2/ld.input bin/ld.input
 
 # Test
-test: build
-	echo Test
+test: install
+	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir test ; done
 
 # Clean
 clean:
+	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
 	$(RMRF) stage1 stage2
 	$(RMRF) vm/ic vm/ic.exe vm/ic.o
 
