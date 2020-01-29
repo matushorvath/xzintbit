@@ -1,12 +1,4 @@
-ifeq ($(OS), Windows_NT)
-	RMRF = RMDIR /S /Q $1
-	MKDIR = $(if $(wildcard $1),,MKDIR $1)
-else
-	MKDIR = mkdir -p $1
-	RMRF = rm -rf $1
-endif
-
-TESTDIRS = $(sort $(dir $(wildcard test/*/)))
+TESTDIRS = $(sort $(dir $(wildcard test/*/*)))
 CFLAGS = -O3 -Wall -Werror -std=c11
 
 build: build-vm build-stage1 build-stage2 compare-stages
@@ -19,7 +11,7 @@ vm/ic: vm/ic.o
 build-stage1: stage1 stage1/as.input stage1/ld.input
 
 stage1:
-	$(MKDIR) stage1
+	mkdir -p stage1
 
 stage1/as.input: stage1/as.o
 
@@ -35,7 +27,7 @@ stage1/%.o: src/%.s
 build-stage2: build-stage1 stage2 stage2/as.input stage2/ld.input
 
 stage2:
-	$(MKDIR) stage2
+	mkdir -p stage2
 
 stage2/as.input: stage2/as.o
 
@@ -58,12 +50,12 @@ install: build
 
 # Test
 test: install
-	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir test ; done
+	failed=0 ; for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir test || failed=1 ; done ; [ $$failed == 0 ] || exit 1
 
 # Clean
 clean:
 	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
-	$(RMRF) stage1 stage2
-	$(RMRF) vm/ic vm/ic.exe vm/ic.o
+	rm -rf stage1 stage2
+	rm -rf vm/ic vm/ic.exe vm/ic.o
 
 .PHONY: build build-vm build-stage1 build-stage2 compare-stages test install clean
