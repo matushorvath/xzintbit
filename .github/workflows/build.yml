@@ -9,7 +9,7 @@ on:
 env:
   FORCE_COLOR: 1
   TERM: xterm-color
-  CC: gcc 
+  CC: gcc
 
 jobs:
   build:
