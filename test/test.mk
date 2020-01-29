@@ -1,7 +1,7 @@
 NAME = $(notdir $(CURDIR))
 
-ICAS = $(realpath ../../vm/ic) $(realpath ../../bin/as.input)
-ICLD = $(realpath ../../vm/ic) $(realpath ../../bin/ld.input)
+ICAS = $(abspath ../../vm)/ic $(abspath ../../bin/as.input)
+ICLD = $(abspath ../../vm)/ic $(abspath ../../bin/ld.input)
 
 prep:
 	rm -rf output
