@@ -50,11 +50,18 @@ install: build
 
 # Test
 test: install
-	failed=0 ; for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir test || failed=1 ; done ; [ $$failed = 0 ] || exit 1
+	rm -rf test/test.log
+	failed=0 ; \
+	for testdir in $(TESTDIRS) ; do \
+		$(MAKE) -C $$testdir test || failed=1 ; \
+	done ; \
+	cat test/test.log ; \
+	[ $$failed = 0 ] || exit 1
 
 # Clean
 clean:
 	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
+	rm -rf test/test.log
 	rm -rf stage1 stage2
 	rm -rf vm/ic vm/ic.exe vm/ic.o
 
