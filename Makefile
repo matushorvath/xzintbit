@@ -18,10 +18,10 @@ stage1/as.input: stage1/as.o
 stage1/ld.input: stage1/ld.o
 
 stage1/%.input: stage1/%.o
-	echo .$$ | cat $^ - | vm/ic bin/ld.input > $@
+	echo .$$ | cat $^ - | vm/ic bin/ld.input > $@ || ( cat $@ ; false )
 
 stage1/%.o: src/%.s
-	vm/ic bin/as.input < $< > $@
+	vm/ic bin/as.input < $< > $@ || ( cat $@ ; false )
 
 # Build stage 1
 build-stage2: build-stage1 stage2 stage2/as.input stage2/ld.input
@@ -34,10 +34,10 @@ stage2/as.input: stage2/as.o
 stage2/ld.input: stage2/ld.o
 
 stage2/%.input: stage2/%.o
-	echo .$$ | cat $^ - | vm/ic stage1/ld.input > $@
+	echo .$$ | cat $^ - | vm/ic stage1/ld.input > $@ || ( cat $@ ; false )
 
 stage2/%.o: src/%.s
-	vm/ic stage1/as.input < $< > $@
+	vm/ic stage1/as.input < $< > $@ || ( cat $@ ; false )
 
 # Compare and install
 compare-stages:

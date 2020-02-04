@@ -597,40 +597,61 @@ include_module:
 
 ##########
 include_exported:
-.FRAME exported_head; tmp
-    arb -1
+.FRAME exported_head; export, symbol, tmp
+    arb -3
 
 include_exported_loop:
     jz  [rb + exported_head], include_exported_done
 
-    add [rb + exported_head], EXPORT_IDENTIFIER, [rb - 1]
-    arb -1
-    call find_resolved
+    # move to next exported symbol
+    add [rb + exported_head], 0, [rb + export]
+    add [rb + exported_head], EXPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + exported_head]
 
-    jz  [rb - 3], include_exported_is_new
+    # do we have this symbol already included?
+    add [rb + export], EXPORT_IDENTIFIER, [rb - 1]
+    arb -1
+    call find_symbol
+
+    add [rb - 3], 0, [rb + symbol]
+    jz  [rb + symbol], include_exported_is_new
+
+    # yes, but it should not be exported from any module
+    add [rb + export], EXPORT_MODULE, [rb + tmp]
+    jz  [rb + tmp], include_exported_have_symbol
 
     add err_duplicate_export, 0, [rb]
     call report_error
 
 include_exported_is_new:
-    # move to next exported symbol
-    add [rb + exported_head], 0, [rb + tmp]
-    add [rb + exported_head], EXPORT_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + exported_head]
-
-    # append this symbol to list of resolved symbols
-    add [rb + tmp], 0, [rb - 1]
-    add resolved_head, 0, [rb - 2]
-    add resolved_tail, 0, [rb - 3]
+    # append this export to list of included symbols
+    add [rb + symbol], 0, [rb - 1]
+    add symbol_head, 0, [rb - 2]
+    add symbol_tail, 0, [rb - 3]
     arb -3
     call append_double_linked
 
-    # TODO resolve imported symbol using this newly added exported symbol
+    # we have reused the export as an included symbol
+    add [rb + export], 0, [rb + symbol]
+
+    jz  0, include_exported_loop
+
+include_exported_have_symbol:
+    # update existing symbol with information from the export
+    add [rb + export], EXPORT_MODULE, [ip + 1]
+    add [0], 0, [rb + tmp]
+    add [rb + symbol], EXPORT_MODULE, [ip + 3]
+    add [rb + tmp], 0, [0]
+
+    add [rb + export], EXPORT_ADDRESS, [ip + 1]
+    add [0], 0, [rb + tmp]
+    add [rb + symbol], EXPORT_ADDRESS, [ip + 3]
+    add [rb + tmp], 0, [0]
 
     jz  0, include_exported_loop
 
 include_exported_done:
-    arb 1
+    arb 3
     ret 1
 .ENDFRAME
 
@@ -647,11 +668,11 @@ include_imported:
 .ENDFRAME
 
 ##########
-find_resolved:
+find_symbol:
 .FRAME identifier; head
     arb -1
 
-    add [resolved_head], 0, [rb + head]
+    add [symbol_head], 0, [rb + head]
 
 find_resolved_loop:
     add [rb + head], EXPORT_IDENTIFIER, [rb - 1]
@@ -1358,16 +1379,10 @@ module_tail:
 .SYMBOL IMPORT_FIXUPS_INDEX         6
 .SYMBOL IMPORT_SIZE                 7
 
-# resolved (exported) symbols
-resolved_head:
+# included symbols
+symbol_head:
     db 0
-resolved_tail:
-    db 0
-
-# unresolved (exported) symbols
-unresolved_head:
-    db 0
-unresolved_tail:
+symbol_tail:
     db 0
 
 # 0 = processing object files, 1 = processing libraries
