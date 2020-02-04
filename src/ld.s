@@ -657,13 +657,68 @@ include_exported_done:
 
 ##########
 include_imported:
-.FRAME imported_head; tmp
+.FRAME imported_head; import, symbol, tmp
+    arb -3
+
+include_imported_loop:
+    jz  [rb + imported_head], include_imported_done
+
+    # move to next imported symbol
+    add [rb + imported_head], 0, [rb + import]
+    add [rb + imported_head], IMPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + imported_head]
+
+    # do we have this symbol already included?
+    add [rb + import], IMPORT_IDENTIFIER, [rb - 1]
     arb -1
+    call find_symbol
 
-    #out 'I'
-    #out 10
+    add [rb - 3], 0, [rb + symbol]
+    jnz  [rb + symbol], include_imported_have_symbol
 
-    arb 1
+    # no, create a new included symbol
+    add EXPORT_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc
+    add [rb - 3], 0, [rb + symbol]
+
+    # initialize to zeros
+    add [rb + symbol], 0, [rb - 1]
+    add EXPORT_SIZE, 0, [rb - 2]
+    arb -2
+    call zeromem
+
+    # default symbol address is -1, not 0
+    add [rb + import], EXPORT_ADDRESS, [ip + 3]
+    add -1, 0, [0]
+
+    # save identifier (reusing the existing string)
+    add [rb + import], IMPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb + tmp]
+    add [rb + symbol], EXPORT_IDENTIFIER, [ip + 3]
+    add [rb + tmp], 0, [0]
+    add [rb + import], IMPORT_IDENTIFIER, [ip + 3]
+    add 0, 0, [0]
+
+    # append this symbol to list of included symbols
+    add [rb + symbol], 0, [rb - 1]
+    add symbol_head, 0, [rb - 2]
+    add symbol_tail, 0, [rb - 3]
+    arb -3
+    call append_double_linked
+
+include_imported_have_symbol:
+    # add this import to list of imports for this symbol
+    add [rb + import], 0, [rb - 1]
+    add [rb + symbol], EXPORT_IMPORTS_HEAD, [rb - 2]
+    add [rb + symbol], EXPORT_IMPORTS_TAIL, [rb - 3]
+    arb -3
+    call append_double_linked
+
+    jz  0, include_imported_loop
+
+include_imported_done:
+    arb 3
     ret 1
 .ENDFRAME
 
