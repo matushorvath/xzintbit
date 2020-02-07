@@ -1,5 +1,5 @@
 include ../test.mk
 
-test: skip # TODO enable prep output/$(NAME).input
+test: prep output/$(NAME).o
 
 .PHONY: test
