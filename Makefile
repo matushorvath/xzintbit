@@ -62,6 +62,7 @@ test: install
 clean:
 	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
 	rm -rf test/test.log
+	rm -rf *.tmp
 	rm -rf stage1 stage2
 	rm -rf vm/ic vm/ic.exe vm/ic.o
 

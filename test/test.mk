@@ -12,6 +12,8 @@ ifeq ($(HAVE_COLOR),1)
 	COLOR_GREEN := "$(shell tput setaf 2)"
 endif
 
+default: test
+
 prep:
 	rm -rf $(OUTDIR)
 	mkdir -p $(OUTDIR)
@@ -40,4 +42,4 @@ $(OUTDIR)/%.o: %.s
 clean:
 	rm -rf $(OUTDIR)
 
-.PHONY: prep clean
+.PHONY: default prep clean
