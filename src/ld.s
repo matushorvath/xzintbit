@@ -6,6 +6,8 @@ link:
 .FRAME module, tmp
     arb -2
 
+    call dump_symbols
+
 link_loop:
     # check for more files
     call expect_next_file
@@ -57,9 +59,16 @@ link_loop:
     jz  0, link_loop
 
 link_load_done:
+    call dump_symbols
     call include_needed_modules
+
+    call dump_symbols
     call resolve_symbols
+
+    call dump_symbols
     call print_modules
+
+    call dump_symbols
 
     hlt
 .ENDFRAME
@@ -579,8 +588,8 @@ resolve_symbols:
 resolve_symbols_loop:
     jz  [rb + symbol], resolve_symbols_done
 
-    add [rb + symbol], EXPORT_MODULE, [rb + tmp]
-    jnz [rb + tmp], resolve_symbols_next
+    add [rb + symbol], EXPORT_MODULE, [ip + 1]
+    jnz [0], resolve_symbols_next
 
     add [rb + symbol], 0, [rb - 1]
     arb -1
@@ -603,7 +612,8 @@ resolve_one_symbol:
     arb -2
 
     # find first module that exports this symbol
-    add [rb + symbol], EXPORT_IDENTIFIER, [rb - 1]
+    add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
     call find_exporting_module
 
@@ -620,8 +630,8 @@ resolve_one_symbol_have_module:
     call include_module
 
     # sanity check, including that module should have resolved this symbol
-    add [rb + symbol], EXPORT_MODULE, [rb + tmp]
-    jnz [rb + tmp], resolve_one_symbol_done
+    add [rb + symbol], EXPORT_MODULE, [ip + 1]
+    jnz [0], resolve_one_symbol_done
 
     add err_included_not_resolved, 0, [rb]
     call report_error
@@ -637,12 +647,14 @@ include_module:
     arb -1
 
     # process exported
-    add [rb + module], MODULE_EXPORTS_HEAD, [rb - 1]
+    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
     call include_exported
 
     # process imported
-    add [rb + module], MODULE_IMPORTS_HEAD, [rb - 1]
+    add [rb + module], MODULE_IMPORTS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
     call include_imported
 
@@ -668,7 +680,8 @@ include_exported_loop:
     add [0], 0, [rb + exported_head]
 
     # do we have this symbol already included?
-    add [rb + export], EXPORT_IDENTIFIER, [rb - 1]
+    add [rb + export], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
     add [symbol_head], 0, [rb - 2]
     arb -2
     call find_symbol
@@ -677,8 +690,8 @@ include_exported_loop:
     jz  [rb + symbol], include_exported_is_new
 
     # yes, but it should not be exported from any module
-    add [rb + export], EXPORT_MODULE, [rb + tmp]
-    jz  [rb + tmp], include_exported_have_symbol
+    add [rb + export], EXPORT_MODULE, [ip + 1]
+    jz  [0], include_exported_have_symbol
 
     add err_duplicate_export, 0, [rb]
     call report_error
@@ -729,7 +742,8 @@ include_imported_loop:
     add [0], 0, [rb + imported_head]
 
     # do we have this symbol already included?
-    add [rb + import], IMPORT_IDENTIFIER, [rb - 1]
+    add [rb + import], IMPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
     add [symbol_head], 0, [rb - 2]
     arb -2
     call find_symbol
@@ -826,7 +840,8 @@ find_symbol:
     add [rb + head], 0, [rb + symbol]
 
 find_resolved_loop:
-    add [rb + symbol], EXPORT_IDENTIFIER, [rb - 1]
+    add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
     add [rb + identifier], 0, [rb - 2]
     arb -2
     call strcmp
@@ -1387,6 +1402,93 @@ strcmp_done:
 
     arb 4
     ret 2
+.ENDFRAME
+
+##########
+dump_symbols:
+.FRAME symbol, import, tmp
+    arb -3
+
+    add [symbol_head], 0, [rb + symbol]
+
+dump_symbols_symbols_loop:
+    jz  [rb + symbol], dump_symbols_symbols_done
+
+    add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add dump_symbols_str_export_mod_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + symbol], EXPORT_MODULE, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add dump_symbols_str_export_mod_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + symbol], EXPORT_IMPORTS_HEAD, [ip + 1]
+    add [0], 0, [rb + import]
+
+dump_symbols_imports_loop:
+    jz  [rb + import], dump_symbols_imports_done
+
+    add dump_symbols_str_import_mod_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + import], IMPORT_MODULE, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add dump_symbols_str_import_mod_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + import], IMPORT_FIXUPS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
+    add [rb + import], IMPORT_FIXUPS_TAIL, [ip + 1]
+    add [0], 0, [rb - 2]
+    add [rb + import], IMPORT_FIXUPS_INDEX, [ip + 1]
+    add [0], 0, [rb - 3]
+    arb -3
+    call print_mem
+
+    add dump_symbols_str_import_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + import], IMPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + import]
+
+    jz  0, dump_symbols_imports_loop
+
+dump_symbols_imports_done:
+    add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + symbol]
+
+    jz  0, dump_symbols_symbols_loop
+
+dump_symbols_symbols_done:
+    arb 3
+    ret 0
+
+dump_symbols_str_export_mod_start:
+    db  " (", 0
+dump_symbols_str_export_mod_end:
+    db  "):", 0
+dump_symbols_str_import_mod_start:
+    db  " [", 0
+dump_symbols_str_import_mod_end:
+    db  "] {", 0
+dump_symbols_str_import_end:
+    db  "}", 0
 .ENDFRAME
 
 ##########
