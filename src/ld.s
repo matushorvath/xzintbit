@@ -57,8 +57,8 @@ link_loop:
     jz  0, link_loop
 
 link_load_done:
+    call include_needed_modules
     call resolve_symbols
-
     call print_modules
 
     hlt
@@ -536,40 +536,99 @@ create_export:
 .ENDFRAME
 
 ##########
-resolve_symbols:
+include_needed_modules:
 .FRAME module, tmp
     arb -2
 
-resolve_symbols_restart:
     # process all modules
     add [module_head], 0, [rb + module]
 
-resolve_symbols_loop:
-    jz  [rb + module], resolve_symbols_done
+include_needed_modules_loop:
+    jz  [rb + module], include_needed_modules_done
 
     add [rb + module], MODULE_NEEDED, [ip + 1]
-    jz  [0], resolve_symbols_next
+    jz  [0], include_needed_modules_next
 
     add [rb + module], MODULE_INCLUDED, [ip + 1]
-    jnz [0], resolve_symbols_next
+    jnz [0], include_needed_modules_next
 
     # module is needed, but not yet included
     add [rb + module], 0, [rb - 1]
     arb -1
     call include_module
 
-    # new modules may be needed, process all modules from the start
-    jz  0, resolve_symbols_restart
-
-resolve_symbols_next:
+include_needed_modules_next:
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
-    jz  0, resolve_symbols_loop
+    jz  0, include_needed_modules_loop
+
+include_needed_modules_done:
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+resolve_symbols:
+.FRAME symbol, tmp
+    arb -2
+
+    # process all symbols that don't yet have an exporting module
+    add [symbol_head], 0, [rb + symbol]
+
+resolve_symbols_loop:
+    jz  [rb + symbol], resolve_symbols_done
+
+    add [rb + symbol], EXPORT_MODULE, [rb + tmp]
+    jnz [rb + tmp], resolve_symbols_next
+
+    add [rb + symbol], 0, [rb - 1]
+    arb -1
+    call resolve_one_symbol
+
+resolve_symbols_next:
+    add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + symbol]
+
+    jnz [rb + symbol], resolve_symbols_loop
 
 resolve_symbols_done:
     arb 2
     ret 0
+.ENDFRAME
+
+##########
+resolve_one_symbol:
+.FRAME symbol; module, tmp
+    arb -2
+
+    # find first module that exports this symbol
+    add [rb + symbol], EXPORT_IDENTIFIER, [rb - 1]
+    arb -1
+    call find_exporting_module
+
+    add [rb - 3], 0, [rb + module]
+    jnz [rb + module], resolve_one_symbol_have_module
+
+    add err_export_not_found, 0, [rb]
+    call report_error
+
+resolve_one_symbol_have_module:
+    # include that module
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call include_module
+
+    # sanity check, including that module should have resolved this symbol
+    add [rb + symbol], EXPORT_MODULE, [rb + tmp]
+    jnz [rb + tmp], resolve_one_symbol_done
+
+    add err_included_not_resolved, 0, [rb]
+    call report_error
+
+resolve_one_symbol_done:
+    arb 2
+    ret 1
 .ENDFRAME
 
 ##########
@@ -610,10 +669,11 @@ include_exported_loop:
 
     # do we have this symbol already included?
     add [rb + export], EXPORT_IDENTIFIER, [rb - 1]
-    arb -1
+    add [symbol_head], 0, [rb - 2]
+    arb -2
     call find_symbol
 
-    add [rb - 3], 0, [rb + symbol]
+    add [rb - 4], 0, [rb + symbol]
     jz  [rb + symbol], include_exported_is_new
 
     # yes, but it should not be exported from any module
@@ -670,10 +730,11 @@ include_imported_loop:
 
     # do we have this symbol already included?
     add [rb + import], IMPORT_IDENTIFIER, [rb - 1]
-    arb -1
+    add [symbol_head], 0, [rb - 2]
+    arb -2
     call find_symbol
 
-    add [rb - 3], 0, [rb + symbol]
+    add [rb - 4], 0, [rb + symbol]
     jnz  [rb + symbol], include_imported_have_symbol
 
     # no, create a new included symbol
@@ -723,29 +784,64 @@ include_imported_done:
 .ENDFRAME
 
 ##########
+find_exporting_module:
+.FRAME identifier; module, tmp
+    arb -2
+
+    # process all modules not yet included
+    add [module_head], 0, [rb + module]
+
+find_exporting_module_loop:
+    jz  [rb + module], find_exporting_module_done
+
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jnz [0], find_exporting_module_next
+
+    # is the symbol exported from this module
+    add [rb + identifier], 0, [rb - 1]
+    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 1]
+    add [0], 0, [rb - 2]
+    arb -2
+    call find_symbol
+
+    jnz [rb - 4], find_exporting_module_done
+
+find_exporting_module_next:
+    add [rb + module], MODULE_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + module]
+
+    jz  0, find_exporting_module_loop
+
+find_exporting_module_done:
+    # result is in [rb + module]
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
 find_symbol:
-.FRAME identifier; head
+.FRAME identifier, head; symbol
     arb -1
 
-    add [symbol_head], 0, [rb + head]
+    add [rb + head], 0, [rb + symbol]
 
 find_resolved_loop:
-    add [rb + head], EXPORT_IDENTIFIER, [rb - 1]
+    add [rb + symbol], EXPORT_IDENTIFIER, [rb - 1]
     add [rb + identifier], 0, [rb - 2]
     arb -2
     call strcmp
 
     jz  [rb - 4], find_resolved_done
 
-    add [rb + head], EXPORT_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + head]
+    add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + symbol]
 
-    jnz [rb + head], find_resolved_loop
+    jnz [rb + symbol], find_resolved_loop
 
 find_resolved_done:
-    # result is in [rb + head]
+    # result is in [rb + symbol]
     arb 1
-    ret 1
+    ret 2
 .ENDFRAME
 
 .SYMBOL DOUBLE_LINKED_NEXT_PTR 0
@@ -1469,6 +1565,10 @@ err_max_identifier_length:
     db  "Maximum identifier length exceeded", 0
 err_duplicate_export:
     db  "Duplicate exported symbol", 0
+err_export_not_found:
+    db  "Exported symbol not found", 0
+err_included_not_resolved:
+    db  "Symbol not resolved by including its module", 0
 
 ##########
     ds  50, 0
