@@ -39,7 +39,11 @@ $(OUTDIR)/%.o: %.s
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
 
+skip:
+	@echo Testing $(NAME): $(COLOR_RED)SKIPPED$(COLOR_NORMAL) >> $(LOGFILE)
+	false
+
 clean:
 	rm -rf $(OUTDIR)
 
-.PHONY: default prep clean
+.PHONY: default prep skip clean
