@@ -137,6 +137,7 @@ int64_t get_input() {
 
 void set_output(int64_t val) {
     putc(val, stdout);
+    fflush(stdout);
 }
 
 int main(int argc, char **argv) {
