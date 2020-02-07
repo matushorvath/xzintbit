@@ -19,28 +19,28 @@ prep:
 	mkdir -p $(OUTDIR)
 
 $(OUTDIR)/%.input: $(OUTDIR)/%.o
-	echo -n 'Linking $(NAME): ' >> $(LOGFILE)
+	echo -n '$(NAME): linking ' >> $(LOGFILE)
 	echo .$$ | cat $^ - | $(ICLD) > $@ 2> /dev/null || true
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
 
 $(OUTDIR)/%.a: $(OUTDIR)/%.o
-	echo -n 'Archiving $(NAME): ' >> $(LOGFILE)
+	echo -n '$(NAME): archiving ' >> $(LOGFILE)
 	echo .L | cat - $^ > $@ || true
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
 
 $(OUTDIR)/%.o: %.s
-	echo -n 'Assembling $(NAME): ' >> $(LOGFILE)
+	echo -n '$(NAME): assembling ' >> $(LOGFILE)
 	$(ICAS) < $< > $@ 2> /dev/null || true
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
 
 skip:
-	@echo Testing $(NAME): $(COLOR_RED)SKIPPED$(COLOR_NORMAL) >> $(LOGFILE)
+	@echo $(NAME): $(COLOR_RED)SKIPPED$(COLOR_NORMAL) >> $(LOGFILE)
 	false
 
 clean:
