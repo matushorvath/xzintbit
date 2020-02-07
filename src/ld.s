@@ -613,8 +613,10 @@ resolve_one_symbol:
     add [rb - 3], 0, [rb + module]
     jnz [rb + module], resolve_one_symbol_have_module
 
-    add err_export_not_found, 0, [rb]
-    call report_error
+    add err_export_not_found, 0, [rb + 1]
+    add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb]
+    call report_error_with_symbol
 
 resolve_one_symbol_have_module:
     # include that module
@@ -626,8 +628,10 @@ resolve_one_symbol_have_module:
     add [rb + symbol], EXPORT_MODULE, [ip + 1]
     jnz [0], resolve_one_symbol_done
 
-    add err_included_not_resolved, 0, [rb]
-    call report_error
+    add err_included_not_resolved, 0, [rb + 1]
+    add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb]
+    call report_error_with_symbol
 
 resolve_one_symbol_done:
     arb 2
@@ -686,19 +690,21 @@ include_exported_loop:
     add [rb + symbol], EXPORT_MODULE, [ip + 1]
     jz  [0], include_exported_have_symbol
 
-    add err_duplicate_export, 0, [rb]
-    call report_error
+    add err_duplicate_export, 0, [rb + 1]
+    add [rb + export], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb]
+    call report_error_with_symbol
 
 include_exported_is_new:
+    # reuse the export as an included symbol
+    add [rb + export], 0, [rb + symbol]
+
     # append this export to list of included symbols
     add [rb + symbol], 0, [rb - 1]
     add symbol_head, 0, [rb - 2]
     add symbol_tail, 0, [rb - 3]
     arb -3
     call append_double_linked
-
-    # we have reused the export as an included symbol
-    add [rb + export], 0, [rb + symbol]
 
     jz  0, include_exported_loop
 
@@ -1126,6 +1132,41 @@ report_error_msg_column:
     db ", column ", 0
 report_error_msg_end:
     db ")", 0
+.ENDFRAME
+
+##########
+report_error_with_symbol:
+.FRAME message, identifier;
+    add report_error_with_symbol_msg_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + message], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add report_error_with_symbol_msg_symbol, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    out 10
+
+    # instead of halting, we will read all inputs, which hopefully
+    # will cause the intcode vm to crash, indicating a problem
+    # this is the only way we can return a non-zero result from intcode
+
+report_error_with_symbol_loop:
+    in  [0]
+    jz  0, report_error_with_symbol_loop
+
+report_error_with_symbol_msg_start:
+    db "Error: ", 0
+report_error_with_symbol_msg_symbol:
+    db ": ", 0
 .ENDFRAME
 
 ##########
