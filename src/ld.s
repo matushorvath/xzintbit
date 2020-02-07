@@ -6,8 +6,6 @@ link:
 .FRAME module, tmp
     arb -2
 
-    call dump_symbols
-
 link_loop:
     # check for more files
     call expect_next_file
@@ -59,16 +57,11 @@ link_loop:
     jz  0, link_loop
 
 link_load_done:
-    call dump_symbols
     call include_needed_modules
-
-    call dump_symbols
     call resolve_symbols
-
-    call dump_symbols
     call print_modules
 
-    call dump_symbols
+    #call dump_symbols
 
     hlt
 .ENDFRAME
@@ -690,7 +683,7 @@ include_exported_loop:
     jz  [rb + symbol], include_exported_is_new
 
     # yes, but it should not be exported from any module
-    add [rb + export], EXPORT_MODULE, [ip + 1]
+    add [rb + symbol], EXPORT_MODULE, [ip + 1]
     jz  [0], include_exported_have_symbol
 
     add err_duplicate_export, 0, [rb]
@@ -733,13 +726,10 @@ include_imported:
 .FRAME imported_head; import, symbol, tmp
     arb -3
 
-include_imported_loop:
-    jz  [rb + imported_head], include_imported_done
-
-    # move to next imported symbol
     add [rb + imported_head], 0, [rb + import]
-    add [rb + imported_head], IMPORT_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + imported_head]
+
+include_imported_loop:
+    jz  [rb + import], include_imported_done
 
     # do we have this symbol already included?
     add [rb + import], IMPORT_IDENTIFIER, [ip + 1]
@@ -749,7 +739,7 @@ include_imported_loop:
     call find_symbol
 
     add [rb - 4], 0, [rb + symbol]
-    jnz  [rb + symbol], include_imported_have_symbol
+    jnz [rb + symbol], include_imported_have_symbol
 
     # no, create a new included symbol
     add EXPORT_SIZE, 0, [rb - 1]
@@ -764,7 +754,7 @@ include_imported_loop:
     call zeromem
 
     # default symbol address is -1, not 0
-    add [rb + import], EXPORT_ADDRESS, [ip + 3]
+    add [rb + symbol], EXPORT_ADDRESS, [ip + 3]
     add -1, 0, [0]
 
     # save identifier (reusing the existing string)
@@ -775,7 +765,7 @@ include_imported_loop:
     add [rb + import], IMPORT_IDENTIFIER, [ip + 3]
     add 0, 0, [0]
 
-    # append this symbol to list of included symbols
+    # append this symbol to list of symbols
     add [rb + symbol], 0, [rb - 1]
     add symbol_head, 0, [rb - 2]
     add symbol_tail, 0, [rb - 3]
@@ -783,8 +773,13 @@ include_imported_loop:
     call append_double_linked
 
 include_imported_have_symbol:
+    # move to next imported symbol, saving the current one in [rb + tmp]
+    add [rb + import], 0, [rb + tmp]
+    add [rb + import], IMPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + import]
+
     # add this import to list of imports for this symbol
-    add [rb + import], 0, [rb - 1]
+    add [rb + tmp], 0, [rb - 1]
     add [rb + symbol], EXPORT_IMPORTS_HEAD, [rb - 2]
     add [rb + symbol], EXPORT_IMPORTS_TAIL, [rb - 3]
     arb -3
@@ -840,6 +835,8 @@ find_symbol:
     add [rb + head], 0, [rb + symbol]
 
 find_resolved_loop:
+    jz  [rb + symbol], find_resolved_done
+
     add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
     add [rb + identifier], 0, [rb - 2]
@@ -1406,9 +1403,25 @@ strcmp_done:
 
 ##########
 dump_symbols:
-.FRAME symbol, import, tmp
-    arb -3
+.FRAME module, symbol, import, tmp
+    arb -4
 
+    add [module_head], 0, [rb + module]
+
+dump_symbols_modules_loop:
+    jz  [rb + module], dump_symbols_modules_done
+
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call print_num
+    out ' '
+
+    add [rb + module], MODULE_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + module]
+
+    jz  0, dump_symbols_modules_loop
+
+dump_symbols_modules_done:
     add [symbol_head], 0, [rb + symbol]
 
 dump_symbols_symbols_loop:
@@ -1473,10 +1486,12 @@ dump_symbols_imports_done:
     add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
+    out 10
+
     jz  0, dump_symbols_symbols_loop
 
 dump_symbols_symbols_done:
-    arb 3
+    arb 4
     ret 0
 
 dump_symbols_str_export_mod_start:
