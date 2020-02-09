@@ -417,6 +417,7 @@ parse_call:
     arb -1
     call set_mem
 
+    # TODO this needs to be relocated
     add [current_address], 9, [rb - 1]
     arb -1
     call set_mem
@@ -1255,6 +1256,7 @@ parse_value_after_global:
 
 parse_value_ip:
     # [ip + 123] behaves similarly to [symbol + 123]
+    # TODO this needs to be relocated
     add 1, 0, [rb + has_symbol]
     add [current_address], [rb + instruction_length], [rb + result]
 
