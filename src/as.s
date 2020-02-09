@@ -886,7 +886,7 @@ parse_dir_frame_offset_loop:
     jz  [rb + record], parse_dir_frame_offset_done
 
     # read block index field
-    add [rb + record], 49, [ip + 1]
+    add [rb + record], FRAME_BLOCK, [ip + 1]
     add [0], 0, [rb + record_block]
 
     # for records where block matches the block we are processing, set offset
@@ -894,7 +894,7 @@ parse_dir_frame_offset_loop:
     jz  [rb + tmp], parse_dir_frame_offset_after_update
 
     # write offset field
-    add [rb + record], 48, [ip + 3]
+    add [rb + record], FRAME_OFFSET, [ip + 3]
     add [rb + offset], 0, [0]
 
     # increment offset for next symbol
@@ -902,7 +902,7 @@ parse_dir_frame_offset_loop:
 
 parse_dir_frame_offset_after_update:
     # move to next record
-    add [rb + record], 0, [ip + 1]
+    add [rb + record], FRAME_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
 
     jz  0, parse_dir_frame_offset_loop
@@ -1223,7 +1223,7 @@ parse_value_identifier:
 
 parse_value_frame_symbol_allowed:
     # read its offset
-    add [rb - 3], 48, [ip + 1]
+    add [rb - 3], FRAME_OFFSET, [ip + 1]
     add [0], 0, [rb + result]
 
     jz  0, parse_value_after_global
@@ -2224,7 +2224,7 @@ find_global_symbol_loop:
 
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
-    add [rb + record], 1, [rb - 2]
+    add [rb + record], GLOBAL_IDENTIFIER, [rb - 2]
     arb -2
     call strcmp
 
@@ -2232,7 +2232,7 @@ find_global_symbol_loop:
     jz  [rb - 4], find_global_symbol_done
 
     # move to next record
-    add [rb + record], 0, [ip + 1]
+    add [rb + record], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
 
     jz  0, find_global_symbol_loop
@@ -2248,31 +2248,31 @@ add_global_symbol:
     arb -1
 
     # allocate a block
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add GLOBAL_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol
-    add [rb + record], 0, [ip + 3]
+    add [rb + record], GLOBAL_NEXT_PTR, [ip + 3]
     add [global_head], 0, [0]
 
     # store the identifier
     add [rb + identifier], 0, [rb - 1]
-    add [rb + record], 1, [rb - 2]
+    add [rb + record], GLOBAL_IDENTIFIER, [rb - 2]
     arb -2
     call strcpy
 
     # set the symbol as not exported
-    add [rb + record], 47, [ip + 3]
+    add [rb + record], GLOBAL_TYPE, [ip + 3]
     add 0, 0, [0]
 
     # set address to -1, so we can detect when the address is set
-    add [rb + record], 48, [ip + 3]
+    add [rb + record], GLOBAL_ADDRESS, [ip + 3]
     add -1, 0, [0]
 
     # set fixup head to 0
-    add [rb + record], 49, [ip + 3]
+    add [rb + record], GLOBAL_FIXUPS_HEAD, [ip + 3]
     add 0, 0, [0]
 
     # set new symbol head
@@ -2302,34 +2302,33 @@ add_fixup:
 
 add_fixup_have_symbol:
     # allocate a block
-    # TODO use smaller blocks, or collect multiple fixups in one block
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add FIXUP_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + fixup]
 
     # store the address of the fixup
-    add [rb + fixup], 1, [ip + 3]
+    add [rb + fixup], FIXUP_ADDRESS, [ip + 3]
     add [rb + address], 0, [0]
 
     # store line number
-    add [rb + fixup], 2, [ip + 3]
+    add [rb + fixup], FIXUP_LINE_NUM, [ip + 3]
     add [rb + line_num], 0, [0]
 
     # store column number
-    add [rb + fixup], 3, [ip + 3]
+    add [rb + fixup], FIXUP_COLUMN_NUM, [ip + 3]
     add [rb + column_num], 0, [0]
 
     # read current fixup list head
-    add [rb + symbol], 49, [ip + 1]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + tmp]
 
     # set pointer to next fixup
-    add [rb + fixup], 0, [ip + 3]
+    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 3]
     add [rb + tmp], 0, [0]
 
     # set new fixup list head
-    add [rb + symbol], 49, [ip + 3]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 3]
     add [rb + fixup], 0, [0]
 
     arb 3
@@ -2358,7 +2357,7 @@ set_global_symbol_address:
 
 set_global_symbol_address_check_duplicate:
     # check for duplicate symbol definitions
-    add [rb + symbol], 48, [ip + 1]
+    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
     add [0], 0, [rb + tmp]
 
     eq  [rb + tmp], -1, [rb + tmp]
@@ -2369,7 +2368,7 @@ set_global_symbol_address_check_duplicate:
 
 set_global_symbol_address_have_symbol:
     # store the address of the symbol
-    add [rb + symbol], 48, [ip + 3]
+    add [rb + symbol], GLOBAL_ADDRESS, [ip + 3]
     add [rb + address], 0, [0]
 
     arb 2
@@ -2398,7 +2397,7 @@ set_global_symbol_type:
 
 set_global_symbol_type_check:
     # check for symbol already imported/exported
-    add [rb + symbol], 47, [ip + 1]
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     add [0], 0, [rb + tmp]
 
     jz  [rb + tmp], set_global_symbol_type_have_symbol
@@ -2428,7 +2427,7 @@ set_global_symbol_type_error_exported:
 
 set_global_symbol_type_have_symbol:
     # set symbol type
-    add [rb + symbol], 47, [ip + 3]
+    add [rb + symbol], GLOBAL_TYPE, [ip + 3]
     add [rb + type], 0, [0]
 
     arb 2
@@ -2448,7 +2447,7 @@ find_frame_symbol_loop:
 
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
-    add [rb + record], 1, [rb - 2]
+    add [rb + record], FRAME_IDENTIFIER, [rb - 2]
     arb -2
     call strcmp
 
@@ -2456,7 +2455,7 @@ find_frame_symbol_loop:
     jz  [rb - 4], find_frame_symbol_done
 
     # move to next record
-    add [rb + record], 0, [ip + 1]
+    add [rb + record], FRAME_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
 
     jz  0, find_frame_symbol_loop
@@ -2472,23 +2471,23 @@ add_frame_symbol:
     arb -1
 
     # allocate a block
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add FRAME_SIZE, 0, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol
-    add [rb + record], 0, [ip + 3]
+    add [rb + record], FRAME_NEXT_PTR, [ip + 3]
     add [frame_head], 0, [0]
 
     # store the identifier
     add [rb + identifier], 0, [rb - 1]
-    add [rb + record], 1, [rb - 2]
+    add [rb + record], FRAME_IDENTIFIER, [rb - 2]
     arb -2
     call strcpy
 
     # set block index
-    add [rb + record], 49, [ip + 3]
+    add [rb + record], FRAME_BLOCK, [ip + 3]
     add [rb + block_index], 0, [0]
 
     # set new symbol head
@@ -2513,7 +2512,7 @@ reset_frame_symbol_loop:
     add [rb + record], 0, [rb + tmp]
 
     # move to next record
-    add [rb + record], 0, [ip + 1]
+    add [rb + record], FRAME_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
 
     # free current record
@@ -2725,12 +2724,12 @@ do_fixups_symbol:
     jz  [rb + symbol], do_fixups_done
 
     # special handling of imported symbols
-    add [rb + symbol], 47, [ip + 1]
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
     jnz [rb + tmp], do_fixups_symbol_done
 
     # each non-imported symbol needs to have an address
-    add [rb + symbol], 48, [ip + 1]
+    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
     add [0], 0, [rb + symbol_address]
 
     eq  [rb + symbol_address], -1, [rb + tmp]
@@ -2742,7 +2741,7 @@ do_fixups_symbol:
 
 do_fixups_have_address:
     # iterate through all fixups for this symbol
-    add [rb + symbol], 49, [ip + 1]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
 
 do_fixups_fixup:
@@ -2750,7 +2749,7 @@ do_fixups_fixup:
     jz  [rb + fixup], do_fixups_symbol_done
 
     # read fixup address
-    add [rb + fixup], 1, [ip + 1]
+    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
     add [0], 0, [rb + fixup_address]
 
     # find out which memory block should be updated
@@ -2766,14 +2765,14 @@ do_fixups_fixup:
     call inc_mem_at
 
     # move to next fixup
-    add [rb + fixup], 0, [ip + 1]
+    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + fixup]
 
     jz  0, do_fixups_fixup
 
 do_fixups_symbol_done:
     # move to next symbol
-    add [rb + symbol], 0, [ip + 1]
+    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
     jz  0, do_fixups_symbol
@@ -2800,12 +2799,12 @@ print_imports_symbol:
     jz  [rb + symbol], print_imports_done
 
     # check symbol type
-    add [rb + symbol], 47, [ip + 1]
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
     jz  [rb + tmp], print_imports_symbol_done
 
     # imported symbols must not have an address
-    add [rb + symbol], 48, [ip + 1]
+    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
     add [0], 0, [rb + symbol_address]
 
     eq  [rb + symbol_address], -1, [rb + tmp]
@@ -2817,7 +2816,7 @@ print_imports_symbol:
 
 print_imports_no_address:
     # print the identifier
-    add [rb + symbol], 1, [rb - 1]
+    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
     arb -1
     call print_str
 
@@ -2825,14 +2824,14 @@ print_imports_no_address:
     out ':'
 
     # iterate through all fixups for this symbol
-    add [rb + symbol], 49, [ip + 1]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
 
     jz  [rb + fixup], print_imports_symbol_line_end
 
 print_imports_fixup:
     # read fixup address
-    add [rb + fixup], 1, [ip + 1]
+    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
     add [0], 0, [rb + fixup_address]
 
     # print the fixup
@@ -2841,7 +2840,7 @@ print_imports_fixup:
     call print_num
 
     # move to next fixup
-    add [rb + fixup], 0, [ip + 1]
+    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + fixup]
 
     # do we have more fixups for this symbol?
@@ -2857,7 +2856,7 @@ print_imports_symbol_line_end:
 
 print_imports_symbol_done:
     # move to next symbol
-    add [rb + symbol], 0, [ip + 1]
+    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
     jz  0, print_imports_symbol
@@ -2884,12 +2883,12 @@ print_exports_symbol:
     jz  [rb + symbol], print_exports_done
 
     # check symbol type
-    add [rb + symbol], 47, [ip + 1]
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 2, [rb + tmp]
     jz  [rb + tmp], print_exports_symbol_done
 
     # exported symbols must have an address
-    add [rb + symbol], 48, [ip + 1]
+    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
     add [0], 0, [rb + symbol_address]
 
     eq  [rb + symbol_address], -1, [rb + tmp]
@@ -2901,14 +2900,14 @@ print_exports_symbol:
 
 print_exports_have_address:
     # print the identifier
-    add [rb + symbol], 1, [rb - 1]
+    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
     arb -1
     call print_str
 
     out ':'
 
     # print the address
-    add [rb + symbol], 48, [ip + 1]
+    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
     call print_num
@@ -2917,7 +2916,7 @@ print_exports_have_address:
 
 print_exports_symbol_done:
     # move to next symbol
-    add [rb + symbol], 0, [ip + 1]
+    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
     jz  0, print_exports_symbol
@@ -2945,13 +2944,15 @@ print_reloc_symbol:
     # do we have more symbols?
     jz  [rb + symbol], print_reloc_done
 
-    # check symbol type (local or exported)
-    add [rb + symbol], 47, [ip + 1]
+    # check symbol type (skip imported and constants)
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
+    jnz [rb + tmp], print_reloc_symbol_done
+    eq  [0], 3, [rb + tmp]
     jnz [rb + tmp], print_reloc_symbol_done
 
     # iterate through all fixups for this symbol
-    add [rb + symbol], 49, [ip + 1]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
 
     jz  [rb + fixup], print_reloc_symbol_done
@@ -2968,7 +2969,7 @@ print_reloc_skip_comma:
     add 0, 0, [rb + first]
 
     # read fixup address
-    add [rb + fixup], 1, [ip + 1]
+    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
     add [0], 0, [rb + fixup_address]
 
     # print the fixup
@@ -2977,14 +2978,14 @@ print_reloc_skip_comma:
     call print_num
 
     # move to next fixup
-    add [rb + fixup], 0, [ip + 1]
+    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + fixup]
 
     jz  0, print_reloc_fixup
 
 print_reloc_symbol_done:
     # move to next symbol
-    add [rb + symbol], 0, [ip + 1]
+    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
     jz  0, print_reloc_symbol
@@ -3008,16 +3009,16 @@ report_symbol_error:
     add 0, 0, [rb + column_num]
 
     # get first fixup for this symbol
-    add [rb + symbol], 49, [ip + 1]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
     jz  [rb + fixup], report_symbol_error_after_location
 
     # read fixup line num
-    add [rb + fixup], 2, [ip + 1]
+    add [rb + fixup], FIXUP_LINE_NUM, [ip + 1]
     add [0], 0, [rb + line_num]
 
     # read fixup column num
-    add [rb + fixup], 3, [ip + 1]
+    add [rb + fixup], FIXUP_COLUMN_NUM, [ip + 1]
     add [0], 0, [rb + column_num]
 
 report_symbol_error_after_location:
@@ -3240,27 +3241,30 @@ token_value:
 .SYMBOL IDENTIFIER_LENGTH 45
 
 # global symbol record layout:
-# 0: pointer to next symbol
-# 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
-# 47: 0 - local symbol, 1 - imported symbol, 2 - exported symbol, 3 - constant
-# 48: symbol value (address)
-# 49: linked list of fixups
+.SYMBOL GLOBAL_NEXT_PTR             0
+.SYMBOL GLOBAL_IDENTIFIER           1           # 1-IDENTIFIER_LENGTH; zero-terminated
+.SYMBOL GLOBAL_TYPE                 47          # 0 - local, 1 - imported, 2 - exported, 3 - constant
+.SYMBOL GLOBAL_ADDRESS              48
+.SYMBOL GLOBAL_FIXUPS_HEAD          49
+.SYMBOL GLOBAL_SIZE                 50
 
 # fixup record layout:
-# 0: pointer to next fixup
-# 1: fixup address
-# 2: fixup line number
-# 3: fixup column number
+.SYMBOL FIXUP_NEXT_PTR              0
+.SYMBOL FIXUP_ADDRESS               1
+.SYMBOL FIXUP_LINE_NUM              2
+.SYMBOL FIXUP_COLUMN_NUM            3
+.SYMBOL FIXUP_SIZE                  4
 
 # head of the linked list of global symbols
 global_head:
     db  0
 
 # frame symbol record layout:
-# 0: pointer to next symbol
-# 1-IDENTIFIER_LENGTH: zero-terminated symbol identifier
-# 48: symbol value (offset)
-# 49: block index (.FRAME block0; block1; block2)
+.SYMBOL FRAME_NEXT_PTR              0
+.SYMBOL FRAME_IDENTIFIER            1           # 1-IDENTIFIER_LENGTH; zero-terminated
+.SYMBOL FRAME_OFFSET                48          # symbol value
+.SYMBOL FRAME_BLOCK                 49          # block index (.FRAME block0; block1; block2)
+.SYMBOL FRAME_SIZE                  50
 
 # head of the linked list of frame symbols
 frame_head:
