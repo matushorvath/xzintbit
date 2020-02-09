@@ -2945,10 +2945,10 @@ print_reloc_symbol:
     # do we have more symbols?
     jz  [rb + symbol], print_reloc_done
 
-    # check symbol type
+    # check symbol type (local or exported)
     add [rb + symbol], 47, [ip + 1]
-    eq  [0], 0, [rb + tmp]
-    jz  [rb + tmp], print_reloc_symbol_done
+    eq  [0], 1, [rb + tmp]
+    jnz [rb + tmp], print_reloc_symbol_done
 
     # iterate through all fixups for this symbol
     add [rb + symbol], 49, [ip + 1]

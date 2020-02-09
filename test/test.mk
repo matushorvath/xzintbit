@@ -47,3 +47,5 @@ clean:
 	rm -rf $(OUTDIR)
 
 .PHONY: default prep skip clean
+
+.SECONDARY:

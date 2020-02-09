@@ -59,6 +59,7 @@ link_loop:
 link_load_done:
     call include_needed_modules
     call resolve_symbols
+    call relocate
     call print_modules
 
     #call dump_symbols
@@ -260,8 +261,10 @@ create_module_done:
 
 ##########
 load_code:
-.FRAME module; byte, char, tmp
-    arb -3
+.FRAME module; byte, char, length, tmp
+    arb -4
+
+    add 0, 0, [rb + length]
 
 load_code_loop:
     call read_number
@@ -276,6 +279,8 @@ load_code_loop:
     arb -4
     call set_mem
 
+    add [rb + length], 1, [rb + length]
+
     # next character should be comma or line end
     eq  [rb + char], ',', [rb + tmp]
     jnz [rb + tmp], load_code_loop
@@ -286,7 +291,10 @@ load_code_loop:
     call report_error
 
 load_code_done:
-    arb 3
+    add [rb + module], MODULE_CODE_LENGTH, [ip + 3]
+    add [rb + length], 0, [0]
+
+    arb 4
     ret 1
 .ENDFRAME
 
@@ -862,6 +870,102 @@ find_resolved_done:
     ret 2
 .ENDFRAME
 
+##########
+relocate:
+.FRAME module, address, tmp
+    arb -3
+
+    add [module_head], 0, [rb + module]
+    add 0, 0, [rb + address]
+
+relocate_loop:
+    jz  [rb + module], relocate_done
+
+    # skip modules that are not included
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jz  [0], relocate_next
+
+    # set module address
+    add [rb + module], MODULE_ADDRESS, [ip + 3]
+    add [rb + address], 0, [0]
+
+    # relocate the module
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call relocate_module
+
+    # add module size to the address
+    add [rb + module], MODULE_CODE_LENGTH, [ip + 1]
+    add [0], [rb + address], [rb + address]
+
+relocate_next:
+    add [rb + module], MODULE_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + module]
+
+    jz  0, relocate_loop
+
+ relocate_done:
+    arb 3
+    ret 0
+.ENDFRAME
+
+##########
+relocate_module:
+.FRAME module; buffer, limit, index, tmp
+    arb -4
+
+    add [rb + module], MODULE_RELOC_HEAD, [ip + 1]
+    add [0], 0, [rb + buffer]
+
+relocate_module_block:
+    jz  [rb + buffer], relocate_module_done
+    add 1, 0, [rb + index]
+
+    add [rb + module], MODULE_CODE_INDEX, [ip + 1]
+    add [0], 0, [rb - 3]
+
+    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
+    add MEM_BLOCK_SIZE, 0, [rb + limit]
+    add [rb + module], MODULE_RELOC_TAIL, [ip + 1]
+    eq  [0], [rb + buffer], [rb + tmp]
+    jz  [rb + tmp], relocate_module_byte
+
+    add [rb + module], MODULE_RELOC_INDEX, [ip + 1]
+    add [0], 0, [rb + limit]
+
+relocate_module_byte:
+    lt  [rb + index], [rb + limit], [rb + tmp]
+    jz  [rb + tmp], relocate_module_block_done
+
+    # increment memory at relocation address by module address
+    add [rb + module], MODULE_CODE_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
+    add [rb + module], MODULE_CODE_TAIL, [ip + 1]
+    add [0], 0, [rb - 2]
+    add [rb + module], MODULE_CODE_INDEX, [ip + 1]
+    add [0], 0, [rb - 3]
+    add [rb + buffer], [rb + index], [ip + 1]
+    add [0], 0, [rb - 4]
+    add [rb + module], MODULE_ADDRESS, [ip + 1]
+    add [0], 0, [rb - 5]
+    arb -5
+    call inc_mem
+
+    add [rb + index], 1, [rb + index]
+    jz  0, relocate_module_byte
+
+relocate_module_block_done:
+    # next block in linked list
+    add [rb + buffer], 0, [ip + 1]
+    add [0], 0, [rb + buffer]
+
+    jz  0, relocate_module_block
+
+relocate_module_done:
+    arb 4
+    ret 1
+.ENDFRAME
+
 .SYMBOL DOUBLE_LINKED_NEXT_PTR 0
 .SYMBOL DOUBLE_LINKED_PREV_PTR 1
 
@@ -1019,6 +1123,100 @@ set_mem_have_space:
 
     arb 2
     ret 4
+.ENDFRAME
+
+##########
+inc_mem:
+.FRAME head, tail, tail_index, address, increment; index, offset, tmp
+    arb -3
+
+    # find out which memory block should be updated
+    add [rb + address], 0, [rb - 1]
+    arb -1
+    call calc_mem
+
+    add [rb - 3], 0, [rb + index]
+    add [rb - 4], 0, [rb + offset]
+
+    # update the memory
+    add [rb + head], 0, [rb - 1]
+    add [rb + tail], 0, [rb - 2]
+    add [rb + tail_index], 0, [rb - 3]
+    add [rb + index], 0, [rb - 4]
+    add [rb + offset], 0, [rb - 5]
+    add [rb + increment], 0, [rb - 6]
+    arb -6
+    call inc_mem_internal
+
+    arb 3
+    ret 5
+.ENDFRAME
+
+##########
+calc_mem:
+.FRAME address; index, offset, tmp
+    arb -3
+
+    # calculate index = address / (MEM_BLOCK_SIZE - 1) ; offset = address % (MEM_BLOCK_SIZE - 1) + 1
+    add 0, 0, [rb + index]
+    add [rb + address], 0, [rb + offset]
+
+calc_mem_loop:
+    lt  [rb + offset], MEM_BLOCK_SIZE - 1, [rb + tmp]
+    jnz [rb + tmp], calc_mem_done
+
+    mul MEM_BLOCK_SIZE - 1, -1, [rb + tmp]
+    add [rb + offset], [rb + tmp], [rb + offset]
+    add [rb + index], 1, [rb + index]
+
+    jz  0, calc_mem_loop
+
+calc_mem_done:
+    # data in memory blocks starts at offset 1
+    add [rb + offset], 1, [rb + offset]
+
+    arb 3
+    ret 1
+.ENDFRAME
+
+##########
+inc_mem_internal:
+.FRAME head, tail, tail_index, index, offset, increment; buffer, tmp
+    arb -2
+
+    # increase memory location in index-th memory block, location offset
+    # assume this does not require creating new blocks
+    # TODO validate against tail and tail_index
+
+    add [rb + head], 0, [rb + buffer]
+
+inc_mem_at_loop:
+    # any more blocks?
+    jnz [rb + buffer], inc_mem_at_have_block
+
+    add err_invalid_address, 0, [rb]
+    call report_error
+
+inc_mem_at_have_block:
+    # is this the block we need?
+    jz  [rb + index], inc_mem_at_this_block
+    add [rb + index], -1, [rb + index]
+
+    # next block in linked list
+    add [rb + buffer], 0, [ip + 1]
+    add [0], 0, [rb + buffer]
+
+    jz  0, inc_mem_at_loop
+
+inc_mem_at_this_block:
+    # set the value
+    add [rb + buffer], [rb + offset], [ip + 1]
+    add [0], 0, [rb + tmp]
+    add [rb + buffer], [rb + offset], [ip + 3]
+    add [rb + tmp], [rb + increment], [0]
+
+    arb 2
+    ret 6
 .ENDFRAME
 
 ##########
@@ -1652,15 +1850,16 @@ heap_end:
 .SYMBOL MODULE_CODE_HEAD            1
 .SYMBOL MODULE_CODE_TAIL            2
 .SYMBOL MODULE_CODE_INDEX           3
-.SYMBOL MODULE_RELOC_HEAD           4
-.SYMBOL MODULE_RELOC_TAIL           5
-.SYMBOL MODULE_RELOC_INDEX          6
-.SYMBOL MODULE_IMPORTS_HEAD         7
-.SYMBOL MODULE_EXPORTS_HEAD         8
-.SYMBOL MODULE_NEEDED               9           # 0 = not needed, 1 = needed
-.SYMBOL MODULE_INCLUDED             10          # 0 = not included, 1 = included
-.SYMBOL MODULE_ADDRESS              11
-.SYMBOL MODULE_SIZE                 12
+.SYMBOL MODULE_CODE_LENGTH          4
+.SYMBOL MODULE_RELOC_HEAD           5
+.SYMBOL MODULE_RELOC_TAIL           6
+.SYMBOL MODULE_RELOC_INDEX          7
+.SYMBOL MODULE_IMPORTS_HEAD         8
+.SYMBOL MODULE_EXPORTS_HEAD         9
+.SYMBOL MODULE_NEEDED               10          # 0 = not needed, 1 = needed
+.SYMBOL MODULE_INCLUDED             11          # 0 = not included, 1 = included
+.SYMBOL MODULE_ADDRESS              12
+.SYMBOL MODULE_SIZE                 13
 
 # loaded modules
 module_head:
@@ -1727,6 +1926,8 @@ err_export_not_found:
     db  "Exported symbol not found", 0
 err_included_not_resolved:
     db  "Symbol not resolved by including its module", 0
+err_invalid_address:
+    db  "Invalid memory address", 0
 
 ##########
     ds  50, 0
