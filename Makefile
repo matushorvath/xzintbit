@@ -12,19 +12,15 @@ vm/ic: vm/ic.o
 # Build stage 1
 .PHONY: build-stage1
 build-stage1:
-	ICAS=$(abspath bin/as.input) \
-	ICLD=$(abspath bin/ld.input) \
-	BINDIR=$(abspath stage1) \
-	OBJDIR=$(abspath stage1) \
+	ICAS=$(abspath bin/as.input) ICLD=$(abspath bin/ld.input) \
+	BINDIR=$(abspath stage1) OBJDIR=$(abspath stage1) \
 	make -C src build
 
 # Build stage 2
 .PHONY: build-stage2
 build-stage2:
-	ICAS=$(abspath stage1/as.input) \
-	ICLD=$(abspath stage1/ld.input) \
-	BINDIR=$(abspath stage2) \
-	OBJDIR=$(abspath stage2) \
+	ICAS=$(abspath stage1/as.input) ICLD=$(abspath stage1/ld.input) \
+	BINDIR=$(abspath stage2) OBJDIR=$(abspath stage2) \
 	make -C src build
 
 # Compare and install
