@@ -2948,6 +2948,7 @@ print_reloc_symbol:
     add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
     jnz [rb + tmp], print_reloc_symbol_done
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 3, [rb + tmp]
     jnz [rb + tmp], print_reloc_symbol_done
 
