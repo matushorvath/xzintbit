@@ -25,7 +25,7 @@ test-prep:
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	echo -n '$(NAME): linking ' >> $(LOGFILE)
-	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ 2> /dev/null || true
+	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
@@ -39,7 +39,7 @@ $(BINDIR)/%.a: $(OBJDIR)/%.o
 
 $(OBJDIR)/%.o: %.s
 	echo -n '$(NAME): assembling ' >> $(LOGFILE)
-	$(ICVM) $(ICAS) < $< > $@ 2> /dev/null || true
+	$(ICVM) $(ICAS) < $< > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
