@@ -1,5 +1,3 @@
 include ../test.mk
 
-test: prep output/$(NAME).input
-
-.PHONY: test
+test: test-prep $(BINDIR)/$(NAME).input
