@@ -1,7 +1,5 @@
 include ../test.mk
 
-test: prep output/$(NAME).input
-output/$(NAME).input: output/$(NAME).o output/$(NAME)_lib.a
-output/$(NAME)_lib.a: output/$(NAME)_lib.o output/$(NAME)_lib_2.o
-
-.PHONY: test
+test: test-prep $(BINDIR)/$(NAME).input
+$(BINDIR)/$(NAME).input: $(OBJDIR)/$(NAME).o $(BINDIR)/$(NAME)_lib.a
+$(BINDIR)/$(NAME)_lib.a: $(OBJDIR)/$(NAME)_lib.o $(OBJDIR)/$(NAME)_lib_2.o

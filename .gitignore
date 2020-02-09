@@ -4,5 +4,8 @@ vm/ic.exe
 vm/ic.o
 stage1
 stage2
-test/*/output
+src/bin
+src/obj
+test/*/bin
+test/*/obj
 test/test.log

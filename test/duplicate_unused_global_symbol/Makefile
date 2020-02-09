@@ -1,5 +1,3 @@
 include ../test.mk
 
-test: prep output/$(NAME).o
-
-.PHONY: test
+test: test-prep $(OBJDIR)/$(NAME).o
