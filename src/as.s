@@ -2685,6 +2685,10 @@ print_imports_symbol:
     eq  [0], 1, [rb + tmp]
     jz  [rb + tmp], print_imports_symbol_done
 
+    # don't print symbols with no fixups
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    jz  [0], print_imports_symbol_done
+
     # imported symbols must not have an address
     add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
     add [0], 0, [rb + symbol_address]
