@@ -22,6 +22,8 @@ parse:
 .FRAME tmp
     arb -1
 
+    call initialize
+
 parse_loop:
     call get_token
 
@@ -146,6 +148,22 @@ parse_call_directive_import_export:
 parse_call_directive_eof:
     call parse_dir_eof
     jz  0, parse_loop
+.ENDFRAME
+
+##########
+initialize:
+.FRAME symbol
+    arb -1
+
+    # add a dummy symbol to store relocations not related to a symbol
+    # set symbol type to 4 (relocation)
+    add relocation_symbol, 0, [rb - 1]
+    add 4, 0, [rb - 2]
+    arb -2
+    call set_global_symbol_type
+
+    arb 1
+    ret 0
 .ENDFRAME
 
 ##########
@@ -417,10 +435,17 @@ parse_call:
     arb -1
     call set_mem
 
-    # TODO this needs to be relocated
     add [current_address], 9, [rb - 1]
     arb -1
     call set_mem
+
+    # add a fixup (actually a relocation) for the use of current_address
+    add relocation_symbol, 0, [rb - 1]
+    add [current_address], 1, [rb - 2]
+    add [token_line_num], 0, [rb - 3]
+    add [token_column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
 
     add 0, 0, [rb - 1]
     arb -1
@@ -1259,6 +1284,14 @@ parse_value_ip:
     # TODO this needs to be relocated
     add 1, 0, [rb + has_symbol]
     add [current_address], [rb + instruction_length], [rb + result]
+
+    # add a fixup (actually a relocation) for the use of current_address
+    add relocation_symbol, 0, [rb - 1]
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [token_line_num], 0, [rb - 3]
+    add [token_column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
 
 parse_value_after_symbol:
     # optionally followed by + or - and a number or char
@@ -2265,7 +2298,7 @@ add_global_symbol:
     arb -2
     call strcpy
 
-    # set the symbol as not exported
+    # set the symbol as local by default
     add [rb + record], GLOBAL_TYPE, [ip + 3]
     add 0, 0, [0]
 
@@ -2725,9 +2758,12 @@ do_fixups_symbol:
     # do we have more symbols?
     jz  [rb + symbol], do_fixups_done
 
-    # special handling of imported symbols
+    # special handling of imported symbols and relocations, they don't require fixups
     add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
+    jnz [rb + tmp], do_fixups_symbol_done
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
+    eq  [0], 4, [rb + tmp]
     jnz [rb + tmp], do_fixups_symbol_done
 
     # each non-imported symbol needs to have an address
@@ -3246,7 +3282,7 @@ token_value:
 # global symbol record layout:
 .SYMBOL GLOBAL_NEXT_PTR             0
 .SYMBOL GLOBAL_IDENTIFIER           1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL GLOBAL_TYPE                 47          # 0 - local, 1 - imported, 2 - exported, 3 - constant
+.SYMBOL GLOBAL_TYPE                 47          # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - relocation
 .SYMBOL GLOBAL_ADDRESS              48
 .SYMBOL GLOBAL_FIXUPS_HEAD          49
 .SYMBOL GLOBAL_SIZE                 50
@@ -3290,6 +3326,10 @@ mem_tail:
 # index of next unused byte in last memory buffer
 mem_index:
     db 0
+
+# dummy symbol identifier used to store non-symbol related relocations
+relocation_symbol:
+    db  "", 0
 
 ##########
 # error messages
