@@ -12,8 +12,7 @@
 
 # from string.s
 .IMPORT is_digit
-.IMPORT is_alpha
-#.IMPORT is_alphanum
+.IMPORT is_alphanum
 .IMPORT strcmp
 .IMPORT zeromem
 
@@ -1531,33 +1530,6 @@ read_number_end:
 
     arb 4
     ret 0
-.ENDFRAME
-
-
-
-# TODO importing this crashes the linker
-##########
-is_alphanum:
-.FRAME char; tmp
-    arb -1
-
-    add [rb + char], 0, [rb - 1]
-    arb -1
-    call is_alpha
-    add [rb - 3], 0, [rb + tmp]
-    jnz [rb + tmp], is_alphanum_end
-
-    add [rb + char], 0, [rb - 1]
-    arb -1
-    call is_digit
-    add [rb - 3], 0, [rb + tmp]
-    jnz [rb + tmp], is_alphanum_end
-
-    eq  [rb + char], '_', [rb + tmp]
-
-is_alphanum_end:
-    arb 1
-    ret 1
 .ENDFRAME
 
 ##########
