@@ -1,5 +1,6 @@
 .EXPORT report_error_at_location
 .EXPORT report_error_with_symbol
+.EXPORT halt_and_catch_fire
 
 # from print.s
 .IMPORT print_num
@@ -38,13 +39,7 @@ report_error_at_location:
 
     out 10
 
-    # instead of halting, we will read all inputs, which hopefully
-    # will cause the intcode vm to crash, indicating a problem
-    # this is the only way we can return a non-zero result from intcode
-
-report_error_loop:
-    in  [0]
-    jz  0, report_error_loop
+    call halt_and_catch_fire
 
 report_error_msg_start:
     db "Error: ", 0
@@ -77,18 +72,24 @@ report_error_with_symbol:
 
     out 10
 
-    # instead of halting, we will read all inputs, which hopefully
-    # will cause the intcode vm to crash, indicating a problem
-    # this is the only way we can return a non-zero result from intcode
-
-report_error_with_symbol_loop:
-    in  [0]
-    jz  0, report_error_with_symbol_loop
+    call halt_and_catch_fire
 
 report_error_with_symbol_msg_start:
     db "Error: ", 0
 report_error_with_symbol_msg_symbol:
     db ": ", 0
+.ENDFRAME
+
+##########
+halt_and_catch_fire:
+.FRAME
+    # instead of halting, we will read all inputs, which hopefully
+    # will cause the intcode vm to crash, indicating a problem
+    # this is the only way we can return a non-zero result from intcode
+
+halt_and_catch_fire_loop:
+    in  [0]
+    jz  0, halt_and_catch_fire_loop
 .ENDFRAME
 
 .EOF
