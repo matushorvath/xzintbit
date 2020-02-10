@@ -1,3 +1,5 @@
+.IMPORT __heap_start
+
 ##########
     arb stack
 
@@ -1976,7 +1978,7 @@ free_head:
 
 # start of unused memory
 heap_end:
-    db  stack
+    db  __heap_start
 
 # allocation block size
 .SYMBOL MEM_BLOCK_SIZE 50

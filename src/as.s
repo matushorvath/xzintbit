@@ -14,6 +14,8 @@
 # + - = , : ; [ ]
 # n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
+.IMPORT __heap_start
+
 ##########
     arb stack
 
@@ -1281,7 +1283,6 @@ parse_value_after_global:
 
 parse_value_ip:
     # [ip + 123] behaves similarly to [symbol + 123]
-    # TODO this needs to be relocated
     add 1, 0, [rb + has_symbol]
     add [current_address], [rb + instruction_length], [rb + result]
 
@@ -3244,7 +3245,7 @@ free_head:
 
 # start of unused memory
 heap_end:
-    db  stack
+    db  __heap_start
 
 # allocation block size
 .SYMBOL MEM_BLOCK_SIZE 50
