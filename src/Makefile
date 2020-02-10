@@ -13,7 +13,7 @@ build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input
 build-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)
 
-$(BINDIR)/as.input: $(OBJDIR)/as.o $(OBJDIR)/error.o $(OBJDIR)/heap.o $(OBJDIR)/print.o
+$(BINDIR)/as.input: $(OBJDIR)/as.o $(OBJDIR)/error.o $(OBJDIR)/heap.o $(OBJDIR)/print.o $(OBJDIR)/string.o
 
 $(BINDIR)/ld.input: $(OBJDIR)/ld.o $(OBJDIR)/error.o $(OBJDIR)/heap.o $(OBJDIR)/print.o
 
