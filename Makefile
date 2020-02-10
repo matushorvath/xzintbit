@@ -1,5 +1,7 @@
-TESTDIRS = $(sort $(dir $(wildcard test/*/*)))
 CFLAGS = -O3 -Wall -Werror -std=c11
+
+TESTDIRS = $(sort $(dir $(wildcard test/*/*)))
+export TESTLOG = $(abspath test/test.log)
 
 .PHONY: build
 build: build-vm build-stage1 build-stage2 compare-stages install
@@ -37,7 +39,7 @@ install:
 # Test
 .PHONY: install
 test: build
-	rm -rf test/test.log
+	rm -rf $(TESTLOG)
 	failed=0 ; \
 	for testdir in $(TESTDIRS) ; do \
 		$(MAKE) -C $$testdir test || failed=1 ; \
@@ -49,7 +51,7 @@ test: build
 .PHONY: clean
 clean:
 	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
-	rm -rf test/test.log
+	rm -rf $(TESTLOG)
 	rm -rf *.tmp
 	rm -rf stage1 stage2
 	rm -rf vm/ic vm/ic.exe vm/ic.o

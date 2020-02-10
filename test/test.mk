@@ -5,8 +5,11 @@ ICLD ?= $(abspath ../../bin/ld.input)
 BINDIR ?= bin
 OBJDIR ?= obj
 
+ifndef TESTLOG
+	TESTLOG := $(shell mktemp)
+endif
+
 NAME = $(notdir $(CURDIR))
-LOGFILE = ../test.log
 
 HAVE_COLOR := $(or $(FORCE_COLOR), $(shell [ -n $$(tput colors) ] && [ $$(tput colors) -ge 8 ] && echo 1))
 ifeq ($(HAVE_COLOR),1)
@@ -17,36 +20,44 @@ endif
 
 .PHONY: default test
 default: test
+	[ $(MAKELEVEL) -eq 0 ] && cat $(TESTLOG) && rm -f $(TESTLOG)
 
 .PHONY: test-prep
 test-prep:
 	rm -rf $(BINDIR) $(OBJDIR)
 	mkdir -p $(BINDIR) $(OBJDIR)
 
+$(BINDIR)/%.txt: $(BINDIR)/%.input
+	echo -n '$(NAME): executing ' >> $(TESTLOG)
+	$(ICVM) $< > $@ || ( cat $@ ; true )
+	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
+		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
+	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+
 $(BINDIR)/%.input: $(OBJDIR)/%.o
-	echo -n '$(NAME): linking ' >> $(LOGFILE)
+	echo -n '$(NAME): linking ' >> $(TESTLOG)
 	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
+		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
+	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
 
 $(BINDIR)/%.a: $(OBJDIR)/%.o
-	echo -n '$(NAME): archiving ' >> $(LOGFILE)
+	echo -n '$(NAME): archiving ' >> $(TESTLOG)
 	echo .L | cat - $^ > $@ || true
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
+		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
+	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.s
-	echo -n '$(NAME): assembling ' >> $(LOGFILE)
+	echo -n '$(NAME): assembling ' >> $(TESTLOG)
 	$(ICVM) $(ICAS) < $< > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(LOGFILE)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(LOGFILE)
+		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
+	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
 
 .PHONY: skip
 skip:
-	@echo $(NAME): $(COLOR_RED)SKIPPED$(COLOR_NORMAL) >> $(LOGFILE)
+	@echo $(NAME): $(COLOR_RED)SKIPPED$(COLOR_NORMAL) >> $(TESTLOG)
 	false
 
 .PHONY: clean
