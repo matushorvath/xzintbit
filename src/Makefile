@@ -15,7 +15,7 @@ build-prep:
 
 $(BINDIR)/as.input: $(OBJDIR)/as.o $(OBJDIR)/print.o
 
-$(BINDIR)/ld.input: $(OBJDIR)/ld.o
+$(BINDIR)/ld.input: $(OBJDIR)/ld.o $(OBJDIR)/print.o
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
