@@ -57,6 +57,7 @@ link_loop:
     jz  0, link_loop
 
 link_load_done:
+    call add_linker_symbols
     call include_objects
     call resolve_symbols
     call relocate
@@ -544,6 +545,37 @@ create_export:
 
     arb 2
     ret 1
+.ENDFRAME
+
+##########
+add_linker_symbols:
+.FRAME module, export
+    arb -2
+
+    # create a dummy module at the end
+    # create a module
+    call create_module
+    add [rb - 2], 0, [rb + module]
+
+    # the dummy module exports a __heap_start symbol
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call create_export
+    add [rb - 3], 0, [rb + export]
+
+    # be careful when freeing memory, this identifier is not dynamically allocated
+    add [rb + export], EXPORT_IDENTIFIER, [ip + 3]
+    add add_linker_symbols_heap_start, 0, [0]
+
+    # address of the symbol within the module is 0
+    add [rb + export], EXPORT_ADDRESS, [ip + 3]
+    add 0, 0, [0]
+
+    arb 2
+    ret 0
+
+add_linker_symbols_heap_start:
+    db  "__heap_start", 0
 .ENDFRAME
 
 ##########
@@ -1123,6 +1155,8 @@ print_modules_loop:
     jz  [rb + module], print_modules_done
 
     add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jz  [0], print_modules_next
+    add [rb + module], MODULE_CODE_HEAD, [ip + 1]
     jz  [0], print_modules_next
 
     jnz [rb + first], print_modules_skip_comma
