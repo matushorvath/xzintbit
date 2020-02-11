@@ -1,3 +1,5 @@
+# TODO
+# - allocate less than MEM_BLOCK_SIZE
 
 .EXPORT alloc
 .EXPORT free

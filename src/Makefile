@@ -13,7 +13,7 @@ build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input
 build-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)
 
-$(BINDIR)/as.input: $(OBJDIR)/as.o $(BINDIR)/libxib.a
+$(BINDIR)/as.input: $(OBJDIR)/as.o $(OBJDIR)/lexer.o $(OBJDIR)/util.o $(BINDIR)/libxib.a
 
 $(BINDIR)/ld.input: $(OBJDIR)/ld.o $(BINDIR)/libxib.a
 
