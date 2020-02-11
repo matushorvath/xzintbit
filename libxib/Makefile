@@ -7,17 +7,15 @@ OBJDIR ?= obj
 
 # Build
 .PHONY: build
-build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input
+build: build-prep $(BINDIR)/libxib.a $(BINDIR)/ld.input
 
 .PHONY: build-prep
 build-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)
 
-$(BINDIR)/as.input: $(OBJDIR)/as.o $(BINDIR)/libxib.a
+$(BINDIR)/as.input: $(OBJDIR)/as.o $(OBJDIR)/error.o $(OBJDIR)/heap.o $(OBJDIR)/print.o $(OBJDIR)/string.o
 
-$(BINDIR)/ld.input: $(OBJDIR)/ld.o $(BINDIR)/libxib.a
-
-$(BINDIR)/libxib.a: $(OBJDIR)/libxib.o $(OBJDIR)/error.o $(OBJDIR)/heap.o $(OBJDIR)/print.o $(OBJDIR)/string.o
+$(BINDIR)/ld.input: $(OBJDIR)/ld.o $(OBJDIR)/error.o $(OBJDIR)/heap.o $(OBJDIR)/print.o $(OBJDIR)/string.o
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
@@ -25,7 +23,7 @@ $(BINDIR)/%.input: $(OBJDIR)/%.o
 $(BINDIR)/%.a: $(OBJDIR)/%.o
 	echo .L | cat - $^ > $@ || ( cat $@ ; false )
 
-$(OBJDIR)/%.o: */%.s
+$(OBJDIR)/%.o: %.s
 	$(ICVM) $(ICAS) < $< > $@ || ( cat $@ ; false )
 
 # Clean
