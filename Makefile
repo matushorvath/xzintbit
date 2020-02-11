@@ -51,6 +51,7 @@ test: build
 .PHONY: clean
 clean:
 	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
+	$(MAKE) -C src clean
 	rm -rf $(TESTLOG)
 	rm -rf *.tmp
 	rm -rf stage1 stage2
