@@ -2,8 +2,21 @@ ICVM ?= $(abspath ../vm)/ic
 ICAS ?= $(abspath ../bin/as.input)
 ICLD ?= $(abspath ../bin/ld.input)
 
+SRCDIR = .
 BINDIR ?= bin
 OBJDIR ?= obj
+
+define run-as
+$(ICVM) $(ICAS) < $< > $@ || ( cat $@ ; false )
+endef
+
+define run-ar
+echo .L | cat - $^ > $@ || ( cat $@ ; false )
+endef
+
+define run-ld
+echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
+endef
 
 # Build
 .PHONY: build
@@ -11,22 +24,28 @@ build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input
 
 .PHONY: build-prep
 build-prep:
-	mkdir -p $(BINDIR) $(OBJDIR)
+	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib
 
-$(BINDIR)/as.input: $(OBJDIR)/as.o $(OBJDIR)/lexer.o $(OBJDIR)/util.o $(BINDIR)/libxib.a
+AS_OBJS = as.o lexer.o util.o
+$(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
+	$(run-ld)
 
-$(BINDIR)/ld.input: $(OBJDIR)/ld.o $(BINDIR)/libxib.a
+$(OBJDIR)/as/%.o: $(SRCDIR)/as/%.s
+	$(run-as)
 
-$(BINDIR)/libxib.a: $(OBJDIR)/libxib.o $(OBJDIR)/error.o $(OBJDIR)/heap.o $(OBJDIR)/print.o $(OBJDIR)/string.o
+LD_OBJS = ld.o
+$(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
+	$(run-ld)
 
-$(BINDIR)/%.input: $(OBJDIR)/%.o
-	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
+$(OBJDIR)/ld/%.o: $(SRCDIR)/ld/%.s
+	$(run-as)
 
-$(BINDIR)/%.a: $(OBJDIR)/%.o
-	echo .L | cat - $^ > $@ || ( cat $@ ; false )
+LIBXIB_OBJS = libxib.o error.o heap.o print.o string.o
+$(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
+	$(run-ar)
 
-$(OBJDIR)/%.o: */%.s
-	$(ICVM) $(ICAS) < $< > $@ || ( cat $@ ; false )
+$(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/%.s
+	$(run-as)
 
 # Clean
 .PHONY: clean
