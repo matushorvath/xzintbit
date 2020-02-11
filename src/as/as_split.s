@@ -2,21 +2,16 @@
 # - return address frame symbol?
 # - check the typescript as implementation for missing error handling
 # - test: both global and frame symbol; access frame outside of frame
+# - don't duplicate constants in many files
 
 .EXPORT initialize
 .EXPORT parse
 .EXPORT do_fixups
-.EXPORT print_mem
-.EXPORT print_reloc
-.EXPORT print_imports
-.EXPORT print_exports
 
-# from libxib/print.s
-.IMPORT print_num
-.IMPORT print_str
-
-# from libxib/error.s
-.IMPORT report_error_at_location
+.EXPORT global_head
+.EXPORT mem_head
+.EXPORT mem_tail
+.EXPORT mem_index
 
 # from libxib/heap.s
 .IMPORT alloc
@@ -28,6 +23,7 @@
 
 # from util.s
 .IMPORT report_error
+.IMPORT report_symbol_error
 
 # from lexer.s
 .IMPORT get_token
@@ -1830,65 +1826,6 @@ inc_mem_at_this_block:
 .ENDFRAME
 
 ##########
-print_mem:
-.FRAME tmp, buffer, limit, index, first
-    arb -5
-
-    # print .C
-    out '.'
-    out 'C'
-    out 10
-
-    add 1, 0, [rb + first]
-
-    add [mem_head], 0, [rb + buffer]
-    jz  [mem_head], print_mem_done
-
-print_mem_block:
-    add 1, 0, [rb + index]
-
-    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
-    add MEM_BLOCK_SIZE, 0, [rb + limit]
-    eq  [rb + buffer], [mem_tail], [rb + tmp]
-    jz  [rb + tmp], print_mem_byte
-    add [mem_index], 0, [rb + limit]
-
-print_mem_byte:
-    lt  [rb + index], [rb + limit], [rb + tmp]
-    jz  [rb + tmp], print_mem_block_done
-
-    # skip comma when printing first byte
-    jnz [rb + first], print_mem_skip_comma
-    out ','
-
-print_mem_skip_comma:
-    add 0, 0, [rb + first]
-
-    add [rb + buffer], [rb + index], [ip + 1]
-    add [0], 0, [rb + tmp]
-
-    add [rb + tmp], 0, [rb - 1]
-    arb -1
-    call print_num
-
-    add [rb + index], 1, [rb + index]
-    jz  0, print_mem_byte
-
-print_mem_block_done:
-    # next block in linked list
-    add [rb + buffer], 0, [ip + 1]
-    add [0], 0, [rb + buffer]
-
-    jnz [rb + buffer], print_mem_block
-
-print_mem_done:
-    out 10
-
-    arb 5
-    ret 0
-.ENDFRAME
-
-##########
 do_fixups:
 .FRAME tmp, symbol, fixup, symbol_address, fixup_address
     arb -5
@@ -1959,258 +1896,6 @@ do_fixups_symbol_done:
 do_fixups_done:
     arb 5
     ret 0
-.ENDFRAME
-
-##########
-print_imports:
-.FRAME tmp, symbol, fixup, symbol_address, fixup_address
-    arb -5
-
-    # print .I
-    out '.'
-    out 'I'
-    out 10
-
-    add [global_head], 0, [rb + symbol]
-
-print_imports_symbol:
-    # do we have more symbols?
-    jz  [rb + symbol], print_imports_done
-
-    # check symbol type
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
-    eq  [0], 1, [rb + tmp]
-    jz  [rb + tmp], print_imports_symbol_done
-
-    # don't print symbols with no fixups
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    jz  [0], print_imports_symbol_done
-
-    # imported symbols must not have an address
-    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
-    add [0], 0, [rb + symbol_address]
-
-    eq  [rb + symbol_address], -1, [rb + tmp]
-    jnz [rb + tmp], print_imports_no_address
-
-    add [rb + symbol], 0, [rb + 1]
-    add err_imported_symbol_defined, 0, [rb]
-    call report_symbol_error
-
-print_imports_no_address:
-    # print the identifier
-    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
-    arb -1
-    call print_str
-
-    # print a colon followed by a list of fixup addresses
-    out ':'
-
-    # iterate through all fixups for this symbol
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb + fixup]
-
-    jz  [rb + fixup], print_imports_symbol_line_end
-
-print_imports_fixup:
-    # read fixup address
-    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
-    add [0], 0, [rb + fixup_address]
-
-    # print the fixup
-    add [rb + fixup_address], 0, [rb - 1]
-    arb -1
-    call print_num
-
-    # move to next fixup
-    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + fixup]
-
-    # do we have more fixups for this symbol?
-    jz  [rb + fixup], print_imports_symbol_line_end
-
-    # print a comma
-    out ','
-
-    jz  0, print_imports_fixup
-
-print_imports_symbol_line_end:
-    out 10
-
-print_imports_symbol_done:
-    # move to next symbol
-    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + symbol]
-
-    jz  0, print_imports_symbol
-
-print_imports_done:
-    arb 5
-    ret 0
-.ENDFRAME
-
-##########
-print_exports:
-.FRAME tmp, symbol, symbol_address
-    arb -3
-
-    # print .E
-    out '.'
-    out 'E'
-    out 10
-
-    add [global_head], 0, [rb + symbol]
-
-print_exports_symbol:
-    # do we have more symbols?
-    jz  [rb + symbol], print_exports_done
-
-    # check symbol type
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
-    eq  [0], 2, [rb + tmp]
-    jz  [rb + tmp], print_exports_symbol_done
-
-    # exported symbols must have an address
-    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
-    add [0], 0, [rb + symbol_address]
-
-    eq  [rb + symbol_address], -1, [rb + tmp]
-    jz  [rb + tmp], print_exports_have_address
-
-    add [rb + symbol], 0, [rb + 1]
-    add err_unknown_symbol, 0, [rb]
-    call report_symbol_error
-
-print_exports_have_address:
-    # print the identifier
-    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
-    arb -1
-    call print_str
-
-    out ':'
-
-    # print the address
-    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
-    add [0], 0, [rb - 1]
-    arb -1
-    call print_num
-
-    out 10
-
-print_exports_symbol_done:
-    # move to next symbol
-    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + symbol]
-
-    jz  0, print_exports_symbol
-
-print_exports_done:
-    arb 3
-    ret 0
-.ENDFRAME
-
-##########
-print_reloc:
-.FRAME tmp, symbol, fixup, symbol_address, fixup_address, first
-    arb -6
-
-    add 1, 0, [rb + first]
-
-    # print .R
-    out '.'
-    out 'R'
-    out 10
-
-    add [global_head], 0, [rb + symbol]
-
-print_reloc_symbol:
-    # do we have more symbols?
-    jz  [rb + symbol], print_reloc_done
-
-    # check symbol type (skip imported and constants)
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
-    eq  [0], 1, [rb + tmp]
-    jnz [rb + tmp], print_reloc_symbol_done
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
-    eq  [0], 3, [rb + tmp]
-    jnz [rb + tmp], print_reloc_symbol_done
-
-    # iterate through all fixups for this symbol
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb + fixup]
-
-    jz  [rb + fixup], print_reloc_symbol_done
-
-print_reloc_fixup:
-    # do we have more fixups for this symbol?
-    jz  [rb + fixup], print_reloc_symbol_done
-
-    # skip comma when printing first reloc
-    jnz [rb + first], print_reloc_skip_comma
-    out ','
-
-print_reloc_skip_comma:
-    add 0, 0, [rb + first]
-
-    # read fixup address
-    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
-    add [0], 0, [rb + fixup_address]
-
-    # print the fixup
-    add [rb + fixup_address], 0, [rb - 1]
-    arb -1
-    call print_num
-
-    # move to next fixup
-    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + fixup]
-
-    jz  0, print_reloc_fixup
-
-print_reloc_symbol_done:
-    # move to next symbol
-    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + symbol]
-
-    jz  0, print_reloc_symbol
-
-print_reloc_done:
-    # skip endline if nothing was printed
-    jnz [rb + first], print_reloc_after_eol
-    out 10
-
-print_reloc_after_eol:
-    arb 6
-    ret 0
-.ENDFRAME
-
-##########
-report_symbol_error:
-.FRAME symbol, message; fixup, line_num, column_num
-    arb -3
-
-    add 0, 0, [rb + line_num]
-    add 0, 0, [rb + column_num]
-
-    # get first fixup for this symbol
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb + fixup]
-    jz  [rb + fixup], report_symbol_error_after_location
-
-    # read fixup line num
-    add [rb + fixup], FIXUP_LINE_NUM, [ip + 1]
-    add [0], 0, [rb + line_num]
-
-    # read fixup column num
-    add [rb + fixup], FIXUP_COLUMN_NUM, [ip + 1]
-    add [0], 0, [rb + column_num]
-
-report_symbol_error_after_location:
-    # we don't bother with updating the stack pointer, this function never returns
-    add [rb + message], 0, [rb + 2]
-    add [rb + line_num], 0, [rb + 1]
-    add [rb + column_num], 0, [rb]
-    call report_error_at_location
 .ENDFRAME
 
 ##########
@@ -2358,7 +2043,5 @@ err_symbol_already_exported:
     db  "Symbol is already exported", 0
 err_constant_already_defined:
     db  "Constant symbol is already defined", 0
-err_imported_symbol_defined:
-    db  "Imported symbol must not have an address defined", 0
 
 .EOF
