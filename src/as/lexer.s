@@ -734,7 +734,6 @@ dump_token_finish:
 # globals
 
 # allocation block size
-# TODO don't duplicate this from heap.s
 .SYMBOL MEM_BLOCK_SIZE 50
 
 # line and column number of next input character
