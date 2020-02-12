@@ -50,22 +50,4 @@ report_symbol_error_after_location:
     call report_error_at_location
 .ENDFRAME
 
-##########
-# globals
-
-# global symbol record layout:
-.SYMBOL GLOBAL_NEXT_PTR             0
-.SYMBOL GLOBAL_IDENTIFIER           1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL GLOBAL_TYPE                 47          # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - relocation
-.SYMBOL GLOBAL_ADDRESS              48
-.SYMBOL GLOBAL_FIXUPS_HEAD          49
-.SYMBOL GLOBAL_SIZE                 50
-
-# fixup record layout:
-.SYMBOL FIXUP_NEXT_PTR              0
-.SYMBOL FIXUP_ADDRESS               1
-.SYMBOL FIXUP_LINE_NUM              2
-.SYMBOL FIXUP_COLUMN_NUM            3
-.SYMBOL FIXUP_SIZE                  4
-
 .EOF

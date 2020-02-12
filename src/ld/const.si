@@ -1,0 +1,40 @@
+# common constants that will be available in each 'ld' source file
+
+# allocation block size
+.SYMBOL MEM_BLOCK_SIZE              50
+
+# module record layout:
+.SYMBOL MODULE_NEXT_PTR             0
+.SYMBOL MODULE_CODE_HEAD            1
+.SYMBOL MODULE_CODE_TAIL            2
+.SYMBOL MODULE_CODE_INDEX           3
+.SYMBOL MODULE_CODE_LENGTH          4
+.SYMBOL MODULE_RELOC_HEAD           5
+.SYMBOL MODULE_RELOC_TAIL           6
+.SYMBOL MODULE_RELOC_INDEX          7
+.SYMBOL MODULE_IMPORTS_HEAD         8
+.SYMBOL MODULE_EXPORTS_HEAD         9
+.SYMBOL MODULE_NEEDED               10          # 0 = not needed, 1 = needed
+.SYMBOL MODULE_INCLUDED             11          # 0 = not included, 1 = included
+.SYMBOL MODULE_ADDRESS              12
+.SYMBOL MODULE_SIZE                 13
+
+# export record layout:
+.SYMBOL EXPORT_NEXT_PTR             0
+.SYMBOL EXPORT_PREV_PTR             1
+.SYMBOL EXPORT_IDENTIFIER           2
+.SYMBOL EXPORT_MODULE               3
+.SYMBOL EXPORT_ADDRESS              4
+.SYMBOL EXPORT_IMPORTS_HEAD         5
+.SYMBOL EXPORT_IMPORTS_TAIL         6
+.SYMBOL EXPORT_SIZE                 7
+
+# import record layout:
+.SYMBOL IMPORT_NEXT_PTR             0
+.SYMBOL IMPORT_PREV_PTR             1
+.SYMBOL IMPORT_IDENTIFIER           2
+.SYMBOL IMPORT_MODULE               3
+.SYMBOL IMPORT_FIXUPS_HEAD          4
+.SYMBOL IMPORT_FIXUPS_TAIL          5
+.SYMBOL IMPORT_FIXUPS_INDEX         6
+.SYMBOL IMPORT_SIZE                 7
