@@ -733,9 +733,6 @@ dump_token_finish:
 ##########
 # globals
 
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE 50
-
 # line and column number of next input character
 input_line_num:
     db  1

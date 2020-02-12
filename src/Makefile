@@ -7,7 +7,7 @@ BINDIR ?= bin
 OBJDIR ?= obj
 
 define run-as
-$(ICVM) $(ICAS) < $< > $@ || ( cat $@ ; false )
+cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; false )
 endef
 
 define run-ar
@@ -30,14 +30,14 @@ AS_OBJS = as.o as_split.o lexer.o object.o util.o
 $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)
 
-$(OBJDIR)/as/%.o: $(SRCDIR)/as/%.s
+$(OBJDIR)/as/%.o: $(SRCDIR)/as/const.si $(SRCDIR)/as/%.s
 	$(run-as)
 
 LD_OBJS = ld.o
 $(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)
 
-$(OBJDIR)/ld/%.o: $(SRCDIR)/ld/%.s
+$(OBJDIR)/ld/%.o: $(SRCDIR)/ld/const.si $(SRCDIR)/ld/%.s
 	$(run-as)
 
 LIBXIB_OBJS = libxib.o error.o heap.o print.o string.o

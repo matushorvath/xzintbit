@@ -1928,35 +1928,9 @@ calc_fixup_done:
 ##########
 # globals
 
-# allocation block size
-# TODO don't duplicate this from heap.s
-.SYMBOL MEM_BLOCK_SIZE 50
-
-# global symbol record layout:
-.SYMBOL GLOBAL_NEXT_PTR             0
-.SYMBOL GLOBAL_IDENTIFIER           1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL GLOBAL_TYPE                 47          # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - relocation
-.SYMBOL GLOBAL_ADDRESS              48
-.SYMBOL GLOBAL_FIXUPS_HEAD          49
-.SYMBOL GLOBAL_SIZE                 50
-
-# fixup record layout:
-.SYMBOL FIXUP_NEXT_PTR              0
-.SYMBOL FIXUP_ADDRESS               1
-.SYMBOL FIXUP_LINE_NUM              2
-.SYMBOL FIXUP_COLUMN_NUM            3
-.SYMBOL FIXUP_SIZE                  4
-
 # head of the linked list of global symbols
 global_head:
     db  0
-
-# frame symbol record layout:
-.SYMBOL FRAME_NEXT_PTR              0
-.SYMBOL FRAME_IDENTIFIER            1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL FRAME_OFFSET                48          # symbol value
-.SYMBOL FRAME_BLOCK                 49          # block index (.FRAME block0; block1; block2)
-.SYMBOL FRAME_SIZE                  50
 
 # head of the linked list of frame symbols
 frame_head:
