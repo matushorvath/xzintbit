@@ -19,16 +19,38 @@
 ##########
     arb stack
 
+    call main
+    hlt
+
 ##########
-link:
+main:
+.FRAME
+    arb -0
+
+    call load_objects
+    call add_linker_symbols
+    call include_objects
+    call resolve_symbols
+    call relocate
+    call connect_imports
+    call print_modules
+
+    #call dump_symbols
+
+    arb 0
+    ret 0
+.ENDFRAME
+
+##########
+load_objects:
 .FRAME module, tmp
     arb -2
 
-link_loop:
+load_objects_loop:
     # check for more files
     call expect_next_file
     eq  [rb - 2], '$', [rb + tmp]
-    jnz [rb + tmp], link_load_done
+    jnz [rb + tmp], load_objects_load_done
 
     # create a module
     call create_module
@@ -72,19 +94,11 @@ link_loop:
     arb -1
     call load_exported
 
-    jz  0, link_loop
+    jz  0, load_objects_loop
 
-link_load_done:
-    call add_linker_symbols
-    call include_objects
-    call resolve_symbols
-    call relocate
-    call connect_imports
-    call print_modules
-
-    #call dump_symbols
-
-    hlt
+load_objects_load_done:
+    arb 2
+    ret 0
 .ENDFRAME
 
 ##########
