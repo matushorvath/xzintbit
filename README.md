@@ -34,21 +34,22 @@ To run it, you will need to assemble and link it, creating an Intcode executable
 
 The assembler and linker themselves are also written in Intcode, so you will need an Intcode virtual machine (VM) to run them. You can definitely [use your own Intcode VM](#will-it-run-on-my-virtual-machine), or you could use mine.
 
-My Intcode VM is written in C, so to build it you will need a (relatively modern) C compiler. It is started by executing `vm/ic` (or `vm\ic.exe` on Windows), it reads from standard input and writes to standard output.
+My Intcode VM is written in C, so to build it you will need a (relatively modern) C compiler. To build it, run `make build-vm`. It is started by executing `vm/ic` (or `vm\ic.exe` on Windows), reads from standard input and writes to standard output.
 
 ```sh
+$ make build-vm
 $ vm/ic bin/as.input < hello-world.s > hello-world.o
 ```
 
-Above, `bin/as.input` is the assembler program from this repo, `hello-world.s` is our example from above, and `hello-world.o` is an object file. The object file now needs to be linked to create an Intcode binary.
+Here `bin/as.input` is the assembler program from this repo, `hello-world.s` is our example from above, and `hello-world.o` is an object file. The object file now needs to be linked to create an Intcode binary.
 
 ```sh
 $ echo .$ | cat hello-world.o - | vm/ic bin/ld.input > hello-world.input
 ```
 
-Above, `bin/ld.input` is the linker program from this repo, `hello-world.o` is the object file created by assembler and `hello-world.input` is the compiled *"Hello, World!"* program in Intcode. Yes, the output file name ends in `.input`. That's just the extension I decided to use for Intcode binaries.
+Here `bin/ld.input` is the linker program from this repo, `hello-world.o` is the object file created by the assembler, and `hello-world.input` is the compiled *"Hello, World!"* program in Intcode. Yes, the output file name ends in `.input`. That's just the extension I decided to use for Intcode binaries.
 
-The command line for the linker is more complex than the assember one. Assember always takes one input, but the linker can be used to link multiple object files into one binary. Since Intcode has no file system access, we need to pass all object files via standard output. And since Intcode has no way of detecting end of input, we need to follow that up with a `.$` statement to mark the end of last object file.
+The command line for the linker is more complex than the assembler one. Assembler always takes one input, but the linker can be used to link multiple object files into one binary. Since Intcode has no file system access, we need to pass all object files via standard output. And since Intcode has no way of detecting end of input, we need to follow that up with a `.$` statement to mark the end of last object file.
 
 If everything went well, `hello-world.input` should now contain this compiled Intcode program:
 
@@ -56,7 +57,7 @@ If everything went well, `hello-world.input` should now contain this compiled In
 109,15,1206,0,12,204,0,109,1,1106,0,2,104,10,99,72,101,108,108,111,44,32,119,111,114,108,100,33,0
 ```
 
-You can see that the first instruction (`arb message`) is `109, 13` which adjusts the relative base by 13, the address of `message` in memory.
+You can see that the first instruction (`arb message`) is `109, 15` which adjusts the relative base by 13, the address of `message` in memory.
 
 The next instruction (`jz [rb], done`) is `1206,0,12`, which is a jump-if-false with one relative and one immediate parameter, jumping to address 12 which is the `done` label. And so on. The program loops over the characters of `message` while increasing the relative base (`rb`) by one, until it finds a zero character, then outputs a new line (`10`) and halts.
 
@@ -78,7 +79,7 @@ You should be able to execute both the assembler and linker on your own Intcode 
 - It also needs the *Aft Scaffolding Control and Information Interface* (ASCII) from [Day 17](https://adventofcode.com/2019/day/17). Which just means that everything output by Intcode should be displayed as ASCII characters, with character `10` meaning 'new line'.
 - The VM needs to have enough memory.
    - Ideally memory should expand automatically as needed. Expanding it by reallocating a larger array will work, since memory is accessed in one contiguous memory block starting at address 0.
-   - A statically sized memory implementation could also work, as long as it the memory is large enough. For example, compiling the assember itself takes around 100kB of Intcode memory.
+   - A statically sized memory implementation could also work, as long as it the memory is large enough. For example, compiling the assembler itself takes around 100kB of Intcode memory.
 - The VM must not output any extra messages, other than what is output by Intcode using `out` instructions. If your VM outputs any extra messages of its own, they will mix up with the compiled Intcode output and the result will not be valid Intcode, obviously.
 - There is no need for arbitrary sized numbers, even implementations based on 32-bit integers should be fine.
 - Ideally your VM should exit with a non-zero exit code (or just crash) when an `in` instruction does not have any more data to input. This is used to signal compilation errors, since it's the only way an Intcode program can return a non-zero exit code.
