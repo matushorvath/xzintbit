@@ -57,7 +57,7 @@ If everything went well, `hello-world.input` should now contain this compiled In
 109,15,1206,0,12,204,0,109,1,1106,0,2,104,10,99,72,101,108,108,111,44,32,119,111,114,108,100,33,0
 ```
 
-You can see that the first instruction (`arb message`) is `109, 15` which adjusts the relative base by 13, the address of `message` in memory.
+You can see that the first instruction (`arb message`) is `109, 15` which adjusts the relative base by 15, the address of `message` in memory.
 
 The next instruction (`jz [rb], done`) is `1206,0,12`, which is a jump-if-false with one relative and one immediate parameter, jumping to address 12 which is the `done` label. And so on. The program loops over the characters of `message` while increasing the relative base (`rb`) by one, until it finds a zero character, then outputs a new line (`10`) and halts.
 
