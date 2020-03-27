@@ -1,4 +1,5 @@
 *.tmp
+local.*
 vm/ic
 vm/ic.exe
 vm/ic.o
