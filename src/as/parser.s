@@ -2,7 +2,6 @@
 # - return address frame symbol?
 # - check the typescript as implementation for missing error handling
 # - test: both global and frame symbol; access frame outside of frame
-# - don't duplicate constants in many files
 
 .EXPORT parse
 .EXPORT current_address
@@ -12,17 +11,9 @@
 .EXPORT err_expect_identifier
 .EXPORT err_expect_number
 
-# from libxib/heap.s
-.IMPORT free
-
 # from lexer.s
 .IMPORT get_token
-.IMPORT start_new_file
 .IMPORT token_type
-.IMPORT token_value
-
-# from memory.s
-.IMPORT set_mem
 
 # from parse_call_ret.s
 .IMPORT init_relocations
@@ -33,10 +24,13 @@
 .IMPORT parse_db
 .IMPORT parse_ds
 
+# from parse_eof_eoi.s
+.IMPORT parse_dir_eof
+.IMPORT parse_dir_eoi
+
 # from parse_frame.s
 .IMPORT parse_dir_frame
 .IMPORT parse_dir_endframe
-.IMPORT is_frame
 
 # from parse_instruction.s
 .IMPORT parse_add_mul_lt_eq
@@ -44,10 +38,6 @@
 .IMPORT parse_arb_out
 .IMPORT parse_in
 .IMPORT parse_hlt
-
-# from parse_param.s
-.IMPORT parse_value
-.IMPORT parse_number_or_char
 
 # from parse_symbol.s
 .IMPORT parse_symbol
@@ -201,41 +191,6 @@ parse_done:
 .ENDFRAME
 
 ##########
-parse_dir_eof:
-.FRAME
-    arb -0
-
-    # detect missing .ENDFRAME
-    jz  [is_frame], parse_dir_eof_done
-
-    add err_expect_endframe, 0, [rb + 0]
-    call report_error
-
-parse_dir_eof_done:
-    arb 0
-    ret 0
-.ENDFRAME
-
-##########
-parse_dir_eoi:
-.FRAME
-    arb -0
-
-    # detect missing .ENDFRAME
-    jz  [is_frame], parse_dir_eoi_done
-
-    add err_expect_endframe, 0, [rb + 0]
-    call report_error
-
-parse_dir_eoi_done:
-    # end of included file, reset lexer position
-    call start_new_file
-
-    arb 0
-    ret 0
-.ENDFRAME
-
-##########
 # globals
 
 # current instruction pointer
@@ -255,7 +210,5 @@ err_expect_number:
     db  "Expecting a number", 0
 err_expect_identifier:
     db  "Expecting an identifier", 0
-err_expect_endframe:
-    db  "Expecting .ENDFRAME", 0
 
 .EOF
