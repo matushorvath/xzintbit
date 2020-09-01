@@ -16,7 +16,6 @@
 .IMPORT token_type
 
 # from parse_call_ret.s
-.IMPORT init_relocations
 .IMPORT parse_call
 .IMPORT parse_ret
 
@@ -51,8 +50,6 @@
 parse:
 .FRAME tmp
     arb -1
-
-    call init_relocations
 
 parse_loop:
     call get_token

@@ -3,6 +3,8 @@
 .EXPORT set_global_symbol_address
 .EXPORT set_global_symbol_type
 .EXPORT global_head
+.EXPORT init_relocations
+.EXPORT relocation_symbol
 
 # from libxib/heap.s
 .IMPORT alloc
@@ -13,6 +15,22 @@
 
 # from util.s
 .IMPORT report_error
+
+##########
+init_relocations:
+.FRAME symbol
+    arb -1
+
+    # add a dummy symbol to store relocations not related to a symbol
+    # set symbol type to 4 (relocation)
+    add relocation_symbol, 0, [rb - 1]
+    add 4, 0, [rb - 2]
+    arb -2
+    call set_global_symbol_type
+
+    arb 1
+    ret 0
+.ENDFRAME
 
 ##########
 find_global_symbol:
@@ -190,6 +208,10 @@ set_global_symbol_type_have_symbol:
 # head of the linked list of global symbols
 global_head:
     db  0
+
+# dummy symbol identifier used to store non-symbol related relocations
+relocation_symbol:
+    db  "", 0
 
 ##########
 # error messages
