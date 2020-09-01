@@ -6,9 +6,8 @@
 .EXPORT connect_imports
 .EXPORT print_modules
 #.EXPORT dump_symbols
-
-# TODO create util.s for this
-.EXPORT report_error
+.EXPORT input_line_num
+.EXPORT input_column_num
 
 # from libxib/print.s
 .IMPORT print_num
@@ -32,6 +31,9 @@
 .IMPORT set_mem
 .IMPORT inc_mem
 .IMPORT print_mem
+
+# from util.s
+.IMPORT report_error
 
 ##########
 load_objects:
@@ -1209,16 +1211,6 @@ print_modules_done:
 
     arb 3
     ret 0
-.ENDFRAME
-
-##########
-report_error:
-.FRAME message;
-    # we don't bother with updating the stack pointer, this function never returns
-    add [rb + message], 0, [rb + 2]
-    add [input_line_num], 0, [rb + 1]
-    add [input_column_num], 0, [rb]
-    call report_error_at_location
 .ENDFRAME
 
 ##########

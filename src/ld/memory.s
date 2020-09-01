@@ -8,7 +8,7 @@
 # from libxib/print.s
 .IMPORT print_num
 
-# from ld_split.s
+# from util.s
 .IMPORT report_error
 
 ##########
