@@ -713,7 +713,7 @@ start_new_file:
     arb -0
 
     # TODO maintain current file index, increment it here
-    add 1, 0, [input_line_num]
+    add 0, 0, [input_line_num]
     add 1, 0, [input_column_num]
 
     arb 0
