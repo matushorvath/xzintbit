@@ -1,4 +1,3 @@
-
 .EXPORT is_digit
 .EXPORT is_alpha
 .EXPORT is_alphanum

@@ -9,6 +9,8 @@
 
 # from as_split.s
 .IMPORT global_head
+
+# from memory.s
 .IMPORT mem_head
 .IMPORT mem_tail
 .IMPORT mem_index
