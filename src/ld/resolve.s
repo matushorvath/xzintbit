@@ -11,7 +11,7 @@
 .IMPORT strcmp
 .IMPORT zeromem
 
-# from ld_split.s
+# from data.s
 .IMPORT module_head
 .IMPORT symbol_head
 .IMPORT symbol_tail

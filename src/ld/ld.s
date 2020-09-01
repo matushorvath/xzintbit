@@ -5,8 +5,13 @@
 .IMPORT include_objects
 .IMPORT resolve_symbols
 
+# from relocate.s
 .IMPORT relocate
+
+# from link.s
 .IMPORT connect_imports
+
+# from output.s
 .IMPORT print_modules
 #.IMPORT dump_symbols
 
