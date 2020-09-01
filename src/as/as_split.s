@@ -172,7 +172,7 @@ parse_call_directive_eof:
 
 parse_call_directive_eoi:
     call parse_dir_eoi
-    jz  0, parse_done
+    jz  0, parse_loop
 
 parse_done:
     arb 1

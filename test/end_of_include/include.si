@@ -1,6 +1,10 @@
-# This file contains exactly six lines
+# This
+# file
+# contains
+# ten
+# lines
 
-# Start a frame that will be finished in main.s
-.FRAME
+.SYMBOL first_included 0
+.SYMBOL last_included 0
 
 .EOI

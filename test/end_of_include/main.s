@@ -1,8 +1,10 @@
-# End the frame that was started in include.si
 # This will detect if include.si was actually included
-.ENDFRAME
+out     [first_included]
 
 # Intentionally cause a compile error, we expect the line number to be correct
-.NONEXISTENT
+out               [nonexistent]
+
+# This will detect if include.si was actually included
+out                         [last_included]
 
 .EOF
