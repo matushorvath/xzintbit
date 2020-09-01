@@ -1,13 +1,12 @@
 .EXPORT load_objects
 
 # from libxib/heap.s
-.IMPORT alloc
 .IMPORT free
 
-# from libxib/string.s
-.IMPORT zeromem
-
 # from data.s
+.IMPORT create_module
+.IMPORT create_import
+.IMPORT create_export
 .IMPORT module_head
 .IMPORT module_tail
 
@@ -36,8 +35,10 @@ load_objects_loop:
     jnz [rb + tmp], load_objects_load_done
 
     # create a module
+    add [is_library], 0, [rb - 1]
+    arb -1
     call create_module
-    add [rb - 2], 0, [rb + module]
+    add [rb - 3], 0, [rb + module]
 
     # we have .C, load the code
     add [rb + module], 0, [rb - 1]
@@ -150,45 +151,6 @@ expect_directive:
 expect_directive_error:
     add [rb + error_message], 0, [rb]
     call report_error
-.ENDFRAME
-
-##########
-create_module:
-.FRAME module
-    arb -1
-
-    # allocate a block
-    add MODULE_SIZE, 0, [rb - 1]
-    arb -1
-    call alloc
-    add [rb - 3], 0, [rb + module]
-
-    # initialize to zeros
-    add [rb + module], 0, [rb - 1]
-    add MODULE_SIZE, 0, [rb - 2]
-    arb -2
-    call zeromem
-
-    # object files are mandatory, libraries are optional
-    add [rb + module], MODULE_NEEDED, [ip + 3]
-    eq  [is_library], 0, [0]
-
-    # append to the tail if any
-    jz  [module_tail], create_module_is_first
-
-    add [module_tail], MODULE_NEXT_PTR, [ip + 3]
-    add [rb + module], 0, [0]
-    add [rb + module], 0, [module_tail]
-
-    jz  0, create_module_done
-
-create_module_is_first:
-    add [rb + module], 0, [module_head]
-    add [rb + module], 0, [module_tail]
-
-create_module_done:
-    arb 1
-    ret 0
 .ENDFRAME
 
 ##########
@@ -398,94 +360,16 @@ load_exported_done:
 .ENDFRAME
 
 ##########
-create_import:
-.FRAME module; import, tmp
-    arb -2
-
-    # allocate a block
-    add IMPORT_SIZE, 0, [rb - 1]
-    arb -1
-    call alloc
-    add [rb - 3], 0, [rb + import]
-
-    # initialize to zeros
-    add [rb + import], 0, [rb - 1]
-    add IMPORT_SIZE, 0, [rb - 2]
-    arb -2
-    call zeromem
-
-    # save module pointer
-    add [rb + import], IMPORT_MODULE, [ip + 3]
-    add [rb + module], 0, [0]
-
-    # add to the head of doubly-linked list
-    add [rb + module], MODULE_IMPORTS_HEAD, [ip + 1]
-    add [0], 0, [rb + tmp]
-
-    add [rb + import], IMPORT_NEXT_PTR, [ip + 3]
-    add [rb + tmp], 0, [0]
-
-    add [rb + import], IMPORT_PREV_PTR, [ip + 3]
-    add 0, 0, [0]
-
-    add [rb + module], MODULE_IMPORTS_HEAD, [ip + 3]
-    add [rb + import], 0, [0]
-
-    arb 2
-    ret 1
-.ENDFRAME
-
-##########
-create_export:
-.FRAME module; export, tmp
-    arb -2
-
-    # allocate a block
-    add EXPORT_SIZE, 0, [rb - 1]
-    arb -1
-    call alloc
-    add [rb - 3], 0, [rb + export]
-
-    # initialize to zeros
-    add [rb + export], 0, [rb - 1]
-    add EXPORT_SIZE, 0, [rb - 2]
-    arb -2
-    call zeromem
-
-    # save module pointer
-    add [rb + export], EXPORT_MODULE, [ip + 3]
-    add [rb + module], 0, [0]
-
-    # default export address is -1, not 0
-    add [rb + export], EXPORT_ADDRESS, [ip + 3]
-    add -1, 0, [0]
-
-    # add to the head of doubly-linked list
-    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 1]
-    add [0], 0, [rb + tmp]
-
-    add [rb + export], EXPORT_NEXT_PTR, [ip + 3]
-    add [rb + tmp], 0, [0]
-
-    add [rb + export], EXPORT_PREV_PTR, [ip + 3]
-    add 0, 0, [0]
-
-    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 3]
-    add [rb + export], 0, [0]
-
-    arb 2
-    ret 1
-.ENDFRAME
-
-##########
 add_linker_symbols:
 .FRAME module, export
     arb -2
 
     # create a dummy module at the end
     # create a module
+    add [is_library], 0, [rb - 1]
+    arb -1
     call create_module
-    add [rb - 2], 0, [rb + module]
+    add [rb - 3], 0, [rb + module]
 
     # the dummy module exports a __heap_start symbol
     add [rb + module], 0, [rb - 1]
