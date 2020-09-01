@@ -28,28 +28,28 @@ test-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)
 
 $(BINDIR)/%.txt: $(BINDIR)/%.input
-	echo -n '$(NAME): executing ' >> $(TESTLOG)
+	printf '$(NAME): executing ' >> $(TESTLOG)
 	$(ICVM) $< > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
-	echo -n '$(NAME): linking ' >> $(TESTLOG)
+	printf '$(NAME): linking ' >> $(TESTLOG)
 	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
 
 $(BINDIR)/%.a: $(OBJDIR)/%.o
-	echo -n '$(NAME): archiving ' >> $(TESTLOG)
+	printf '$(NAME): archiving ' >> $(TESTLOG)
 	echo .L | cat - $^ > $@ || true
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.s
-	echo -n '$(NAME): assembling ' >> $(TESTLOG)
+	printf '$(NAME): assembling ' >> $(TESTLOG)
 	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
