@@ -5,7 +5,6 @@
 .IMPORT output_object
 
 # from parser.s
-.IMPORT initialize
 .IMPORT parse
 
     arb stack
@@ -18,7 +17,6 @@ main:
 .FRAME
     arb -0
 
-    call initialize
     call parse
     call do_fixups
     call output_object

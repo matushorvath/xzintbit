@@ -19,9 +19,11 @@
 .IMPORT token_line_num
 .IMPORT token_column_num
 
+# from parse_call_ret.s
+.IMPORT relocation_symbol
+
 # from parser.s
 .IMPORT current_address
-.IMPORT relocation_symbol
 
 # from util.s
 .IMPORT report_error
