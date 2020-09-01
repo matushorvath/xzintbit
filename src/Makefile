@@ -26,7 +26,7 @@ build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input
 build-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib
 
-AS_OBJS = as.o fixup.o frame.o global.o lexer.o memory.o object.o parse_call_ret.o \
+AS_OBJS = as.o fixup.o frame.o global.o lexer.o memory.o object.o parse_call_ret.o parse_data.o \
 	parse_frame.o parse_instruction.o parse_param.o parse_symbol.o parser.o util.o
 
 $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
