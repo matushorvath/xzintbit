@@ -1,14 +1,13 @@
 .EXPORT set_mem
 .EXPORT set_mem_str
 .EXPORT inc_mem_at
-
-# TODO these should be private
-.EXPORT mem_head
-.EXPORT mem_tail
-.EXPORT mem_index
+.EXPORT print_mem
 
 # from libxib/heap.s
 .IMPORT alloc
+
+# from libxib/print.s
+.IMPORT print_num
 
 # from util.s
 .IMPORT report_error
@@ -134,6 +133,65 @@ inc_mem_at_this_block:
 
     arb 1
     ret 3
+.ENDFRAME
+
+##########
+print_mem:
+.FRAME tmp, buffer, limit, index, first
+    arb -5
+
+    # print .C
+    out '.'
+    out 'C'
+    out 10
+
+    add 1, 0, [rb + first]
+
+    add [mem_head], 0, [rb + buffer]
+    jz  [mem_head], print_mem_done
+
+print_mem_block:
+    add 1, 0, [rb + index]
+
+    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
+    add MEM_BLOCK_SIZE, 0, [rb + limit]
+    eq  [rb + buffer], [mem_tail], [rb + tmp]
+    jz  [rb + tmp], print_mem_byte
+    add [mem_index], 0, [rb + limit]
+
+print_mem_byte:
+    lt  [rb + index], [rb + limit], [rb + tmp]
+    jz  [rb + tmp], print_mem_block_done
+
+    # skip comma when printing first byte
+    jnz [rb + first], print_mem_skip_comma
+    out ','
+
+print_mem_skip_comma:
+    add 0, 0, [rb + first]
+
+    add [rb + buffer], [rb + index], [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    add [rb + tmp], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add [rb + index], 1, [rb + index]
+    jz  0, print_mem_byte
+
+print_mem_block_done:
+    # next block in linked list
+    add [rb + buffer], 0, [ip + 1]
+    add [0], 0, [rb + buffer]
+
+    jnz [rb + buffer], print_mem_block
+
+print_mem_done:
+    out 10
+
+    arb 5
+    ret 0
 .ENDFRAME
 
 ##########
