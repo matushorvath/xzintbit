@@ -1,0 +1,6 @@
+# This file contains exactly six lines
+
+# Start a frame that will be finished in main.s
+.FRAME
+
+.EOI

@@ -1,17 +1,16 @@
 # TODO:
 # - remember line and column for .EXPORT (perhaps in a dummy fixup record)
-# - somehow handle line numbers in case of included files (like const.si)
-#   maybe .EOI (end of include) directive to reset line number to 0 and increment file index
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
 # C call; R ret; B db; S ds
-# F .FRAME; D .ENDFRAME; Y .SYMBOL; E .EXPORT; I .IMPORT; N .EOF
+# F .FRAME; D .ENDFRAME; Y .SYMBOL; E .EXPORT; I .IMPORT; N .EOF; O EOI
 # $ EOL; P rb; I ip
 # + - = , : ; [ ]
 # n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
 .EXPORT get_token
+.EXPORT start_new_file
 .EXPORT token_type
 .EXPORT token_value
 .EXPORT token_line_num
@@ -545,8 +544,8 @@ read_directive:
 
 ##########
 detect_directive:
-.FRAME string, length; tmp, char0
-    arb -2
+.FRAME string, length; tmp, char0, char2
+    arb -3
 
     # this uses a perfect hash function, generated using gperf and a list of directives
     # gperf < doc/gperf-directive.in
@@ -566,18 +565,31 @@ detect_directive:
     lt  'Z', [rb + char0], [rb + tmp]
     jnz [rb + tmp], detect_directive_is_not
 
+    # read third character, check that it is an uppercase letter
+    add [rb + string], 2, [ip + 1]
+    add [0], 0, [rb + char2]
+
+    lt  [rb + char2], 'A', [rb + tmp]
+    jnz [rb + tmp], detect_directive_is_not
+    lt  'Z', [rb + char2], [rb + tmp]
+    jnz [rb + tmp], detect_directive_is_not
+
     # calculate indexes into the asso_values table
     add [rb + char0], -'A', [rb + char0]
+    add [rb + char2], -'A', [rb + char2]
 
     # look up the hash value (store to char0)
     add detect_directive_asso_values, [rb + char0], [ip + 1]
     add [0], [rb + length], [rb + char0]
 
+    add detect_directive_asso_values, [rb + char2], [ip + 1]
+    add [0], [rb + char0], [rb + char0]
+
     # check hash limit MAX_HASH_VALUE
-    lt  13, [rb + char0], [rb + tmp]
+    lt  18, [rb + char0], [rb + tmp]
     jnz [rb + tmp], detect_directive_is_not
 
-    # find candidate keyword, compare input string with the candidate
+    # find candidate directive, compare input string with the candidate
     mul [rb + char0], 10, [rb + tmp]
     add detect_directive_wordlist, [rb + tmp], [rb - 1]
     add [rb + string], 0, [rb - 2]
@@ -590,7 +602,7 @@ detect_directive:
     add detect_directive_tokens, [rb + char0], [ip + 1]
     add [0], 0, [rb + tmp]
 
-    arb 2
+    arb 3
     ret 2
 
 detect_directive_is_not:
@@ -600,36 +612,42 @@ detect_directive_is_not:
 
 detect_directive_asso_values:
     # copied from gperf-directive.c
-    db                      14, 14, 14, 14,  5
-    db   0, 14, 14,  4, 14, 14, 14, 14, 14, 14
-    db  14, 14, 14,  0, 14, 14, 14, 14, 14, 14
-    db  14, 14, 14, 14, 14, 14, 14, 14, 14, 14
-    db  14
+    db                       0, 19, 19,  5,  5
+    db   5, 19, 19,  0, 19, 19, 19,  5, 19, 19
+    db   0, 19, 19,  5, 19, 19, 19, 19, 19, 19
+    db  19, 19, 19, 19, 19, 19, 19, 19, 19, 19
+    db  19
 
 detect_directive_wordlist:
     # copied from gperf-directive.c
-    ds  50, 0
+    ds  60, 0
+    db  "IMPORT", 0, 0, 0, 0
+    ds  10, 0
+    db  "EOI", 0, 0, 0, 0, 0, 0, 0
+    ds  10, 0
     db  "FRAME", 0, 0, 0, 0, 0
-    db  "SYMBOL", 0, 0, 0, 0
+    db  "EXPORT", 0, 0, 0, 0
     ds  10, 0
     db  "EOF", 0, 0, 0, 0, 0, 0, 0
-    ds  10, 0
-    db  "IMPORT", 0, 0, 0, 0
-    db  "EXPORT", 0, 0, 0, 0
+    ds  20, 0
+    db  "SYMBOL", 0, 0, 0, 0
     ds  10, 0
     db  "ENDFRAME", 0, 0
 
 detect_directive_tokens:
-    ds  5, 0
-    db  'F'
-    db  'Y'
+    ds  6, 0
+    db  'I'   # IMPORT
     ds  1, 0
-    db  'N'
+    db  'O'   # EOI
     ds  1, 0
-    db  'I'
-    db  'E'
+    db  'F'   # FRAME
+    db  'E'   # EXPORT
     ds  1, 0
-    db  'D'
+    db  'N'   # EOF
+    ds  2, 0
+    db  'Y'   # SYMBOL
+    ds  1, 0
+    db  'D'   # ENDFRAME
 .ENDFRAME
 
 ##########
@@ -687,6 +705,19 @@ unget_input_same_line:
 unget_input_done:
     arb 1
     ret 1
+.ENDFRAME
+
+##########
+start_new_file:
+.FRAME
+    arb -0
+
+    # TODO maintain current file index, increment it here
+    add 1, 0, [input_line_num]
+    add 1, 0, [input_column_num]
+
+    arb 0
+    ret 0
 .ENDFRAME
 
 ##########

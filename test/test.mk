@@ -50,7 +50,7 @@ $(BINDIR)/%.a: $(OBJDIR)/%.o
 
 $(OBJDIR)/%.o: %.s
 	echo -n '$(NAME): assembling ' >> $(TESTLOG)
-	$(ICVM) $(ICAS) < $< > $@ || ( cat $@ ; true )
+	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; true )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
