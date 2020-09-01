@@ -1,5 +1,7 @@
 # TODO:
 # - remember line and column for .EXPORT (perhaps in a dummy fixup record)
+# - somehow handle line numbers in case of included files (like const.si)
+#   maybe .EOI (end of include) directive to reset line number to 0 and increment file index
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out

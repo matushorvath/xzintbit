@@ -1,6 +1,8 @@
 # from as_split.s
 .IMPORT initialize
 .IMPORT parse
+
+# from fixup.s
 .IMPORT do_fixups
 
 # from object.s
