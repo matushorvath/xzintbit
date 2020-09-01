@@ -1,8 +1,10 @@
 # from load.s
 .IMPORT load_objects
 
+# from resolve.s
 .IMPORT include_objects
 .IMPORT resolve_symbols
+
 .IMPORT relocate
 .IMPORT connect_imports
 .IMPORT print_modules
