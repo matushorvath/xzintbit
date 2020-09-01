@@ -4,14 +4,14 @@
 .IMPORT print_num
 .IMPORT print_str
 
-# from util.s
-.IMPORT report_symbol_error
-
-# from as_split.s
+# from global.s
 .IMPORT global_head
 
 # from memory.s
 .IMPORT print_mem
+
+# from util.s
+.IMPORT report_symbol_error
 
 ##########
 output_object:
