@@ -37,7 +37,7 @@ install:
 	cp stage2/ld.input bin/ld.input
 
 # Test
-.PHONY: install
+.PHONY: test
 test: build
 	rm -rf $(TESTLOG)
 	failed=0 ; \

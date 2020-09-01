@@ -1,5 +1,6 @@
+# from load.s
 .IMPORT load_objects
-.IMPORT add_linker_symbols
+
 .IMPORT include_objects
 .IMPORT resolve_symbols
 .IMPORT relocate
@@ -18,7 +19,6 @@ main:
     arb -0
 
     call load_objects
-    call add_linker_symbols
     call include_objects
     call resolve_symbols
     call relocate
