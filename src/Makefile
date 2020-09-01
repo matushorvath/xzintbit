@@ -35,7 +35,7 @@ $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
 $(OBJDIR)/as/%.o: $(SRCDIR)/as/const.si $(SRCDIR)/as/%.s
 	$(run-as)
 
-LD_OBJS = ld.o ld_split.o memory.o util.o
+LD_OBJS = ld.o ld_split.o lexer.o load.o memory.o util.o
 
 $(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)

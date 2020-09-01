@@ -3,7 +3,7 @@
 # from libxib/error.s
 .IMPORT report_error_at_location
 
-# from ld_split.s
+# from lexer.s
 .IMPORT input_line_num
 .IMPORT input_column_num
 
