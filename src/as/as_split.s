@@ -25,6 +25,7 @@
 
 # from lexer.s
 .IMPORT get_token
+.IMPORT start_new_file
 .IMPORT token_type
 .IMPORT token_value
 .IMPORT token_line_num
@@ -103,6 +104,8 @@ parse_loop:
     jnz [rb + tmp], parse_call_directive_import_export
     eq  [token_type], 'N', [rb + tmp]
     jnz [rb + tmp], parse_call_directive_eof
+    eq  [token_type], 'O', [rb + tmp]
+    jnz [rb + tmp], parse_call_directive_eoi
 
     add err_unexpected_token, 0, [rb]
     call report_error
@@ -165,6 +168,10 @@ parse_call_directive_import_export:
 
 parse_call_directive_eof:
     call parse_dir_eof
+    jz  0, parse_done
+
+parse_call_directive_eoi:
+    call parse_dir_eoi
     jz  0, parse_done
 
 parse_done:
@@ -1103,6 +1110,25 @@ parse_dir_eof:
     call report_error
 
 parse_dir_eof_done:
+    arb 0
+    ret 0
+.ENDFRAME
+
+##########
+parse_dir_eoi:
+.FRAME
+    arb -0
+
+    # detect missing .ENDFRAME
+    jz  [is_frame], parse_dir_eoi_done
+
+    add err_expect_endframe, 0, [rb + 0]
+    call report_error
+
+parse_dir_eoi_done:
+    # end of included file, reset lexer position
+    call start_new_file
+
     arb 0
     ret 0
 .ENDFRAME

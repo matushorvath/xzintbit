@@ -162,6 +162,12 @@ You can define a symbol with an arbitrary constant value like this:
 
 This feature can be used to define compile-time constants. Symbols defined like this are handled the same as any other global symbol.
 
+# The .EOI Directive
+
+In addition to the `.EOF` directive which indicates the end of a source file, there is also an `.EOI` directive to indicate the end of an included file. This is to support the pattern where multiple files are concatenated to form one source file; for example to extract common constants into a header file that is included in compilation of each other source file.
+
+The `.EOI` directive does not cause the compiler to stop processing input, it just resets the line number and column number that is internally maintained by the assembler. This allows any error messages caused by compiling subsequent files to contain correct line and column numbers.
+
 Instructions
 ------------
 
