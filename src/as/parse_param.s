@@ -12,15 +12,15 @@
 # from frame.s
 .IMPORT find_frame_symbol
 
+# from global.s
+.IMPORT relocation_symbol
+
 # from lexer.s
 .IMPORT get_token
 .IMPORT token_type
 .IMPORT token_value
 .IMPORT token_line_num
 .IMPORT token_column_num
-
-# from parse_call_ret.s
-.IMPORT relocation_symbol
 
 # from parser.s
 .IMPORT current_address

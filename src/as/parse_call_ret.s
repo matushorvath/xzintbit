@@ -1,13 +1,12 @@
-.EXPORT init_relocations
 .EXPORT parse_call
 .EXPORT parse_ret
-.EXPORT relocation_symbol
 
 # from fixup.s
 .IMPORT add_fixup
 
 # from global.s
 .IMPORT set_global_symbol_type
+.IMPORT relocation_symbol
 
 # from lexer.s
 .IMPORT get_token
@@ -28,22 +27,6 @@
 
 # from util.s
 .IMPORT report_error
-
-##########
-init_relocations:
-.FRAME symbol
-    arb -1
-
-    # add a dummy symbol to store relocations not related to a symbol
-    # set symbol type to 4 (relocation)
-    add relocation_symbol, 0, [rb - 1]
-    add 4, 0, [rb - 2]
-    arb -2
-    call set_global_symbol_type
-
-    arb 1
-    ret 0
-.ENDFRAME
 
 ##########
 parse_call:
@@ -175,12 +158,5 @@ parse_ret_done:
     arb 2
     ret 0
 .ENDFRAME
-
-##########
-# globals
-
-# dummy symbol identifier used to store non-symbol related relocations
-relocation_symbol:
-    db  "", 0
 
 .EOF
