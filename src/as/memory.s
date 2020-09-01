@@ -1,3 +1,5 @@
+# TODO merge with ld/memory.s
+
 .EXPORT set_mem
 .EXPORT set_mem_str
 .EXPORT inc_mem_at
