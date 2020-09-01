@@ -7,7 +7,7 @@
 # from libxib/string.s
 .IMPORT zeromem
 
-# from ld_split.s
+# from data.s
 .IMPORT module_head
 .IMPORT module_tail
 
