@@ -1,12 +1,12 @@
-# from as_split.s
-.IMPORT initialize
-.IMPORT parse
-
 # from fixup.s
 .IMPORT do_fixups
 
 # from object.s
 .IMPORT output_object
+
+# from parser.s
+.IMPORT initialize
+.IMPORT parse
 
     arb stack
 
