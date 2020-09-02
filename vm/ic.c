@@ -10,41 +10,23 @@
 #   include <io.h>
 #endif
 
+#include "profile.h"
+
 int64_t *mem = NULL;
 int64_t mem_size = 0;
 
 int64_t ip = 0;
 int64_t rb = 0;
 
-#ifdef ICVM_PROFILE
-    struct {
-        int64_t max_mem_size;
-        int inst_count;
-    } profile;
-
-    void print_profile() {
-        fprintf(stderr, "profile: max_mem_size = %" PRId64 " inst_count = %d\n",
-            profile.max_mem_size, profile.inst_count);
-
-        FILE* fp = fopen("icvm_profile.csv", "at");
-        fprintf(fp, "%" PRId64 ", %d\n", profile.max_mem_size, profile.inst_count);
-        fclose(fp);
-    }
-#endif
-
 void resize_mem(int64_t addr) {
+    profile_addr(addr);
+
     if (addr >= mem_size) {
         int64_t old_mem_size = mem_size;
         while (addr >= mem_size) mem_size <<= 1;
         mem = (int64_t *)realloc(mem, mem_size * sizeof(int64_t));
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int64_t));
     }
-
-#   ifdef ICVM_PROFILE
-        if (addr >= profile.max_mem_size) {
-            profile.max_mem_size = addr + 1;
-        }
-#   endif
 }
 
 int64_t get_mem(int64_t addr) {
@@ -91,9 +73,7 @@ void set_param(int idx, int64_t val) {
 
 void run(int64_t (*get_input)(), void (*set_output)(int64_t)) {
     while (true) {
-#       ifdef ICVM_PROFILE
-            profile.inst_count++;
-#       endif
+        profile_inst();
 
         int oc = get_mem(ip) % 100;
 
@@ -167,14 +147,11 @@ void set_output(int64_t val) {
 }
 
 int main(int argc, char **argv) {
-#   ifdef _WIN32
-        _setmode(_fileno(stdout), _O_BINARY);
-#   endif
+#ifdef _WIN32
+    _setmode(_fileno(stdout), _O_BINARY);
+#endif
 
-#   ifdef ICVM_PROFILE
-        profile.max_mem_size = 0;
-        profile.inst_count = 0;
-#   endif
+    profile_init();
 
     mem_size = 64;
     mem = (int64_t*)malloc(mem_size * sizeof(int64_t));
@@ -196,9 +173,7 @@ int main(int argc, char **argv) {
 
     run(get_input, set_output);
 
-#   ifdef ICVM_PROFILE
-        print_profile();
-#   endif
+    profile_done();
 
     return 0;
 }

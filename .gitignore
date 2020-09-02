@@ -3,7 +3,7 @@ local.*
 icvm_profile.csv
 vm/ic
 vm/ic.exe
-vm/ic.o
+vm/*.o
 stage1
 stage2
 src/bin
