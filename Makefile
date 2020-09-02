@@ -1,5 +1,9 @@
 CFLAGS = -O3 -Wall -Werror -std=c11
 
+ifeq ($(ICVM_PROFILE),y)
+	CFLAGS += -DICVM_PROFILE
+endif
+
 TESTDIRS = $(sort $(dir $(wildcard test/*/*)))
 export TESTLOG = $(abspath test/test.log)
 

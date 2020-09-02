@@ -1,5 +1,6 @@
 *.tmp
 local.*
+icvm_profile.csv
 vm/ic
 vm/ic.exe
 vm/ic.o
