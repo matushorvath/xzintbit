@@ -20,11 +20,14 @@ endef
 
 # Build
 .PHONY: build
-build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input
+build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input print-profile
 
 .PHONY: build-prep
 build-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib
+ifeq ($(ICVM_PROFILE),y)
+	rm -f icvm_profile.csv
+endif
 
 AS_OBJS = as.o fixup.o frame.o global.o lexer.o memory.o object.o parse_call_ret.o parse_data.o \
 	parse_eof_eoi.o parse_frame.o parse_instruction.o parse_param.o parse_symbol.o parser.o util.o
@@ -50,6 +53,13 @@ $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 
 $(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/%.s
 	$(run-as)
+
+.PHONY: print-profile
+print-profile:
+ifeq ($(ICVM_PROFILE),y)
+	[ ! -f icvm_profile.csv ] || < icvm_profile.csv awk -F, \
+		'{m=$$1>m?$$1:m;i+=$$2}END{print "summary: max_mem_size =",m,"inst_count =",i}'
+endif
 
 # Clean
 .PHONY: clean
