@@ -1,5 +1,3 @@
-# TODO merge with ld/memory.s
-
 .EXPORT set_mem
 .EXPORT set_mem_str
 .EXPORT inc_mem
@@ -234,11 +232,6 @@ print_mem:
 .FRAME tmp, buffer, limit, index, first
     arb -5
 
-    # print .C
-    out '.'
-    out 'C'
-    out 10
-
     add 1, 0, [rb + first]
 
     add [mem_head], 0, [rb + buffer]
@@ -282,8 +275,6 @@ print_mem_block_done:
     jnz [rb + buffer], print_mem_block
 
 print_mem_done:
-    out 10
-
     arb 5
     ret 0
 .ENDFRAME

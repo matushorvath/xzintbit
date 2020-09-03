@@ -18,13 +18,29 @@ output_object:
 .FRAME
     arb -0
 
-    # print compiled memory contents
-    call print_mem
-
-    # print relocations, imported and exported symbols
+    call print_code
     call print_reloc
     call print_imports
     call print_exports
+
+    arb 0
+    ret 0
+.ENDFRAME
+
+##########
+print_code:
+.FRAME
+    arb -0
+
+    # print .C
+    out '.'
+    out 'C'
+    out 10
+
+    # print compiled memory contents
+    call print_mem
+
+    out 10
 
     arb 0
     ret 0
