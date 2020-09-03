@@ -154,25 +154,25 @@ inc_mem_internal:
 
     add [rb + head], 0, [rb + buffer]
 
-inc_mem_at_loop:
+inc_mem_internal_loop:
     # any more blocks?
-    jnz [rb + buffer], inc_mem_at_have_block
+    jnz [rb + buffer], inc_mem_internal_have_block
 
     add err_invalid_address, 0, [rb]
     call report_error
 
-inc_mem_at_have_block:
+inc_mem_internal_have_block:
     # is this the block we need?
-    jz  [rb + index], inc_mem_at_this_block
+    jz  [rb + index], inc_mem_internal_this_block
     add [rb + index], -1, [rb + index]
 
     # next block in linked list
     add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
-    jz  0, inc_mem_at_loop
+    jz  0, inc_mem_internal_loop
 
-inc_mem_at_this_block:
+inc_mem_internal_this_block:
     # set the value
     add [rb + buffer], [rb + offset], [ip + 1]
     add [0], 0, [rb + tmp]

@@ -10,8 +10,10 @@
 .IMPORT global_head
 
 # from memory.s
-.IMPORT calc_fixup
-.IMPORT inc_mem_at
+.IMPORT inc_mem
+.IMPORT mem_head
+.IMPORT mem_tail
+.IMPORT mem_index
 
 # from util.s
 .IMPORT report_symbol_error
@@ -112,17 +114,14 @@ do_fixups_fixup:
     add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
     add [0], 0, [rb + fixup_address]
 
-    # find out which memory block should be updated
-    add [rb + fixup_address], 0, [rb - 1]
-    arb -1
-    call calc_fixup
-
-    # do the fixup
-    add [rb + symbol_address], 0, [rb - 1]
-    add [rb - 3], 0, [rb - 2]
-    add [rb - 4], 0, [rb - 3]
-    arb -3
-    call inc_mem_at
+    # increment the memory to do the fixup
+    add [mem_head], 0, [rb - 1]
+    add [mem_tail], 0, [rb - 2]
+    add [mem_index], 0, [rb - 3]
+    add [rb + fixup_address], 0, [rb - 4]
+    add [rb + symbol_address], 0, [rb - 5]
+    arb -5
+    call inc_mem
 
     # move to next fixup
     add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
