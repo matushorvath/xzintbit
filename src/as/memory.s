@@ -3,6 +3,7 @@
 .EXPORT set_mem
 .EXPORT set_mem_str
 .EXPORT inc_mem_at
+.EXPORT calc_fixup
 .EXPORT print_mem
 
 # from libxib/heap.s
@@ -128,6 +129,33 @@ set_mem_str_loop:
 
 set_mem_str_done:
     arb 2
+    ret 1
+.ENDFRAME
+
+##########
+calc_fixup:
+.FRAME address; index, offset, tmp
+    arb -3
+
+    # calculate index = address / (MEM_BLOCK_SIZE - 1) ; offset = address % (MEM_BLOCK_SIZE - 1) + 1
+    add 0, 0, [rb + index]
+    add [rb + address], 0, [rb + offset]
+
+calc_fixup_loop:
+    lt  [rb + offset], MEM_BLOCK_SIZE - 1, [rb + tmp]
+    jnz [rb + tmp], calc_fixup_done
+
+    mul MEM_BLOCK_SIZE - 1, -1, [rb + tmp]
+    add [rb + offset], [rb + tmp], [rb + offset]
+    add [rb + index], 1, [rb + index]
+
+    jz  0, calc_fixup_loop
+
+calc_fixup_done:
+    # data in memory blocks starts at offset 1
+    add [rb + offset], 1, [rb + offset]
+
+    arb 3
     ret 1
 .ENDFRAME
 
