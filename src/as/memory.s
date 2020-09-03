@@ -2,9 +2,12 @@
 
 .EXPORT set_mem
 .EXPORT set_mem_str
-.EXPORT inc_mem_at
-.EXPORT calc_fixup
+.EXPORT inc_mem
 .EXPORT print_mem
+
+.EXPORT mem_head
+.EXPORT mem_tail
+.EXPORT mem_index
 
 # from libxib/heap.s
 .IMPORT alloc
@@ -133,7 +136,34 @@ set_mem_str_done:
 .ENDFRAME
 
 ##########
-calc_fixup:
+inc_mem:
+.FRAME head, tail, tail_index, address, increment; index, offset, tmp
+    arb -3
+
+    # find out which memory block should be updated
+    add [rb + address], 0, [rb - 1]
+    arb -1
+    call calc_mem
+
+    add [rb - 3], 0, [rb + index]
+    add [rb - 4], 0, [rb + offset]
+
+    # update the memory
+    add [rb + head], 0, [rb - 1]
+    add [rb + tail], 0, [rb - 2]
+    add [rb + tail_index], 0, [rb - 3]
+    add [rb + index], 0, [rb - 4]
+    add [rb + offset], 0, [rb - 5]
+    add [rb + increment], 0, [rb - 6]
+    arb -6
+    call inc_mem_internal
+
+    arb 3
+    ret 5
+.ENDFRAME
+
+##########
+calc_mem:
 .FRAME address; index, offset, tmp
     arb -3
 
@@ -141,17 +171,17 @@ calc_fixup:
     add 0, 0, [rb + index]
     add [rb + address], 0, [rb + offset]
 
-calc_fixup_loop:
+calc_mem_loop:
     lt  [rb + offset], MEM_BLOCK_SIZE - 1, [rb + tmp]
-    jnz [rb + tmp], calc_fixup_done
+    jnz [rb + tmp], calc_mem_done
 
     mul MEM_BLOCK_SIZE - 1, -1, [rb + tmp]
     add [rb + offset], [rb + tmp], [rb + offset]
     add [rb + index], 1, [rb + index]
 
-    jz  0, calc_fixup_loop
+    jz  0, calc_mem_loop
 
-calc_fixup_done:
+calc_mem_done:
     # data in memory blocks starts at offset 1
     add [rb + offset], 1, [rb + offset]
 
@@ -160,43 +190,43 @@ calc_fixup_done:
 .ENDFRAME
 
 ##########
-inc_mem_at:
-.FRAME byte, index, offset; buffer
-    arb -1
+inc_mem_internal:
+.FRAME head, tail, tail_index, index, offset, increment; buffer, tmp
+    arb -2
 
     # increase memory location in index-th memory block, location offset
     # assume this does not require creating new blocks
+    # TODO validate against tail and tail_index
 
-    add [mem_head], 0, [rb + buffer]
+    add [rb + head], 0, [rb + buffer]
 
-inc_mem_at_loop:
+inc_mem_internal_loop:
     # any more blocks?
-    jnz [rb + buffer], inc_mem_at_have_block
+    jnz [rb + buffer], inc_mem_internal_have_block
 
-    add err_invalid_fixup, 0, [rb]
+    add err_invalid_address, 0, [rb]
     call report_error
 
-inc_mem_at_have_block:
+inc_mem_internal_have_block:
     # is this the block we need?
-    jz  [rb + index], inc_mem_at_this_block
+    jz  [rb + index], inc_mem_internal_this_block
     add [rb + index], -1, [rb + index]
 
     # next block in linked list
     add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
-    jz  0, inc_mem_at_loop
+    jz  0, inc_mem_internal_loop
 
-inc_mem_at_this_block:
+inc_mem_internal_this_block:
     # set the value
-    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_in]
-    add [rb + buffer], [rb + offset], [inc_mem_at_ptr_out]
-+1 = inc_mem_at_ptr_in:
-+3 = inc_mem_at_ptr_out:
-    add [0], [rb + byte], [0]
+    add [rb + buffer], [rb + offset], [ip + 1]
+    add [0], 0, [rb + tmp]
+    add [rb + buffer], [rb + offset], [ip + 3]
+    add [rb + tmp], [rb + increment], [0]
 
-    arb 1
-    ret 3
+    arb 2
+    ret 6
 .ENDFRAME
 
 ##########
@@ -274,7 +304,7 @@ mem_index:
 ##########
 # error messages
 
-err_invalid_fixup:
-    db  "Invalid fixup location", 0
+err_invalid_address:
+    db  "Invalid memory address", 0
 
 .EOF
