@@ -1,10 +1,10 @@
 .EXPORT relocate
 
+# from libxib/memory.s
+.IMPORT inc_mem
+
 # from data.s
 .IMPORT module_head
-
-# from memory.s
-.IMPORT inc_mem
 
 ##########
 relocate:

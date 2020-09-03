@@ -4,11 +4,16 @@
 .IMPORT print_num
 .IMPORT print_str
 
+# from libxib/memory.s
+.IMPORT print_mem
+
 # from global.s
 .IMPORT global_head
 
 # from memory.s
-.IMPORT print_mem
+.IMPORT mem_head
+.IMPORT mem_tail
+.IMPORT mem_index
 
 # from util.s
 .IMPORT report_symbol_error
@@ -38,6 +43,10 @@ print_code:
     out 10
 
     # print compiled memory contents
+    add [mem_head], 0, [rb - 1]
+    add [mem_tail], 0, [rb - 2]
+    add [mem_index], 0, [rb - 3]
+    arb -3
     call print_mem
 
     out 10

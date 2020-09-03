@@ -8,7 +8,7 @@
 .IMPORT __heap_start
 
 # from error.s
-.IMPORT halt_and_catch_fire
+.IMPORT report_plain_error
 
 # from print.s
 .IMPORT print_str
@@ -23,7 +23,7 @@ alloc:
     jz  [rb + tmp], alloc_size_ok
 
     add err_allocation_size, 0, [rb]
-    call report_error
+    call report_plain_error
 
 alloc_size_ok:
     # do we have any free blocks?
@@ -45,25 +45,6 @@ alloc_create_block:
 alloc_done:
     arb 2
     ret 1
-.ENDFRAME
-
-##########
-report_error:
-.FRAME message;
-    add report_error_msg_start, 0, [rb - 1]
-    arb -1
-    call print_str
-
-    add [rb + message], 0, [rb - 1]
-    arb -1
-    call print_str
-
-    out 10
-
-    call halt_and_catch_fire
-
-report_error_msg_start:
-    db "Error: ", 0
 .ENDFRAME
 
 ##########

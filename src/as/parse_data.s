@@ -10,8 +10,8 @@
 .IMPORT token_value
 
 # from memory.s
-.IMPORT set_mem
-.IMPORT set_mem_str
+.IMPORT set_as_mem
+.IMPORT set_as_mem_str
 
 # from parse_param.s
 .IMPORT parse_value
@@ -52,7 +52,7 @@ parse_db_loop:
 
     add [rb + data], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + offset], 1, [rb + offset]
     jz  0, parse_db_after_param
@@ -61,9 +61,9 @@ parse_db_string:
     # store the string, don't store zero termination
     add [token_value], 0, [rb - 1]
     arb -1
-    call set_mem_str
+    call set_as_mem_str
 
-    # string length is returned by set_mem_str
+    # string length is returned by set_as_mem_str
     add [rb + offset], [rb - 3], [rb + offset]
 
     # free the string
@@ -130,7 +130,7 @@ parse_ds_have_comma:
 parse_ds_loop:
     add [rb + data], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + count], -1, [rb + count]
     lt  0, [rb + count], [rb + tmp]

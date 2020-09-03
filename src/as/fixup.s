@@ -4,13 +4,15 @@
 # from libxib/heap.s
 .IMPORT alloc
 
+# from libxib/memory.s
+.IMPORT inc_mem
+
 # from global.s
 .IMPORT find_global_symbol
 .IMPORT add_global_symbol
 .IMPORT global_head
 
 # from memory.s
-.IMPORT inc_mem
 .IMPORT mem_head
 .IMPORT mem_tail
 .IMPORT mem_index
