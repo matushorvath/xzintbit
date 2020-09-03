@@ -15,7 +15,7 @@
 .IMPORT token_column_num
 
 # from memory.s
-.IMPORT set_mem
+.IMPORT set_as_mem
 
 # from parse_param.s
 .IMPORT parse_in_param
@@ -40,11 +40,11 @@ parse_call:
     # 21101, current_address + 9, 0, -1
     add 21101, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [current_address], 9, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     # add a fixup (actually a relocation) for the use of current_address
     add relocation_symbol, 0, [rb - 1]
@@ -56,21 +56,21 @@ parse_call:
 
     add 0, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add -1, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     # generate code: arb -1
     # 109, -1
     add 109, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add -1, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     # this parameter is located at current_address + 8
     add 8, 0, [rb - 1]
@@ -86,15 +86,15 @@ parse_call:
     mul [rb + mode], 1000, [rb + tmp]
     add 106, [rb + tmp], [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add 0, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_call_done
@@ -125,26 +125,26 @@ parse_ret:
     # 109, param + 1
     add 109, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param], 1, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     # generate code: jz 0, [rb - ($param + 1)]
     # 2106, 0, -(param + 1)
     add 2106, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add 0, 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param], 1, [rb + tmp]
     mul [rb + tmp], -1, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_ret_done

@@ -1,10 +1,10 @@
 .EXPORT connect_imports
 
+# from libxib/memory.s
+.IMPORT inc_mem
+
 # from data.s
 .IMPORT symbol_head
-
-# from memory.s
-.IMPORT inc_mem
 
 ##########
 connect_imports:

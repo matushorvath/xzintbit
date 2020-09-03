@@ -9,7 +9,7 @@
 .IMPORT token_type
 
 # from memory.s
-.IMPORT set_mem
+.IMPORT set_as_mem
 
 # from parse_param.s
 .IMPORT parse_out_param
@@ -91,19 +91,19 @@ parse_add_mul_lt_eq_done:
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param1], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param2], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     arb 5
     ret 0
@@ -158,15 +158,15 @@ parse_jnz_jz_done:
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param1], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     arb 4
     ret 0
@@ -202,11 +202,11 @@ parse_arb_out_done:
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     arb 3
     ret 0
@@ -242,11 +242,11 @@ parse_in_done:
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     add [rb + param0], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     arb 3
     ret 0
@@ -272,7 +272,7 @@ parse_hlt_done:
 
     add [rb + op], 0, [rb - 1]
     arb -1
-    call set_mem
+    call set_as_mem
 
     arb 2
     ret 0

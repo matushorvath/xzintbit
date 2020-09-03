@@ -1,6 +1,9 @@
 .EXPORT print_modules
 .EXPORT dump_symbols
 
+# from libxib/memory.s
+.IMPORT print_mem
+
 # from libxib/print.s
 .IMPORT print_num
 .IMPORT print_str
@@ -8,9 +11,6 @@
 # from data.s
 .IMPORT module_head
 .IMPORT symbol_head
-
-# from memory.s
-.IMPORT print_mem
 
 ##########
 print_modules:
