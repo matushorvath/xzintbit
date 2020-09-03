@@ -1,5 +1,3 @@
-# TODO merge with as/memory.s
-
 .EXPORT set_mem
 .EXPORT inc_mem
 .EXPORT print_mem
