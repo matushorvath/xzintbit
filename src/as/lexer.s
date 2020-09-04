@@ -361,16 +361,25 @@ read_identifier_done:
 
 ##########
 read_number:
-.FRAME byte, digit, tmp
-    arb -3
+.FRAME byte, digit, sign, tmp
+    arb -4
 
     add 0, 0, [rb + byte]
+    add 1, 0, [rb + sign]
 
-read_number_loop:
-    # get next character
+    # get first character, process the minus sign if present
     call get_input
     add [rb - 2], 0, [rb + digit]
 
+    eq  [rb + digit], '-', [rb + tmp]
+    jz  [rb + tmp], read_number_loop
+
+    add -1, 0, [rb + sign]
+
+    call get_input
+    add [rb - 2], 0, [rb + digit]
+
+read_number_loop:
     # if it is not a digit, end
     add [rb + digit], 0, [rb - 1]
     arb -1
@@ -384,15 +393,21 @@ read_number_loop:
     mul [rb + byte], 10, [rb + byte]
     add [rb + byte], [rb + digit], [rb + byte]
 
+    # get next character
+    call get_input
+    add [rb - 2], 0, [rb + digit]
+
     jz  0, read_number_loop
 
 read_number_end:
+    mul [rb + byte], [rb + sign], [rb + byte]
+
     # unget last char
     add [rb + digit], 0, [rb - 1]
     arb -1
     call unget_input
 
-    arb 3
+    arb 4
     ret 0
 .ENDFRAME
 
