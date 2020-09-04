@@ -40,11 +40,11 @@
 # from directive.s
 .IMPORT detect_directive
 
-# from keyword.s
-.IMPORT detect_keyword
-
 # from error.s
 .IMPORT report_error
+
+# from keyword.s
+.IMPORT detect_keyword
 
 ##########
 get_token:

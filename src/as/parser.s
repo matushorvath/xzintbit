@@ -11,6 +11,9 @@
 .EXPORT err_expect_identifier
 .EXPORT err_expect_number
 
+# from error.s
+.IMPORT report_error
+
 # from lexer.s
 .IMPORT get_token
 .IMPORT token_type
@@ -42,9 +45,6 @@
 .IMPORT parse_symbol
 .IMPORT parse_dir_symbol
 .IMPORT parse_dir_import_export
-
-# from error.s
-.IMPORT report_error
 
 ##########
 parse:

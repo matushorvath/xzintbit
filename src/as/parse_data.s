@@ -4,6 +4,9 @@
 # from libxib/heap.s
 .IMPORT free
 
+# from error.s
+.IMPORT report_error
+
 # from lexer.s
 .IMPORT get_token
 .IMPORT token_type
@@ -22,9 +25,6 @@
 .IMPORT err_expect_eol
 .IMPORT err_expect_comma
 .IMPORT err_expect_number
-
-# from error.s
-.IMPORT report_error
 
 ##########
 parse_db:

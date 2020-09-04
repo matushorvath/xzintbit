@@ -6,6 +6,9 @@
 # from libxib/heap.s
 .IMPORT free
 
+# from error.s
+.IMPORT report_error
+
 # from fixup.s
 .IMPORT add_fixup
 
@@ -24,9 +27,6 @@
 
 # from parser.s
 .IMPORT current_address
-
-# from error.s
-.IMPORT report_error
 
 ##########
 parse_out_param:
