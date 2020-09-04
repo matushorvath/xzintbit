@@ -15,7 +15,7 @@
 .IMPORT is_digit
 .IMPORT is_alphanum
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

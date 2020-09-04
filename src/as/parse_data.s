@@ -23,7 +23,7 @@
 .IMPORT err_expect_comma
 .IMPORT err_expect_number
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########
