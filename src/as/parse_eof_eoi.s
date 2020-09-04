@@ -1,8 +1,8 @@
 .EXPORT parse_dir_eof
 .EXPORT parse_dir_eoi
 
-# from lexer.s
-.IMPORT start_new_file
+# from libxib/input.s
+.IMPORT reset_input_location
 
 # from parse_frame.s
 .IMPORT is_frame
@@ -39,7 +39,7 @@ parse_dir_eoi:
 
 parse_dir_eoi_done:
     # end of included file, reset lexer position
-    call start_new_file
+    call reset_input_location
 
     arb 0
     ret 0
