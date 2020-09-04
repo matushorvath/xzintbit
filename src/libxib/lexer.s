@@ -1,7 +1,7 @@
-# TODO can this file be merged with as/lexer.s?
+# TODO display line/column number instead of using just report_plain_error
 
-.EXPORT read_directive
 .EXPORT read_identifier
+.EXPORT read_string
 .EXPORT read_number
 
 # from libxib/input.s
@@ -16,37 +16,7 @@
 .IMPORT is_alphanum
 
 # from error.s
-.IMPORT report_error
-
-##########
-read_directive:
-.FRAME error_message; char, tmp
-    arb -2
-
-    call get_input
-    add [rb - 2], 0, [rb + char]
-
-    eq  [rb + char], '.', [rb + tmp]
-    jz  [rb + tmp], read_directive_error
-
-    call get_input
-    add [rb - 2], 0, [rb + char]
-
-    call get_input
-    add [rb - 2], 0, [rb + tmp]
-
-    eq  [rb + tmp], 10, [rb + tmp]
-    jz  [rb + tmp], read_directive_error
-
-    # return [rb + char]
-
-    arb 2
-    ret 1
-
-read_directive_error:
-    add [rb + error_message], 0, [rb]
-    call report_error
-.ENDFRAME
+.IMPORT report_plain_error
 
 ##########
 read_identifier:
@@ -81,7 +51,7 @@ read_identifier_loop:
     jnz [rb + tmp], read_identifier_loop
 
     add err_max_identifier_length, 0, [rb]
-    call report_error
+    call report_plain_error
 
 read_identifier_done:
     # zero terminate
@@ -92,6 +62,51 @@ read_identifier_done:
     add [rb + char], 0, [rb - 1]
     arb -1
     call unget_input
+
+    arb 4
+    ret 0
+.ENDFRAME
+
+##########
+read_string:
+.FRAME buffer, index, char, tmp
+    arb -4
+
+    # we will store the string in dynamic memory that needs to be freed by caller
+    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc
+    add [rb - 3], 0, [rb + buffer]
+
+    add 0, 0, [rb + index]
+
+    # the opening quote was already processed by caller
+
+read_string_loop:
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    # when we find a quote character, we are done
+    # TODO escaping
+    eq  [rb + char], '"', [rb + tmp]
+    jnz [rb + tmp], read_string_done
+
+    # store the character in buffer
+    add [rb + buffer], [rb + index], [ip + 3]
+    add [rb + char], 0, [0]
+
+    # increase index and check for maximum string length
+    add [rb + index], 1, [rb + index]
+    lt  [rb + index], MEM_BLOCK_SIZE - 1, [rb + tmp]
+    jnz [rb + tmp], read_string_loop
+
+    add err_max_string_length, 0, [rb]
+    call report_plain_error
+
+read_string_done:
+    # zero terminate
+    add [rb + buffer], [rb + index], [ip + 3]
+    add 0, 0, [0]
 
     arb 4
     ret 0
@@ -154,10 +169,15 @@ read_number_end:
 
 .SYMBOL IDENTIFIER_LENGTH 45
 
+# allocation block size
+.SYMBOL MEM_BLOCK_SIZE 50
+
 ##########
 # error messages
 
 err_max_identifier_length:
     db  "Maximum identifier length exceeded", 0
+err_max_string_length:
+    db  "Maximum string length exceeded", 0
 
 .EOF

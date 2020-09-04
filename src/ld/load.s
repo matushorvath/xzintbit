@@ -7,6 +7,10 @@
 .IMPORT get_input
 .IMPORT peek_input
 
+# from libxib/lexer.s
+.IMPORT read_identifier
+.IMPORT read_number
+
 # from libxib/memory.s
 .IMPORT set_mem
 
@@ -16,11 +20,6 @@
 .IMPORT create_export
 .IMPORT module_head
 .IMPORT module_tail
-
-# from lexer.s
-.IMPORT read_directive
-.IMPORT read_identifier
-.IMPORT read_number
 
 # from error.s
 .IMPORT report_error
@@ -151,6 +150,36 @@ expect_directive:
     ret 2
 
 expect_directive_error:
+    add [rb + error_message], 0, [rb]
+    call report_error
+.ENDFRAME
+
+##########
+read_directive:
+.FRAME error_message; char, tmp
+    arb -2
+
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    eq  [rb + char], '.', [rb + tmp]
+    jz  [rb + tmp], read_directive_error
+
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    call get_input
+    add [rb - 2], 0, [rb + tmp]
+
+    eq  [rb + tmp], 10, [rb + tmp]
+    jz  [rb + tmp], read_directive_error
+
+    # return [rb + char]
+
+    arb 2
+    ret 1
+
+read_directive_error:
     add [rb + error_message], 0, [rb]
     call report_error
 .ENDFRAME
