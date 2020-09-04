@@ -7,11 +7,11 @@
 # from builtin
 .IMPORT __heap_start
 
-# from error.s
-.IMPORT report_plain_error
-
 # from print.s
 .IMPORT print_str
+
+# from outside of this library
+.IMPORT report_libxib_error
 
 ##########
 alloc:
@@ -23,7 +23,7 @@ alloc:
     jz  [rb + tmp], alloc_size_ok
 
     add err_allocation_size, 0, [rb]
-    call report_plain_error
+    call report_libxib_error
 
 alloc_size_ok:
     # do we have any free blocks?

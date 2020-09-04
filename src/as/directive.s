@@ -1,3 +1,6 @@
+# this uses a perfect hash function, generated using gperf and a list of directives
+# gperf < doc/gperf-directive.in
+
 .EXPORT detect_directive
 
 # from libxib/string.s
@@ -10,9 +13,6 @@
 detect_directive:
 .FRAME string, length; tmp, char0, char2
     arb -3
-
-    # this uses a perfect hash function, generated using gperf and a list of directives
-    # gperf < doc/gperf-directive.in
 
     # check string length against MAX_WORD_LENGTH and MIN_WORD_LENGTH
     lt  8, [rb + length], [rb + tmp]

@@ -2,6 +2,7 @@
 # - have a printf-like function to print more info about errors
 
 .EXPORT report_error
+.EXPORT report_libxib_error
 .EXPORT report_symbol_error
 
 # from libxib/error.s
@@ -12,6 +13,9 @@
 .IMPORT token_column_num
 
 ##########
+report_libxib_error:
+    # We also export this as report_libxib_error, to be used for error reporting from the libxib library
+
 report_error:
 .FRAME message;
     # we don't bother with updating the stack pointer, this function never returns
