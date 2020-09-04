@@ -243,7 +243,7 @@ load_imported_loop:
     # read the identifier
     call read_identifier
     add [rb - 2], 0, [rb + identifier]
-    add [rb - 3], 0, [rb + char]
+    add [rb - 4], 0, [rb + char]
 
     # if there is no identifier, finish
     add [rb + identifier], 0, [ip + 1]
@@ -309,7 +309,7 @@ load_exported_loop:
     # read the identifier
     call read_identifier
     add [rb - 2], 0, [rb + identifier]
-    add [rb - 3], 0, [rb + char]
+    add [rb - 4], 0, [rb + char]
 
     # if there is no identifier, finish
     add [rb + identifier], 0, [ip + 1]

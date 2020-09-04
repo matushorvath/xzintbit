@@ -50,7 +50,7 @@ read_directive_error:
 
 ##########
 read_identifier:
-.FRAME buffer, char, index, tmp
+.FRAME buffer, index, char, tmp
     arb -4
 
     # we will store the identifier in dynamic memory that needs to be freed by caller
