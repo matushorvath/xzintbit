@@ -4,11 +4,11 @@
 # from libxib/input.s
 .IMPORT reset_input_location
 
-# from parse_frame.s
-.IMPORT is_frame
-
 # from error.s
 .IMPORT report_error
+
+# from parse_frame.s
+.IMPORT is_frame
 
 ##########
 parse_dir_eof:

@@ -4,19 +4,19 @@
 .EXPORT read_string
 .EXPORT read_number
 
-# from libxib/input.s
+# from error.s
+.IMPORT report_plain_error
+
+# from input.s
 .IMPORT get_input
 .IMPORT unget_input
 
-# from libxib/heap.s
+# from heap.s
 .IMPORT alloc
 
-# from libxib/string.s
+# from string.s
 .IMPORT is_digit
 .IMPORT is_alphanum
-
-# from error.s
-.IMPORT report_plain_error
 
 ##########
 read_identifier:

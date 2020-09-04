@@ -7,6 +7,9 @@
 # from libxib/memory.s
 .IMPORT inc_mem
 
+# from error.s
+.IMPORT report_symbol_error
+
 # from global.s
 .IMPORT find_global_symbol
 .IMPORT add_global_symbol
@@ -16,9 +19,6 @@
 .IMPORT mem_head
 .IMPORT mem_tail
 .IMPORT mem_index
-
-# from error.s
-.IMPORT report_symbol_error
 
 ##########
 add_fixup:

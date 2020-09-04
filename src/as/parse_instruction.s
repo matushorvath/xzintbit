@@ -4,6 +4,9 @@
 .EXPORT parse_in
 .EXPORT parse_hlt
 
+# from error.s
+.IMPORT report_error
+
 # from lexer.s
 .IMPORT get_token
 .IMPORT token_type
@@ -19,9 +22,6 @@
 .IMPORT current_address
 .IMPORT err_expect_comma
 .IMPORT err_expect_eol
-
-# from error.s
-.IMPORT report_error
 
 ##########
 parse_add_mul_lt_eq:

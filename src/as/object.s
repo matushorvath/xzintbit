@@ -7,6 +7,9 @@
 # from libxib/memory.s
 .IMPORT print_mem
 
+# from error.s
+.IMPORT report_symbol_error
+
 # from global.s
 .IMPORT global_head
 
@@ -14,9 +17,6 @@
 .IMPORT mem_head
 .IMPORT mem_tail
 .IMPORT mem_index
-
-# from error.s
-.IMPORT report_symbol_error
 
 ##########
 output_object:

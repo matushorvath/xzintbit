@@ -5,6 +5,9 @@
 # from libxib/heap.s
 .IMPORT free
 
+# from error.s
+.IMPORT report_error
+
 # from frame.s
 .IMPORT find_frame_symbol
 .IMPORT add_frame_symbol
@@ -20,9 +23,6 @@
 .IMPORT current_address
 .IMPORT err_expect_eol
 .IMPORT err_expect_identifier
-
-# from error.s
-.IMPORT report_error
 
 ##########
 parse_dir_frame:

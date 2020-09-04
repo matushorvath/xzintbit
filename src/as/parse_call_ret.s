@@ -1,6 +1,9 @@
 .EXPORT parse_call
 .EXPORT parse_ret
 
+# from error.s
+.IMPORT report_error
+
 # from fixup.s
 .IMPORT add_fixup
 
@@ -24,9 +27,6 @@
 # from parser.s
 .IMPORT current_address
 .IMPORT err_expect_eol
-
-# from error.s
-.IMPORT report_error
 
 ##########
 parse_call:

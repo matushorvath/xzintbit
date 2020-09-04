@@ -5,6 +5,9 @@
 # from libxib/heap.s
 .IMPORT free
 
+# from error.s
+.IMPORT report_error
+
 # from global.s
 .IMPORT set_global_symbol_address
 .IMPORT set_global_symbol_type
@@ -22,9 +25,6 @@
 .IMPORT err_expect_eol
 .IMPORT err_expect_number
 .IMPORT err_expect_identifier
-
-# from error.s
-.IMPORT report_error
 
 ##########
 parse_symbol:
