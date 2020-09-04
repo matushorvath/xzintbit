@@ -269,43 +269,6 @@ read_string_done:
 .ENDFRAME
 
 ##########
-read_number:
-.FRAME byte, digit, tmp
-    arb -3
-
-    add 0, 0, [rb + byte]
-
-read_number_loop:
-    # get next character
-    call get_input
-    add [rb - 2], 0, [rb + digit]
-
-    # if it is not a digit, end
-    add [rb + digit], 0, [rb - 1]
-    arb -1
-    call is_digit
-    jz  [rb - 3], read_number_end
-
-    # convert ASCII to a number
-    add [rb + digit], -'0', [rb + digit]
-
-    # byte = byte * 10 + digit
-    mul [rb + byte], 10, [rb + byte]
-    add [rb + byte], [rb + digit], [rb + byte]
-
-    jz  0, read_number_loop
-
-read_number_end:
-    # unget last char
-    add [rb + digit], 0, [rb - 1]
-    arb -1
-    call unget_input
-
-    arb 3
-    ret 0
-.ENDFRAME
-
-##########
 read_identifier_or_keyword:
 .FRAME token, buffer, tmp
     arb -3
@@ -382,6 +345,43 @@ read_identifier_done:
     call unget_input
 
     arb 4
+    ret 0
+.ENDFRAME
+
+##########
+read_number:
+.FRAME byte, digit, tmp
+    arb -3
+
+    add 0, 0, [rb + byte]
+
+read_number_loop:
+    # get next character
+    call get_input
+    add [rb - 2], 0, [rb + digit]
+
+    # if it is not a digit, end
+    add [rb + digit], 0, [rb - 1]
+    arb -1
+    call is_digit
+    jz  [rb - 3], read_number_end
+
+    # convert ASCII to a number
+    add [rb + digit], -'0', [rb + digit]
+
+    # byte = byte * 10 + digit
+    mul [rb + byte], 10, [rb + byte]
+    add [rb + byte], [rb + digit], [rb + byte]
+
+    jz  0, read_number_loop
+
+read_number_end:
+    # unget last char
+    add [rb + digit], 0, [rb - 1]
+    arb -1
+    call unget_input
+
+    arb 3
     ret 0
 .ENDFRAME
 
