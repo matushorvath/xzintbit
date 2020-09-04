@@ -39,7 +39,7 @@ $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
 $(OBJDIR)/as/%.o: $(SRCDIR)/as/const.si $(SRCDIR)/as/%.s
 	$(run-as)
 
-LD_OBJS = ld.o data.o error.o lexer.o link.o load.o output.o relocate.o resolve.o
+LD_OBJS = ld.o data.o error.o link.o load.o output.o relocate.o resolve.o
 
 $(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)
@@ -47,7 +47,7 @@ $(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
 $(OBJDIR)/ld/%.o: $(SRCDIR)/ld/const.si $(SRCDIR)/ld/%.s
 	$(run-as)
 
-LIBXIB_OBJS = libxib.o error.o heap.o input.o memory.o print.o string.o
+LIBXIB_OBJS = libxib.o error.o heap.o input.o lexer.o memory.o print.o string.o
 
 $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 	$(run-ar)
