@@ -5,7 +5,7 @@
 
 # from libxib/input.s
 .IMPORT get_input
-.IMPORT unget_input
+.IMPORT peek_input
 
 # from libxib/memory.s
 .IMPORT set_mem
@@ -201,13 +201,9 @@ load_relocated:
     arb -2
 
     # peek one character to see if we have relocated data at all
-    call get_input
-    add [rb - 2], 0, [rb + tmp]
-    add [rb + tmp], 0, [rb - 1]
-    arb -1
-    call unget_input
+    call peek_input
 
-    eq  [rb + tmp], '.', [rb + tmp]
+    eq  [rb - 2], '.', [rb + tmp]
     jnz [rb + tmp], load_relocated_done
 
 load_relocated_loop:

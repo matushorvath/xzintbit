@@ -1,5 +1,6 @@
 .EXPORT get_input
 .EXPORT unget_input
+.EXPORT peek_input
 .EXPORT reset_input_location
 .EXPORT input_line_num
 .EXPORT input_column_num
@@ -59,6 +60,24 @@ unget_input_same_line:
 unget_input_done:
     arb 1
     ret 1
+.ENDFRAME
+
+##########
+peek_input:
+.FRAME char
+    arb -1
+
+    # get input from the buffer if we have it
+    add [input_buffer], 0, [rb + char]
+    jnz [rb + char], get_input_done
+
+    # get real input and store it in input buffer
+    in  [rb + char]
+    add [rb + char], 0, [input_buffer]
+
+peek_input_done:
+    arb 1
+    ret 0
 .ENDFRAME
 
 ##########

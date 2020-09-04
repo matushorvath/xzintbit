@@ -145,7 +145,6 @@ read_number_end:
     arb -1
     call unget_input
 
-
     arb 4
     ret 0
 .ENDFRAME
