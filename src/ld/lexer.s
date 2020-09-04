@@ -6,6 +6,7 @@
 
 # from libxib/input.s
 .IMPORT get_input
+.IMPORT unget_input
 
 # from libxib/heap.s
 .IMPORT alloc
@@ -87,6 +88,11 @@ read_identifier_done:
     add [rb + buffer], [rb + index], [ip + 3]
     add 0, 0, [0]
 
+    # unget last char
+    add [rb + char], 0, [rb - 1]
+    arb -1
+    call unget_input
+
     arb 4
     ret 0
 .ENDFRAME
@@ -134,9 +140,11 @@ read_number_loop:
 read_number_end:
     mul [rb + byte], [rb + sign], [rb + byte]
 
-    # return:
-    # [rb + byte] is the numbner
-    # [rb + digit] is the next non-digit character
+    # unget last char
+    add [rb + digit], 0, [rb - 1]
+    arb -1
+    call unget_input
+
 
     arb 4
     ret 0

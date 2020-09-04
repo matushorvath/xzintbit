@@ -157,15 +157,14 @@ expect_directive_error:
 
 ##########
 load_code:
-.FRAME module; byte, char, length, tmp
-    arb -4
+.FRAME module; byte, length, tmp
+    arb -3
 
     add 0, 0, [rb + length]
 
 load_code_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
-    add [rb - 3], 0, [rb + char]
 
     # store the byte
     add [rb + module], MODULE_CODE_HEAD, [rb - 1]
@@ -178,9 +177,11 @@ load_code_loop:
     add [rb + length], 1, [rb + length]
 
     # next character should be comma or line end
-    eq  [rb + char], ',', [rb + tmp]
+    call get_input
+
+    eq  [rb - 2], ',', [rb + tmp]
     jnz [rb + tmp], load_code_loop
-    eq  [rb + char], 10, [rb + tmp]
+    eq  [rb - 2], 10, [rb + tmp]
     jnz [rb + tmp], load_code_done
 
     add err_expect_comma_eol, 0, [rb]
@@ -190,29 +191,28 @@ load_code_done:
     add [rb + module], MODULE_CODE_LENGTH, [ip + 3]
     add [rb + length], 0, [0]
 
-    arb 4
+    arb 3
     ret 1
 .ENDFRAME
 
 ##########
 load_relocated:
-.FRAME module; byte, char, tmp
-    arb -3
+.FRAME module; byte, tmp
+    arb -2
 
     # peek one character to see if we have relocated data at all
     call get_input
-    add [rb - 2], 0, [rb + char]
-    add [rb + char], 0, [rb - 1]
+    add [rb - 2], 0, [rb + tmp]
+    add [rb + tmp], 0, [rb - 1]
     arb -1
     call unget_input
 
-    eq  [rb + char], '.', [rb + tmp]
+    eq  [rb + tmp], '.', [rb + tmp]
     jnz [rb + tmp], load_relocated_done
 
 load_relocated_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
-    add [rb - 3], 0, [rb + char]
 
     # store the byte
     add [rb + module], MODULE_RELOC_HEAD, [rb - 1]
@@ -223,35 +223,37 @@ load_relocated_loop:
     call set_mem
 
     # next character should be comma or line end
-    eq  [rb + char], ',', [rb + tmp]
+    call get_input
+
+    eq  [rb - 2], ',', [rb + tmp]
     jnz [rb + tmp], load_relocated_loop
-    eq  [rb + char], 10, [rb + tmp]
+    eq  [rb - 2], 10, [rb + tmp]
     jnz [rb + tmp], load_relocated_done
 
     add err_expect_comma_eol, 0, [rb]
     call report_error
 
 load_relocated_done:
-    arb 3
+    arb 2
     ret 1
 .ENDFRAME
 
 ##########
 load_imported:
-.FRAME module; import, identifier, byte, char, tmp
-    arb -5
+.FRAME module; import, identifier, byte, tmp
+    arb -4
 
 load_imported_loop:
     # read the identifier
     call read_identifier
     add [rb - 2], 0, [rb + identifier]
-    add [rb - 4], 0, [rb + char]
 
     # if there is no identifier, finish
     add [rb + identifier], 0, [ip + 1]
     jz  [0], load_imported_done
 
-    eq  [rb + char], ':', [rb + tmp]
+    call get_input
+    eq  [rb - 2], ':', [rb + tmp]
     jnz [rb + tmp], load_imported_save_identifier
 
     add err_expect_colon, 0, [rb]
@@ -269,7 +271,6 @@ load_imported_save_identifier:
 load_imported_fixup_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
-    add [rb - 3], 0, [rb + char]
 
     # store the byte
     add [rb + import], IMPORT_FIXUPS_HEAD, [rb - 1]
@@ -280,9 +281,11 @@ load_imported_fixup_loop:
     call set_mem
 
     # next character should be comma or line end
-    eq  [rb + char], ',', [rb + tmp]
+    call get_input
+
+    eq  [rb - 2], ',', [rb + tmp]
     jnz [rb + tmp], load_imported_fixup_loop
-    eq  [rb + char], 10, [rb + tmp]
+    eq  [rb - 2], 10, [rb + tmp]
     jnz [rb + tmp], load_imported_loop
 
     add err_expect_comma_eol, 0, [rb]
@@ -294,30 +297,26 @@ load_imported_done:
     arb -1
     call free
 
-    add [rb + char], 0, [rb - 1]
-    arb -1
-    call unget_input
-
-    arb 5
+    arb 4
     ret 1
 .ENDFRAME
 
 ##########
 load_exported:
-.FRAME module; export, identifier, byte, char, tmp
-    arb -5
+.FRAME module; export, identifier, byte, tmp
+    arb -4
 
 load_exported_loop:
     # read the identifier
     call read_identifier
     add [rb - 2], 0, [rb + identifier]
-    add [rb - 4], 0, [rb + char]
 
     # if there is no identifier, finish
     add [rb + identifier], 0, [ip + 1]
     jz  [0], load_exported_done
 
-    eq  [rb + char], ':', [rb + tmp]
+    call get_input
+    eq  [rb - 2], ':', [rb + tmp]
     jnz [rb + tmp], load_exported_save_identifier
 
     add err_expect_colon, 0, [rb]
@@ -334,14 +333,15 @@ load_exported_save_identifier:
 
     call read_number
     add [rb - 2], 0, [rb + byte]
-    add [rb - 3], 0, [rb + char]
 
     # store the byte
     add [rb + export], EXPORT_ADDRESS, [ip + 3]
     add [rb + byte], 0, [0]
 
     # next character should be line end
-    eq  [rb + char], 10, [rb + tmp]
+    call get_input
+
+    eq  [rb - 2], 10, [rb + tmp]
     jnz [rb + tmp], load_exported_loop
 
     add err_expect_eol, 0, [rb]
@@ -353,11 +353,7 @@ load_exported_done:
     arb -1
     call free
 
-    add [rb + char], 0, [rb - 1]
-    arb -1
-    call unget_input
-
-    arb 5
+    arb 4
     ret 1
 .ENDFRAME
 
