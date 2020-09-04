@@ -41,7 +41,7 @@
 # from keyword.s
 .IMPORT detect_keyword
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

@@ -25,7 +25,7 @@
 # from parser.s
 .IMPORT current_address
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

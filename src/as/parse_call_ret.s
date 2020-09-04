@@ -25,7 +25,7 @@
 .IMPORT current_address
 .IMPORT err_expect_eol
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

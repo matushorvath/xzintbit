@@ -17,7 +17,7 @@
 .IMPORT mem_tail
 .IMPORT mem_index
 
-# from util.s
+# from error.s
 .IMPORT report_symbol_error
 
 ##########

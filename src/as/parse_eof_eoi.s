@@ -7,7 +7,7 @@
 # from parse_frame.s
 .IMPORT is_frame
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

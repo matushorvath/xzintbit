@@ -22,7 +22,7 @@
 .IMPORT read_identifier
 .IMPORT read_number
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

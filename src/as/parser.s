@@ -43,7 +43,7 @@
 .IMPORT parse_dir_symbol
 .IMPORT parse_dir_import_export
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

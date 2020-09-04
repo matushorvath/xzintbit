@@ -13,7 +13,7 @@
 .IMPORT strcmp
 .IMPORT strcpy
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

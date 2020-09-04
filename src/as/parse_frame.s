@@ -21,7 +21,7 @@
 .IMPORT err_expect_eol
 .IMPORT err_expect_identifier
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########

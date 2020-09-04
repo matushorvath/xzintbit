@@ -3,7 +3,7 @@
 # from libxib/string.s
 .IMPORT strcmp
 
-# from util.s
+# from error.s
 .IMPORT report_error
 
 ##########
