@@ -10,6 +10,8 @@
 # from parser.s
 .IMPORT parse
 
+##########
+# entry point
     arb stack
 
     call main

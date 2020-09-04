@@ -15,6 +15,8 @@
 .IMPORT print_modules
 #.IMPORT dump_symbols
 
+##########
+# entry point
     arb stack
 
     call main

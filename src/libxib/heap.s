@@ -74,9 +74,6 @@ free_head:
 heap_end:
     db  __heap_start
 
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE 50
-
 ##########
 # error messages
 

@@ -52,7 +52,7 @@ LIBXIB_OBJS = libxib.o error.o heap.o input.o lexer.o memory.o print.o string.o
 $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 	$(run-ar)
 
-$(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/%.s
+$(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/const.si $(SRCDIR)/libxib/%.s
 	$(run-as)
 
 .PHONY: print-profile

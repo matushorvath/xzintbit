@@ -234,12 +234,6 @@ print_mem_done:
 .ENDFRAME
 
 ##########
-# globals
-
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE 50
-
-##########
 # error messages
 
 err_invalid_address:

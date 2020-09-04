@@ -169,9 +169,6 @@ read_number_end:
 
 .SYMBOL IDENTIFIER_LENGTH 45
 
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE 50
-
 ##########
 # error messages
 
