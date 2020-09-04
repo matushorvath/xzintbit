@@ -29,8 +29,8 @@ ifeq ($(ICVM_PROFILE),y)
 	rm -f icvm_profile.csv
 endif
 
-AS_OBJS = as.o fixup.o frame.o global.o lexer.o memory.o object.o parse_call_ret.o parse_data.o \
-	parse_eof_eoi.o parse_frame.o parse_instruction.o parse_param.o parse_symbol.o parser.o util.o
+AS_OBJS = as.o error.o fixup.o frame.o global.o lexer.o memory.o object.o parse_call_ret.o \
+	parse_data.o parse_eof_eoi.o parse_frame.o parse_instruction.o parse_param.o parse_symbol.o parser.o
 
 $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)
@@ -38,7 +38,7 @@ $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
 $(OBJDIR)/as/%.o: $(SRCDIR)/as/const.si $(SRCDIR)/as/%.s
 	$(run-as)
 
-LD_OBJS = ld.o data.o lexer.o link.o load.o output.o relocate.o resolve.o util.o
+LD_OBJS = ld.o data.o error.o lexer.o link.o load.o output.o relocate.o resolve.o
 
 $(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)
