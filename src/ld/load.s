@@ -3,6 +3,10 @@
 # from libxib/heap.s
 .IMPORT free
 
+# from libxib/input.s
+.IMPORT get_input
+.IMPORT unget_input
+
 # from libxib/memory.s
 .IMPORT set_mem
 
@@ -17,8 +21,6 @@
 .IMPORT read_directive
 .IMPORT read_identifier
 .IMPORT read_number
-.IMPORT get_input
-.IMPORT unget_input
 
 # from util.s
 .IMPORT report_error
