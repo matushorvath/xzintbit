@@ -2,8 +2,8 @@
 .EXPORT report_error_with_symbol
 .EXPORT halt_and_catch_fire
 
-# User of this library should export a function called report_libxib_error
-# that will be used to report errors from this library
+# The program linked with libxib should export a function called report_libxib_error,
+# that will be used by this library to report errors
 
 # from print.s
 .IMPORT print_num

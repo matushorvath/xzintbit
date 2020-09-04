@@ -9,7 +9,7 @@
 .IMPORT relocate
 
 # from link.s
-.IMPORT connect_imports
+.IMPORT link_imports
 
 # from output.s
 .IMPORT print_modules
@@ -31,7 +31,7 @@ main:
     call include_objects
     call resolve_symbols
     call relocate
-    call connect_imports
+    call link_imports
     call print_modules
 
     #call dump_symbols
