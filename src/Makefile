@@ -59,7 +59,7 @@ $(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/const.si $(SRCDIR)/libxib/%.s
 print-profile:
 ifeq ($(ICVM_PROFILE),y)
 	[ ! -f icvm_profile.csv ] || < icvm_profile.csv awk -F, \
-		'{m=$$1>m?$$1:m;i+=$$2}END{print "summary: max_mem_size =",m,"inst_count =",i}'
+		'{m=$$1>m?$$1:m;i+=$$2;n=$$3<n?$$3:n;x=$$4>x?$$4:x}END{print "summary: max_mem_size =",m,"inst_count =",i,"min_value =",n,"max_value =",x}'
 endif
 
 # Clean
