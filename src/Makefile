@@ -55,11 +55,24 @@ $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 $(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/const.si $(SRCDIR)/libxib/%.s
 	$(run-as)
 
+define PROFILE_AWK
+{
+	max_mem_size = $$1 > max_mem_size ? $$1 : max_mem_size;
+	inst_count += $$2;
+	min_value = $$3 < min_value ? $$3 : min_value;
+	max_value = $$4 > max_value ? $$4 : max_value;
+}
+END {
+	printf("summary: max_mem_size = %d inst_count = %d min_value = %d max_value = %d\n",
+		max_mem_size, inst_count, min_value, max_value);
+}
+endef
+export PROFILE_AWK
+
 .PHONY: print-profile
 print-profile:
 ifeq ($(ICVM_PROFILE),y)
-	[ ! -f icvm_profile.csv ] || < icvm_profile.csv awk -F, \
-		'{m=$$1>m?$$1:m;i+=$$2}END{print "summary: max_mem_size =",m,"inst_count =",i}'
+	[ ! -f icvm_profile.csv ] || < icvm_profile.csv awk -F, "$$PROFILE_AWK"
 endif
 
 # Clean

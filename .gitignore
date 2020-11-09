@@ -1,3 +1,4 @@
+.vscode
 *.tmp
 local.*
 icvm_profile.csv

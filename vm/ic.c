@@ -33,6 +33,7 @@ int get_mem(int addr) {
 }
 
 void set_mem(int addr, int val) {
+    profile_value(val);
     resize_mem(addr);
     mem[addr] = val;
 }
