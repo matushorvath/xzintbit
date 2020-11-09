@@ -265,7 +265,6 @@ read_identifier_or_keyword_skip_free:
     arb 3
     ret 0
 .ENDFRAME
-##########
 
 ##########
 read_directive:

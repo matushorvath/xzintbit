@@ -1,3 +1,6 @@
+# this uses a perfect hash function, generated using gperf and a list of keywords
+# gperf < doc/gperf-keyword.in
+
 .EXPORT detect_keyword
 
 # from libxib/string.s
@@ -7,9 +10,6 @@
 detect_keyword:
 .FRAME string, length; tmp, char0, char1
     arb -3
-
-    # this uses a perfect hash function, generated using gperf and a list of keywords
-    # gperf < doc/gperf-keyword.in
 
     # check string length against MAX_WORD_LENGTH and MIN_WORD_LENGTH
     lt  4, [rb + length], [rb + tmp]

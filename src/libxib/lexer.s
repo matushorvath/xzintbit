@@ -1,11 +1,6 @@
-# TODO display line/column number instead of using just report_plain_error
-
 .EXPORT read_identifier
 .EXPORT read_string
 .EXPORT read_number
-
-# from error.s
-.IMPORT report_plain_error
 
 # from input.s
 .IMPORT get_input
@@ -17,6 +12,9 @@
 # from string.s
 .IMPORT is_digit
 .IMPORT is_alphanum
+
+# from outside of this library
+.IMPORT report_libxib_error
 
 ##########
 read_identifier:
@@ -51,7 +49,7 @@ read_identifier_loop:
     jnz [rb + tmp], read_identifier_loop
 
     add err_max_identifier_length, 0, [rb]
-    call report_plain_error
+    call report_libxib_error
 
 read_identifier_done:
     # zero terminate
@@ -101,7 +99,7 @@ read_string_loop:
     jnz [rb + tmp], read_string_loop
 
     add err_max_string_length, 0, [rb]
-    call report_plain_error
+    call report_libxib_error
 
 read_string_done:
     # zero terminate
@@ -168,9 +166,6 @@ read_number_end:
 # globals
 
 .SYMBOL IDENTIFIER_LENGTH 45
-
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE 50
 
 ##########
 # error messages

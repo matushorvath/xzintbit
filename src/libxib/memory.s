@@ -8,8 +8,8 @@
 # from print.s
 .IMPORT print_num
 
-# from error.s
-.IMPORT report_plain_error
+# from outside of this library
+.IMPORT report_libxib_error
 
 ##########
 set_mem:
@@ -157,7 +157,7 @@ inc_mem_internal_loop:
     jnz [rb + buffer], inc_mem_internal_have_block
 
     add err_invalid_address, 0, [rb]
-    call report_plain_error
+    call report_libxib_error
 
 inc_mem_internal_have_block:
     # is this the block we need?
@@ -232,12 +232,6 @@ print_mem_done:
     arb 5
     ret 3
 .ENDFRAME
-
-##########
-# globals
-
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE 50
 
 ##########
 # error messages
