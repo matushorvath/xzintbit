@@ -13,7 +13,8 @@ build: build-vm build-stage1 build-stage2 compare-stages install
 # Build Intcode VM
 .PHONY: build-vm
 build-vm: vm/ic
-vm/ic: vm/ic.o vm/profile.o
+vm/ic: vm/ic.go
+	go build -o $@ $^
 
 # Build stage 1
 .PHONY: build-stage1
@@ -42,7 +43,10 @@ install:
 
 # Test
 .PHONY: test
-test: build
+test: build test-run
+
+.PHONY: test-run
+test-run:
 	rm -rf $(TESTLOG)
 	failed=0 ; \
 	for testdir in $(TESTDIRS) ; do \
@@ -59,4 +63,4 @@ clean:
 	rm -rf $(TESTLOG)
 	rm -rf *.tmp
 	rm -rf stage1 stage2
-	rm -rf vm/ic vm/ic.exe vm/*.o
+	rm -rf vm/ic vm/ic.exe
