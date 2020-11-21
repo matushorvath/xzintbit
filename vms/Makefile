@@ -5,10 +5,10 @@ ifeq ($(ICVM_PROFILE),y)
 endif
 
 .PHONY: build
-build: build-c
+build: build-c build-go build-cs
 
 .PHONY: clean
-clean: clean-c
+clean: clean-c clean-go clean-cs
 
 # Intcode VM in C
 .PHONY: build-c
@@ -28,3 +28,19 @@ go/ic: go/ic.go
 .PHONY: clean-go
 clean-go:
 	rm -rf go/ic go/ic.exe
+
+# Intcode VM in C#
+.PHONY: build-cs
+build-cs: cs/ic
+cs/ic: cs/ic.cs cs/ic.csproj
+	dotnet build cs -c Release
+	if [ "$$OS" = "Windows_NT" ] ; then \
+		echo '%~dp0bin\Release\net5.0\ic.exe %*' > cs/ic.cmd ; \
+		echo '$${BASH_SOURCE%/*}/bin/Release/net5.0/ic.exe "$$(cygpath -w $$1)"' > cs/ic ; \
+	else \
+		ln -s bin/Release/net5.0/ic cs/ic ; \
+	fi
+
+.PHONY: clean-cs
+clean-cs:
+	rm -rf cs/ic cs/ic.cmd cs/bin cs/obj
