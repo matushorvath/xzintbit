@@ -22,9 +22,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        icvm: [c, go]
+        icvm: [c, cs, go]
         profile: [n, y]
         exclude:
+          - icvm: cs
+            profile: y
           - icvm: go
             profile: y
 
