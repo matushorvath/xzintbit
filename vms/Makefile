@@ -36,10 +36,11 @@ cs/ic: cs/ic.cs cs/ic.csproj
 	dotnet build cs -c Release
 	if [ "$$OS" = "Windows_NT" ] ; then \
 		echo '%~dp0bin\Release\net5.0\ic.exe %*' > cs/ic.cmd ; \
-		echo 'bin/Release/net5.0/ic.exe "%@"' > cs/ic ; \
+		echo '$${BASH_SOURCE%/*}/bin/Release/net5.0/ic.exe "$$(cygpath -w $$1)"' > cs/ic ; \
 	else \
 		ln -s bin/Release/net5.0/ic cs/ic ; \
 	fi
+	cat cs/ic || true
 	cat cs/ic.cmd || true
 	ls -l cs
 	ls -l cs/bin
