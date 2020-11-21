@@ -5,7 +5,7 @@ ifeq ($(ICVM_PROFILE),y)
 endif
 
 .PHONY: build
-build: build-vm-c
+build: build-c
 
 .PHONY: clean
 clean: clean-c
@@ -18,3 +18,13 @@ c/ic: c/ic.o c/profile.o
 .PHONY: clean-c
 clean-c:
 	rm -rf c/ic c/ic.exe c/*.o
+
+# Intcode VM in Go
+.PHONY: build-go
+build-go: go/ic
+go/ic: go/ic.go
+	go build -o $@ $^
+
+.PHONY: clean-go
+clean-go:
+	rm -rf go/ic go/ic.exe

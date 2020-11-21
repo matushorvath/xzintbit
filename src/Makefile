@@ -1,4 +1,6 @@
-ICVM ?= $(abspath ../vms/c)/ic
+ICVM_TYPE ?= c
+
+ICVM ?= $(abspath ../vms)/$(ICVM_TYPE)/ic
 ICAS ?= $(abspath ../bin/as.input)
 ICLD ?= $(abspath ../bin/ld.input)
 
