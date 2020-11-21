@@ -32,7 +32,7 @@ clean-go:
 # Intcode VM in C#
 .PHONY: build-cs
 build-cs: cs/ic
-cs/ic: cs/ic.cs
+cs/ic: cs/ic.cs cs/ic.csproj
 	dotnet build cs -c Release
 	ln -s bin/Release/net5.0/ic cs/ic
 	ls -l cs
