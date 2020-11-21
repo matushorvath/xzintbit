@@ -58,7 +58,7 @@ test: build
 test-vms: build-vms build
 	rm -rf $(TESTLOG)
 	failed=0 ; \
-	for type in c go ; do \
+	for type in c cs go ; do \
 		echo "====================" >> $(TESTLOG) ; \
 		echo "ICVM_TYPE = $$type" >> $(TESTLOG) ; \
 		for testdir in $(TESTDIRS) ; do \

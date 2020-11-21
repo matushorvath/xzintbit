@@ -5,10 +5,10 @@ ifeq ($(ICVM_PROFILE),y)
 endif
 
 .PHONY: build
-build: build-c
+build: build-c build-go build-cs
 
 .PHONY: clean
-clean: clean-c
+clean: clean-c clean-go clean-cs
 
 # Intcode VM in C
 .PHONY: build-c
@@ -28,3 +28,14 @@ go/ic: go/ic.go
 .PHONY: clean-go
 clean-go:
 	rm -rf go/ic go/ic.exe
+
+# Intcode VM in C#
+.PHONY: build-cs
+build-cs: cs/ic
+cs/ic: cs/ic.cs
+	dotnet build cs -c Release
+	ln -s bin/Release/net5.0/ic cs/ic
+
+.PHONY: clean-cs
+clean-cs:
+	rm -rf cs/ic cs/bin cs/obj
