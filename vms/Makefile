@@ -35,10 +35,11 @@ build-cs: cs/ic
 cs/ic: cs/ic.cs cs/ic.csproj
 	dotnet build cs -c Release
 	if [ "$$OS" = "Windows_NT" ] ; then \
-		cmd /c mklink cs\\ic.exe cs\\bin\\Release\\net5.0\\ic.exe ; \
+		echo '%~dp0bin\Release\net5.0\ic.exe %*' > cs/ic.cmd ; \
 	else \
 		ln -s bin/Release/net5.0/ic cs/ic ; \
 	fi
+	cat cs/ic.cmd || true
 	ls -l cs
 	ls -l cs/bin
 	ls -l cs/bin/Release
@@ -46,4 +47,4 @@ cs/ic: cs/ic.cs cs/ic.csproj
 
 .PHONY: clean-cs
 clean-cs:
-	rm -rf cs/ic cs/bin cs/obj
+	rm -rf cs/ic cs/ic.cmd cs/bin cs/obj
