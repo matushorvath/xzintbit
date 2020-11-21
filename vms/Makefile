@@ -4,6 +4,8 @@ ifeq ($(ICVM_PROFILE),y)
 	CFLAGS += -DICVM_PROFILE
 endif
 
+DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
+
 .PHONY: build
 build: build-c build-go build-cs
 
@@ -33,13 +35,9 @@ clean-go:
 .PHONY: build-cs
 build-cs: cs/ic
 cs/ic: cs/ic.cs cs/ic.csproj
-	dotnet build cs -c Release
-	if [ "$$OS" = "Windows_NT" ] ; then \
-		echo '%~dp0bin\Release\net5.0\ic.exe %*' > cs/ic.cmd ; \
-		echo '$${BASH_SOURCE%/*}/bin/Release/net5.0/ic.exe "$$(cygpath -w $$1)"' > cs/ic ; \
-	else \
-		ln -s bin/Release/net5.0/ic cs/ic ; \
-	fi
+	dotnet publish cs -c Release -r $(DOTNET_RID) -p:PublishSingleFile=true --self-contained false
+	if [ "$$OS" = "Windows_NT" ] ; then cp cs/bin/Release/net5.0/$(DOTNET_RID)/publish/ic.exe cs/ ; fi
+	if [ "$$OS" != "Windows_NT" ] ; then cp cs/bin/Release/net5.0/$(DOTNET_RID)/publish/ic cs/ ; fi
 
 .PHONY: clean-cs
 clean-cs:
