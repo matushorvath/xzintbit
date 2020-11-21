@@ -37,7 +37,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '5.0.100'
-      if: ${{ matrix.icvm }} == 'cs'
+      if: matrix.icvm == 'cs'
 
     - name: Build
       run: make build

@@ -35,7 +35,7 @@ build-cs: cs/ic
 cs/ic: cs/ic.cs cs/ic.csproj
 	dotnet build cs -c Release
 	if [ "$$OS" = "Windows_NT" ] ; then \
-		mklink cs/ic.exe cs/bin/Release/net5.0/ic.exe ; \
+		cmd /c mklink cs/ic.exe cs/bin/Release/net5.0/ic.exe ; \
 	else \
 		ln -s bin/Release/net5.0/ic cs/ic ; \
 	fi
