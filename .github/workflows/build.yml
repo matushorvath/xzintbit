@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    name: OS=${{ matrix.os }} ICVM=${{ matrix.icvm }} PROFILE=${{ matrix.profile }})
+    name: OS=${{ matrix.os }} VM=${{ matrix.icvm }} P=${{ matrix.profile }})
     runs-on: ${{ matrix.os }}
     env:
       ICVM_PROFILE: ${{ matrix.profile }}
