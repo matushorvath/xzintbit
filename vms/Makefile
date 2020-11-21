@@ -40,12 +40,6 @@ cs/ic: cs/ic.cs cs/ic.csproj
 	else \
 		ln -s bin/Release/net5.0/ic cs/ic ; \
 	fi
-	cat cs/ic || true
-	cat cs/ic.cmd || true
-	ls -l cs
-	ls -l cs/bin
-	ls -l cs/bin/Release
-	ls -l cs/bin/Release/net5.0
 
 .PHONY: clean-cs
 clean-cs:
