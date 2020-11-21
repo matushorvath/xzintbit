@@ -36,7 +36,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.x'
+        dotnet-version: '5.0.0'
       if: ${{ matrix.icvm }} == 'cs'
 
     - name: Build
