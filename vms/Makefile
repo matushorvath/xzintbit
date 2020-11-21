@@ -35,6 +35,10 @@ build-cs: cs/ic
 cs/ic: cs/ic.cs
 	dotnet build cs -c Release
 	ln -s bin/Release/net5.0/ic cs/ic
+	ls -l cs
+	ls -l cs/bin
+	ls -l cs/bin/Release
+	ls -l cs/bin/Release/net5.0
 
 .PHONY: clean-cs
 clean-cs:
