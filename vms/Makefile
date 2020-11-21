@@ -36,6 +36,7 @@ cs/ic: cs/ic.cs cs/ic.csproj
 	dotnet build cs -c Release
 	if [ "$$OS" = "Windows_NT" ] ; then \
 		echo '%~dp0bin\Release\net5.0\ic.exe %*' > cs/ic.cmd ; \
+		echo 'bin/Release/net5.0/ic.exe "%@"' > cs/ic ; \
 	else \
 		ln -s bin/Release/net5.0/ic cs/ic ; \
 	fi
