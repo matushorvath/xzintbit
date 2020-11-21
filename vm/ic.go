@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -68,49 +67,67 @@ func setParam(idx, val int) error {
 	}
 }
 
-func run(input <-chan int, output chan<- int) error {
-	defer close(output)
+func binInst(op func(int, int) int) error {
+	p0, err := getParam(0)
+	if err != nil {
+		return err
+	}
 
+	p1, err := getParam(1)
+	if err != nil {
+		return err
+	}
+
+	setParam(2, op(p0, p1))
+	ip += 4
+
+	return nil
+}
+
+func jmpInst(cond func(int) bool) error {
+	p0, err := getParam(0)
+	if err != nil {
+		return err
+	}
+
+	if cond(p0) {
+		p1, err := getParam(1)
+		if err != nil {
+			return err
+		}
+
+		ip = p1
+	} else {
+		ip += 3
+	}
+
+	return nil
+}
+
+func run(getInput func() (int, error), setOutput func(int) error) error {
 	for {
 		oc := getMem(ip) % 100
 
-		//fmt.Println(":", oc)
-
 		switch oc {
 		case 1: // add
-			p0, err := getParam(0)
+			err := binInst(func (p0, p1 int) int { return p0 + p1 })
 			if err != nil {
 				return err
 			}
-			p1, err := getParam(1)
-			if err != nil {
-				return err
-			}
-			setParam(2, p0 + p1)
-			ip += 4
 
 		case 2: // mul
-			p0, err := getParam(0)
+			err := binInst(func (p0, p1 int) int { return p0 * p1 })
 			if err != nil {
 				return err
 			}
-			p1, err := getParam(1)
-			if err != nil {
-				return err
-			}
-			err = setParam(2, p0 * p1)
-			if err != nil {
-				return err
-			}
-			ip += 4
 
 		case 3: // in
-			value, ok := <-input
-			if !ok {
-				return fmt.Errorf("no more inputs")
+			value, err := getInput()
+			if err != nil {
+				return err
 			}
 
-			err := setParam(0, value)
+			err = setParam(0, value)
 			if err != nil {
 				return err
 			}
@@ -121,82 +138,44 @@ func run(input <-chan int, output chan<- int) error {
 			if err != nil {
 				return err
 			}
-			output <- value
+			err = setOutput(value)
 			ip += 2
 
 		case 5: // jnz
-			p0, err := getParam(0)
+			err := jmpInst(func (p0 int) bool { return p0 != 0 })
 			if err != nil {
 				return err
-			}
-			if p0 != 0 {
-				p1, err := getParam(1)
-				if err != nil {
-					return err
-				}
-				ip = p1
-			} else {
-				ip += 3
 			}
 
 		case 6: // jz
-			p0, err := getParam(0)
+			err := jmpInst(func (p0 int) bool { return p0 == 0 })
 			if err != nil {
 				return err
-			}
-			if p0 == 0 {
-				p1, err := getParam(1)
-				if err != nil {
-					return err
-				}
-				ip = p1
-			} else {
-				ip += 3
 			}
 
 		case 7: // lt
-			p0, err := getParam(0)
+			op := func (p0, p1 int) int {
+				if p0 < p1 {
+					return 1
+				}
+				return 0
+			}
+			err := binInst(op)
 			if err != nil {
 				return err
 			}
-			p1, err := getParam(1)
-			if err != nil {
-				return err
-			}
-
-			var p2 int
-			if p0 < p1 {
-				p2 = 1
-			} else {
-				p2 = 0
-			}
-			err = setParam(2, p2)
-			if err != nil {
-				return err
-			}
-			ip += 4
 
 		case 8: // eq
-			p0, err := getParam(0)
+			op := func (p0, p1 int) int {
+				if p0 == p1 {
+					return 1
+				}
+				return 0
+			}
+			err := binInst(op)
 			if err != nil {
 				return err
 			}
-			p1, err := getParam(1)
-			if err != nil {
-				return err
-			}
-
-			var p2 int
-			if p0 == p1 {
-				p2 = 1
-			} else {
-				p2 = 0
-			}
-			err = setParam(2, p2)
-			if err != nil {
-				return err
-			}
-			ip += 4
 
 		case 9: // arb
 			p0, err := getParam(0)
@@ -215,34 +194,18 @@ func run(input <-chan int, output chan<- int) error {
 	}
 }
 
-func getInput(input chan<- int) error {
-	defer close(input)
-
-	for {
-		data := make([]byte, 1)
-		n, err := os.Stdin.Read(data)
-		for _, d := range data[0:n] {
-			input <- int(d)
-		}
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
+func getInput() (int, error) {
+	data := make([]byte, 1)
+	count, err := os.Stdin.Read(data)
+	if count > 0 {
+		return int(data[0]), nil
 	}
-
-	return nil
+	return 0, err
 }
 
-func setOutput(output <-chan int) {
-	for {
-		value, ok := <-output
-		if !ok {
-			break
-		}
-		fmt.Printf("%c", rune(value))
-	}
+func setOutput(value int) error {
+	fmt.Printf("%c", rune(value))
+	return nil
 }
 
 func main() {
@@ -259,15 +222,11 @@ func main() {
 		if err != nil {
 			log.Fatalf("parse error: %v\n", err)
 		}
-
 		setMem(index, num)
 	}
 
-	input := make(chan int, 1)
-	output := make(chan int, 1)
-
-	// TODO error handling
-	go run(input, output)
-	go getInput(input)
-	setOutput(output)
+	err = run(getInput, setOutput)
+	if err != nil {
+		log.Fatalf("%v\n", err)
+	}
 }
