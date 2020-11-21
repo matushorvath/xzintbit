@@ -5,7 +5,6 @@ icvm_profile.csv
 vms/*/ic
 vms/*/ic.exe
 vms/c/*.o
-vms/cs/ic.cmd
 vms/cs/bin
 vms/cs/obj
 stage1
