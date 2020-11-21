@@ -1,8 +1,4 @@
-CFLAGS = -O3 -Wall -Werror -std=c11
-
-ifeq ($(ICVM_PROFILE),y)
-	CFLAGS += -DICVM_PROFILE
-endif
+ICVM_TYPE ?= c
 
 TESTDIRS = $(sort $(dir $(wildcard test/*/*)))
 export TESTLOG = $(abspath test/test.log)
@@ -12,8 +8,8 @@ build: build-vm build-stage1 build-stage2 compare-stages install
 
 # Build Intcode VM
 .PHONY: build-vm
-build-vm: vm/ic
-vm/ic: vm/ic.o vm/profile.o
+build-vm:
+	make -C vms build-$(ICVM_TYPE)
 
 # Build stage 1
 .PHONY: build-stage1
@@ -55,8 +51,8 @@ test: build
 .PHONY: clean
 clean:
 	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
+	$(MAKE) -C vms clean
 	$(MAKE) -C src clean
 	rm -rf $(TESTLOG)
 	rm -rf *.tmp
 	rm -rf stage1 stage2
-	rm -rf vm/ic vm/ic.exe vm/*.o

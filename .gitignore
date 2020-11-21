@@ -2,9 +2,9 @@
 *.tmp
 local.*
 icvm_profile.csv
-vm/ic
-vm/ic.exe
-vm/*.o
+vms/*/ic
+vms/*/ic.exe
+vms/c/*.o
 stage1
 stage2
 src/bin

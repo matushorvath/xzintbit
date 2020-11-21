@@ -1,4 +1,4 @@
-ICVM ?= $(abspath ../../vm)/ic
+ICVM ?= $(abspath ../../vms/c)/ic
 ICAS ?= $(abspath ../../bin/as.input)
 ICLD ?= $(abspath ../../bin/ld.input)
 

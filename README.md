@@ -34,17 +34,17 @@ To run it, you will need to assemble and link it, creating an Intcode executable
 
 The assembler and linker themselves are also written in Intcode, so you will need an Intcode virtual machine (VM) to run them. You can definitely [use your own Intcode VM](#will-it-run-on-my-virtual-machine), or you could use mine.
 
-My Intcode VM is written in C, so to build it you will need a (relatively modern) C compiler. To build it, run `make build-vm`. It is started by executing `vm/ic` (or `vm\ic.exe` on Windows), reads from standard input and writes to standard output.
+My Intcode VM is written in C, so to build it you will need a (relatively modern) C compiler. To build it, run `make build-vm`. It is started by executing `vms/c/ic` (or `vms\c\ic.exe` on Windows), reads from standard input and writes to standard output.
 
 ```sh
 $ make build-vm
-$ vm/ic bin/as.input < hello-world.s > hello-world.o
+$ vms/c/ic bin/as.input < hello-world.s > hello-world.o
 ```
 
 Here `bin/as.input` is the assembler program from this repo, `hello-world.s` is our example from above, and `hello-world.o` is an object file. The object file now needs to be linked to create an Intcode binary.
 
 ```sh
-$ echo .$ | cat hello-world.o - | vm/ic bin/ld.input > hello-world.input
+$ echo .$ | cat hello-world.o - | vms/c/ic bin/ld.input > hello-world.input
 ```
 
 Here `bin/ld.input` is the linker program from this repo, `hello-world.o` is the object file created by the assembler, and `hello-world.input` is the compiled *"Hello, World!"* program in Intcode. Yes, the output file name ends in `.input`. That's just the extension I decided to use for Intcode binaries.
@@ -64,7 +64,7 @@ The next instruction (`jz [rb], done`) is `1206,0,12`, which is a jump-if-false 
 Now we can run the program. Of course, we will need our Intcode VM again:
 
 ```sh
-$ vm/ic hello-world.input
+$ vms/c/ic hello-world.input
 Hello, world!
 ```
 
