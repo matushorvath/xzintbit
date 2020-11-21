@@ -1,8 +1,5 @@
-CFLAGS = -O3 -Wall -Werror -std=c11
-
-ifeq ($(ICVM_PROFILE),y)
-	CFLAGS += -DICVM_PROFILE
-endif
+ICVM_TYPE ?= c
+export ICVM_TYPE
 
 TESTDIRS = $(sort $(dir $(wildcard test/*/*)))
 export TESTLOG = $(abspath test/test.log)
@@ -10,10 +7,15 @@ export TESTLOG = $(abspath test/test.log)
 .PHONY: build
 build: build-vm build-stage1 build-stage2 compare-stages install
 
-# Build Intcode VM
+# Build the default Intcode VM
 .PHONY: build-vm
-build-vm: vm/ic
-vm/ic: vm/ic.o vm/profile.o
+build-vm:
+	make -C vms build-$(ICVM_TYPE)
+
+# Build all Intcode VMs
+.PHONY: build-vms
+build-vms:
+	make -C vms build
 
 # Build stage 1
 .PHONY: build-stage1
@@ -51,12 +53,27 @@ test: build
 	cat test/test.log ; \
 	[ $$failed = 0 ] || exit 1
 
+# Test with all VMs
+.PHONY: test-vms
+test-vms: build-vms build
+	rm -rf $(TESTLOG)
+	failed=0 ; \
+	for type in c go ; do \
+		echo "====================" >> $(TESTLOG) ; \
+		echo "ICVM_TYPE = $$type" >> $(TESTLOG) ; \
+		for testdir in $(TESTDIRS) ; do \
+			ICVM_TYPE=$$type $(MAKE) -C $$testdir test || failed=1 ; \
+		done ; \
+	done ; \
+	cat test/test.log ; \
+	[ $$failed = 0 ] || exit 1
+
 # Clean
 .PHONY: clean
 clean:
 	for testdir in $(TESTDIRS) ; do $(MAKE) -C $$testdir clean ; done
+	$(MAKE) -C vms clean
 	$(MAKE) -C src clean
 	rm -rf $(TESTLOG)
 	rm -rf *.tmp
 	rm -rf stage1 stage2
-	rm -rf vm/ic vm/ic.exe vm/*.o
