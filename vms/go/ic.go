@@ -15,15 +15,14 @@ var ip = 0
 var rb = 0
 
 func resizeMem(addr int) {
+	profileAddr(addr)
+
 	if addr >= len(mem) {
-		oldSize := len(mem)
-		newSize := oldSize
-
+		newSize := len(mem)
 		for addr >= newSize {
-			newSize *= 2
+			newSize <<= 1
 		}
-
-		mem = append(mem, make([]int, newSize-oldSize)...)
+		mem = append(mem, make([]int, newSize-len(mem))...)
 	}
 }
 
@@ -33,70 +32,67 @@ func getMem(addr int) int {
 }
 
 func setMem(addr, val int) {
+	profileValue(val)
 	resizeMem(addr)
 	mem[addr] = val
 }
 
 var modeMul = []int{100, 1000, 10000}
 
-func getParam(idx int) (int, error) {
-	mode := getMem(ip) / modeMul[idx] % 10
-	switch mode {
-	case 0: // position mode
-		return getMem(getMem(ip + idx + 1)), nil
-	case 1: // immediate mode
-		return getMem(ip + idx + 1), nil
-	case 2: // relative mode
-		return getMem(rb + getMem(ip + idx + 1)), nil
-	default:
-		return 0, fmt.Errorf("mode error: ip %d idx %d", ip, idx)
+func getParams(cnt int) ([]int, error) {
+	out := make([]int, cnt);
+
+	for idx := 0; idx < cnt; idx++ {
+		switch getMem(ip) / modeMul[idx] % 10 {
+			case 0: // position mode
+				out[idx] = getMem(getMem(ip + idx + 1))
+			case 1: // immediate mode
+				out[idx] = getMem(ip + idx + 1)
+			case 2: // relative mode
+				out[idx] = getMem(rb + getMem(ip+idx+1))
+			default:
+				return nil, fmt.Errorf("mode error: ip %d idx %d", ip, idx)
+		}
 	}
+
+	return out, nil
 }
 
 func setParam(idx, val int) error {
 	mode := getMem(ip) / modeMul[idx] % 10
+
 	switch mode {
-	case 0: // position mode
-		setMem(getMem(ip + idx + 1), val)
-		return nil
-	case 2: // relative mode
-		setMem(rb + getMem(ip + idx + 1), val)
-		return nil
-	default:
-		return fmt.Errorf("mode error: ip %d idx %d", ip, idx)
+		case 0: // position mode
+			setMem(getMem(ip+idx+1), val)
+		case 2: // relative mode
+			setMem(rb+getMem(ip+idx+1), val)
+		default:
+			return fmt.Errorf("mode error: ip %d idx %d", ip, idx)
 	}
+
+	return nil
 }
 
 func binInst(op func(int, int) int) error {
-	p0, err := getParam(0)
+	p, err := getParams(2);
 	if err != nil {
 		return err
 	}
 
-	p1, err := getParam(1)
-	if err != nil {
-		return err
-	}
-
-	setParam(2, op(p0, p1))
+	setParam(2, op(p[0], p[1]))
 	ip += 4
 
 	return nil
 }
 
 func jmpInst(cond func(int) bool) error {
-	p0, err := getParam(0)
+	p, err := getParams(2)
 	if err != nil {
 		return err
 	}
 
-	if cond(p0) {
-		p1, err := getParam(1)
-		if err != nil {
-			return err
-		}
-
-		ip = p1
+	if cond(p[0]) {
+		ip = p[1]
 	} else {
 		ip += 3
 	}
@@ -106,17 +102,18 @@ func jmpInst(cond func(int) bool) error {
 
 func run(getInput func() (int, error), setOutput func(int) error) error {
 	for {
+		profileInst()
 		oc := getMem(ip) % 100
 
 		switch oc {
 		case 1: // add
-			err := binInst(func (p0, p1 int) int { return p0 + p1 })
+			err := binInst(func(p0, p1 int) int { return p0 + p1 })
 			if err != nil {
 				return err
 			}
 
 		case 2: // mul
-			err := binInst(func (p0, p1 int) int { return p0 * p1 })
+			err := binInst(func(p0, p1 int) int { return p0 * p1 })
 			if err != nil {
 				return err
 			}
@@ -134,55 +131,43 @@ func run(getInput func() (int, error), setOutput func(int) error) error {
 			ip += 2
 
 		case 4: // out
-			value, err := getParam(0)
+			p, err := getParams(1)
 			if err != nil {
 				return err
 			}
-			err = setOutput(value)
+			err = setOutput(p[0])
 			ip += 2
 
 		case 5: // jnz
-			err := jmpInst(func (p0 int) bool { return p0 != 0 })
+			err := jmpInst(func(p0 int) bool { return p0 != 0 })
 			if err != nil {
 				return err
 			}
 
 		case 6: // jz
-			err := jmpInst(func (p0 int) bool { return p0 == 0 })
+			err := jmpInst(func(p0 int) bool { return p0 == 0 })
 			if err != nil {
 				return err
 			}
 
 		case 7: // lt
-			op := func (p0, p1 int) int {
-				if p0 < p1 {
-					return 1
-				}
-				return 0
-			}
-			err := binInst(op)
+			err := binInst(func(p0, p1 int) int { if p0 < p1 { return 1 }; return 0 })
 			if err != nil {
 				return err
 			}
 
 		case 8: // eq
-			op := func (p0, p1 int) int {
-				if p0 == p1 {
-					return 1
-				}
-				return 0
-			}
-			err := binInst(op)
+			err := binInst(func(p0, p1 int) int { if p0 == p1 { return 1 }; return 0 })
 			if err != nil {
 				return err
 			}
 
 		case 9: // arb
-			p0, err := getParam(0)
+			p, err := getParams(1)
 			if err != nil {
 				return err
 			}
-			rb += p0
+			rb += p[0]
 			ip += 2
 
 		case 99: // hlt
@@ -226,6 +211,11 @@ func main() {
 	}
 
 	err = run(getInput, setOutput)
+	if err != nil {
+		log.Fatalf("%v\n", err)
+	}
+
+	err = profileDone()
 	if err != nil {
 		log.Fatalf("%v\n", err)
 	}

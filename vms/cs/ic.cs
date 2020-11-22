@@ -21,10 +21,9 @@ namespace Ic
         {
             if (addr >= mem.Count)
             {
-                int oldCount = mem.Count;
-                int newCount = oldCount;
+                int newCount = mem.Count;
                 while (addr >= newCount) newCount <<= 1;
-                mem.AddRange(Enumerable.Repeat(0, newCount - oldCount));
+                mem.AddRange(Enumerable.Repeat(0, newCount - mem.Count));
             }
         }
 
@@ -45,7 +44,8 @@ namespace Ic
         int GetParam(int idx)
         {
             int mode = GetMem(ip) / MODE_MUL[idx] % 10;
-            switch (mode) {
+            switch (mode)
+            {
                 case 0: // position mode
                     return GetMem(GetMem(ip + idx + 1));
                 case 1: // immediate mode
@@ -60,7 +60,8 @@ namespace Ic
         void SetParam(int idx, int val)
         {
             int mode = GetMem(ip) / MODE_MUL[idx] % 10;
-            switch (mode) {
+            switch (mode)
+            {
                 case 0: // position mode
                     SetMem(GetMem(ip + idx + 1), val);
                     break;
@@ -74,10 +75,12 @@ namespace Ic
 
         public void Run(Func<int> getInput, Action<int> setOutput)
         {
-            while (true) {
+            while (true)
+            {
                 int oc = GetMem(ip) % 100;
 
-                switch (oc) {
+                switch (oc)
+                {
                     case 1: // add
                         SetParam(2, GetParam(0) + GetParam(1));
                         ip += 4;
@@ -86,29 +89,37 @@ namespace Ic
                         SetParam(2, GetParam(0) * GetParam(1));
                         ip += 4;
                         break;
-                    case 3: { // in
-                        int value = getInput();
-                        SetParam(0, value);
-                        ip += 2;
-                        break;
-                    }
-                    case 4: { // out
-                        int value = GetParam(0);
-                        ip += 2;
-                        SetOutput(value);
-                        break;
-                    }
+                    case 3: // in
+                        {
+                            int value = getInput();
+                            SetParam(0, value);
+                            ip += 2;
+                            break;
+                        }
+                    case 4: // out
+                        {
+                            int value = GetParam(0);
+                            ip += 2;
+                            SetOutput(value);
+                            break;
+                        }
                     case 5: // jnz
-                        if (GetParam(0) != 0) {
+                        if (GetParam(0) != 0)
+                        {
                             ip = GetParam(1);
-                        } else {
+                        }
+                        else
+                        {
                             ip += 3;
                         }
                         break;
                     case 6: // jz
-                        if (GetParam(0) == 0) {
+                        if (GetParam(0) == 0)
+                        {
                             ip = GetParam(1);
-                        } else {
+                        }
+                        else
+                        {
                             ip += 3;
                         }
                         break;
@@ -134,7 +145,7 @@ namespace Ic
 
         static int GetInput()
         {
-            var buffer = new char [1];
+            var buffer = new char[1];
             if (Console.In.ReadBlock(buffer, 0, 1) == 0)
             {
                 throw new Exception("no more inputs");

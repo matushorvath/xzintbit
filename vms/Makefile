@@ -1,10 +1,13 @@
 CFLAGS = -O3 -Wall -Werror -std=c11
 
+DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
+
 ifeq ($(ICVM_PROFILE),y)
 	CFLAGS += -DICVM_PROFILE
+	GOFLAGS += --tags=profile
 endif
 
-DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
+export GOFLAGS
 
 .PHONY: build
 build: build-c build-go build-cs
@@ -25,7 +28,7 @@ clean-c:
 .PHONY: build-go
 build-go: go/ic
 go/ic: go/ic.go
-	go build -o $@ $^
+	go build -o $@ ./go
 
 .PHONY: clean-go
 clean-go:
