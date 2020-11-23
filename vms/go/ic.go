@@ -22,7 +22,9 @@ func resizeMem(addr int) {
 		for addr >= newSize {
 			newSize <<= 1
 		}
-		mem = append(mem, make([]int, newSize-len(mem))...)
+		newMem := make([]int, newSize)
+		copy(newMem, mem)
+		mem = newMem
 	}
 }
 
