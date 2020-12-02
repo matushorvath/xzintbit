@@ -426,9 +426,9 @@ is_library:
 # error messages
 
 err_expect_dot_c_l_at:
-    db  "Expecting a .C, .L or or .$", 0
+    db  "Expecting a .C, .L or .$", 0
 err_expect_dot_c_at:
-    db  "Expecting a .C or or .$", 0
+    db  "Expecting a .C or .$", 0
 err_expect_dot_i:
     db  "Expecting a .I", 0
 err_expect_dot_e:
