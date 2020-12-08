@@ -118,8 +118,6 @@ The linker supports arbitary number of inputs, performing relocations on input o
 
 But why?
 --------
-
-[Because it's there](https://en.wikiquote.org/wiki/George_Mallory).
-Also, I heard you liked assembler, so I assembled an assembler in assembler, so you can assemble while you assemble.
+I heard you liked assembler, so I assembled an assembler in assembler, so you can assemble while you assemble.
 
 ![Xzibit](https://i.kym-cdn.com/photos/images/small/000/001/122/xzibit-happy.jpg)
