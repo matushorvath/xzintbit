@@ -10,10 +10,10 @@ endif
 export GOFLAGS
 
 .PHONY: build
-build: build-c build-go build-cs
+build: build-c build-go build-cs build-rust
 
 .PHONY: clean
-clean: clean-c clean-go clean-cs
+clean: clean-c clean-go clean-cs clean-rust
 
 # Intcode VM in C
 .PHONY: build-c
@@ -56,4 +56,4 @@ rust/ic: rust/Cargo.toml rust/*.rs
 
 .PHONY: clean-rust
 clean-rust:
-	rm -rf rust/ic rust/ic.exe
+	rm -rf rust/ic rust/ic.exe rust/target
