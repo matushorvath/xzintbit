@@ -10,10 +10,10 @@ endif
 export GOFLAGS
 
 .PHONY: build
-build: build-c build-go build-cs
+build: build-c build-go build-cs build-rust
 
 .PHONY: clean
-clean: clean-c clean-go clean-cs
+clean: clean-c clean-go clean-cs clean-rust
 
 # Intcode VM in C
 .PHONY: build-c
@@ -45,3 +45,15 @@ cs/ic: cs/ic.cs cs/ic.csproj
 .PHONY: clean-cs
 clean-cs:
 	rm -rf cs/ic cs/ic.cmd cs/bin cs/obj
+
+# Intcode VM in Rust
+.PHONY: build-rust
+build-rust: rust/ic
+rust/ic: rust/Cargo.toml rust/*.rs
+	cargo build --release --manifest-path=$<
+	if [ "$$OS" = "Windows_NT" ] ; then cp rust/target/release/ic.exe rust/ ; fi
+	if [ "$$OS" != "Windows_NT" ] ; then cp rust/target/release/ic rust/ ; fi
+
+.PHONY: clean-rust
+clean-rust:
+	rm -rf rust/ic rust/ic.exe rust/target
