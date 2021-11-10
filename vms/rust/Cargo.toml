@@ -1,0 +1,10 @@
+[package]
+name = "vm"
+version = "1.0.0"
+edition = "2021"
+
+[[bin]]
+name = "ic"
+path = "ic.rs"
+
+[dependencies]

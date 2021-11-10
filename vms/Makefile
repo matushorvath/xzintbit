@@ -45,3 +45,15 @@ cs/ic: cs/ic.cs cs/ic.csproj
 .PHONY: clean-cs
 clean-cs:
 	rm -rf cs/ic cs/ic.cmd cs/bin cs/obj
+
+# Intcode VM in Rust
+.PHONY: build-rust
+build-rust: rust/ic
+rust/ic: rust/Cargo.toml rust/*.rs
+	cargo build --release --manifest-path=$<
+	if [ "$$OS" = "Windows_NT" ] ; then cp rust/target/release/ic.exe rust/ ; fi
+	if [ "$$OS" != "Windows_NT" ] ; then cp rust/target/release/ic rust/ ; fi
+
+.PHONY: clean-rust
+clean-rust:
+	rm -rf rust/ic rust/ic.exe
