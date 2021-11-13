@@ -29,6 +29,13 @@ test-prep:
 	rm -rf $(BINDIR) $(OBJDIR)
 	mkdir -p $(BINDIR) $(OBJDIR)
 
+$(BINDIR)/%.stdout: $(BINDIR)/%.input %.stdin
+	printf '$(NAME): processing stdin ' >> $(TESTLOG)
+	$(ICVM) $< > $@ < $(patsubst %.input,%.stdin,$(notdir $<)) || ( cat $@ ; true )
+	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
+		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
+	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+
 $(BINDIR)/%.txt: $(BINDIR)/%.input
 	printf '$(NAME): executing ' >> $(TESTLOG)
 	$(ICVM) $< > $@ || ( cat $@ ; true )
