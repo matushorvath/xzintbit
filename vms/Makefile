@@ -62,7 +62,7 @@ clean-rust:
 .PHONY: build-cl
 build-cl: cl/ic
 cl/ic: cl/ic.lisp
-	ln -s cl/ic cl/ic.lisp
+	ln -sf ic.lisp cl/ic
 
 .PHONY: clean-cl
 clean-cl:
