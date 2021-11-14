@@ -22,11 +22,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        icvm: [c, cs, go, rust]
+        icvm: [c, cs, cl, go, rust]
         profile: [n, y]
         exclude:
           - icvm: cs
             profile: y
+          - icvm: cl
+            profile: y
+          - icvm: cl
+            os: windows-latest
+          - icvm: cl
+            os: macOS-latest
           - icvm: rust
             profile: y
 
@@ -38,6 +44,13 @@ jobs:
         with:
           dotnet-version: 6.0.x
         if: matrix.icvm == 'cs'
+
+      - name: Setup Steel Bank Common Lisp
+        run: |
+          sudo apt install sbcl cl-quicklisp
+          sbcl --non-interactive --load /usr/share/common-lisp/source/quicklisp/quicklisp.lisp --eval '(quicklisp-quickstart:install)'
+          cp vms/cl/.sbclrc ~/.sbclrc
+        if: matrix.icvm == 'cl'
 
       - name: Build
         run: make build

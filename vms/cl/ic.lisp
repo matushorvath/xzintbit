@@ -3,8 +3,12 @@
 (load "~/.sbclrc")
 (ql:quickload "str" :silent :true)
 
-(defun run (path get-input set-output)
-    (execute-program (load-program path) 0 0 get-input set-output)
+(defun run (path)
+    (execute-program (list-to-vector (load-program path)) 0 0)
+)
+
+(defun list-to-vector (list)
+    (make-array (list (length list)) :initial-contents list :adjustable t)
 )
 
 (defun load-program (path)
@@ -15,33 +19,27 @@
     )
 )
 
-(defun execute-program (mem ip rb get-input set-output)
-    (execute-program-instruction (get-mem mem ip) mem ip rb get-input set-output)
+(defun execute-program (mem ip rb)
+    (execute-program-instruction (get-mem mem ip) mem ip rb)
 )
 
-(defun execute-program-instruction (inst mem ip rb get-input set-output)
+(defun execute-program-instruction (inst mem ip rb)
     (cond
         ((= (mod inst 100) 1) ;; add
-            (execute-program
-                (set-param 2 inst mem ip rb (+ (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)))
-                (+ ip 4) rb get-input set-output
-            )
+            (set-param 2 inst mem ip rb (+ (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)))
+            (execute-program mem (+ ip 4) rb)
         )
         ((= (mod inst 100) 2) ;; mul
-            (execute-program
-                (set-param 2 inst mem ip rb (* (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)))
-                (+ ip 4) rb get-input set-output
-            )
+            (set-param 2 inst mem ip rb (* (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)))
+            (execute-program mem (+ ip 4) rb)
         )
         ((= (mod inst 100) 3) ;; in
-            (execute-program
-                (set-param 0 inst mem ip rb (funcall get-input))
-                (+ ip 2) rb get-input set-output
-            )
+            (set-param 0 inst mem ip rb (get-input))
+            (execute-program mem (+ ip 2) rb)
         )
         ((= (mod inst 100) 4) ;; out
-            (funcall set-output (get-param 0 inst mem ip rb))
-            (execute-program mem (+ ip 2) rb get-input set-output)
+            (set-output (get-param 0 inst mem ip rb))
+            (execute-program mem (+ ip 2) rb)
         )
         ((= (mod inst 100) 5) ;; jnz
             (execute-program
@@ -50,7 +48,7 @@
                     ((/= 0 (get-param 0 inst mem ip rb)) (get-param 1 inst mem ip rb))
                     (t (+ ip 3))
                 )
-                rb get-input set-output
+                rb
             )
         )
         ((= (mod inst 100) 6) ;; jz
@@ -60,42 +58,34 @@
                     ((= 0 (get-param 0 inst mem ip rb)) (get-param 1 inst mem ip rb))
                     (t (+ ip 3))
                 )
-                rb get-input set-output
+                rb
             )
         )
         ((= (mod inst 100) 7) ;; lt
-            (execute-program
-                (set-param
-                    2 inst mem ip rb
-                    (cond
-                        ((< (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)) 1)
-                        (t 0)
-                    )
+            (set-param
+                2 inst mem ip rb
+                (cond
+                    ((< (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)) 1)
+                    (t 0)
                 )
-                (+ ip 4) rb get-input set-output
             )
+            (execute-program mem (+ ip 4) rb)
         )
         ((= (mod inst 100) 8) ;; eq
-            (execute-program
-                (set-param
-                    2 inst mem ip rb
-                    (cond
-                        ((= (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)) 1)
-                        (t 0)
-                    )
+            (set-param
+                2 inst mem ip rb
+                (cond
+                    ((= (get-param 0 inst mem ip rb) (get-param 1 inst mem ip rb)) 1)
+                    (t 0)
                 )
-                (+ ip 4) rb get-input set-output
             )
+            (execute-program mem (+ ip 4) rb)
         )
         ((= (mod inst 100) 9) ;; arb
-            (execute-program
-                mem (+ ip 2)
-                (+ rb (get-param 0 inst mem ip rb))
-                get-input set-output
-            )
+            (execute-program mem (+ ip 2) (+ rb (get-param 0 inst mem ip rb)))
         )
         ((= (mod inst 100) 99) ;; hlt
-            (list mem ip rb get-input set-output)
+            (list mem ip rb)
         )
         (t nil)
     )
@@ -134,28 +124,35 @@
     )
 )
 
-(defun get-mem (mem addr)
+(defun calc-mem-size (addr new-size)
     (cond
-        ((endp mem) 0)
-        ((= addr 0) (car mem))
-        (t (get-mem (cdr mem) (- addr 1)))
+        ((< addr new-size) new-size)
+        (t (calc-mem-size addr (* 2 new-size)))
     )
+)
+
+(defun get-mem (mem addr)
+    (cond ((>= addr (length mem))
+        (adjust-array mem (calc-mem-size addr (length mem)) :initial-element 0)
+    ))
+
+    (aref mem addr)
 )
 
 (defun set-mem (mem addr val)
-    (cond
-        ((= addr 0) (cons val (cdr mem)))
-        ((endp mem) (append (make-list addr :initial-element 0) (list val)))
-        (t (cons (car mem) (set-mem (cdr mem) (- addr 1) val)))
-    )
+    (cond ((>= addr (length mem))
+        (adjust-array mem (calc-mem-size addr (length mem)) :initial-element 0)
+    ))
+
+    (setf (aref mem addr) val)
 )
 
-(defun get-stdin ()
+(defun get-input ()
     (char-code (read-char t))
 )
 
-(defun set-stdout (val)
+(defun set-output (val)
     (princ (code-char val))
 )
 
-(run (car (uiop:command-line-arguments)) #'get-stdin #'set-stdout)
+(run (car (uiop:command-line-arguments)))
