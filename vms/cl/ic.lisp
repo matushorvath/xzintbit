@@ -1,4 +1,4 @@
-#!/usr/bin/env -S sbcl --script
+#!/usr/bin/env -S sbcl --control-stack-size 1024 --script
 
 (load "~/.sbclrc")
 (ql:quickload "str" :silent :true)
@@ -123,7 +123,7 @@
 (defun set-mem (mem addr val)
     (cond
         ((= addr 0) (cons val (cdr mem)))
-        ((endp mem) (append (make-list (- addr 1) :initial-element 0)) (list val))
+        ((endp mem) (append (make-list addr :initial-element 0) (list val)))
         (t (cons (car mem) (set-mem (cdr mem) (- addr 1) val)))
     )
 )
