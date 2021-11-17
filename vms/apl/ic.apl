@@ -5,7 +5,8 @@ V←((⍴M)⌊A+1)⌷M,(0)
 ∇
 
 ∇O←M setmem P
-(A V)←P⋄O←M,-⍨⍳(0⌈A+1-⍴M)⋄((A+1)⌷O)←V
+⍝ TODO A -> (1 2 3); 5↑A -> (1 2 3 0 0) page 23
+(A V)←P⋄O←M,-⍨⍳(0⌈A+1-⍴M)⋄((A+1)⌷O)←↑V
 ∇
 
 ∇V←M getp P
@@ -22,12 +23,11 @@ srel:O←M setmem (R+M getmem I+N) V⋄→0
 ∇
 
 ∇S exec M
-(I R)←S
-O←100|M getmem I⋄→((⍳10)=10⌊O)/add mul in out jnz jz lt eq arb hlt
+(I R)←S⋄→((⍳10)=10⌊100|M getmem I)/add mul in out jnz jz lt eq arb hlt
 add:(I+4) R exec M setp 3 I R (M getp 1 I R)+(M getp 2 I R)⋄→0
 mul:(I+4) R exec M setp 3 I R (M getp 1 I R)×(M getp 2 I R)⋄→0
-in:'in'⋄→0
-out: ⊣(M getp 1 I R) ⎕FIO[42] 1⋄(I+2) R exec M⋄→0
+in:(I+2) R exec M setp 1 I R (1⎕FIO[41]0)⋄→0
+out:⊣(M getp 1 I R)⎕FIO[42]1⋄(I+2) R exec M⋄→0
 jnz:'jnz'⋄→0
 jz:→(0=M getp 1 I R)/jzt⋄→jzf
 jzt:(M getp 2 I R) R exec M⋄→0
@@ -39,9 +39,7 @@ hlt:⋄→0
 ∇
 
 ∇main
-→(5≠⍴⎕ARG)/0
-M←{⍎¨(~⍵∊',')⊂⍵}↑(⎕FIO[49]↑¯1↑⎕ARG)
-(0 0)exec M
+→(5≠⍴⎕ARG)/0⋄M←{⍎¨(~⍵∊',')⊂⍵}↑(⎕FIO[49]↑¯1↑⎕ARG)⋄(0 0)exec M
 ∇
 
 main
