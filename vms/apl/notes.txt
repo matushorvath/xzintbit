@@ -2,4 +2,4 @@ TODO:
  - handle invalid mode in setp, getp
  - display an error message for invalid command line
  - return a non-zero exit code somehow
- - ⊣⎕FIO[17]1 is fsync, consider removing it once everything works
+ - ⊣⎕FIO[17]1 is fsync

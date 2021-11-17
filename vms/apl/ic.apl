@@ -4,41 +4,41 @@
 V←((⍴M)⌊A+1)⌷M,(0)
 ∇
 
-∇O←M setmem P
+∇O←M setmem P; A; V
 (A V)←P⋄O←((⍴M)⌈A+1)↑M⋄((A+1)⌷O)←↑V
 ∇
 
-∇V←M getp P
+∇V←M getp P; N; I; R
 (N I R)←P⋄→((⍳3)=1+10|⌊(M getmem I)÷N⌷100 1000 10000)/gpos gimm grel
 gpos:V←M getmem M getmem I+N⋄→0
 gimm:V←M getmem I+N⋄→0
 grel:V←M getmem R+M getmem I+N⋄→0
 ∇
 
-∇O←M setp P
+∇O←M setp P; N; I; R; V
 (N I R V)←P⋄→((⍳3)=1+10|⌊(M getmem I)÷N⌷100 1000 10000)/spos 0 srel
 spos:O←M setmem (M getmem I+N) V⋄→0
 srel:O←M setmem (R+M getmem I+N) V⋄→0
 ∇
 
-∇S exec M
+∇exec S; I; R
 (I R)←S⋄→((⍳10)=10⌊100|M getmem I)/add mul in out jnz jz lt eq arb hlt
-add:(I+4) R exec M setp 3 I R ((M getp 1 I R)+(M getp 2 I R))⋄→0
-mul:(I+4) R exec M setp 3 I R ((M getp 1 I R)×(M getp 2 I R))⋄→0
-in:(I+2) R exec M setp 1 I R (1⎕FIO[41]0)⋄→0
-out:⊣(M getp 1 I R)⎕FIO[42]1⋄(I+2) R exec M⋄⊣⎕FIO[17]1⋄→0
+add:⊢M setp 3 I R ((M getp 1 I R)+(M getp 2 I R))⋄exec (I+4) R⋄→0
+mul:⊢M setp 3 I R ((M getp 1 I R)×(M getp 2 I R))⋄exec (I+4) R⋄→0
+in:⊢M setp 1 I R (1⎕FIO[41]0)⋄exec (I+2) R⋄→0
+out:⊣(M getp 1 I R)⎕FIO[42]1⋄exec (I+2) R⋄→0
 jnz:→(0≠M getp 1 I R)/jmpt⋄→jmpf
 jz:→(0=M getp 1 I R)/jmpt⋄→jmpf
-jmpt:(M getp 2 I R) R exec M⋄→0
-jmpf:(I+3) R exec M⋄→0
-lt:(I+4) R exec M setp 3 I R ((M getp 1 I R)<(M getp 2 I R))⋄→0
-eq:(I+4) R exec M setp 3 I R ((M getp 1 I R)=(M getp 2 I R))⋄→0
-arb:(I+2) (R+M getp 1 I R) exec M⋄→0
+jmpt:exec (M getp 2 I R) R⋄→0
+jmpf:exec (I+3) R⋄→0
+lt:⊢M setp 3 I R ((M getp 1 I R)<(M getp 2 I R))⋄exec (I+4) R⋄→0
+eq:⊢M setp 3 I R ((M getp 1 I R)=(M getp 2 I R))⋄exec (I+4) R⋄→0
+arb:exec (I+2) (R+M getp 1 I R)⋄→0
 hlt:⋄→0
 ∇
 
 ∇main
-→(5≠⍴⎕ARG)/0⋄M←{⍎¨(~⍵∊',')⊂⍵}↑(⎕FIO[49]↑¯1↑⎕ARG)⋄(0 0)exec M
+→(5≠⍴⎕ARG)/0⋄M←{⍎¨(~⍵∊',')⊂⍵}↑(⎕FIO[49]↑¯1↑⎕ARG)⋄exec (0 0)
 ∇
 
 main
