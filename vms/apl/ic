@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# This file exists solely because GNU APL insists on writing a new line to stdout just before it exits.
+# It is common practice to allow programers to fully control their program's output, but GNU APL is... different.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)";
+$SCRIPT_DIR/ic.apl $@ | head -c -1
