@@ -33,7 +33,7 @@ O←100|M getmem I ⍝ merge 2 lines? remove parens below?
 add:(I+4) R exec M setp 3 I R (M getp 1 I R)+(M getp 2 I R)⋄→0
 mul:(I+4) R exec M setp 3 I R (M getp 1 I R)×(M getp 2 I R)⋄→0
 in:'in'⋄→0
-out:⍕M getp 1 I R⋄(I+2) R exec M⋄→0
+out: ⊣(M getp 1 I R) ⎕FIO[42] 1⋄(I+2) R exec M⋄→0
 jnz:'jnz'⋄→0
 jz:→(0=M getp 1 I R)/jzt⋄→jzf
 jzt:(M getp 2 I R) R exec M⋄→0
@@ -41,16 +41,18 @@ jzf:(I+3) R exec M⋄→0
 lt:'lt'⋄→0
 eq:'eq'⋄→0
 arb:(I+2) (R+M getp 1 I R) exec M⋄→0
-hlt:'hlt'⋄→0
+hlt:⋄→0
 ∇
-
-('%c' 72)  ⎕FIO[22] 1
 
 ∇main
 ⍝ TODO error message for invalid args
 →(5≠⍴⎕ARG)/0
 M←{⍎¨(~⍵∊',')⊂⍵}↑(⎕FIO[49]↑¯1↑⎕ARG)
 (0 0)exec M
+
+⍝ M
+⍝ M getmem 15
+⍝ (M getmem 15) ⎕FIO[42] 1
 
 ⍝ M getp 1 2 15
 ⍝ M getp 2 2 15
