@@ -15,10 +15,10 @@ gimm:V←M getmem I+N⋄→0
 grel:V←M getmem R+M getmem I+N⋄→0
 ∇
 
-∇O←M setp P; N; I; R; V
-(N I R V)←P⋄→((⍳3)=1+10|⌊(M getmem I)÷N⌷100 1000 10000)/spos 0 srel
-spos:O←M setmem (M getmem I+N) V⋄→0
-srel:O←M setmem (R+M getmem I+N) V⋄→0
+∇V setp P; N; I; R
+(N I R)←P⋄→((⍳3)=1+10|⌊(M getmem I)÷N⌷100 1000 10000)/spos 0 srel
+spos:M←M setmem (M getmem I+N) V⋄→0
+srel:M←M setmem (R+M getmem I+N) V⋄→0
 ∇
 
 ∇exec S; I; R
