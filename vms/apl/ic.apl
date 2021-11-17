@@ -1,5 +1,7 @@
 #!/usr/bin/apl --script --
 
+⍝ GNU APL 1.8
+
 ∇V←getmem A
 V←((⍴M)⌊A+1)⌷M,(0)
 ∇
@@ -26,7 +28,7 @@ srel:(R+getmem I+N) setmem V⋄→0
 →((⍳10)=10⌊100|getmem I)/add mul in out jnz jz lt eq arb hlt
 add:3 setp ((getp 1)+(getp 2))⋄I←I+4⋄exec⋄→0
 mul:3 setp ((getp 1)×(getp 2))⋄I←I+4⋄exec⋄→0
-in:1 setp (1⎕FIO[41]0)⋄I←I+2⋄exec⋄→0
+in:V←1⎕FIO[41]0⋄→(0=⍴V)/0⋄1 setp V⋄I←I+2⋄exec⋄→0
 out:⊣(getp 1)⎕FIO[42]1⋄I←I+2⋄exec⋄→0
 jnz:→(0≠getp 1)/jmpt⋄→jmpf
 jz:→(0=getp 1)/jmpt⋄→jmpf
