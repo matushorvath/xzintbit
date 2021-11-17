@@ -70,10 +70,7 @@ clean-cl:
 
 # Intcode VM in APL
 .PHONY: build-apl
-build-apl: apl/ic
-apl/ic: apl/ic.apl
-	ln -sf ic.apl apl/ic
+build-apl: apl/ic apl/ic.apl
 
 .PHONY: clean-apl
 clean-apl:
-	rm -rf apl/ic
