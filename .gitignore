@@ -1,4 +1,5 @@
 .vscode
+.apl.history
 *.tmp
 local.*
 icvm_profile.csv
