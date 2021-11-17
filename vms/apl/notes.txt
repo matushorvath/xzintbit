@@ -1,0 +1,5 @@
+TODO:
+ - handle invalid mode in setp, getp
+ - display an error message for invalid command line
+ - return a non-zero exit code somehow
+ 
