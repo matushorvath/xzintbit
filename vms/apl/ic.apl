@@ -5,8 +5,7 @@ V←((⍴M)⌊A+1)⌷M,(0)
 ∇
 
 ∇O←M setmem P
-⍝ TODO A -> (1 2 3); 5↑A -> (1 2 3 0 0) page 23
-(A V)←P⋄O←M,-⍨⍳(0⌈A+1-⍴M)⋄((A+1)⌷O)←↑V
+(A V)←P⋄O←((⍴M)⌈A+1)↑M⋄((A+1)⌷O)←↑V
 ∇
 
 ∇V←M getp P
