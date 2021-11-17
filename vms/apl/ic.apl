@@ -1,6 +1,6 @@
 #!/usr/bin/apl --script --
 
-∇V←M getmem A
+∇V←getmem A
 V←((⍴M)⌊A+1)⌷M,(0)
 ∇
 
@@ -9,20 +9,20 @@ V←((⍴M)⌊A+1)⌷M,(0)
 ∇
 
 ∇V←getp P; N; I; R
-(N I R)←P⋄→((⍳3)=1+10|⌊(M getmem I)÷N⌷100 1000 10000)/gpos gimm grel
-gpos:V←M getmem M getmem I+N⋄→0
-gimm:V←M getmem I+N⋄→0
-grel:V←M getmem R+M getmem I+N⋄→0
+(N I R)←P⋄→((⍳3)=1+10|⌊(getmem I)÷N⌷100 1000 10000)/gpos gimm grel
+gpos:V←getmem getmem I+N⋄→0
+gimm:V←getmem I+N⋄→0
+grel:V←getmem R+getmem I+N⋄→0
 ∇
 
 ∇V setp P; N; I; R
-(N I R)←P⋄→((⍳3)=1+10|⌊(M getmem I)÷N⌷100 1000 10000)/spos 0 srel
-spos:M←M setmem (M getmem I+N) V⋄→0
-srel:M←M setmem (R+M getmem I+N) V⋄→0
+(N I R)←P⋄→((⍳3)=1+10|⌊(getmem I)÷N⌷100 1000 10000)/spos 0 srel
+spos:M←M setmem (getmem I+N) V⋄→0
+srel:M←M setmem (R+getmem I+N) V⋄→0
 ∇
 
 ∇exec S; I; R
-(I R)←S⋄→((⍳10)=10⌊100|M getmem I)/add mul in out jnz jz lt eq arb hlt
+(I R)←S⋄→((⍳10)=10⌊100|getmem I)/add mul in out jnz jz lt eq arb hlt
 add:⊢setp 3 I R ((getp 1 I R)+(getp 2 I R))⋄exec (I+4) R⋄→0
 mul:⊢setp 3 I R ((getp 1 I R)×(getp 2 I R))⋄exec (I+4) R⋄→0
 in:⊢setp 1 I R (1⎕FIO[41]0)⋄exec (I+2) R⋄→0
