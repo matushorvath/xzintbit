@@ -23,16 +23,16 @@ srel:O←M setmem (R+M getmem I+N) V⋄→0
 
 ∇S exec M
 (I R)←S⋄→((⍳10)=10⌊100|M getmem I)/add mul in out jnz jz lt eq arb hlt
-add:(I+4) R exec M setp 3 I R (M getp 1 I R)+(M getp 2 I R)⋄→0
-mul:(I+4) R exec M setp 3 I R (M getp 1 I R)×(M getp 2 I R)⋄→0
+add:(I+4) R exec M setp 3 I R ((M getp 1 I R)+(M getp 2 I R))⋄→0
+mul:(I+4) R exec M setp 3 I R ((M getp 1 I R)×(M getp 2 I R))⋄→0
 in:(I+2) R exec M setp 1 I R (1⎕FIO[41]0)⋄→0
-out:⊣(M getp 1 I R)⎕FIO[42]1⋄(I+2) R exec M⋄→0
+out:⊣(M getp 1 I R)⎕FIO[42]1⋄(I+2) R exec M⋄⊣⎕FIO[17]1⋄→0
 jnz:→(0≠M getp 1 I R)/jmpt⋄→jmpf
 jz:→(0=M getp 1 I R)/jmpt⋄→jmpf
 jmpt:(M getp 2 I R) R exec M⋄→0
 jmpf:(I+3) R exec M⋄→0
-lt:(I+4) R exec M setp 3 I R (M getp 1 I R)<(M getp 2 I R)⋄→0
-eq:(I+4) R exec M setp 3 I R (M getp 1 I R)=(M getp 2 I R)⋄→0
+lt:(I+4) R exec M setp 3 I R ((M getp 1 I R)<(M getp 2 I R))⋄→0
+eq:(I+4) R exec M setp 3 I R ((M getp 1 I R)=(M getp 2 I R))⋄→0
 arb:(I+2) (R+M getp 1 I R) exec M⋄→0
 hlt:⋄→0
 ∇

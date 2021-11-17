@@ -10,10 +10,10 @@ endif
 export GOFLAGS
 
 .PHONY: build
-build: build-c build-cs build-cl build-go build-rust
+build: build-apl build-c build-cs build-cl build-go build-rust
 
 .PHONY: clean
-clean: clean-c clean-cs clean-cl clean-go clean-rust
+clean: clean-apl clean-c clean-cs clean-cl clean-go clean-rust
 
 # Intcode VM in C
 .PHONY: build-c
@@ -67,3 +67,13 @@ cl/ic: cl/ic.lisp
 .PHONY: clean-cl
 clean-cl:
 	rm -rf cl/ic
+
+# Intcode VM in APL
+.PHONY: build-apl
+build-apl: apl/ic
+apl/ic: apl/ic.apl
+	ln -sf ic.apl apl/ic
+
+.PHONY: clean-apl
+clean-apl:
+	rm -rf apl/ic
