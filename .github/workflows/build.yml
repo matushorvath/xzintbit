@@ -22,19 +22,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        icvm: [c, cs, cl, go, rust]
+        icvm: [c, cs, cl, go, js, rust]
         profile: [n, y]
         exclude:
           - icvm: cs
             profile: y
-          - icvm: cl
+          - icvm: js
             profile: y
-          - icvm: cl
-            os: windows-latest
-          - icvm: cl
-            os: macOS-latest
           - icvm: rust
             profile: y
+        include:
+          - os: ubuntu-latest
+            icvm: cl
+            profile: n
 
     steps:
       - uses: actions/checkout@v2.4.0
