@@ -5,6 +5,7 @@ local.*
 icvm_profile.csv
 vms/*/ic
 !vms/apl/ic
+!vms/js/ic
 vms/*/ic.exe
 vms/c/*.o
 vms/cs/bin
