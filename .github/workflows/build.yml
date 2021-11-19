@@ -24,19 +24,15 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         icvm: [c, cs, go, rust]
         profile: [n, y]
-        include:
-          - os: ubuntu-latest
-            icvm: apl
-            profile: n
-          - os: ubuntu-latest
-            icvm: cl
-            profile: n
         exclude:
           - icvm: cs
             profile: y
           - icvm: rust
             profile: y
         include:
+          - os: ubuntu-latest
+            icvm: apl
+            profile: n
           - os: ubuntu-latest
             icvm: cl
             profile: n
