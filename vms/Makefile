@@ -70,13 +70,10 @@ clean-cl:
 
 # Intcode VM in Javascript
 .PHONY: build-js
-build-js: js/ic
-js/ic: js/ic.mjs
-	ln -sf ic.mjs js/ic
+build-js: js/ic js/ic.mjs
 
 .PHONY: clean-js
 clean-js:
-	rm -rf js/ic
 
 # Intcode VM in APL
 .PHONY: build-apl
