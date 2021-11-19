@@ -22,12 +22,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        icvm: [c, cs, go, js, rust]
+        icvm: [c, cs, go, rust]
         profile: [n, y]
         exclude:
           - icvm: cs
-            profile: y
-          - icvm: js
             profile: y
           - icvm: rust
             profile: y
@@ -44,12 +42,6 @@ jobs:
         with:
           dotnet-version: 6.0.x
         if: matrix.icvm == 'cs'
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-        if: matrix.icvm == 'js'
 
       - name: Setup Steel Bank Common Lisp
         run: |
