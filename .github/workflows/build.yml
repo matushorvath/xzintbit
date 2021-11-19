@@ -22,12 +22,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        icvm: [c, cs, go, js, rust]
+        icvm: [c, cs, go, rust]
         profile: [n, y]
         exclude:
           - icvm: cs
-            profile: y
-          - icvm: js
             profile: y
           - icvm: rust
             profile: y
