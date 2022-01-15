@@ -18,7 +18,7 @@ report_libxib_error:
 
 report_error:
 .FRAME message;
-    # we don't bother with updating the stack pointer, this function never returns
+    # we don't bother updating the stack pointer, this function never returns
     add [rb + message], 0, [rb + 2]
     add [token_line_num], 0, [rb + 1]
     add [token_column_num], 0, [rb]
@@ -47,7 +47,7 @@ report_symbol_error:
     add [0], 0, [rb + column_num]
 
 report_symbol_error_after_location:
-    # we don't bother with updating the stack pointer, this function never returns
+    # we don't bother updating the stack pointer, this function never returns
     add [rb + message], 0, [rb + 2]
     add [rb + line_num], 0, [rb + 1]
     add [rb + column_num], 0, [rb]

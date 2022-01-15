@@ -9,15 +9,15 @@ BINDIR ?= bin
 OBJDIR ?= obj
 
 define run-as
-cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; false )
+cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; rm $@ ; false )
 endef
 
 define run-ar
-echo .L | cat - $^ > $@ || ( cat $@ ; false )
+echo .L | cat - $^ > $@ || ( cat $@ ; rm $@ ; false )
 endef
 
 define run-ld
-echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
+echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; rm $@ ; false )
 endef
 
 # Build
@@ -57,7 +57,7 @@ $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 $(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/const.si $(SRCDIR)/libxib/%.s
 	$(run-as)
 
-GZIP_OBJS = gzip.o
+GZIP_OBJS = gzip.o error.o headers.o
 
 $(BINDIR)/gzip.input: $(addprefix $(OBJDIR)/gzip/, $(GZIP_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)

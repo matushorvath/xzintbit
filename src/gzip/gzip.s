@@ -1,3 +1,6 @@
+# from headers.s
+.IMPORT read_member
+
 ##########
 # entry point
     arb stack
@@ -10,9 +13,9 @@ main:
 .FRAME
     arb -0
 
-    out 'H'
-    out 'W'
-    out 10
+    # Assume there is just one member. RFC 1952 says there may be multiple, but we have no
+    # way of detecting them since Intcode VM has no EOF handling.
+    call read_member
 
     arb 0
     ret 0
