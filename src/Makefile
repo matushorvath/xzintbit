@@ -22,11 +22,11 @@ endef
 
 # Build
 .PHONY: build
-build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input print-profile
+build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input $(BINDIR)/gzip.input print-profile
 
 .PHONY: build-prep
 build-prep:
-	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib
+	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib $(OBJDIR)/gzip
 ifeq ($(ICVM_PROFILE),y)
 	rm -f icvm_profile.csv
 endif
@@ -55,6 +55,14 @@ $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 	$(run-ar)
 
 $(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/const.si $(SRCDIR)/libxib/%.s
+	$(run-as)
+
+GZIP_OBJS = gzip.o
+
+$(BINDIR)/gzip.input: $(addprefix $(OBJDIR)/gzip/, $(GZIP_OBJS)) $(BINDIR)/libxib.a
+	$(run-ld)
+
+$(OBJDIR)/gzip/%.o: $(SRCDIR)/gzip/%.s
 	$(run-as)
 
 define PROFILE_AWK
