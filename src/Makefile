@@ -49,7 +49,7 @@ $(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
 $(OBJDIR)/ld/%.o: $(SRCDIR)/ld/const.si $(SRCDIR)/ld/%.s
 	$(run-as)
 
-LIBXIB_OBJS = libxib.o error.o heap.o input.o lexer.o memory.o print.o string.o
+LIBXIB_OBJS = libxib.o bits.o error.o heap.o input.o lexer.o memory.o print.o string.o
 
 $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 	$(run-ar)

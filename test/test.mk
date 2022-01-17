@@ -4,8 +4,12 @@ ICVM ?= $(abspath ../../vms)/$(ICVM_TYPE)/ic
 ICAS ?= $(abspath ../../bin/as.input)
 ICLD ?= $(abspath ../../bin/ld.input)
 
+GBINDIR ?= $(abspath ../../bin)
+
 BINDIR ?= bin
 OBJDIR ?= obj
+
+FULLDIFF ?= 1
 
 ifndef TESTLOG
 	TESTLOG := $(shell mktemp)
@@ -43,6 +47,8 @@ $(BINDIR)/%.txt: $(BINDIR)/%.input
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
 
+ifeq ($(FULLDIFF), 1)
+
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	printf '$(NAME): linking ' >> $(TESTLOG)
 	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
@@ -63,6 +69,19 @@ $(OBJDIR)/%.o: %.s
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+
+else
+
+$(BINDIR)/%.input: $(OBJDIR)/%.o
+	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
+
+$(BINDIR)/%.a: $(OBJDIR)/%.o
+	echo .L | cat - $^ > $@ || true
+
+$(OBJDIR)/%.o: %.s
+	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; true )
+
+endif
 
 .PHONY: skip
 skip:
