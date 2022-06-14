@@ -6,6 +6,10 @@ updates:
     directory: "/vms/go"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "cargo"
+    directory: "/vms/rust"
+    schedule:
+      interval: "weekly"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
