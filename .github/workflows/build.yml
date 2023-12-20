@@ -31,6 +31,9 @@ jobs:
             profile: y
         include:
           - os: ubuntu-latest
+            icvm: apl
+            profile: n
+          - os: ubuntu-latest
             icvm: cl
             profile: n
 
@@ -49,6 +52,13 @@ jobs:
           sbcl --non-interactive --load /usr/share/common-lisp/source/quicklisp/quicklisp.lisp --eval '(quicklisp-quickstart:install)'
           cp vms/cl/.sbclrc ~/.sbclrc
         if: matrix.icvm == 'cl'
+
+      - name: GNU APL
+        run: |
+          wget http://ftpmirror.gnu.org//gnu/apl/apl_1.8-1_amd64.deb
+          sudo dpkg -i apl_1.8-1_amd64.deb
+          sudo apt --fix-broken install
+        if: matrix.icvm == 'apl'
 
       - name: Build
         run: make build
