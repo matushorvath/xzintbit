@@ -1,10 +1,8 @@
 /* eslint-env node, browser */
 'use strict';
 
-const { contextBridge } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron
+contextBridge.exposeInMainWorld('ipc', {
+    onUpdateState: callback => ipcRenderer.on('update-state', (_event, value) => callback(value))
 });
