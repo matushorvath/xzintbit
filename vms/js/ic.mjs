@@ -1,41 +1,125 @@
-import fs from 'fs';
-import fsp from 'fs/promises';
+import fs from 'fs/promises';
 
-// Node.js does not have tail call optimization, so we can't use recursion instead of loops
-const whilef = async (f, c, s) => {
-    while (c(s)) s = await f(s);
-    return s;
+let mem;
+
+let ip = 0;
+let rb = 0;
+
+const getMem = (addr) => {
+    return mem[addr] ?? 0;
+};
+
+const setMem = (addr, val) => {
+    mem[addr] = val;
+};
+
+const MODE_MUL = [100, 1000, 10000];
+
+const getParam = (idx) => {
+    const mode = Math.floor(getMem(ip) / MODE_MUL[idx]) % 10;
+    switch (mode) {
+        case 0: // position mode
+            return getMem(getMem(ip + idx + 1));
+        case 1: // immediate mode
+            return getMem(ip + idx + 1);
+        case 2: // relative mode
+            return getMem(rb + getMem(ip + idx + 1));
+        default:
+            throw new Error(`mode error: ip ${ip} idx ${idx}`);
+    }
 }
 
-const main = async (path) => String.fromCharCode(...(await run({ mem: await load(path), ip: 0, rb: 0, out: [] })));
-const load = async (path) => (await fsp.readFile(path, 'utf8')).split(',').map(n => parseInt(n, 10));
-const decode = (s) => ({ 1: add, 2: mul, 3: inn, 4: out, 5: jnz, 6: jz, 7: lt, 8: eq, 9: arb, 99: hlt })[getmem(s.mem, s.ip) % 100];
-const run = async (s) => (await whilef(async s => await decode(s)(s), s => !s.stop, s)).out;
+const setParam = (idx, val) => {
+    const mode = Math.floor(getMem(ip) / MODE_MUL[idx]) % 10;
+    switch (mode) {
+        case 0: // position mode
+            setMem(getMem(ip + idx + 1), val);
+            break;
+        case 2: // relative mode
+            setMem(rb + getMem(ip + idx + 1), val);
+            break;
+        default:
+            throw new Error(`mode error: ip ${ip} idx ${idx}`);
+    }
+}
 
-const add = async (s) => ({ ...s, mem: setparam(2, s, getparam(0, s) + getparam(1, s)), ip: s.ip + 4 });
-const mul = async (s) => ({ ...s, mem: setparam(2, s, getparam(0, s) * getparam(1, s)), ip: s.ip + 4 });
-const inn = async (s) => (v => ({ ...s, mem: setparam(0, s, v), ip: s.ip + 2, stop: v === undefined }))(await getinput());
-const out = async (s) => ({ ...s, out: [...s.out, getparam(0, s)], ip: s.ip + 2 });
-const jnz = async (s) => ({ ...s, ip: getparam(0, s) !== 0 ? getparam(1, s) : s.ip + 3 });
-const jz  = async (s) => ({ ...s, ip: getparam(0, s) === 0 ? getparam(1, s) : s.ip + 3 });
-const lt  = async (s) => ({ ...s, mem: setparam(2, s, getparam(0, s) < getparam(1, s) ? 1 : 0), ip: s.ip + 4 });
-const eq  = async (s) => ({ ...s, mem: setparam(2, s, getparam(0, s) === getparam(1, s) ? 1 : 0), ip: s.ip + 4 });
-const arb = async (s) => ({ ...s, rb: s.rb + getparam(0, s), ip: s.ip + 2 })
-const hlt = async (s) => ({ ...s, stop: true });
+const run = async function* (ins = (async function* () {})()) {
+    while (true) {
+        const oc = Math.floor(getMem(ip) % 100);
 
-const getparam = (i, s) => [getparamp, getparami, getparamr][Math.trunc(getmem(s.mem, s.ip) / (10 ** (i + 2))) % 10](i, s);
-const getparamp = (i, s) => getmem(s.mem, getmem(s.mem, s.ip + i + 1));
-const getparami = (i, s) => getmem(s.mem, s.ip + i + 1);
-const getparamr = (i, s) => getmem(s.mem, s.rb + getmem(s.mem, s.ip + i + 1));
+        switch (oc) {
+            case 1: // add
+                setParam(2, getParam(0) + getParam(1));
+                ip += 4;
+                break;
+            case 2: // mul
+                setParam(2, getParam(0) * getParam(1));
+                ip += 4;
+                break;
+            case 3: { // in
+                const { value, done } = await ins.next();
+                if (done) {
+                    throw new Error('no more inputs');
+                }
+                setParam(0, value);
+                ip += 2;
+                break;
+            }
+            case 4: { // out
+                const value = getParam(0);
+                ip += 2;
+                yield value;
+                break;
+            }
+            case 5: // jnz
+                if (getParam(0) !== 0) {
+                    ip = getParam(1);
+                } else {
+                    ip += 3;
+                }
+                break;
+            case 6: // jz
+                if (getParam(0) === 0) {
+                    ip = getParam(1);
+                } else {
+                    ip += 3;
+                }
+                break;
+            case 7: // lt
+                setParam(2, getParam(0) < getParam(1) ? 1 : 0);
+                ip += 4;
+                break;
+            case 8: // eq
+                setParam(2, getParam(0) === getParam(1) ? 1 : 0);
+                ip += 4;
+                break;
+            case 9: // arb
+                rb += getParam(0);
+                ip += 2;
+                break;
+            case 99: // hlt
+                return;
+            default:
+                throw new Error(`opcode error: ip ${ip} oc ${oc}`);
+        }
+    }
+}
 
-const setparam = (i, s, v) => [setparamp, , setparamr][Math.trunc(getmem(s.mem, s.ip) / (10 ** (i + 2))) % 10](i, s, v);
-const setparamp = (i, s, v) => setmem(s.mem, getmem(s.mem, s.ip + i + 1), v);
-const setparamr = (i, s, v) => setmem(s.mem, s.rb + getmem(s.mem, s.ip + i + 1), v);
+async function* getIns() {
+    for await (const chunk of process.stdin) {
+        for (const char of chunk) {
+            yield char;
+        }
+    }
+}
 
-const getmem = (m, a) => m[a] ?? 0;
-const setmem = (m, a, v) => ({ ...m, [a]: v });
+const main = async () => {
+    const input = await fs.readFile(process.argv[2], 'utf8');
+    mem = input.split(',').map(i => Number(i));
 
-const getinput = async () => new Promise(resolve => fs.read(
-    process.stdin.fd, { buffer: Buffer.alloc(1) }, (e, c, b) => resolve(c ? b[0] : undefined)));
+    for await (const char of run(getIns())) {
+        process.stdout.write(String.fromCharCode(char));
+    }
+};
 
-process.stdout.write(await main(process.argv[2]));
+await main();

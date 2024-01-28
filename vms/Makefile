@@ -10,10 +10,10 @@ endif
 export GOFLAGS
 
 .PHONY: build
-build: build-apl build-c build-cs build-cl build-go build-js build-rust
+build: build-apl build-c build-cs build-cl build-go build-js build-js-fn build-rust
 
 .PHONY: clean
-clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-rust
+clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-rust
 
 # Intcode VM in C
 .PHONY: build-c
@@ -75,6 +75,13 @@ build-js: js/ic js/ic.mjs
 
 .PHONY: clean-js
 clean-js:
+
+# Intcode VM in Javascript, implemented as a single function
+.PHONY: build-js-fn
+build-js-fn: js-fn/ic js-fn/ic.mjs
+
+.PHONY: clean-js-fn
+clean-js-fn:
 
 # Intcode VM in APL
 .PHONY: build-apl
