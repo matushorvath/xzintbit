@@ -11,6 +11,7 @@ vms/c/*.o
 vms/cs/bin
 vms/cs/obj
 vms/rust/target
+vms/monitor/node_modules
 stage1
 stage2
 src/bin

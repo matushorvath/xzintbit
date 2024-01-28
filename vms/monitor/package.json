@@ -1,0 +1,18 @@
+{
+  "name": "monitor",
+  "version": "1.0.0",
+  "description": "Intcode virtual machine monitor",
+  "main": "main.js",
+  "scripts": {
+    "test": "npm run lint",
+    "lint": "npm run eslint",
+    "eslint": "eslint .",
+    "start": "electron ."
+  },
+  "author": "Matus Horvath <matus.horvath@gmail.com>",
+  "license": "CC-BY-4.0",
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "eslint": "^8.56.0"
+  }
+}
