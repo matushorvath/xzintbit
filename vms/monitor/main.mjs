@@ -1,14 +1,18 @@
 /* eslint-env node */
-'use strict';
 
-const { app, BrowserWindow } = require('electron');
-const path = require('node:path');
-const timers = require('node:timers/promises');
+import { app, BrowserWindow } from 'electron';
+
+import path from 'node:path';
+import timers from 'node:timers/promises';
+import url from 'url';
+
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
-        height: 600, webPreferences: {
+        height: 600,
+        webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
     });
@@ -24,6 +28,7 @@ const updateState = (win, update) => {
 
 const main = async () => {
     await app.whenReady();
+    console.log('ready');
 
     const win = createWindow();
 
@@ -34,4 +39,7 @@ const main = async () => {
     }
 };
 
-main().catch(e => console.log(e));
+main().catch(e => {
+    console.log(e);
+    app.quit();
+});

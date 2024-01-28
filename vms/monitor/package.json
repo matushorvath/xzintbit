@@ -2,7 +2,7 @@
   "name": "monitor",
   "version": "1.0.0",
   "description": "Intcode virtual machine monitor",
-  "main": "main.js",
+  "main": "main.mjs",
   "scripts": {
     "test": "npm run lint",
     "lint": "npm run eslint",
