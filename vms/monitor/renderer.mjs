@@ -1,45 +1,67 @@
 /* eslint-env browser */
 
-const stateElement = document.getElementById('state');
+const state = {
+    memSize: 0,
+    imageSize: 0,
+    mem: {}
+};
 
 const onUpdateState = (update) => {
-    console.log(update);
-    stateElement.innerText = JSON.stringify(update);
+    state.mem = {};
+
+    for (const event of update) {
+        if (event.e === 's') {
+            // Reset
+            state.memSize = event.a;
+            state.imageSize = event.a;
+        } else if (event.e === 'r' || event.e === 'w') {
+            // Memory read/write
+            state.memSize = Math.max(state.memSize, event.a);
+            state.mem[event.a] = event;
+        }
+    };
+
+    redraw();
 };
 
 window.ipc.onUpdateState(onUpdateState);
 
-let coswave = [];
-
 function setup() {
-    createCanvas(720, 360);
-    for (let i = 0; i < width; i++) {
-        let amount = map(i, 0, width, 0, PI);
-        coswave[i] = abs(cos(amount));
-    }
+    createCanvas(1000, 800);
     background(255);
     noLoop();
 }
 
+const COLS = 200;
+const SIZE = 5;
+
+const getFill = (r, c) => {
+    switch (state?.mem[r * COLS + c]?.e) {
+        case undefined: return 'white';
+        case 'r': return 'lightgreen';
+        case 'w': return 'orange';
+    }
+};
+
+const getStroke = (r, c) => {
+    if (r * COLS + c < state?.imageSize) {
+        return 'lightblue';
+    } else {
+        return 'lightgray';
+    }
+};
+
 function draw() {
-    let y1 = 0;
-    let y2 = height / 3;
-    for (let i = 0; i < width; i += 3) {
-        stroke(coswave[i] * 255);
-        line(i, y1, i, y2);
-    }
+    clear();
 
-    y1 = y2;
-    y2 = y1 + y1;
-    for (let i = 0; i < width; i += 3) {
-        stroke((coswave[i] * 255) / 4);
-        line(i, y1, i, y2);
-    }
+    const rows = Math.max(Math.ceil(state.memSize / COLS), 100);
 
-    y1 = y2;
-    y2 = height;
-    for (let i = 0; i < width; i += 3) {
-        stroke(255 - coswave[i] * 255);
-        line(i, y1, i, y2);
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < COLS; c++) {
+            stroke(getStroke(r, c));
+            fill(getFill(r, c));
+
+            square(c * SIZE, r * SIZE, SIZE);
+        }
     }
 }

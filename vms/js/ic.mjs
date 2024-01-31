@@ -1,15 +1,38 @@
 import fs from 'fs/promises';
 
+// TODO How do we make sure the last monitor events get sent on VM exiting without remembering all promises?
+
+let events;
+let monitorUrl;
+
+const sendEventBatch = async (force = false) => {
+    // TODO Time-based batching, send every X milliseconds
+    if (monitorUrl && (force || events?.length > 1000)) {
+        try {
+            await fetch(monitorUrl, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify(events)
+            });
+        } catch (e) {
+            // The monitor is accessed on best-effort basis, so we ignore any errors here
+        }
+        events = [];
+    }
+};
+
 let mem;
 
 let ip = 0;
 let rb = 0;
 
 const getMem = (addr) => {
+    events?.push({ e: 'r', a: addr });
     return mem[addr] ?? 0;
 };
 
 const setMem = (addr, val) => {
+    events?.push({ e: 'w', a: addr });
     mem[addr] = val;
 };
 
@@ -45,6 +68,8 @@ const setParam = (idx, val) => {
 
 const run = async function* (ins = (async function* () {})()) {
     while (true) {
+        await sendEventBatch();
+
         const oc = Math.floor(getMem(ip) % 100);
 
         switch (oc) {
@@ -117,9 +142,18 @@ const main = async () => {
     const input = await fs.readFile(process.argv[2], 'utf8');
     mem = input.split(',').map(i => Number(i));
 
+    if (process.env.ICVM_MONITOR_URL) {
+        events = [];
+        monitorUrl = process.env.ICVM_MONITOR_URL;
+    }
+
+    events?.push({ e: 's', a: mem.length });
+
     for await (const char of run(getIns())) {
         process.stdout.write(String.fromCharCode(char));
     }
+
+    await sendEventBatch(true);
 };
 
 await main();
