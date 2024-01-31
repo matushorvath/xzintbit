@@ -127,6 +127,8 @@ const run = async function* (ins = (async function* () {})()) {
             default:
                 throw new Error(`opcode error: ip ${ip} oc ${oc}`);
         }
+
+        events?.push({ e: 'v', ip, rb });
     }
 }
 
