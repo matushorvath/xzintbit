@@ -1,38 +1,65 @@
 import fs from 'fs/promises';
 
-// TODO How do we make sure the last monitor events get sent on VM exiting without remembering all promises?
-
-let events;
-let monitorUrl;
-
-const sendEventBatch = async (force = false) => {
-    // TODO Time-based batching, send every X milliseconds
-    if (monitorUrl && (force || events?.length > 1000)) {
-        try {
-            await fetch(monitorUrl, {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify(events)
-            });
-        } catch (e) {
-            // The monitor is accessed on best-effort basis, so we ignore any errors here
-        }
-        events = [];
-    }
-};
-
 let mem;
 
 let ip = 0;
 let rb = 0;
 
+let monitor;
+const monitorFps = 10;
+
+const initMonitor = (imageName, imageSize) => {
+    if (process.env.ICVM_MONITOR_URL) {
+        monitor = {
+            url: process.env.ICVM_MONITOR_URL,
+            time: Date.now(),
+            image: {
+                name: imageName,
+                size: imageSize
+            },
+            events: {}
+        }
+    }
+};
+
+const sendMonitor = async (force = false) => {
+    const now = Date.now();
+    if (monitor && (force || now - monitor.time >= 1000 / monitorFps)) {
+        const update = {
+            ip, rb,
+            time: now,
+            size: mem.length,
+            stack: monitor.stack,
+            image: monitor.image,
+            events: monitor.events
+        };
+
+        monitor.events = {};
+        monitor.time = now;
+
+        try {
+            await fetch(monitor.url, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify(update)
+            });
+        } catch (e) {
+            // The monitor is accessed on best-effort basis, so we ignore any errors here
+        }
+    }
+};
+
 const getMem = (addr) => {
-    events?.push({ e: 'r', a: addr });
+    if (monitor && monitor.events[addr] === undefined) {
+        monitor.events[addr] = 'r';
+    }
     return mem[addr] ?? 0;
 };
 
 const setMem = (addr, val) => {
-    events?.push({ e: 'w', a: addr });
+    if (monitor && monitor.events[addr] !== 'w') {
+        monitor.events[addr] = 'w';
+    }
     mem[addr] = val;
 };
 
@@ -68,7 +95,7 @@ const setParam = (idx, val) => {
 
 const run = async function* (ins = (async function* () {})()) {
     while (true) {
-        await sendEventBatch();
+        await sendMonitor();
 
         const oc = Math.floor(getMem(ip) % 100);
 
@@ -121,14 +148,16 @@ const run = async function* (ins = (async function* () {})()) {
             case 9: // arb
                 rb += getParam(0);
                 ip += 2;
+                if (monitor && monitor.stack === undefined) {
+                    // Assume first arb is setting up stack
+                    monitor.stack = rb;
+                }
                 break;
             case 99: // hlt
                 return;
             default:
                 throw new Error(`opcode error: ip ${ip} oc ${oc}`);
         }
-
-        events?.push({ e: 'v', ip, rb });
     }
 }
 
@@ -144,18 +173,13 @@ const main = async () => {
     const input = await fs.readFile(process.argv[2], 'utf8');
     mem = input.split(',').map(i => Number(i));
 
-    if (process.env.ICVM_MONITOR_URL) {
-        events = [];
-        monitorUrl = process.env.ICVM_MONITOR_URL;
-    }
-
-    events?.push({ e: 's', a: mem.length });
+    initMonitor(process.argv[2], mem.length);
 
     for await (const char of run(getIns())) {
         process.stdout.write(String.fromCharCode(char));
     }
 
-    await sendEventBatch(true);
+    await sendMonitor(true);
 };
 
 await main();

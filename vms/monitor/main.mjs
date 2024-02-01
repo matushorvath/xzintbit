@@ -4,6 +4,7 @@
 // TODO show vm command line, ideally also parameters to the IC program
 // TODO show stack (at least location and size), show rb register
 // TODO show in/out instructions
+// TODO generate symbol files, show symbols in the memory map
 
 import { app, BrowserWindow } from 'electron';
 import express from 'express';
@@ -16,6 +17,8 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const onEventReceived = async (req, res, win) => {
     //console.log(req.body);
     win?.webContents?.send('update-state', req.body);
+    // TODO wait for draw to finish, send the status back
+    // TODO this way we can hopefully sync the VM and the monitor
     res.status(201).send('Created');
 };
 

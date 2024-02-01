@@ -1,33 +1,9 @@
 /* eslint-env browser */
 
-const state = {
-    memSize: 0,
-    imageSize: 0,
-    ip: 0,
-    rb: 0,
-    mem: {}
-};
+let state;
 
 const onUpdateState = (update) => {
-    state.mem = {};
-
-    for (const event of update) {
-        if (event.e === 's') {
-            // Reset
-            state.memSize = event.a;
-            state.imageSize = event.a;
-        } else if (event.e === 'r' || event.e === 'w') {
-            // Memory read/write
-            state.memSize = Math.max(state.memSize, event.a);
-            state.mem[event.a] = event;
-        } else if (event.e === 'v') {
-            // Register values
-            state.memSize = Math.max(state.memSize, event.ip, event.rb);
-            state.ip = event.ip;
-            state.rb = event.rb;
-        }
-    };
-
+    state = update;
     redraw();
 };
 
@@ -44,7 +20,8 @@ const SIZE = 5;
 
 const getFill = (r, c) => {
     const addr = r * COLS + c;
-    switch (state?.mem[addr]?.e) {
+
+    switch (state?.events[addr]) {
         case undefined: return 'white';
         case 'r': return 'lightgreen';
         case 'w': return 'orange';
@@ -53,7 +30,10 @@ const getFill = (r, c) => {
 
 const getStroke = (r, c) => {
     const addr = r * COLS + c;
-    if (addr < state?.imageSize) {
+
+    if (addr >= state?.rb && addr <= state?.stack) {
+        return 'pink';
+    } else if (addr < state?.image.size) {
         return 'lightblue';
     } else {
         return 'lightgray';
@@ -67,7 +47,7 @@ const squareForRowCol = (r, c) => square(SIZE + c * SIZE, SIZE + r * SIZE, SIZE)
 function draw() {
     clear();
 
-    const rows = Math.max(Math.ceil(state.memSize / COLS), 100);
+    const rows = state?.size ? Math.ceil(state.size / COLS) : 100;
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < COLS; c++) {
@@ -77,15 +57,8 @@ function draw() {
         }
     }
 
-    const [ipr, ipc] = addrToRowCol(state.ip);
+    const [ipr, ipc] = addrToRowCol(state?.ip ?? 0);
     noFill();
     stroke('red');
     squareForRowCol(ipr, ipc);
-
-    if (state.ip !== state.rb) {
-        const [rbr, rbc] = addrToRowCol(state.rb);
-        noFill();
-        stroke('black');
-        squareForRowCol(rbr, rbc);
-    }
 }
