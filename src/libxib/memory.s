@@ -1,6 +1,7 @@
 .EXPORT set_mem
 .EXPORT inc_mem
 .EXPORT print_mem
+.EXPORT pretty_print_mem
 
 # from heap.s
 .IMPORT alloc
@@ -183,7 +184,39 @@ inc_mem_internal_this_block:
 
 ##########
 print_mem:
-.FRAME head, tail, tail_index; tmp, buffer, limit, index, first
+.FRAME head, tail, tail_index;
+    arb -0
+
+    add [rb + head], 0, [rb - 1]
+    add [rb + tail], 0, [rb - 2]
+    add [rb + tail_index], 0, [rb - 3]
+    add 0, 0, [rb - 4]
+    arb -4
+    call print_mem_internal
+
+    arb 0
+    ret 3
+.ENDFRAME
+
+##########
+pretty_print_mem:
+.FRAME head, tail, tail_index;
+    arb -0
+
+    add [rb + head], 0, [rb - 1]
+    add [rb + tail], 0, [rb - 2]
+    add [rb + tail_index], 0, [rb - 3]
+    add 1, 0, [rb - 4]
+    arb -4
+    call print_mem_internal
+
+    arb 0
+    ret 3
+.ENDFRAME
+
+##########
+print_mem_internal:
+.FRAME head, tail, tail_index, with_space; tmp, buffer, limit, index, first
     arb -5
 
     add 1, 0, [rb + first]
@@ -208,6 +241,10 @@ print_mem_byte:
     jnz [rb + first], print_mem_skip_comma
     out ','
 
+    # if pretty printing, add a space after comma
+    jz  [rb + with_space], print_mem_skip_comma
+    out ' '
+
 print_mem_skip_comma:
     add 0, 0, [rb + first]
 
@@ -230,7 +267,7 @@ print_mem_block_done:
 
 print_mem_done:
     arb 5
-    ret 3
+    ret 4
 .ENDFRAME
 
 ##########

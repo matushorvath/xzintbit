@@ -1,8 +1,9 @@
 .EXPORT print_modules
-.EXPORT dump_symbols
+.EXPORT print_map
 
 # from libxib/memory.s
 .IMPORT print_mem
+.IMPORT pretty_print_mem
 
 # from libxib/print.s
 .IMPORT print_num
@@ -58,37 +59,120 @@ print_modules_done:
 .ENDFRAME
 
 ##########
-dump_symbols:
-.FRAME module, symbol, import, tmp
-    arb -4
+print_map:
+.FRAME
+    arb -0
+
+    call dump_modules
+    call dump_symbols
+
+    arb 0
+    ret 0
+.ENDFRAME
+
+##########
+dump_modules:
+.FRAME module, count
+    arb -2
+
+    add dump_modules_str_start, 0, [rb - 1]
+    arb -1
+    call print_str
 
     add [module_head], 0, [rb + module]
+    jz  [rb + module], dump_modules_done
 
-dump_symbols_modules_loop:
-    jz  [rb + module], dump_symbols_modules_done
+    add dump_modules_str_head, 0, [rb - 1]
+    arb -1
+    call print_str
 
+    # add a line end after each N modules
+    add [dump_modules_num_modules_on_line], 0, [rb + count]
+
+dump_modules_loop:
+    # print module address
     add [rb + module], 0, [rb - 1]
     arb -1
     call print_num
-    out ' '
 
+    # advance to next module
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
-    jz  0, dump_symbols_modules_loop
+    jz  [rb + module], dump_modules_done
 
-dump_symbols_modules_done:
+    # more modules, print separator
+    add [rb + count], -1, [rb + count]
+    jz [rb + count], dump_modules_end_line
+
+    add dump_modules_str_space_separator, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    jz  0, dump_modules_loop
+
+dump_modules_end_line:
+    add dump_modules_str_line_separator, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [dump_modules_num_modules_on_line], 0, [rb + count]
+
+    jz  0, dump_modules_loop
+
+dump_modules_done:
+    add dump_modules_str_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    arb 2
+    ret 0
+
+dump_modules_num_modules_on_line:
+    db  10
+dump_modules_str_start:
+    db  "modules:", 0
+dump_modules_str_head:
+    db  " [", 10, "  ", 0
+dump_modules_str_space_separator:
+    db  ", ", 0
+dump_modules_str_line_separator:
+    db  ",", 10, "  ", 0
+dump_modules_str_end:
+    db  10, "]", 10, 0
+
+.ENDFRAME
+
+##########
+dump_symbols:
+.FRAME symbol, import
+    arb -3
+
+    add dump_symbols_str_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
     add [symbol_head], 0, [rb + symbol]
 
-dump_symbols_symbols_loop:
-    jz  [rb + symbol], dump_symbols_symbols_done
+dump_symbols_loop:
+    jz  [rb + symbol], dump_symbols_done
+
+    # print symbol identifier
+    add dump_symbols_str_symbol_start, 0, [rb - 1]
+    arb -1
+    call print_str
 
     add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
     call print_str
 
-    add dump_symbols_str_export_mod_start, 0, [rb - 1]
+    add dump_symbols_str_symbol_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # print export
+    add dump_symbols_str_export_module_start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -97,17 +181,32 @@ dump_symbols_symbols_loop:
     arb -1
     call print_num
 
-    add dump_symbols_str_export_mod_end, 0, [rb - 1]
+    add dump_symbols_str_export_offset_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + symbol], EXPORT_ADDRESS, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add dump_symbols_str_export_end, 0, [rb - 1]
     arb -1
     call print_str
 
     add [rb + symbol], EXPORT_IMPORTS_HEAD, [ip + 1]
     add [0], 0, [rb + import]
 
+    # print array of imports header
+    add dump_symbols_str_imports_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
 dump_symbols_imports_loop:
     jz  [rb + import], dump_symbols_imports_done
 
-    add dump_symbols_str_import_mod_start, 0, [rb - 1]
+    # print array of imports
+    add dump_symbols_str_import_module_start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -116,7 +215,7 @@ dump_symbols_imports_loop:
     arb -1
     call print_num
 
-    add dump_symbols_str_import_mod_end, 0, [rb - 1]
+    add dump_symbols_str_import_offsets_start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -127,7 +226,8 @@ dump_symbols_imports_loop:
     add [rb + import], IMPORT_FIXUPS_INDEX, [ip + 1]
     add [0], 0, [rb - 3]
     arb -3
-    call print_mem
+
+    call pretty_print_mem
 
     add dump_symbols_str_import_end, 0, [rb - 1]
     arb -1
@@ -142,24 +242,37 @@ dump_symbols_imports_done:
     add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
-    out 10
+    jz  0, dump_symbols_loop
 
-    jz  0, dump_symbols_symbols_loop
-
-dump_symbols_symbols_done:
-    arb 4
+dump_symbols_done:
+    arb 3
     ret 0
 
-dump_symbols_str_export_mod_start:
-    db  " (", 0
-dump_symbols_str_export_mod_end:
-    db  "):", 0
-dump_symbols_str_import_mod_start:
-    db  " [", 0
-dump_symbols_str_import_mod_end:
-    db  "] {", 0
+dump_symbols_str_start:
+    db  "symbols:", 10, 0
+dump_symbols_str_symbol_start:
+    db  "  ", 0
+dump_symbols_str_symbol_end:
+    db  ":", 10, 0
+
+dump_symbols_str_export_module_start:
+    db  "    export:", 10, "      module: ", 0
+dump_symbols_str_export_offset_start:
+    db  10, "      offset: ", 0
+dump_symbols_str_export_end:
+    db  10, 0
+
+dump_symbols_str_imports_start:
+    db  "    imports:", 10, 0
+dump_symbols_str_import_module_start:
+    db  "      - module: ", 0
+dump_symbols_str_import_offsets_start:
+    db  10, "        offsets: [", 0
+#dump_symbols_str_import_offsets_separator:
+#    db  ", ", 0
 dump_symbols_str_import_end:
-    db  "}", 0
+    db  "]", 10, 0
+
 .ENDFRAME
 
 .EOF

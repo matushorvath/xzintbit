@@ -2,7 +2,7 @@
 .IMPORT process
 
 # from output.s
-.IMPORT print_modules
+.IMPORT print_map
 
 ##########
 # entry point
@@ -17,7 +17,7 @@ main:
     arb -0
 
     call process
-    call print_modules
+    call print_map
 
     arb 0
     ret 0
