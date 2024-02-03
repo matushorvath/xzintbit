@@ -36,8 +36,8 @@ build-stage2:
 compare-stages:
 	diff -r stage1/as.input stage2/as.input
 	diff -r stage1/ld.input stage2/ld.input
-	diff -r stage1/as.input.map stage2/as.input.map
-	diff -r stage1/ld.input.map stage2/ld.input.map
+	diff -r stage1/as.input.map.yaml stage2/as.input.map.yaml
+	diff -r stage1/ld.input.map.yaml stage2/ld.input.map.yaml
 	diff -r stage1/libxib.a stage2/libxib.a
 
 .PHONY: install

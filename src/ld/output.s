@@ -185,7 +185,10 @@ dump_symbols_loop:
     arb -1
     call print_str
 
-    # TODO print export offset
+    add [rb + symbol], EXPORT_ADDRESS, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
 
     add dump_symbols_str_export_end, 0, [rb - 1]
     arb -1

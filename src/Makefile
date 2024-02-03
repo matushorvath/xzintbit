@@ -19,7 +19,7 @@ endef
 
 define run-ld
 echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
-echo .$$ | cat $^ - | $(ICVM) $(ICLDMAP) > $@.map || ( cat $@.map ; false )
+echo .$$ | cat $^ - | $(ICVM) $(ICLDMAP) > $@.map.yaml || ( cat $@.map.yaml ; false )
 endef
 
 # Build
