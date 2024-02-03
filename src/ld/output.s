@@ -1,5 +1,5 @@
 .EXPORT print_modules
-.EXPORT dump_symbols
+.EXPORT print_map
 
 # from libxib/memory.s
 .IMPORT print_mem
@@ -58,14 +58,27 @@ print_modules_done:
 .ENDFRAME
 
 ##########
-dump_symbols:
-.FRAME module, symbol, import, tmp
-    arb -4
+print_map:
+.FRAME
+    arb -0
+
+    call dump_modules
+    out 10
+    call dump_symbols
+
+    arb 0
+    ret 0
+.ENDFRAME
+
+##########
+dump_modules:
+.FRAME module
+    arb -1
 
     add [module_head], 0, [rb + module]
 
-dump_symbols_modules_loop:
-    jz  [rb + module], dump_symbols_modules_done
+dump_modules_loop:
+    jz  [rb + module], dump_modules_done
 
     add [rb + module], 0, [rb - 1]
     arb -1
@@ -75,13 +88,22 @@ dump_symbols_modules_loop:
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
-    jz  0, dump_symbols_modules_loop
+    jz  0, dump_modules_loop
 
-dump_symbols_modules_done:
+dump_modules_done:
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+dump_symbols:
+.FRAME symbol, import
+    arb -3
+
     add [symbol_head], 0, [rb + symbol]
 
-dump_symbols_symbols_loop:
-    jz  [rb + symbol], dump_symbols_symbols_done
+dump_symbols_loop:
+    jz  [rb + symbol], dump_symbols_done
 
     add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
@@ -144,10 +166,10 @@ dump_symbols_imports_done:
 
     out 10
 
-    jz  0, dump_symbols_symbols_loop
+    jz  0, dump_symbols_loop
 
-dump_symbols_symbols_done:
-    arb 4
+dump_symbols_done:
+    arb 3
     ret 0
 
 dump_symbols_str_export_mod_start:
