@@ -3,6 +3,7 @@
 
 # from libxib/memory.s
 .IMPORT print_mem
+.IMPORT pretty_print_mem
 
 # from libxib/print.s
 .IMPORT print_num
@@ -98,7 +99,7 @@ dump_modules_loop:
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
-    jz  [rb + module], dump_modules_print_tail
+    jz  [rb + module], dump_modules_done
 
     # more modules, print separator
     add [rb + count], -1, [rb + count]
@@ -119,11 +120,6 @@ dump_modules_end_line:
 
     jz  0, dump_modules_loop
 
-dump_modules_print_tail:
-    add dump_modules_str_tail, 0, [rb - 1]
-    arb -1
-    call print_str
-
 dump_modules_done:
     add dump_modules_str_end, 0, [rb - 1]
     arb -1
@@ -135,17 +131,15 @@ dump_modules_done:
 dump_modules_num_modules_on_line:
     db  10
 dump_modules_str_start:
-    db  "modules: [", 0
+    db  "modules:", 0
 dump_modules_str_head:
-    db  10, "  ", 0
+    db  " [", 10, "  ", 0
 dump_modules_str_space_separator:
     db  ", ", 0
 dump_modules_str_line_separator:
     db  ",", 10, "  ", 0
-dump_modules_str_tail:
-    db  10, 0
 dump_modules_str_end:
-    db  "]", 10, 0
+    db  10, "]", 10, 0
 
 .ENDFRAME
 
@@ -230,8 +224,7 @@ dump_symbols_imports_loop:
     add [0], 0, [rb - 3]
     arb -3
 
-    # TODO print_mem that uses ", " as separator (with a space)
-    call print_mem
+    call pretty_print_mem
 
     add dump_symbols_str_import_end, 0, [rb - 1]
     arb -1
