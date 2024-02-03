@@ -63,7 +63,6 @@ print_map:
     arb -0
 
     call dump_modules
-    out 10
     call dump_symbols
 
     arb 0
@@ -72,27 +71,81 @@ print_map:
 
 ##########
 dump_modules:
-.FRAME module
+.FRAME module, count
+    arb -2
+
+    add dump_modules_str_start, 0, [rb - 1]
     arb -1
+    call print_str
 
     add [module_head], 0, [rb + module]
-
-dump_modules_loop:
     jz  [rb + module], dump_modules_done
 
+    add dump_modules_str_before_first, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # add a line end after each N modules
+    add [dump_modules_modules_on_line], 0, [rb + count]
+
+dump_modules_loop:
+    # print module address
     add [rb + module], 0, [rb - 1]
     arb -1
     call print_num
-    out ' '
 
+    # advance to next module
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
+    jz  [rb + module], dump_modules_print_after_last
+
+    # more modules, print separator
+    add [rb + count], -1, [rb + count]
+    jz [rb + count], dump_modules_end_line
+
+    add dump_modules_str_space_separator, 0, [rb - 1]
+    arb -1
+    call print_str
+
     jz  0, dump_modules_loop
 
+dump_modules_end_line:
+    add dump_modules_str_line_separator, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [dump_modules_modules_on_line], 0, [rb + count]
+
+    jz  0, dump_modules_loop
+
+dump_modules_print_after_last:
+    add dump_modules_str_after_last, 0, [rb - 1]
+    arb -1
+    call print_str
+
 dump_modules_done:
-    arb 1
+    add dump_modules_str_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    arb 2
     ret 0
+
+dump_modules_modules_on_line:
+    db  10
+dump_modules_str_start:
+    db  "modules: [", 0
+dump_modules_str_before_first:
+    db  10, "  ", 0
+dump_modules_str_space_separator:
+    db  ", ", 0
+dump_modules_str_line_separator:
+    db  ",", 10, "  ", 0
+dump_modules_str_after_last:
+    db  10, 0
+dump_modules_str_end:
+    db  "]", 10, 0
 .ENDFRAME
 
 ##########
