@@ -1,38 +1,14 @@
-/* eslint-env node */
-
-import timers from 'node:timers/promises';
-
 export class Vm {
     mem = [];
 
     ip = 0;
     rb = 0;
 
-    events = {};
-
-    receiveUpdate() {
-        const update = {
-            ip: this.ip,
-            rb: this.rb,
-            size: this.mem.length,
-            events: this.events
-        };
-        this.events = {};
-
-        return update;
-    }
-
     getMem(addr) {
-        if (this.events[addr] === undefined) {
-            this.events[addr] = 'r';
-        }
         return this.mem[addr] ?? 0;
     }
 
     setMem(addr, val) {
-        if (this.events[addr] !== 'w') {
-            this.events[addr] = 'w';
-        }
         this.mem[addr] = val;
     }
 
@@ -129,10 +105,6 @@ export class Vm {
                 default:
                     throw new Error(`opcode error: ip ${this.ip} oc ${oc}`);
             }
-
-            // Slow down the VM to make the GUI useful
-            await timers.scheduler.yield();
-            //await timers.setTimeout(1);
         }
     }
 };
