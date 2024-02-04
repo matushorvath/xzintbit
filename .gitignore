@@ -7,6 +7,7 @@ icvm_profile.csv
 !/vms/apl/ic
 !/vms/js/ic
 !/vms/js-fn/ic
+!/vms/js-gui/ic
 /vms/*/ic.exe
 /vms/c/*.o
 /vms/cs/bin

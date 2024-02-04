@@ -1,39 +1,40 @@
 /* eslint-env browser */
 
-let state;
+let image;
 
-const onUpdateState = (update) => {
-    state = update;
+const onLoadImage = (loadedImage) => {
+    image = loadedImage;
     redraw();
 };
 
-window.ipc.onUpdateState(onUpdateState);
+window.vm.onLoadImage(onLoadImage);
 
 function setup() {
     createCanvas(1000, 800);
     background(255);
-    noLoop();
 }
 
 const COLS = 200;
 const SIZE = 5;
 
-const getFill = (r, c) => {
+const getFill = (upd, r, c) => {
     const addr = r * COLS + c;
 
-    switch (state?.events[addr]) {
+    switch (upd.events[addr]) {
         case undefined: return 'white';
         case 'r': return 'lightgreen';
         case 'w': return 'orange';
     }
 };
 
-const getStroke = (r, c) => {
+const getStroke = (upd, r, c) => {
     const addr = r * COLS + c;
 
-    if (addr >= state?.rb && addr <= state?.stack) {
-        return 'pink';
-    } else if (addr < state?.image.size) {
+    // TODO fix stack handling
+    // if (addr >= upd.rb && addr <= image?.stack) {
+    //     return 'pink';
+    // } else 
+    if (addr < image?.size) {
         return 'lightblue';
     } else {
         return 'lightgray';
@@ -44,20 +45,24 @@ const addrToRowCol = (addr) => [Math.floor(addr / COLS), addr % COLS];
 
 const squareForRowCol = (r, c) => square(SIZE + c * SIZE, SIZE + r * SIZE, SIZE);
 
-function draw() {
+async function draw() {
+    // TODO do not clear, draw only the delta for speed
     clear();
 
-    const rows = state?.size ? Math.ceil(state.size / COLS) : 100;
+    const upd = await window.vm.getUpdate();
+    console.log(JSON.stringify(upd));
+
+    const rows = upd.size ? Math.ceil(upd.size / COLS) : 100;
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < COLS; c++) {
-            stroke(getStroke(r, c));
-            fill(getFill(r, c));
+            stroke(getStroke(upd, r, c));
+            fill(getFill(upd, r, c));
             squareForRowCol(r, c);
         }
     }
 
-    const [ipr, ipc] = addrToRowCol(state?.ip ?? 0);
+    const [ipr, ipc] = addrToRowCol(upd.ip);
     noFill();
     stroke('red');
     squareForRowCol(ipr, ipc);
