@@ -1,7 +1,7 @@
 {
-  "name": "monitor",
+  "name": "js-gui",
   "version": "1.0.0",
-  "description": "Intcode virtual machine monitor",
+  "description": "Intcode virtual machine with a GUI",
   "main": "main.mjs",
   "scripts": {
     "test": "npm run lint",
