@@ -5,4 +5,5 @@
 # Making a symbolic link to a .mjs file works on Linux and macOS, but not on Windows.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)";
-npm exec --prefix "$SCRIPT_DIR" electron "$SCRIPT_DIR" $@
+#npm exec --prefix "$SCRIPT_DIR" electron "$SCRIPT_DIR" $@
+node $SCRIPT_DIR/ic.mjs $@

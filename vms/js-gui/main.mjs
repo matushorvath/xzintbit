@@ -1,13 +1,15 @@
 /* eslint-env node */
 
+// ELECTRON_ENABLE_LOGGING=1 npm start
+// ICVM_TYPE=js-gui make
+
 // TODO show vm command line, ideally also parameters to the IC program
 // TODO show stack (at least location and size), show rb register
 // TODO show in/out instructions
 // TODO show symbols in the memory map
 
-// ELECTRON_ENABLE_LOGGING=1 ICVM_TYPE=js-gui make
-
 import { app, BrowserWindow, ipcMain } from 'electron/main';
+import zmq from 'zeromq';
 import { Vm } from './vm.mjs';
 
 import path from 'node:path';
@@ -37,7 +39,44 @@ const onElectronReady = async () => {
     return win;
 };
 
-const onExecute = async (win, path) => {
+const sock = new zmq.Reply();
+
+const initZeroMQ = async (win) => {
+    await sock.bind('tcp://*:2019');
+
+    for await (const [request] of sock) {
+        const data = JSON.parse(request.toString('utf8'));
+        if (data.type !== 'exec') {
+            await sock.send(JSON.stringify({ success: false, message: `Unexpected message type ${data.type}, expecting 'exec'` }));
+            continue;
+        }
+
+        const result = await execute(win, data.path);
+        await sock.send(JSON.stringify(result));
+    }
+};
+
+async function* getIns() {
+    while (true) {
+        await sock.send(JSON.stringify({ type: 'in' }));
+
+        const request = await sock.receive();
+        const data = JSON.parse(request.toString('utf8'));
+
+        if (data.type !== 'in') {
+            throw new Error(`Unexpected message type ${data.type}, expecting 'in'`);
+        }
+        if (data.char === undefined) {
+            throw new Error('no more inputs');
+        }
+
+        yield data.char;
+    }
+}
+
+const execute = async (win, path) => {
+    console.info('execute', path);
+
     const input = await fs.readFile(path, 'utf8');
     const mem = input.split(',').map(i => Number(i));
 
@@ -47,26 +86,25 @@ const onExecute = async (win, path) => {
     };
     win.webContents.send('load-image', image);
 
-    async function* getIns() {
-        for await (const chunk of process.stdin) {
-            for (const char of chunk) {
-                yield char;
-            }
-        }
-    }
-
     try {
         for await (const char of vm.run(mem, getIns())) {
-            process.stdout.write(String.fromCharCode(char));
+            const response = { type: 'out', char: String.fromCharCode(char) };
+            await sock.send(JSON.stringify(response));
+
+            const request = await sock.receive();
+            const data = JSON.parse(request.toString('utf8'));
+
+            if (data.type !== 'out') {
+                throw new Error(`Unexpected message type ${data.type}, expecting 'out'`);
+            }
         }
     } catch (error) {
-        console.log(error);
-        app.exit(1);
+        return { type: 'exec', success: false, message: error.toString() };
     }
 
-    app.quit();
+    return { type: 'exec', success: true };
 };
 
 app.whenReady()
     .then(() => onElectronReady())
-    .then((win) => onExecute(win, process.argv[2]));
+    .then((win) => initZeroMQ(win));
