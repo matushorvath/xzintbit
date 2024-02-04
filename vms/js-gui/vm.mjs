@@ -1,7 +1,5 @@
 /* eslint-env node */
 
-import timers from 'node:timers/promises';
-
 export class Vm {
     mem = [];
 
@@ -129,10 +127,6 @@ export class Vm {
                 default:
                     throw new Error(`opcode error: ip ${this.ip} oc ${oc}`);
             }
-
-            // Slow down the VM to make the GUI useful
-            await timers.scheduler.yield();
-            //await timers.setTimeout(1);
         }
     }
 };

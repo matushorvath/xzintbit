@@ -56,8 +56,32 @@ const initZeroMQ = async (win) => {
     }
 };
 
+let outs = [];
+
+const sendOuts = async () => {
+    if (outs.length === 0) {
+        return;
+    }
+
+    const response = { type: 'out', chars: outs.join('') };
+    await sock.send(JSON.stringify(response));
+
+    const request = await sock.receive();
+    const data = JSON.parse(request.toString('utf8'));
+
+    if (data.type !== 'out') {
+        throw new Error(`Unexpected message type ${data.type}, expecting 'out'`);
+    }
+
+    outs = [];
+};
+
 async function* getIns() {
     while (true) {
+        // First send all pending outputs
+        await sendOuts();
+
+        // Request an input
         await sock.send(JSON.stringify({ type: 'in' }));
 
         const request = await sock.receive();
@@ -88,20 +112,14 @@ const execute = async (win, path) => {
 
     try {
         for await (const char of vm.run(mem, getIns())) {
-            const response = { type: 'out', char: String.fromCharCode(char) };
-            await sock.send(JSON.stringify(response));
-
-            const request = await sock.receive();
-            const data = JSON.parse(request.toString('utf8'));
-
-            if (data.type !== 'out') {
-                throw new Error(`Unexpected message type ${data.type}, expecting 'out'`);
-            }
+            outs.push(String.fromCharCode(char));
         }
     } catch (error) {
+        await sendOuts();
         return { type: 'exec', success: false, message: error.toString() };
     }
 
+    await sendOuts();
     return { type: 'exec', success: true };
 };
 

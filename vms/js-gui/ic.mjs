@@ -1,7 +1,7 @@
 /* eslint-env node */
 
 import zmq from 'zeromq';
-import fs from 'node:fs/promises';
+import path from 'node:path';
 
 async function* getIns() {
     for await (const chunk of process.stdin) {
@@ -17,7 +17,7 @@ const main = async () => {
 
     const request = {
         type: 'exec',
-        path: process.argv[2]
+        path: path.resolve(process.argv[2])
     };
     await sock.send(JSON.stringify(request));
 
@@ -35,7 +35,7 @@ const main = async () => {
                 await sock.send(JSON.stringify({ type: 'in', char: value }));
             }
         } else if (data.type === 'out') {
-            process.stdout.write(data.char);
+            process.stdout.write(data.chars);
             await sock.send(JSON.stringify({ type: 'out' }));
         } else if (data.type === 'exec') {
             if (!data.success) {

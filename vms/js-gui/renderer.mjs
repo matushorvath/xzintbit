@@ -1,5 +1,7 @@
 /* eslint-env browser */
 
+// TODO fade the grid slowly depending on how far in the past did the read/write event happen
+
 let image;
 
 const onLoadImage = (loadedImage) => {
@@ -60,11 +62,10 @@ const squareForRowCol = (r, c) => square(SIZE + c * SIZE, SIZE + r * SIZE, SIZE)
 
 async function draw() {
     // TODO draw only the delta for speed
-    // TODO without clear() the display is probably messed up after loading a VM with smaller upd.size
-    //clear();
 
     const upd = await getUpdate();
-    //console.log(JSON.stringify(upd));
+
+    clear();
 
     const rows = upd.size ? Math.ceil(upd.size / COLS) : 100;
 
