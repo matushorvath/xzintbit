@@ -4,7 +4,5 @@
 # to force it to handle a file with no extension as an ES6 module.
 # Making a symbolic link to a .mjs file works on Linux and macOS, but not on Windows.
 
-set -x
-
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)";
 npm exec --prefix "$SCRIPT_DIR" electron "$SCRIPT_DIR" $@

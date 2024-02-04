@@ -3,19 +3,32 @@
 let image;
 
 const onLoadImage = (loadedImage) => {
+    //console.error(loadedImage);
     image = loadedImage;
-    redraw();
 };
 
 window.vm.onLoadImage(onLoadImage);
 
+let lastUpdate;
+
+const getUpdate = async () => {
+    const upd = await window.vm.getUpdate();
+    //console.log(JSON.stringify(upd));
+
+    if (lastUpdate && Object.keys(upd.events).length === 0) {
+        return lastUpdate;
+    }
+
+    return upd;
+};
+
 function setup() {
-    createCanvas(1000, 800);
+    createCanvas(1400, 800);
     background(255);
 }
 
 const COLS = 200;
-const SIZE = 5;
+const SIZE = 7;
 
 const getFill = (upd, r, c) => {
     const addr = r * COLS + c;
@@ -46,11 +59,12 @@ const addrToRowCol = (addr) => [Math.floor(addr / COLS), addr % COLS];
 const squareForRowCol = (r, c) => square(SIZE + c * SIZE, SIZE + r * SIZE, SIZE);
 
 async function draw() {
-    // TODO do not clear, draw only the delta for speed
-    clear();
+    // TODO draw only the delta for speed
+    // TODO without clear() the display is probably messed up after loading a VM with smaller upd.size
+    //clear();
 
-    const upd = await window.vm.getUpdate();
-    console.log(JSON.stringify(upd));
+    const upd = await getUpdate();
+    //console.log(JSON.stringify(upd));
 
     const rows = upd.size ? Math.ceil(upd.size / COLS) : 100;
 
@@ -66,4 +80,11 @@ async function draw() {
     noFill();
     stroke('red');
     squareForRowCol(ipr, ipc);
+
+    if (upd.ip !== upd.rb) {
+        const [rbr, rbc] = addrToRowCol(upd.rb);
+        noFill();
+        stroke('blue');
+        squareForRowCol(rbr, rbc);
+    }
 }

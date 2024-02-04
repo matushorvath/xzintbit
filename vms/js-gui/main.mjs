@@ -5,6 +5,8 @@
 // TODO show in/out instructions
 // TODO show symbols in the memory map
 
+// ELECTRON_ENABLE_LOGGING=1 ICVM_TYPE=js-gui make
+
 import { app, BrowserWindow, ipcMain } from 'electron/main';
 import { Vm } from './vm.mjs';
 
@@ -20,18 +22,18 @@ const handleGetUpdate = () => {
     return vm.receiveUpdate();
 };
 
-const onElectronReady = () => {
+const onElectronReady = async () => {
     ipcMain.handle('get-update', handleGetUpdate);
 
     const win = new BrowserWindow({
-        width: 1100,
-        height: 800,
+        width: 1500,
+        height: 900,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
     });
 
-    win.loadFile('index.html');
+    await win.loadFile('index.html');
     return win;
 };
 
@@ -53,11 +55,14 @@ const onExecute = async (win, path) => {
         }
     }
 
-    for await (const char of vm.run(mem, getIns())) {
-        process.stdout.write(String.fromCharCode(char));
+    try {
+        for await (const char of vm.run(mem, getIns())) {
+            process.stdout.write(String.fromCharCode(char));
+        }
+    } catch (error) {
+        console.log(error);
+        app.exit(1);
     }
-
-    win.webContents.send('load-image', undefined);
 
     app.quit();
 };
