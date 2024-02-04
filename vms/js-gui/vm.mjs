@@ -1,5 +1,7 @@
 /* eslint-env node */
 
+import timers from 'node:timers/promises';
+
 export class Vm {
     mem = [];
 
@@ -69,6 +71,8 @@ export class Vm {
         this.mem = mem;
         this.events = {};
 
+        let count = 0;
+
         while (true) {
             const oc = Math.floor(this.getMem(this.ip) % 100);
 
@@ -126,6 +130,12 @@ export class Vm {
                     return;
                 default:
                     throw new Error(`opcode error: ip ${this.ip} oc ${oc}`);
+            }
+
+            // Yield every 1000 instructions, to allow a GUI update
+            if (count++ % 1000 === 0) {
+                count = 0;
+                await timers.scheduler.yield();
             }
         }
     }
