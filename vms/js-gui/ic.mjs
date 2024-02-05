@@ -42,7 +42,7 @@ const main = async () => {
             await sock.send(JSON.stringify({ type: 'out' }));
         } else if (data.type === 'exec') {
             if (!data.success) {
-                process.stdout.write(data.message);
+                process.stderr.write(data.message);
                 process.exit(1);
             }
             return;

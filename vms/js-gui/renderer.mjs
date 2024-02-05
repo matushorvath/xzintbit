@@ -66,7 +66,7 @@ const getStroke = (state, r, c) => {
     // if (addr >= state.rb && addr <= image?.stack) {
     //     return 'pink';
     // } else 
-    if (addr < image?.size) {
+    if (addr < image?.image.length) {
         return 'lightblue';
     } else {
         return 'lightgray';
