@@ -11,17 +11,28 @@ const onLoadImage = (loadedImage) => {
 
 window.vm.onLoadImage(onLoadImage);
 
-let lastUpdate;
+let state;
+const MAX_AGE = {
+    reads: 5000,
+    writes: 50000
+};
 
-const getUpdate = async () => {
-    const upd = await window.vm.getUpdate();
-    //console.log(JSON.stringify(upd));
+const getState = async () => {
+    const oldState = state;
+    state = await window.vm.getUpdate();
 
-    if (lastUpdate && Object.keys(upd.events).length === 0) {
-        return lastUpdate;
+    for (const type of ['reads', 'writes']) {
+        for (const addr in oldState?.[type] ?? []) {
+            const newCycle = state[type][addr];
+            const oldCycle = oldState[type][addr];
+
+            if (newCycle === undefined && state.cycle - oldCycle <= MAX_AGE[type]) {
+                state[type][addr] = oldCycle;
+            }
+        }
     }
 
-    return upd;
+    return state;
 };
 
 function setup() {
@@ -32,21 +43,27 @@ function setup() {
 const COLS = 200;
 const SIZE = 7;
 
-const getFill = (upd, r, c) => {
+const getFill = (state, r, c) => {
     const addr = r * COLS + c;
 
-    switch (upd.events[addr]) {
-        case undefined: return 'white';
-        case 'r': return 'lightgreen';
-        case 'w': return 'orange';
+    if (state.writes[addr] !== undefined) {
+        const c = color('orange');
+        c.setAlpha(255 - 255 * (state.cycle - state.writes[addr]) / MAX_AGE.writes);
+        return c;
+    } else if (state.reads[addr] !== undefined) {
+        const c = color('lightgreen');
+        c.setAlpha(255 - 255 * (state.cycle - state.reads[addr]) / MAX_AGE.reads);
+        return c;
+    } else {
+        return 'white';
     }
 };
 
-const getStroke = (upd, r, c) => {
+const getStroke = (state, r, c) => {
     const addr = r * COLS + c;
 
     // TODO fix stack handling
-    // if (addr >= upd.rb && addr <= image?.stack) {
+    // if (addr >= state.rb && addr <= image?.stack) {
     //     return 'pink';
     // } else 
     if (addr < image?.size) {
@@ -63,27 +80,27 @@ const squareForRowCol = (r, c) => square(SIZE + c * SIZE, SIZE + r * SIZE, SIZE)
 async function draw() {
     // TODO draw only the delta for speed
 
-    const upd = await getUpdate();
+    const state = await getState();
 
     clear();
 
-    const rows = upd.size ? Math.ceil(upd.size / COLS) : 100;
+    const rows = state.size ? Math.ceil(state.size / COLS) : 100;
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < COLS; c++) {
-            stroke(getStroke(upd, r, c));
-            fill(getFill(upd, r, c));
+            stroke(getStroke(state, r, c));
+            fill(getFill(state, r, c));
             squareForRowCol(r, c);
         }
     }
 
-    const [ipr, ipc] = addrToRowCol(upd.ip);
+    const [ipr, ipc] = addrToRowCol(state.ip);
     noFill();
     stroke('red');
     squareForRowCol(ipr, ipc);
 
-    if (upd.ip !== upd.rb) {
-        const [rbr, rbc] = addrToRowCol(upd.rb);
+    if (state.ip !== state.rb) {
+        const [rbr, rbc] = addrToRowCol(state.rb);
         noFill();
         stroke('blue');
         squareForRowCol(rbr, rbc);

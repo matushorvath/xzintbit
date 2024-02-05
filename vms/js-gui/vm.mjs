@@ -8,31 +8,34 @@ export class Vm {
     ip = 0;
     rb = 0;
 
-    events = {};
+    cycle = 0;
 
-    receiveUpdate() {
+    reads = {};
+    writes = {};
+
+    buildUpdate() {
         const update = {
             ip: this.ip,
             rb: this.rb,
+            cycle: this.cycle,
             size: this.mem.length,
-            events: this.events
+            reads: this.reads,
+            writes: this.writes
         };
-        this.events = {};
+
+        this.reads = {};
+        this.writes = {};
 
         return update;
     }
 
     getMem(addr) {
-        if (this.events[addr] === undefined) {
-            this.events[addr] = 'r';
-        }
+        this.reads[addr] = this.cycle;
         return this.mem[addr] ?? 0;
     }
 
     setMem(addr, val) {
-        if (this.events[addr] !== 'w') {
-            this.events[addr] = 'w';
-        }
+        this.writes[addr] = this.cycle;
         this.mem[addr] = val;
     }
 
@@ -67,11 +70,10 @@ export class Vm {
     }
 
     async* run(mem, ins = (async function* () {})()) {
-        this.ip = this.rb = 0;
+        this.ip = this.rb = this.cycle = 0;
         this.mem = mem;
-        this.events = {};
-
-        let count = 0;
+        this.reads = {};
+        this.writes = {};
 
         while (true) {
             const oc = Math.floor(this.getMem(this.ip) % 100);
@@ -132,9 +134,11 @@ export class Vm {
                     throw new Error(`opcode error: ip ${this.ip} oc ${oc}`);
             }
 
-            // Yield every 1000 instructions, to allow a GUI update
-            if (count++ % 1000 === 0) {
-                count = 0;
+            this.cycle++;
+
+            // Yield every N instructions, to allow a GUI update
+            // TODO yield based on a FPS value, and count number of cycles since last in/out
+            if (this.cycle % 100 === 0) {
                 await timers.scheduler.yield();
             }
         }

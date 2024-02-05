@@ -3,6 +3,10 @@
 // ELECTRON_ENABLE_LOGGING=1 npm start
 // ICVM_TYPE=js-gui make
 
+// set ELECTRON_ENABLE_LOGGING=1
+// C:\Users\Matus\Desktop\electron\electron.exe --trace-warnings \\wsl$\Debian\home\horvathm\xzintbit\vms\js-gui
+// ICVM_GUI_URL=tcp://192.168.1.10:2019 ICVM_TYPE=js-gui make
+
 // TODO show vm command line, ideally also parameters to the IC program
 // TODO show stack (at least location and size), show rb register
 // TODO show in/out instructions
@@ -14,14 +18,13 @@ import { Vm } from './vm.mjs';
 
 import path from 'node:path';
 import url from 'node:url';
-import fs from 'node:fs/promises';
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const vm = new Vm();
 
 const handleGetUpdate = () => {
-    return vm.receiveUpdate();
+    return vm.buildUpdate();
 };
 
 const onElectronReady = async () => {
@@ -51,7 +54,7 @@ const initZeroMQ = async (win) => {
             continue;
         }
 
-        const result = await execute(win, data.path);
+        const result = await execute(win, data.path, data.image);
         await sock.send(JSON.stringify(result));
     }
 };
@@ -98,20 +101,13 @@ async function* getIns() {
     }
 }
 
-const execute = async (win, path) => {
-    console.info('execute', path);
+const execute = async (win, path, image) => {
+    console.info('execute', path, image.length);
 
-    const input = await fs.readFile(path, 'utf8');
-    const mem = input.split(',').map(i => Number(i));
-
-    const image = {
-        name: path,
-        size: mem.length
-    };
-    win.webContents.send('load-image', image);
+    win.webContents.send('load-image', { path, image });
 
     try {
-        for await (const char of vm.run(mem, getIns())) {
+        for await (const char of vm.run(image, getIns())) {
             outs.push(String.fromCharCode(char));
         }
     } catch (error) {

@@ -2,6 +2,7 @@
 
 import zmq from 'zeromq';
 import path from 'node:path';
+import fs from 'node:fs/promises';
 
 async function* getIns() {
     for await (const chunk of process.stdin) {
@@ -13,12 +14,14 @@ async function* getIns() {
 
 const main = async () => {
     const sock = new zmq.Request();
-    sock.connect('tcp://localhost:2019');
+    const url = process.env.ICVM_GUI_URL ?? 'tcp://localhost:2019';
+    sock.connect(url);
 
-    const request = {
-        type: 'exec',
-        path: path.resolve(process.argv[2])
-    };
+    const imagePath = path.resolve(process.argv[2]);
+    const input = await fs.readFile(imagePath, 'utf8');
+    const image = input.split(',').map(i => Number(i));
+
+    const request = { type: 'exec', path: imagePath, image };
     await sock.send(JSON.stringify(request));
 
     const ins = getIns();
