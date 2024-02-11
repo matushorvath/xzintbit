@@ -10,13 +10,17 @@ async function* getIns() {
 }
 
 const main = async () => {
-    const input = await fs.readFile(process.argv[2], 'utf8');
-    const mem = input.split(',').map(i => Number(i));
+    try {
+        const input = await fs.readFile(process.argv[2], 'utf8');
+        const mem = input.split(',').map(i => Number(i));
 
-    const vm = new Vm();
+        const vm = new Vm();
 
-    for await (const char of vm.run(mem, getIns())) {
-        process.stdout.write(String.fromCharCode(char));
+        for await (const char of vm.run(mem, getIns())) {
+            process.stdout.write(String.fromCharCode(char));
+        }
+    } catch (error) {
+        process.stderr.write(error.toString());
     }
 };
 
