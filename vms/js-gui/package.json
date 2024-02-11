@@ -10,7 +10,7 @@
     "start": "electron ."
   },
   "author": "Matus Horvath <matus.horvath@gmail.com>",
-  "license": "CC-BY-4.0",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^28.2.0",
     "eslint": "^8.56.0"
