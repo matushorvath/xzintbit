@@ -63,7 +63,7 @@ test: build
 test-vms: build-vms build
 	rm -rf $(TESTLOG)
 	failed=0 ; \
-	for type in apl c cl cs go js rust; do \
+	for type in apl c cl cs go js js-fn rust; do \
 		echo "====================" >> $(TESTLOG) ; \
 		echo "ICVM_TYPE = $$type" >> $(TESTLOG) ; \
 		for testdir in $(TESTDIRS) ; do \
