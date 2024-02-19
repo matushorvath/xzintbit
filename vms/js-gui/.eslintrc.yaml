@@ -15,3 +15,7 @@ rules:
   quotes: [error, single, { avoidEscape: true }]
   semi: error
   strict: error
+overrides:
+  - files: ["*.mjs"]
+    parserOptions:
+      sourceType: module

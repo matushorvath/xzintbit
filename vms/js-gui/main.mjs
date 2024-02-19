@@ -101,10 +101,10 @@ async function* getIns() {
     }
 }
 
-const execute = async (win, path, image) => {
-    console.info('execute', path, image.length);
+const execute = async (win, imagePath, image) => {
+    console.info('execute', imagePath, image.length);
 
-    win.webContents.send('load-image', { path, image });
+    win.webContents.send('load-image', { path: imagePath, image });
 
     try {
         for await (const char of vm.run(image, getIns())) {

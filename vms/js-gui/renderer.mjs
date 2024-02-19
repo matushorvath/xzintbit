@@ -17,7 +17,7 @@ const MAX_AGE = {
     writes: 50000
 };
 
-const getState = async () => {
+const processStateUpdate = async () => {
     const oldState = state;
     state = await window.vm.getUpdate();
 
@@ -31,8 +31,6 @@ const getState = async () => {
             }
         }
     }
-
-    return state;
 };
 
 function setup() {
@@ -43,23 +41,23 @@ function setup() {
 const COLS = 200;
 const SIZE = 7;
 
-const getFill = (state, r, c) => {
+const getFill = (r, c) => {
     const addr = r * COLS + c;
 
     if (state.writes[addr] !== undefined) {
-        const c = color('orange');
-        c.setAlpha(255 - 255 * (state.cycle - state.writes[addr]) / MAX_AGE.writes);
-        return c;
+        const color = color('orange');
+        color.setAlpha(255 - 255 * (state.cycle - state.writes[addr]) / MAX_AGE.writes);
+        return color;
     } else if (state.reads[addr] !== undefined) {
-        const c = color('lightgreen');
-        c.setAlpha(255 - 255 * (state.cycle - state.reads[addr]) / MAX_AGE.reads);
-        return c;
+        const color = color('lightgreen');
+        color.setAlpha(255 - 255 * (state.cycle - state.reads[addr]) / MAX_AGE.reads);
+        return color;
     } else {
         return 'white';
     }
 };
 
-const getStroke = (state, r, c) => {
+const getStroke = (r, c) => {
     const addr = r * COLS + c;
 
     // TODO fix stack handling
@@ -80,7 +78,7 @@ const squareForRowCol = (r, c) => square(SIZE + c * SIZE, SIZE + r * SIZE, SIZE)
 async function draw() {
     // TODO draw only the delta for speed
 
-    const state = await getState();
+    await processStateUpdate();
 
     clear();
 
