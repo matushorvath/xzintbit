@@ -4,6 +4,8 @@ export class Vm {
     ip = 0;
     rb = 0;
 
+    map = undefined;
+
     getMem(addr) {
         return this.mem[addr] ?? 0;
     }
@@ -42,12 +44,68 @@ export class Vm {
         }
     }
 
+    static OPCODES = {
+        1: { name: 'add', length: 4 },
+        2: { name: 'mul', length: 4 },
+        3: { name: 'in', length: 2 },
+        4: { name: 'out', length: 2 },
+        5: { name: 'jnz', length: 3 },
+        6: { name: 'jz', length: 3 },
+        7: { name: 'lt', length: 4 },
+        8: { name: 'eq', length: 4 },
+        9: { name: 'arb', length: 2 },
+        99: { name: 'hlt', length: 1 }
+    };
+
+    getParamStr(idx, value) {
+        const mode = Math.floor(this.getMem(this.ip) / Vm.MODE_MUL[idx]) % 10;
+
+        switch (mode) {
+        case 0:
+            return this.map.locations[value] ? `[${this.map.locations[value]} (${value})]` : `[${value}]`;
+        case 1:
+            return `${value}`;
+        case 2:
+            return `[rb + ${value} = ${this.rb + value}]`;
+        default:
+            return `${value}`;
+        }
+    }
+
+    printTrace() {
+        const oc = Math.floor(this.getMem(this.ip) % 100);
+
+        const ipSymbol = this.map.locations[this.ip];
+        if (ipSymbol !== undefined) {
+            process.stderr.write(`${ipSymbol}:\n`);
+        }
+
+        const info = Vm.OPCODES[oc];
+
+        const addrStr = String(this.ip).padStart(6, ' ');
+        const ocStr = `${info?.name ?? '???'}(${oc})`;
+        const paramStr = this.mem.slice(this.ip + 1, (info?.length ?? 4) - 1)
+            .map((value, idx) => this.getParamStr(idx, value)).join(', ');
+
+        process.stderr.write(`${addrStr}: ${ocStr} ${paramStr}`);
+    }
+
     async* run(mem, ins = (async function* () {})()) {
         this.ip = this.rb = 0;
         this.mem = mem;
 
         while (true) {
+            if (this.map) {
+                this.printTrace();
+            }
+
             const oc = Math.floor(this.getMem(this.ip) % 100);
+
+            if (this.debug && oc === -42) {
+                debugger;                                   // eslint-disable-line no-debugger
+                this.ip += 1;
+                continue;
+            }
 
             switch (oc) {
             case 1: // add
