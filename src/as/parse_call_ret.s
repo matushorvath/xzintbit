@@ -92,6 +92,15 @@ parse_call:
     arb -1
     call set_as_mem
 
+    # if mode is 2 (relative), we need to adjust param by +1, to compensate
+    # for the 'arb -1' that we just performed one instruction before this one
+    # see also test/call_local_variable
+    eq  [rb + mode], 2, [rb + tmp]
+    jz  [rb + tmp], parse_call_not_mode_3
+
+    add [rb + param], 1, [rb + param]
+
+parse_call_not_mode_3:
     add [rb + param], 0, [rb - 1]
     arb -1
     call set_as_mem

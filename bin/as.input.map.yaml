@@ -1,7 +1,7 @@
 modules: [
   0, 107, 515, 594, 868, 1035, 1593, 1990, 2739, 2836,
-  3372, 3741, 4076, 4155, 4883, 5597, 6524, 7006, 0, 7508,
-  7739, 7845, 7971, 8366, 8911, 9052, 9295
+  3372, 3752, 4087, 4166, 4894, 5608, 6535, 7017, 0, 7519,
+  7750, 7856, 7982, 8377, 8922, 9063, 9306
 ]
 symbols:
   do_fixups:
@@ -27,7 +27,7 @@ symbols:
         offsets: [49]
   parse:
     export:
-      module: 7006
+      module: 7017
       offset: 0
     imports:
       - module: 5366
@@ -41,7 +41,7 @@ symbols:
         offsets: [547]
   strcmp:
     export:
-      module: 9052
+      module: 9063
       offset: 119
     imports:
       - module: 6216
@@ -64,7 +64,7 @@ symbols:
       - module: 14166
         offsets: [345, 218, 152]
       - module: 20716
-        offsets: [357, 223]
+        offsets: [368, 234]
       - module: 23216
         offsets: [269, 223, 190, 148]
       - module: 25816
@@ -101,7 +101,7 @@ symbols:
         offsets: [415, 270]
   report_error_at_location:
     export:
-      module: 7508
+      module: 7519
       offset: 0
     imports:
       - module: 7166
@@ -139,7 +139,7 @@ symbols:
         offsets: [497, 440]
   alloc:
     export:
-      module: 7739
+      module: 7750
       offset: 0
     imports:
       - module: 8116
@@ -154,7 +154,7 @@ symbols:
         offsets: [134, 16]
   inc_mem:
     export:
-      module: 8366
+      module: 8377
       offset: 176
     imports:
       - module: 8116
@@ -241,7 +241,7 @@ symbols:
         offsets: [400]
   free:
     export:
-      module: 7739
+      module: 7750
       offset: 55
     imports:
       - module: 10066
@@ -258,7 +258,7 @@ symbols:
         offsets: [398, 287, 137]
   strcpy:
     export:
-      module: 9052
+      module: 9063
       offset: 173
     imports:
       - module: 10066
@@ -301,7 +301,7 @@ symbols:
       offset: 0
     imports:
       - module: 20716
-        offsets: [245, 10]
+        offsets: [256, 10]
       - module: 23216
         offsets: [232, 203, 170, 121, 14]
       - module: 26666
@@ -320,7 +320,7 @@ symbols:
       offset: 666
     imports:
       - module: 20716
-        offsets: [339, 205]
+        offsets: [350, 216]
       - module: 23216
         offsets: [251, 205, 172, 130, 123, 16]
       - module: 26666
@@ -348,7 +348,7 @@ symbols:
         offsets: [402, 385, 366, 210, 141, 124, 105, 44]
   get_input:
     export:
-      module: 7845
+      module: 7856
       offset: 0
     imports:
       - module: 14166
@@ -357,7 +357,7 @@ symbols:
         offsets: [295, 252, 228, 151, 33]
   unget_input:
     export:
-      module: 7845
+      module: 7856
       offset: 48
     imports:
       - module: 14166
@@ -366,42 +366,42 @@ symbols:
         offsets: [321, 110]
   input_line_num:
     export:
-      module: 7845
+      module: 7856
       offset: 122
     imports:
       - module: 14166
         offsets: [3]
   input_column_num:
     export:
-      module: 7845
+      module: 7856
       offset: 123
     imports:
       - module: 14166
         offsets: [7]
   read_identifier:
     export:
-      module: 7971
+      module: 7982
       offset: 0
     imports:
       - module: 14166
         offsets: [532, 467]
   read_string:
     export:
-      module: 7971
+      module: 7982
       offset: 118
     imports:
       - module: 14166
         offsets: [292]
   read_number:
     export:
-      module: 7971
+      module: 7982
       offset: 210
     imports:
       - module: 14166
         offsets: [376]
   print_num:
     export:
-      module: 8911
+      module: 8922
       offset: 0
     imports:
       - module: 14166
@@ -414,7 +414,7 @@ symbols:
         offsets: [496]
   print_str:
     export:
-      module: 8911
+      module: 8922
       offset: 108
     imports:
       - module: 14166
@@ -425,7 +425,7 @@ symbols:
         offsets: [203, 188, 173, 158, 104, 74, 44, 29, 14]
   is_digit:
     export:
-      module: 9052
+      module: 9063
       offset: 0
     imports:
       - module: 14166
@@ -434,7 +434,7 @@ symbols:
         offsets: [271]
   is_alpha:
     export:
-      module: 9052
+      module: 9063
       offset: 24
     imports:
       - module: 14166
@@ -445,7 +445,7 @@ symbols:
       offset: 0
     imports:
       - module: 20716
-        offsets: [337, 318, 303, 288, 273, 203, 188, 173, 127, 112, 97, 82, 40, 25]
+        offsets: [348, 329, 314, 299, 284, 214, 188, 173, 127, 112, 97, 82, 40, 25]
       - module: 23216
         offsets: [284, 67]
       - module: 29516
@@ -459,14 +459,14 @@ symbols:
         offsets: [89]
   set_mem:
     export:
-      module: 8366
+      module: 8377
       offset: 0
     imports:
       - module: 17866
         offsets: [79, 28]
   print_mem:
     export:
-      module: 8366
+      module: 8377
       offset: 349
     imports:
       - module: 18716
@@ -481,13 +481,13 @@ symbols:
   parse_ret:
     export:
       module: 3372
-      offset: 235
+      offset: 246
     imports:
       - module: 38066
         offsets: [272]
   parse_in_param:
     export:
-      module: 5597
+      module: 5608
       offset: 187
     imports:
       - module: 20716
@@ -496,22 +496,22 @@ symbols:
         offsets: [472, 350, 290, 93, 33]
   parse_number_or_char:
     export:
-      module: 5597
+      module: 5608
       offset: 615
     imports:
       - module: 20716
-        offsets: [254]
+        offsets: [265]
       - module: 23216
         offsets: [241]
       - module: 35366
         offsets: [230]
   current_address:
     export:
-      module: 7006
+      module: 7017
       offset: 391
     imports:
       - module: 20716
-        offsets: [361, 359, 227, 225, 46, 27]
+        offsets: [372, 370, 238, 236, 46, 27]
       - module: 23216
         offsets: [249, 247, 152, 150]
       - module: 29516
@@ -522,11 +522,11 @@ symbols:
         offsets: [3]
   err_expect_eol:
     export:
-      module: 7006
+      module: 7017
       offset: 427
     imports:
       - module: 20716
-        offsets: [346, 212]
+        offsets: [357, 223]
       - module: 23216
         offsets: [258]
       - module: 26666
@@ -537,28 +537,28 @@ symbols:
         offsets: [420, 300]
   parse_db:
     export:
-      module: 3741
+      module: 3752
       offset: 0
     imports:
       - module: 38066
         offsets: [284]
   parse_ds:
     export:
-      module: 3741
+      module: 3752
       offset: 160
     imports:
       - module: 38066
         offsets: [296]
   parse_value:
     export:
-      module: 5597
+      module: 5608
       offset: 268
     imports:
       - module: 23216
         offsets: [48]
   err_expect_comma:
     export:
-      module: 7006
+      module: 7017
       offset: 409
     imports:
       - module: 23216
@@ -567,7 +567,7 @@ symbols:
         offsets: [311, 114, 54]
   err_expect_number:
     export:
-      module: 7006
+      module: 7017
       offset: 459
     imports:
       - module: 23216
@@ -576,49 +576,49 @@ symbols:
         offsets: [30]
   parse_dir_eof:
     export:
-      module: 4076
+      module: 4087
       offset: 0
     imports:
       - module: 38066
         offsets: [368]
   parse_dir_eoi:
     export:
-      module: 4076
+      module: 4087
       offset: 25
     imports:
       - module: 38066
         offsets: [380]
   reset_input_location:
     export:
-      module: 7845
+      module: 7856
       offset: 105
     imports:
       - module: 25816
         offsets: [51]
   is_frame:
     export:
-      module: 4155
+      module: 4166
       offset: 522
     imports:
       - module: 25816
         offsets: [28, 3]
   parse_dir_frame:
     export:
-      module: 4155
+      module: 4166
       offset: 0
     imports:
       - module: 38066
         offsets: [320]
   parse_dir_endframe:
     export:
-      module: 4155
+      module: 4166
       offset: 451
     imports:
       - module: 38066
         offsets: [332]
   err_expect_identifier:
     export:
-      module: 7006
+      module: 7017
       offset: 478
     imports:
       - module: 26666
@@ -627,103 +627,103 @@ symbols:
         offsets: [353, 197, 92]
   parse_add_mul_lt_eq:
     export:
-      module: 4883
+      module: 4894
       offset: 0
     imports:
       - module: 38066
         offsets: [200]
   parse_jnz_jz:
     export:
-      module: 4883
+      module: 4894
       offset: 257
     imports:
       - module: 38066
         offsets: [212]
   parse_arb_out:
     export:
-      module: 4883
+      module: 4894
       offset: 439
     imports:
       - module: 38066
         offsets: [224]
   parse_in:
     export:
-      module: 4883
+      module: 4894
       offset: 546
     imports:
       - module: 38066
         offsets: [236]
   parse_hlt:
     export:
-      module: 4883
+      module: 4894
       offset: 653
     imports:
       - module: 38066
         offsets: [248]
   parse_out_param:
     export:
-      module: 5597
+      module: 5608
       offset: 0
     imports:
       - module: 29516
         offsets: [579, 153]
   parse_symbol:
     export:
-      module: 6524
+      module: 6535
       offset: 0
     imports:
       - module: 38066
         offsets: [308]
   parse_dir_symbol:
     export:
-      module: 6524
+      module: 6535
       offset: 178
     imports:
       - module: 38066
         offsets: [344]
   parse_dir_import_export:
     export:
-      module: 6524
+      module: 6535
       offset: 319
     imports:
       - module: 38066
         offsets: [356]
   is_alphanum:
     export:
-      module: 9052
+      module: 9063
       offset: 62
     imports:
       - module: 44866
         offsets: [52]
   zeromem:
     export:
-      module: 9052
+      module: 9063
       offset: 212
     imports:
   report_error_with_symbol:
     export:
-      module: 7508
+      module: 7519
       offset: 144
     imports:
   halt_and_catch_fire:
     export:
-      module: 7508
+      module: 7519
       offset: 226
     imports:
   __heap_start:
     export:
-      module: 9295
+      module: 9306
       offset: 0
     imports:
       - module: 43266
         offsets: [77]
   pretty_print_mem:
     export:
-      module: 8366
+      module: 8377
       offset: 385
     imports:
   peek_input:
     export:
-      module: 7845
+      module: 7856
       offset: 83
     imports:
