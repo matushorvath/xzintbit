@@ -43,8 +43,11 @@ compare-stages:
 .PHONY: install
 install:
 	cp stage2/as.input bin/as.input
+	cp stage2/as.input.map.yaml bin/as.input.map.yaml
 	cp stage2/ld.input bin/ld.input
+	cp stage2/ld.input.map.yaml bin/ld.input.map.yaml
 	cp stage2/ldmap.input bin/ldmap.input
+	cp stage2/ldmap.input.map.yaml bin/ldmap.input.map.yaml
 	cp stage2/libxib.a bin/libxib.a
 
 # Test

@@ -91,7 +91,8 @@ dump_modules:
 
 dump_modules_loop:
     # print module address
-    add [rb + module], 0, [rb - 1]
+    add [rb + module], MODULE_ADDRESS, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
     call print_num
 
@@ -177,6 +178,7 @@ dump_symbols_loop:
     call print_str
 
     add [rb + symbol], EXPORT_MODULE, [ip + 1]
+    add [0], MODULE_ADDRESS, [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
     call print_num
