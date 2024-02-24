@@ -4,6 +4,7 @@ export class Vm {
     ip = 0;
     rb = 0;
 
+    trace = false;
     map = undefined;
 
     getMem(addr) {
@@ -62,32 +63,32 @@ export class Vm {
 
         switch (mode) {
         case 0:
-            return this.map[value] ? `[${this.map[value]} (${value})]` : `[${value}]`;
+            return this.map?.[value] ? `[${this.map[value]}(${value})]` : `[${value}]`;
         case 1:
-            return `${value}`;
+            return this.map?.[value] ? `${this.map[value]}(${value})` : `${value}`;
         case 2:
-            return `[rb + ${value} = ${this.rb + value}]`;
+            return `[rb ${value < 0 ? '-' : '+'} ${Math.abs(value)} = ${this.rb + value}]`;
         default:
             return `${value}`;
         }
     }
 
     printTrace() {
-        const oc = Math.floor(this.getMem(this.ip) % 100);
+        const op = this.getMem(this.ip);
 
-        const ipSymbol = this.map[this.ip];
+        const ipSymbol = this.map?.[this.ip];
         if (ipSymbol !== undefined) {
             process.stderr.write(`${ipSymbol}:\n`);
         }
 
-        const info = Vm.OPCODES[oc];
+        const info = Vm.OPCODES[op % 100];
 
         const addrStr = String(this.ip).padStart(6, ' ');
-        const ocStr = `${info?.name ?? '???'}(${oc})`;
-        const paramStr = this.mem.slice(this.ip + 1, (info?.length ?? 4) - 1)
+        const ocStr = `${info?.name ?? '???'}(${op})`;
+        const paramStr = this.mem.slice(this.ip + 1, this.ip + (info?.length ?? 4))
             .map((value, idx) => this.getParamStr(idx, value)).join(', ');
 
-        process.stderr.write(`${addrStr}: ${ocStr} ${paramStr}`);
+        process.stderr.write(`${addrStr}: ${ocStr} ${paramStr}\n`);
     }
 
     async* run(mem, ins = (async function* () {})()) {
@@ -95,7 +96,7 @@ export class Vm {
         this.mem = mem;
 
         while (true) {
-            if (this.map) {
+            if (this.trace) {
                 this.printTrace();
             }
 

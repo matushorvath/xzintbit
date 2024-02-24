@@ -1,7 +1,6 @@
 import { Vm } from './vm.mjs';
 import yaml from 'yaml';
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import util from 'node:util';
 
 const parseCommandLine = () => {
@@ -27,8 +26,7 @@ const parseCommandLine = () => {
 };
 
 const loadMap = async (imagePath) => {
-    const parsedPath = path.parse(imagePath);
-    const mapPath = path.format({ ...parsedPath, base: undefined, ext: 'map.yaml' });
+    const mapPath = `${imagePath}.map.yaml`;
 
     let mapData;
     try {
@@ -60,6 +58,7 @@ const main = async () => {
         const vm = new Vm();
 
         if (args.trace) {
+            vm.trace = true;
             vm.map = await loadMap(args.image);
         }
 
