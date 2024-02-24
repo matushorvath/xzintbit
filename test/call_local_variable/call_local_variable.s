@@ -26,7 +26,7 @@ callee:
 .FRAME address
     arb -0
 
-    out 65
+    out 'A'
     out 10
 
     arb 0
