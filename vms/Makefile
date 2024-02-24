@@ -72,9 +72,12 @@ clean-cl:
 # Intcode VM in Javascript
 .PHONY: build-js
 build-js: js/ic js/ic.mjs
+	npm install --prefix js
+	npm test --prefix js
 
 .PHONY: clean-js
 clean-js:
+	rm -rf js/node_modules
 
 # Intcode VM in Javascript, implemented as a single function
 .PHONY: build-js-fn
