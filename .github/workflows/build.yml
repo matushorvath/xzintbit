@@ -45,6 +45,12 @@ jobs:
           dotnet-version: 6.0.x
         if: matrix.icvm == 'cs'
 
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+        if: matrix.icvm == 'js'
+
       - name: Setup Steel Bank Common Lisp
         run: |
           sudo apt install sbcl cl-quicklisp
