@@ -62,7 +62,7 @@ export class Vm {
 
         switch (mode) {
         case 0:
-            return this.map.locations[value] ? `[${this.map.locations[value]} (${value})]` : `[${value}]`;
+            return this.map[value] ? `[${this.map[value]} (${value})]` : `[${value}]`;
         case 1:
             return `${value}`;
         case 2:
@@ -75,7 +75,7 @@ export class Vm {
     printTrace() {
         const oc = Math.floor(this.getMem(this.ip) % 100);
 
-        const ipSymbol = this.map.locations[this.ip];
+        const ipSymbol = this.map[this.ip];
         if (ipSymbol !== undefined) {
             process.stderr.write(`${ipSymbol}:\n`);
         }

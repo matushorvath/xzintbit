@@ -38,15 +38,8 @@ const loadMap = async (imagePath) => {
         return;
     }
 
-    return {
-        locations: Object.fromEntries(Object.entries(mapData.symbols).map(([symbol, sdata]) =>
-            [sdata.export.module + sdata.export.offset, symbol])),
-        references: Object.fromEntries(Object.entries(mapData.symbols).map(([symbol, sdata]) =>
-            sdata.imports.map(({ module, offsets }) => offsets.map(offset =>
-                [module + offset, symbol])))),
-        symbols: Object.fromEntries(Object.entries(mapData.symbols).map(([symbol, sdata]) =>
-            [symbol, sdata.export.module + sdata.export.offset]))
-    };
+    return Object.fromEntries(Object.entries(mapData.symbols).map(([symbol, sdata]) =>
+        [sdata.export.module + sdata.export.offset, symbol]));
 };
 
 async function* getIns() {
