@@ -5,3 +5,13 @@
 - In print_code don't print empty line after .C if there is no code. This is how we hande .R, .I and .E.
   In load_code handle the missing empty line by doing a peek_input, same as we do for .R, .I and .E.
   This probably detecting no memory to print and skip the out 10 just before print_code calls print_mem.
+
+- Map clearly still contains bad module addresses in the symbols/x/imports/module field
+symbols:
+  do_fixups:
+    export:
+      module: 594
+      offset: 117
+    imports:
+      - module: 5488      <<<<< this is wrong
+        offsets: [40]
