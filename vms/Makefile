@@ -25,11 +25,10 @@ clean-c:
 	rm -rf c/ic c/ic.exe c/*.o
 
 # Intcode VM in Go
-# TODO remove GO111MODULE=auto
 .PHONY: build-go
 build-go: go/ic
 go/ic: go/ic.go
-	GO111MODULE=auto go build -o $@ ./go
+	( cd go; go build -o ic )
 
 .PHONY: clean-go
 clean-go:
