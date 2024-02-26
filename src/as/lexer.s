@@ -1,5 +1,4 @@
-# TODO:
-# - remember line and column for .EXPORT (perhaps in a dummy fixup record)
+# TODO remember line and column for .EXPORT (perhaps in a dummy fixup record)
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out

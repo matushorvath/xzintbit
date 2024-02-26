@@ -1,7 +1,6 @@
-# TODO
-# - return address frame symbol?
-# - check the typescript as implementation for missing error handling
-# - test: both global and frame symbol; access frame outside of frame
+# TODO return address frame symbol?
+# TODO check the typescript as implementation for missing error handling
+# TODO test: both global and frame symbol; access frame outside of frame
 
 .EXPORT parse
 .EXPORT current_address

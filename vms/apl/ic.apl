@@ -2,10 +2,9 @@
 
 ⍝ GNU APL 1.8
 
-⍝ TODO
-⍝  - handle invalid mode in setp, getp
-⍝  - display an error message for invalid command line
-⍝  - return a non-zero exit code somehow
+⍝ TODO handle invalid mode in setp, getp
+⍝ TODO display an error message for invalid command line
+⍝ TODO return a non-zero exit code somehow
 
 ∇V←getmem A
 V←((⍴M)⌊A+1)⌷M,(0)
