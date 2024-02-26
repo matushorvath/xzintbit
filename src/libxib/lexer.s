@@ -112,11 +112,12 @@ read_string_done:
 
 ##########
 read_number:
-.FRAME byte, digit, sign, tmp
-    arb -4
+.FRAME byte, is_number, digit, sign, tmp
+    arb -5
 
     add 0, 0, [rb + byte]
     add 1, 0, [rb + sign]
+    add 0, 0, [rb + is_number]
 
     # get first character, process the minus sign if present
     call get_input
@@ -144,6 +145,9 @@ read_number_loop:
     mul [rb + byte], 10, [rb + byte]
     add [rb + byte], [rb + digit], [rb + byte]
 
+    # we have at least one digit
+    add 1, 0, [rb + is_number]
+
     # get next character
     call get_input
     add [rb - 2], 0, [rb + digit]
@@ -158,7 +162,7 @@ read_number_end:
     arb -1
     call unget_input
 
-    arb 4
+    arb 5
     ret 0
 .ENDFRAME
 

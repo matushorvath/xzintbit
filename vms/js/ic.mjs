@@ -57,8 +57,10 @@ const main = async () => {
 
         const vm = new Vm();
 
-        if (args.trace) {
-            vm.trace = true;
+        vm.debug = args.debug;
+        vm.trace = args.trace;
+
+        if (vm.trace) {
             vm.map = await loadMap(args.image);
         }
 

@@ -6,6 +6,7 @@
 # from libxib/input.s
 .IMPORT get_input
 .IMPORT peek_input
+.IMPORT unget_input
 
 # from libxib/lexer.s
 .IMPORT read_identifier
@@ -191,10 +192,27 @@ load_code:
 
     add 0, 0, [rb + length]
 
+    # detect when there is no code at all
+    call get_input
+    eq  [rb - 2], 10, [rb + tmp]
+    jnz [rb + tmp], load_code_done
+
+    # unget last char, read_number will get it again
+    add [rb - 2], 0, [rb - 1]
+    arb -1
+    call unget_input
+
 load_code_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
+    # was there actually a number?
+    jnz [rb - 3], load_code_have_number
+
+    add err_expect_number, 0, [rb]
+    call report_error
+
+load_code_have_number:
     # store the byte
     add [rb + module], MODULE_CODE_HEAD, [rb - 1]
     add [rb + module], MODULE_CODE_TAIL, [rb - 2]
@@ -239,6 +257,13 @@ load_relocated_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
+    # was there actually a number?
+    jnz [rb - 3], load_relocated_have_number
+
+    add err_expect_number, 0, [rb]
+    call report_error
+
+load_relocated_have_number:
     # store the byte
     add [rb + module], MODULE_RELOC_HEAD, [rb - 1]
     add [rb + module], MODULE_RELOC_TAIL, [rb - 2]
@@ -297,6 +322,13 @@ load_imported_fixup_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
+    # was there actually a number?
+    jnz [rb - 3], load_imported_fixup_have_number
+
+    add err_expect_number, 0, [rb]
+    call report_error
+
+load_imported_fixup_have_number:
     # store the byte
     add [rb + import], IMPORT_FIXUPS_HEAD, [rb - 1]
     add [rb + import], IMPORT_FIXUPS_TAIL, [rb - 2]
@@ -359,6 +391,13 @@ load_exported_save_identifier:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
+    # was there actually a number?
+    jnz [rb - 3], load_exported_have_number
+
+    add err_expect_number, 0, [rb]
+    call report_error
+
+load_exported_have_number:
     # store the byte
     add [rb + export], EXPORT_ADDRESS, [ip + 3]
     add [rb + byte], 0, [0]
@@ -441,5 +480,7 @@ err_expect_eol:
     db  "Expecting a line end", 0
 err_expect_colon:
     db  "Expecting a colon", 0
+err_expect_number:
+    db  "Expecting a number", 0
 
 .EOF

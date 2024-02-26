@@ -1,5 +1,4 @@
-# TODO
-# - have a printf-like function to print more info about errors
+# TODO have a printf-like function to print more info about errors
 
 .EXPORT report_error
 .EXPORT report_libxib_error

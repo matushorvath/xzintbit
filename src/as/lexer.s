@@ -1,5 +1,4 @@
-# TODO:
-# - remember line and column for .EXPORT (perhaps in a dummy fixup record)
+# TODO remember line and column for .EXPORT (perhaps in a dummy fixup record)
 
 # token types:
 # 1 add; 9 arb; 8 eq; 99 hlt; 3 in; 5 jnz; 6 jz; 7 lt; 2 mul; 4 out
@@ -202,6 +201,13 @@ get_token_number:
     call read_number
     add [rb - 2], 0, [token_value]
 
+    # was there actually a number?
+    jnz [rb - 3], get_token_number_done
+
+    add err_expect_number, 0, [rb]
+    call report_error
+
+get_token_number_done:
     add 'n', 0, [token_type]
     jz  0, get_token_done
 
@@ -361,5 +367,7 @@ err_expect_single_quote:
     db  "Expecting a single quote", 0
 err_expect_10_after_13:
     db  "Expecting character 10 after character 13", 0
+err_expect_number:
+    db  "Expecting a number", 0
 
 .EOF
