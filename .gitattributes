@@ -2,4 +2,4 @@
 *.input text eol=lf
 *.a text eol=lf
 *.o text eol=lf
-test/*/*.txt eol=lf
+test/*/*.txt text eol=lf
