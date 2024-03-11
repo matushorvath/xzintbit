@@ -38,10 +38,9 @@ compare-stages:
 	diff -r stage1/ld.input stage2/ld.input
 	diff -r stage1/ldmap.input stage2/ldmap.input
 	diff -r stage1/libxib.a stage2/libxib.a
-# TODO re-enable once module: in imports section is fixed (see TODO.md)
-	diff -r stage1/as.input.map.yaml stage2/as.input.map.yaml ; true
-	diff -r stage1/ld.input.map.yaml stage2/ld.input.map.yaml ; true
-	diff -r stage1/ldmap.input.map.yaml stage2/ldmap.input.map.yaml ; true
+	diff -r stage1/as.input.map.yaml stage2/as.input.map.yaml
+	diff -r stage1/ld.input.map.yaml stage2/ld.input.map.yaml
+	diff -r stage1/ldmap.input.map.yaml stage2/ldmap.input.map.yaml
 
 .PHONY: install
 install:
