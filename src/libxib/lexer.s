@@ -145,6 +145,9 @@ read_number_prefix:
     jz  [rb + tmp], read_number_not_binary
     add 2, 0, [rb + radix]
 
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
     jz  0, read_number_loop
 
 read_number_not_binary:
@@ -152,12 +155,20 @@ read_number_not_binary:
     jz  [rb + tmp], read_number_not_octal
     add 8, 0, [rb + radix]
 
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
     jz  0, read_number_loop
 
 read_number_not_octal:
     eq  [rb + char], 'x', [rb + tmp]
     jz  [rb + tmp], read_number_not_hexadecimal
     add 16, 0, [rb + radix]
+
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    jz  0, read_number_loop
 
 read_number_not_hexadecimal:
     # no prefix, but we have the zero, so we have at least one digit
