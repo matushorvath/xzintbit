@@ -16,4 +16,4 @@ symbols:
       - module: 5488      <<<<< this is wrong
         offsets: [40]
 
-- Support hexa and binary number literals. VM6502 could use them in many places.
+- Include bin2obj in xzintbit.

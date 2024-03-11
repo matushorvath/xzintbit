@@ -1,4 +1,5 @@
 .EXPORT is_digit
+.EXPORT char_to_digit
 .EXPORT is_alpha
 .EXPORT is_alphanum
 .EXPORT strcmp
@@ -7,7 +8,7 @@
 
 ##########
 is_digit:
-.FRAME char; tmp
+.FRAME char; tmp                        # returns tmp
     arb -1
 
     # check if 0 <= char <= 9
@@ -21,6 +22,55 @@ is_digit_end:
 
     arb 1
     ret 1
+.ENDFRAME
+
+##########
+char_to_digit:
+.FRAME char, radix; digit, tmp          # returns digit; -1 if invalid digit
+    arb -2
+
+    # convert char to digit
+    lt  [rb + char], '0', [rb + tmp]
+    jnz [rb + tmp], char_to_digit_invalid
+
+    lt  '9', [rb + char], [rb + tmp]
+    jz  [rb + tmp], char_to_digit_number
+
+    lt  [rb + char], 'A', [rb + tmp]
+    jnz [rb + tmp], char_to_digit_invalid
+
+    lt  'F', [rb + char], [rb + tmp]
+    jz  [rb + tmp], char_to_digit_upper_case
+
+    lt  [rb + char], 'a', [rb + tmp]
+    jnz [rb + tmp], char_to_digit_invalid
+
+    lt  'f', [rb + char], [rb + tmp]
+    jz  [rb + tmp], char_to_digit_lower_case
+
+    jz  0, char_to_digit_invalid
+
+char_to_digit_upper_case:
+    add [rb + char], -55, [rb + digit]          # 'A' = 65
+    jz  0, char_to_digit_check_radix
+
+char_to_digit_lower_case:
+    add [rb + char], -87, [rb + digit]          # 'a' = 97
+    jz  0, char_to_digit_check_radix
+
+char_to_digit_number:
+    add [rb + char], -'0', [rb + digit]
+
+char_to_digit_check_radix:
+    lt  [rb + digit], [rb + radix], [rb + tmp]
+    jnz [rb + tmp], char_to_digit_end
+
+char_to_digit_invalid:
+    add -1, 0, [rb + digit]
+
+char_to_digit_end:
+    arb 2
+    ret 2
 .ENDFRAME
 
 ##########
