@@ -6,4 +6,4 @@
   In load_code handle the missing empty line by doing a peek_input, same as we do for .R, .I and .E.
   This probably detecting no memory to print and skip the out 10 just before print_code calls print_mem.
 
-- Include bin2obj in xzintbit.
+- Make all tests that use the linker run ldmap as well.
