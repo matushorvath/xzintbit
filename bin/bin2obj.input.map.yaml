@@ -1,0 +1,23 @@
+modules: [
+  0, 0, 0, 0, 0, 0, 0, 235, 0, 0
+]
+symbols:
+  print_num:
+    export:
+      module: 235
+      offset: 0
+    imports:
+      - module: 0
+        offsets: [86, 64]
+  print_str:
+    export:
+      module: 235
+      offset: 152
+    imports:
+      - module: 0
+        offsets: [120, 104]
+  print_num_radix:
+    export:
+      module: 235
+      offset: 28
+    imports:

@@ -10,7 +10,7 @@
 .IMPORT alloc
 
 # from string.s
-.IMPORT is_digit
+.IMPORT char_to_digit
 .IMPORT is_alphanum
 
 # from outside of this library
@@ -112,37 +112,82 @@ read_string_done:
 
 ##########
 read_number:
-.FRAME byte, is_number, digit, sign, tmp
-    arb -5
+.FRAME byte, is_number, radix, char, digit, sign, tmp             # returns byte, is_number, radix
+    arb -7
 
     add 0, 0, [rb + byte]
     add 1, 0, [rb + sign]
     add 0, 0, [rb + is_number]
+    add 10, 0, [rb + radix]
 
     # get first character, process the minus sign if present
     call get_input
-    add [rb - 2], 0, [rb + digit]
+    add [rb - 2], 0, [rb + char]
 
-    eq  [rb + digit], '-', [rb + tmp]
-    jz  [rb + tmp], read_number_loop
+    eq  [rb + char], '-', [rb + tmp]
+    jz  [rb + tmp], read_number_prefix
 
     add -1, 0, [rb + sign]
 
     call get_input
-    add [rb - 2], 0, [rb + digit]
+    add [rb - 2], 0, [rb + char]
+
+read_number_prefix:
+    # detect a 0b, 0o or 0x prefix
+    eq  [rb + char], '0', [rb + tmp]
+    jz  [rb + tmp], read_number_loop
+
+    # starts with zero, is there a 0b, 0o or 0x?
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    eq  [rb + char], 'b', [rb + tmp]
+    jz  [rb + tmp], read_number_not_binary
+    add 2, 0, [rb + radix]
+
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    jz  0, read_number_loop
+
+read_number_not_binary:
+    eq  [rb + char], 'o', [rb + tmp]
+    jz  [rb + tmp], read_number_not_octal
+    add 8, 0, [rb + radix]
+
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    jz  0, read_number_loop
+
+read_number_not_octal:
+    eq  [rb + char], 'x', [rb + tmp]
+    jz  [rb + tmp], read_number_not_hexadecimal
+    add 16, 0, [rb + radix]
+
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+    jz  0, read_number_loop
+
+read_number_not_hexadecimal:
+    # no prefix, but we have the zero, so we have at least one digit
+    add 1, 0, [rb + is_number]
 
 read_number_loop:
+    # convert current character to a digit
+    add [rb + char], 0, [rb - 1]
+    add [rb + radix], 0, [rb - 2]
+    arb -2
+    call char_to_digit
+    add [rb - 4], 0, [rb + digit]
+
     # if it is not a digit, end
-    add [rb + digit], 0, [rb - 1]
-    arb -1
-    call is_digit
-    jz  [rb - 3], read_number_end
+    eq  [rb + digit], -1, [rb + tmp]
+    jnz [rb + tmp], read_number_end
 
-    # convert ASCII to a number
-    add [rb + digit], -'0', [rb + digit]
-
-    # byte = byte * 10 + digit
-    mul [rb + byte], 10, [rb + byte]
+    # byte = byte * radix + digit
+    mul [rb + byte], [rb + radix], [rb + byte]
     add [rb + byte], [rb + digit], [rb + byte]
 
     # we have at least one digit
@@ -150,7 +195,7 @@ read_number_loop:
 
     # get next character
     call get_input
-    add [rb - 2], 0, [rb + digit]
+    add [rb - 2], 0, [rb + char]
 
     jz  0, read_number_loop
 
@@ -158,11 +203,11 @@ read_number_end:
     mul [rb + byte], [rb + sign], [rb + byte]
 
     # unget last char
-    add [rb + digit], 0, [rb - 1]
+    add [rb + char], 0, [rb - 1]
     arb -1
     call unget_input
 
-    arb 5
+    arb 7
     ret 0
 .ENDFRAME
 

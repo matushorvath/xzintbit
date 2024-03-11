@@ -2,6 +2,7 @@ ICVM_TYPE ?= c
 
 ICVM ?= $(abspath ../../vms)/$(ICVM_TYPE)/ic
 ICAS ?= $(abspath ../../bin/as.input)
+ICBIN2OBJ ?= $(abspath ../../bin/bin2obj.input)
 ICLD ?= $(abspath ../../bin/ld.input)
 
 BINDIR ?= bin
@@ -60,6 +61,13 @@ $(BINDIR)/%.a: $(OBJDIR)/%.o
 $(OBJDIR)/%.o: %.s
 	printf '$(NAME): assembling ' >> $(TESTLOG)
 	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; true )
+	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
+		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
+	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+
+$(OBJDIR)/%.o: %.bin
+	printf '$(NAME): running bin2obj ' >> $(TESTLOG)
+	ls -n $< | awk '{ printf "%s ", $$5 }' | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)

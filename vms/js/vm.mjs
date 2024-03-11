@@ -58,18 +58,18 @@ export class Vm {
         99: { name: 'hlt', length: 1 }
     };
 
-    getParamStr(idx, value) {
+    getParamData(idx, value) {
         const mode = Math.floor(this.getMem(this.ip) / Vm.MODE_MUL[idx]) % 10;
 
         switch (mode) {
         case 0:
-            return this.map?.[value] ? `[${this.map[value]}(${value})]` : `[${value}]`;
+            return [this.map?.[value] ? `[${this.map[value]}(${value})]` : `[${value}]`, this.getMem(value)];
         case 1:
-            return this.map?.[value] ? `${this.map[value]}(${value})` : `${value}`;
+            return [this.map?.[value] ? `${this.map[value]}(${value})` : `${value}`, value];
         case 2:
-            return `[rb ${value < 0 ? '-' : '+'} ${Math.abs(value)} = ${this.rb + value}]`;
+            return [`[rb ${value < 0 ? '-' : '+'} ${Math.abs(value)} = ${this.rb + value}]`, this.getMem(this.rb + value)];
         default:
-            return `${value}`;
+            return [`${value}`, value];
         }
     }
 
@@ -85,10 +85,18 @@ export class Vm {
 
         const addrStr = String(this.ip).padStart(6, ' ');
         const ocStr = `${info?.name ?? '???'}(${op})`;
-        const paramStr = this.mem.slice(this.ip + 1, this.ip + (info?.length ?? 4))
-            .map((value, idx) => this.getParamStr(idx, value)).join(', ');
 
-        process.stderr.write(`${addrStr}: ${ocStr} ${paramStr}\n`);
+        const paramData = this.mem.slice(this.ip + 1, this.ip + (info?.length ?? 4))
+            .map((value, idx) => this.getParamData(idx, value));
+
+        const paramAddrs = paramData.map(d => d[0]).join(', ');
+        const paramVals = paramData.map(d => d[1]).join(', ');
+
+        const instruction = `${addrStr}: ${ocStr} ${paramAddrs}`;
+        const padding = ' '.repeat(Math.max(80 - instruction.length, 5));
+        const state = `ip ${this.ip} rb ${this.rb} params ${paramVals}`;
+
+        process.stderr.write(`${instruction}${padding}${state}\n`);
     }
 
     async* run(mem, ins = (async function* () {})()) {

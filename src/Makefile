@@ -24,11 +24,11 @@ endef
 
 # Build
 .PHONY: build
-build: build-prep $(BINDIR)/as.input $(BINDIR)/ld.input $(BINDIR)/ldmap.input print-profile
+build: build-prep $(BINDIR)/as.input $(BINDIR)/bin2obj.input $(BINDIR)/ld.input $(BINDIR)/ldmap.input print-profile
 
 .PHONY: build-prep
 build-prep:
-	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib
+	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib $(OBJDIR)/tools
 ifeq ($(ICVM_PROFILE),y)
 	rm -f icvm_profile.csv
 endif
@@ -41,6 +41,14 @@ $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)
 
 $(OBJDIR)/as/%.o: $(SRCDIR)/as/const.si $(SRCDIR)/as/%.s
+	$(run-as)
+
+BIN2OBJ_OBJS = bin2obj.o
+
+$(BINDIR)/bin2obj.input: $(addprefix $(OBJDIR)/tools/, $(BIN2OBJ_OBJS)) $(BINDIR)/libxib.a
+	$(run-ld)
+
+$(OBJDIR)/tools/%.o: $(SRCDIR)/tools/%.s
 	$(run-as)
 
 LD_OBJS = ld.o process.o data.o error.o link.o load.o output.o relocate.o resolve.o

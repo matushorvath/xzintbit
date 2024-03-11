@@ -213,6 +213,14 @@ load_code_loop:
     call report_error
 
 load_code_have_number:
+    # was the number base 10?
+    eq  [rb - 4], 10, [rb + tmp]
+    jnz [rb + tmp], load_code_decimal
+
+    add err_expect_decimal, 0, [rb]
+    call report_error
+
+load_code_decimal:
     # store the byte
     add [rb + module], MODULE_CODE_HEAD, [rb - 1]
     add [rb + module], MODULE_CODE_TAIL, [rb - 2]
@@ -264,6 +272,14 @@ load_relocated_loop:
     call report_error
 
 load_relocated_have_number:
+    # was the number base 10?
+    eq  [rb - 4], 10, [rb + tmp]
+    jnz [rb + tmp], load_relocated_decimal
+
+    add err_expect_decimal, 0, [rb]
+    call report_error
+
+load_relocated_decimal:
     # store the byte
     add [rb + module], MODULE_RELOC_HEAD, [rb - 1]
     add [rb + module], MODULE_RELOC_TAIL, [rb - 2]
@@ -329,6 +345,14 @@ load_imported_fixup_loop:
     call report_error
 
 load_imported_fixup_have_number:
+    # was the number base 10?
+    eq  [rb - 4], 10, [rb + tmp]
+    jnz [rb + tmp], load_imported_decimal
+
+    add err_expect_decimal, 0, [rb]
+    call report_error
+
+load_imported_decimal:
     # store the byte
     add [rb + import], IMPORT_FIXUPS_HEAD, [rb - 1]
     add [rb + import], IMPORT_FIXUPS_TAIL, [rb - 2]
@@ -398,6 +422,14 @@ load_exported_save_identifier:
     call report_error
 
 load_exported_have_number:
+    # was the number base 10?
+    eq  [rb - 4], 10, [rb + tmp]
+    jnz [rb + tmp], load_exported_decimal
+
+    add err_expect_decimal, 0, [rb]
+    call report_error
+
+load_exported_decimal:
     # store the byte
     add [rb + export], EXPORT_ADDRESS, [ip + 3]
     add [rb + byte], 0, [0]
@@ -482,5 +514,7 @@ err_expect_colon:
     db  "Expecting a colon", 0
 err_expect_number:
     db  "Expecting a number", 0
+err_expect_decimal:
+    db  "Expecting a decimal number", 0
 
 .EOF
