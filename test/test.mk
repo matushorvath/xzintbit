@@ -53,7 +53,7 @@ $(BINDIR)/%.input: $(OBJDIR)/%.o
 
 $(BINDIR)/%.a: $(OBJDIR)/%.o
 	printf '$(NAME): archiving ' >> $(TESTLOG)
-	echo .L | cat - $^ > $@ || true
+	cat $^ | sed 's/^.C$$/.L/g' > $@ || true
 	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
 		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
 	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)

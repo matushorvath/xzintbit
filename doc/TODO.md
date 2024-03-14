@@ -7,3 +7,16 @@
   This probably detecting no memory to print and skip the out 10 just before print_code calls print_mem.
 
 - Make all tests that use the linker run ldmap as well.
+
+- Support exportable .SYMBOL that will not be relocated?
+
+- Support local labels like NASM. A label beginning with a single period is treated as a local label,
+  which means that it is associated with the previous non-local label.
+  function:
+    code
+  .loop (only needs to be unique within function)
+    code
+    jz  0, .loop (refers to .loop associated with the previous non-local label
+    jz  0, function.loop (refers to function.loop literally)
+
+- Map should not include zero modules (that are not mapped to the binary)

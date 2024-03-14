@@ -27,17 +27,18 @@
 
 ##########
 load_objects:
-.FRAME module, tmp
-    arb -2
+.FRAME module, is_library, tmp
+    arb -3
 
 load_objects_loop:
     # check for more files
     call expect_next_file
     eq  [rb - 2], '$', [rb + tmp]
     jnz [rb + tmp], load_objects_load_done
+    eq  [rb - 2], 'L', [rb + is_library]
 
     # create a module
-    add [is_library], 0, [rb - 1]
+    add [rb + is_library], 0, [rb - 1]
     arb -1
     call create_module
     add [rb - 3], 0, [rb + module]
@@ -85,7 +86,7 @@ load_objects_loop:
 load_objects_load_done:
     call add_linker_symbols
 
-    arb 2
+    arb 3
     ret 0
 .ENDFRAME
 
@@ -105,27 +106,9 @@ expect_next_file:
     eq  [rb + char], 'C', [rb + tmp]
     jnz [rb + tmp], expect_next_file_done
     eq  [rb + char], 'L', [rb + tmp]
-    jnz [rb + tmp], expect_next_file_library
+    jnz [rb + tmp], expect_next_file_done
 
     add err_expect_dot_c_l_at, 0, [rb]
-    call report_error
-
-expect_next_file_library:
-    # mark that we are now processing libraries
-    add 1, 0, [is_library]
-
-    add err_expect_dot_c_at, 0, [rb - 1]
-    arb -1
-    call read_directive
-    add [rb - 3], 0, [rb + char]
-
-    # we are already in a library, so now we only accept a .C and .$
-    eq  [rb + char], '$', [rb + tmp]
-    jnz [rb + tmp], expect_next_file_done
-    eq  [rb + char], 'C', [rb + tmp]
-    jnz [rb + tmp], expect_next_file_done
-
-    add err_expect_dot_c_at, 0, [rb]
     call report_error
 
 expect_next_file_done:
@@ -460,7 +443,7 @@ add_linker_symbols:
 
     # create a dummy module at the end
     # create a module
-    add [is_library], 0, [rb - 1]
+    add 1, 0, [rb - 1]
     arb -1
     call create_module
     add [rb - 3], 0, [rb + module]
@@ -487,19 +470,10 @@ add_linker_symbols_heap_start:
 .ENDFRAME
 
 ##########
-# globals
-
-# 0 = processing object files, 1 = processing libraries
-is_library:
-    db  0
-
-##########
 # error messages
 
 err_expect_dot_c_l_at:
     db  "Expecting a .C, .L or .$", 0
-err_expect_dot_c_at:
-    db  "Expecting a .C or .$", 0
 err_expect_dot_i:
     db  "Expecting a .I", 0
 err_expect_dot_e:
