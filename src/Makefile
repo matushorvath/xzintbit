@@ -14,7 +14,7 @@ cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; false )
 endef
 
 define run-ar
-echo .L | cat - $^ > $@ || ( cat $@ ; false )
+cat $^ | sed 's/^.C$$/.L/g' > $@ || ( cat $@ ; false )
 endef
 
 define run-ld
