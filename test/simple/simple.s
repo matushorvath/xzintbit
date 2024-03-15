@@ -36,10 +36,10 @@ test:                                   # end of line comment
 
 data:
 +1 = data1:
-    db 42
-    ds 3, 0
+    db  42
+    ds  3, 0
 
-    ds 50, 'x'
+    ds  50, 'x'
 stack:
 
     db  'a'

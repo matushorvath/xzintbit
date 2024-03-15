@@ -104,7 +104,7 @@ dump_modules_loop:
 
     # more modules, print separator
     add [rb + count], -1, [rb + count]
-    jz [rb + count], dump_modules_end_line
+    jz  [rb + count], dump_modules_end_line
 
     add dump_modules_str_space_separator, 0, [rb - 1]
     arb -1

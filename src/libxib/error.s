@@ -45,13 +45,13 @@ report_error_at_location:
     call halt_and_catch_fire
 
 report_error_at_location_msg_start:
-    db "Error: ", 0
+    db  "Error: ", 0
 report_error_at_location_msg_line:
-    db " (line ", 0
+    db  " (line ", 0
 report_error_at_location_msg_column:
-    db ", column ", 0
+    db  ", column ", 0
 report_error_at_location_msg_end:
-    db ")", 0
+    db  ")", 0
 .ENDFRAME
 
 ##########
@@ -78,9 +78,9 @@ report_error_with_symbol:
     call halt_and_catch_fire
 
 report_error_with_symbol_msg_start:
-    db "Error: ", 0
+    db  "Error: ", 0
 report_error_with_symbol_msg_symbol:
-    db ": ", 0
+    db  ": ", 0
 .ENDFRAME
 
 ##########

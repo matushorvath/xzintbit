@@ -87,7 +87,7 @@ size:
 object_file_end:
     db  10, ".R", 10, ".I", 10, ".E", 10, "binary_length:0", 10, "binary_data:1", 10, 0
 invalid_size_error:
-    db "invalid file size", 10, 0
+    db  "invalid file size", 10, 0
 
     ds  50, 0
 stack:

@@ -4,6 +4,6 @@
     db  2
     db  3
 
-    db symbol
+    db  symbol
 
 .EOF

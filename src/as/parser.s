@@ -191,7 +191,7 @@ parse_done:
 
 # current instruction pointer
 current_address:
-    db 0
+    db  0
 
 ##########
 # error messages

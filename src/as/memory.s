@@ -57,12 +57,12 @@ set_mem_str_done:
 
 # output memory buffer
 mem_head:
-    db 0
+    db  0
 mem_tail:
-    db 0
+    db  0
 
 # index of next unused byte in last memory buffer
 mem_index:
-    db 0
+    db  0
 
 .EOF
