@@ -308,8 +308,8 @@ Pseudo-instructions look like instructions in the code, but do not directly corr
 Define memory contents directly. Supports one or more arguments. Each argument can be a number, character, symbol or a string.
 
 ```asm
-    db 42
-    db 'x', "a string", 0, data
+    db  42
+    db  'x', "a string", 0, data
 data:
 ```
 Compiles to:
@@ -323,7 +323,7 @@ In the compiled Intcode, notice that the string was not zero-terminated on its o
 Define memory contents directly. Has two arguments, *count* and *value*, and it causes *count* copies of *value* to be stored in memory. The value can be a number of a character only (no symbols or strings).
 
 ```asm
-    ds 7, 42
+    ds  7, 42
 ```
 Compiles to:
 ```json

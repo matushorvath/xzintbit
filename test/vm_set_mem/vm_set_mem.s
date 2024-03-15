@@ -8,13 +8,13 @@ out [res]
 hlt
 
 bas:
-    db '0'
+    db  '0'
 inc:
-    db 3
+    db  3
 res:
-    db 0
+    db  0
 
 pbas:
-    db bas
+    db  bas
 
 .EOF

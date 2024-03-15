@@ -17,6 +17,6 @@
     hlt
 
 data:
-    ds 2, 0
+    ds  2, 0
 
 .EOF

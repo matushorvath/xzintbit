@@ -137,14 +137,14 @@ create_export:
 
 # loaded modules
 module_head:
-    db 0
+    db  0
 module_tail:
-    db 0
+    db  0
 
 # included symbols
 symbol_head:
-    db 0
+    db  0
 symbol_tail:
-    db 0
+    db  0
 
 .EOF

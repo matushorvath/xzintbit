@@ -2,7 +2,7 @@
     call caller
     hlt
 
-    ds 10, 0
+    ds  10, 0
 stack:
 
 caller:
