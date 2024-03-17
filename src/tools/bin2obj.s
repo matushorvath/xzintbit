@@ -434,9 +434,13 @@ output_data_sections_loop:
     add [rb + tmp], SECTION_SIZE, [ip + 1]
     add [0], 0, [rb + section_size]
 
-    # Output current section size
+    # Output current section starting address and size
     out ','
+    add [rb + section_start], 0, [rb - 1]
+    arb -1
+    call print_num
 
+    out ','
     add [rb + section_size], 0, [rb - 1]
     arb -1
     call print_num
@@ -449,9 +453,8 @@ output_data_bytes_loop:
     eq  [rb + data_index], [rb + data_limit], [rb + tmp]
     jnz [rb + tmp], output_data_bytes_done
 
-    out ','
-
     # Output next byte
+    out ','
     add [data_addr], [rb + data_index], [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
@@ -472,7 +475,7 @@ output_data_sections_done:
 
 ##########
 output_exports:
-.FRAME section, data_index, tmp
+.FRAME section_index, data_index, tmp
     arb -3
 
     # Symbols start after the name + zero termination
@@ -495,8 +498,36 @@ output_exports:
 
     out 10
 
-    # TODO loop all sections
-    add 0, 0, [rb + section]
+    # Loop all sections
+    add 0, 0, [rb + section_index]
+
+output_exports_sections_loop:
+    eq  [rb + section_index], [sections_count], [rb + tmp]
+    jnz [rb + tmp], output_exports_sections_done
+
+    # Current section address
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add output_exports_section, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + section_index], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add output_exports_addr, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + data_index], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+    add [rb + data_index], 1, [rb + data_index]
 
     # Current section size
     add [name_addr], 0, [rb - 1]
@@ -507,7 +538,7 @@ output_exports:
     arb -1
     call print_str
 
-    add [rb + section], 0, [rb - 1]
+    add [rb + section_index], 0, [rb - 1]
     arb -1
     call print_num
 
@@ -531,7 +562,7 @@ output_exports:
     arb -1
     call print_str
 
-    add [rb + section], 0, [rb - 1]
+    add [rb + section_index], 0, [rb - 1]
     arb -1
     call print_num
 
@@ -544,9 +575,18 @@ output_exports:
     call print_num
 
     out 10
-    # TODO use section size, not data size
-    add [rb + data_index], [data_size], [rb + data_index]
 
+    # data_index += sections_addr[section_index * 2].SECTION_SIZE
+    mul [rb + section_index], 2, [rb + tmp]
+    add [rb + tmp], [sections_addr], [rb + tmp]
+    add [rb + tmp], SECTION_SIZE, [ip + 1]
+    add [0], [rb + data_index], [rb + data_index]
+
+    # Next section
+    add [rb + section_index], 1, [rb + section_index]
+    jz  0, output_exports_sections_loop
+
+output_exports_sections_done:
     arb 3
     ret 0
 
@@ -554,6 +594,8 @@ output_exports_section_count:
     db  "_section_count:", 0
 output_exports_section:
     db  "_section_", 0
+output_exports_addr:
+    db  "_addr:", 0
 output_exports_size:
     db  "_size:", 0
 output_exports_data:
