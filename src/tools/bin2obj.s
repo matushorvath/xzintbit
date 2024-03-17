@@ -5,17 +5,23 @@
 # <name>_section_count:
 #       db  <count>                                         # Number of sections
 #
-# <name>_section_0_addr:
-#       db  <size0>                                         # Section 0 starting address
+# <name>_section_0_address:
+#       db  <size0>                                         # Section 0 load address
+# <name>_section_0_start:
+#       db  <size0>                                         # Section 0 starting index
 # <name>_section_0_size:
 #       db  <size0>                                         # Section 0 size in bytes
-# <name>_section_1_addr:
-#       db  <size0>                                         # Section 1 starting address
+# <name>_section_1_address:
+#       db  <size0>                                         # Section 1 load address
+# <name>_section_1_start:
+#       db  <size0>                                         # Section 1 starting index
 # <name>_section_1_size:
 #       db  <size1>                                         # Section 1 size in bytes
 # ...
-# <name>_section_<count-1>_addr:
-#       db  <sizeX>                                         # Section <count-1> starting address
+# <name>_section_<count-1>_address:
+#       db  <sizeX>                                         # Section <count-1> load address
+# <name>_section_<count-1>_start:
+#       db  <sizeX>                                         # Section <count-1> starting index
 # <name>_section_<count-1>_size:
 #       db  <sizeX>                                         # Section <count-1> size in bytes
 #
@@ -46,8 +52,10 @@
 .SYMBOL MAX_NAME_LENGTH                 30
 .SYMBOL MAX_ZERO_COUNT                  64
 
-.SYMBOL SECTION_START                   0
-.SYMBOL SECTION_SIZE                    1
+.SYMBOL SECTION_ADDRESS                 0
+.SYMBOL SECTION_START                   1
+.SYMBOL SECTION_SIZE                    2
+.SYMBOL SECTION_RECORD_SIZE             3
 
 ##########
 # entry point
@@ -275,8 +283,8 @@ load_data_done:
 
 ##########
 detect_sections:
-.FRAME data_index, section_size, zero_count, byte, tmp
-    arb -5
+.FRAME data_index, byte_index, section_size, zero_count, byte, tmp
+    arb -6
 
     add [free_memory], 0, [section_addr]
 
@@ -286,6 +294,7 @@ detect_sections:
 
     # Loop through the data, detect large blocks of zeros and skip them
     add 0, 0, [rb + data_index]
+    add 0, 0, [rb + byte_index]
 
 detect_sections_loop:
     eq  [rb + data_index], [data_size], [rb + tmp]
@@ -319,18 +328,23 @@ detect_sections_finish_section:
 
     # section_addr[section_count - 1].SECTION_SIZE = [rb + section_size]
     add [section_count], -1, [rb + tmp]
-    mul [rb + tmp], 2, [rb + tmp]
+    mul [rb + tmp], SECTION_RECORD_SIZE, [rb + tmp]
     add [rb + tmp], [section_addr], [rb + tmp]
     add [rb + tmp], SECTION_SIZE, [ip + 3]
     add [rb + section_size], 0, [0]
 
+    add [rb + byte_index], [rb + section_size], [rb + byte_index]
+
 detect_sections_start_section:
     # Start a new section
-    # section_addr[section_count].SECTION_START = [rb + data_index]
-    mul [section_count], 2, [rb + tmp]
+    # section_addr[section_count].SECTION_ADDRESS = [rb + data_index]
+    # section_addr[section_count].SECTION_START = [rb + byte_index]
+    mul [section_count], SECTION_RECORD_SIZE, [rb + tmp]
     add [rb + tmp], [section_addr], [rb + tmp]
-    add [rb + tmp], SECTION_START, [ip + 3]
+    add [rb + tmp], SECTION_ADDRESS, [ip + 3]
     add [rb + data_index], 0, [0]
+    add [rb + tmp], SECTION_START, [ip + 3]
+    add [rb + byte_index], 0, [0]
 
     add [section_count], 1, [section_count]
     add 0, 0, [rb + section_size]
@@ -359,17 +373,17 @@ detect_sections_finish_last_section:
 
     # Finish last section if by writing section size
     add [section_count], -1, [rb + tmp]
-    mul [rb + tmp], 2, [rb + tmp]
+    mul [rb + tmp], SECTION_RECORD_SIZE, [rb + tmp]
     add [rb + tmp], [section_addr], [rb + tmp]
     add [rb + tmp], SECTION_SIZE, [ip + 3]
     add [rb + section_size], 0, [0]
 
 detect_sections_done:
     # Mark section data as used memory
-    mul [section_count], 2, [rb + tmp]
+    mul [section_count], SECTION_RECORD_SIZE, [rb + tmp]
     add [free_memory], [rb + tmp], [free_memory]
 
-    arb 5
+    arb 6
     ret 0
 .ENDFRAME
 
@@ -401,8 +415,8 @@ output_object_middle:
 
 ##########
 output_header:
-.FRAME section_index, section_start, section_size, tmp
-    arb -4
+.FRAME section_index, section_address, section_start, section_size, tmp
+    arb -5
 
     # Output section count
     add [section_count], 0, [rb - 1]
@@ -417,15 +431,22 @@ output_header_sections_loop:
     jnz [rb + tmp], output_header_sections_done
 
     # Load current section data to local variables
-    mul [rb + section_index], 2, [rb + tmp]
+    mul [rb + section_index], SECTION_RECORD_SIZE, [rb + tmp]
     add [rb + tmp], [section_addr], [rb + tmp]
 
+    add [rb + tmp], SECTION_ADDRESS, [ip + 1]
+    add [0], 0, [rb + section_address]
     add [rb + tmp], SECTION_START, [ip + 1]
     add [0], 0, [rb + section_start]
     add [rb + tmp], SECTION_SIZE, [ip + 1]
     add [0], 0, [rb + section_size]
 
-    # Output current section starting address and size
+    # Output current section address, start index and size
+    out ','
+    add [rb + section_address], 0, [rb - 1]
+    arb -1
+    call print_num
+
     out ','
     add [rb + section_start], 0, [rb - 1]
     arb -1
@@ -441,13 +462,13 @@ output_header_sections_loop:
     jz  0, output_header_sections_loop
 
 output_header_sections_done:
-    arb 4
+    arb 5
     ret 0
 .ENDFRAME
 
 ##########
 output_data:
-.FRAME section_index, section_start, section_size, data_index, data_limit, tmp
+.FRAME section_index, section_address, section_size, data_index, data_limit, tmp
     arb -6
 
     # Loop all sections
@@ -458,17 +479,17 @@ output_data_sections_loop:
     jnz [rb + tmp], output_data_sections_done
 
     # Load current section data to local variables
-    mul [rb + section_index], 2, [rb + tmp]
+    mul [rb + section_index], SECTION_RECORD_SIZE, [rb + tmp]
     add [rb + tmp], [section_addr], [rb + tmp]
 
-    add [rb + tmp], SECTION_START, [ip + 1]
-    add [0], 0, [rb + section_start]
+    add [rb + tmp], SECTION_ADDRESS, [ip + 1]
+    add [0], 0, [rb + section_address]
     add [rb + tmp], SECTION_SIZE, [ip + 1]
     add [0], 0, [rb + section_size]
 
     # Calculate which data belongs to current section
-    add [rb + section_start], 0, [rb + data_index]
-    add [rb + section_start], [rb + section_size], [rb + data_limit]
+    add [rb + section_address], 0, [rb + data_index]
+    add [rb + section_address], [rb + section_size], [rb + data_limit]
 
 output_data_bytes_loop:
     eq  [rb + data_index], [rb + data_limit], [rb + tmp]
@@ -533,7 +554,7 @@ output_exports:
     call print_str
 
     # Section data starts after the header
-    mul [section_count], 2, [rb - 1]
+    mul [section_count], SECTION_RECORD_SIZE, [rb - 1]
     add [rb - 1], 1, [rb - 1]
     arb -1
     call print_num
