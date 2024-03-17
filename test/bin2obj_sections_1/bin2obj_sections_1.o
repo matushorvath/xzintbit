@@ -3,6 +3,6 @@
 .R
 .I
 .E
-bin2obj_sections_1_section_count:0
+bin2obj_sections_1_count:0
 bin2obj_sections_1_header:1
 bin2obj_sections_1_data:10

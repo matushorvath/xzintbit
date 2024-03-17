@@ -2,35 +2,25 @@
 
 # Output file format:
 #
-# <name>_section_count:
+# <name>_count:
 #       db  <count>                                         # Number of sections
 #
-# <name>_section_0_address:
-#       db  <size0>                                         # Section 0 load address
-# <name>_section_0_start:
-#       db  <size0>                                         # Section 0 starting index
-# <name>_section_0_size:
+# <name>_header:
+#       db  <address0>                                      # Section 0 load address
+#       db  <start0>                                        # Section 0 starting index
 #       db  <size0>                                         # Section 0 size in bytes
-# <name>_section_1_address:
-#       db  <size0>                                         # Section 1 load address
-# <name>_section_1_start:
-#       db  <size0>                                         # Section 1 starting index
-# <name>_section_1_size:
+#       db  <address1>                                      # Section 1 load address
+#       db  <start1>                                        # Section 1 starting index
 #       db  <size1>                                         # Section 1 size in bytes
 # ...
-# <name>_section_<count-1>_address:
-#       db  <sizeX>                                         # Section <count-1> load address
-# <name>_section_<count-1>_start:
-#       db  <sizeX>                                         # Section <count-1> starting index
-# <name>_section_<count-1>_size:
+#       db  <addressX>                                      # Section <count-1> load address
+#       db  <startX>                                        # Section <count-1> starting index
 #       db  <sizeX>                                         # Section <count-1> size in bytes
 #
-# <name>_section_0_data:
+# <name>_data:
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 0 data, <size0> bytes
-# <name>_section_1_data:
-#       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 1 data, <size0> bytes
+#       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 1 data, <size1> bytes
 # ...
-# <name>_section_<count-1>_data:
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section <count-1> data, <sizeX> bytes
 
 # Input format:
@@ -523,7 +513,7 @@ output_exports:
     arb -1
     call print_str
 
-    add output_exports_section_count, 0, [rb - 1]
+    add output_exports_count, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -563,8 +553,8 @@ output_exports:
 
     ret 0
 
-output_exports_section_count:
-    db  "_section_count:", 0
+output_exports_count:
+    db  "_count:", 0
 output_exports_header:
     db  "_header:", 0
 output_exports_data:
