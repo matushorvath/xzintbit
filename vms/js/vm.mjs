@@ -90,11 +90,11 @@ export class Vm {
             .map((value, idx) => this.getParamData(idx, value));
 
         const paramAddrs = paramData.map(d => d[0]).join(', ');
-        const paramVals = paramData.map(d => d[1]).join(', ');
+        const paramVals = paramData.map(d => `${d[1]}(${d[1].toString(16)})`).join(', ');
 
         const instruction = `${addrStr}: ${ocStr} ${paramAddrs}`;
-        const padding = ' '.repeat(Math.max(80 - instruction.length, 5));
-        const state = `ip ${this.ip} rb ${this.rb} params ${paramVals}`;
+        const padding = ' '.repeat(Math.max(70 - instruction.length, 5));
+        const state = `| params ${paramVals}`;
 
         process.stderr.write(`${instruction}${padding}${state}\n`);
     }

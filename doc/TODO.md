@@ -20,3 +20,30 @@
     jz  0, function.loop (refers to function.loop literally)
 
 - Map should not include zero modules (that are not mapped to the binary)
+
+- Optimize ret: Usually this generates two 'arb' at the end of each function.
+  Instead make ret check if last instruction was an arb and just increase the number if so.
+
+- Consider a more powerful call syntax, something like
+    .CALL function, param1, param2, param3...
+  instead of
+    add [...], 0, [rb - 1]
+    add [...], 0, [rb - 2]
+    add [...], 0, [rb - 3]
+    ...
+    arb -N
+    call function
+
+- Consider a more powerful function prologue/epilogue syntax, something like
+    .FUNCTION function; a, b, c; d, e
+      ...
+      .RETURN
+    .ENDFUNCTION
+  instead of
+    function:
+    .FRAME a, b, c; d, e
+      arb -2
+      ...
+      arb 2
+      ret 3
+    .ENDFRAME
