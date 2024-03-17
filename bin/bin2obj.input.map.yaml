@@ -1,74 +1,74 @@
 modules: [
-  0, 0, 0, 0, 0, 0, 0, 1350, 1590, 1916
+  0, 0, 0, 0, 0, 0, 0, 1165, 1405, 1731
 ]
 symbols:
   print_num:
     export:
-      module: 1350
+      module: 1165
       offset: 0
     imports:
       - module: 0
-        offsets: [1288, 1258, 1207, 1177, 1122, 1050, 1014, 962, 847, 826, 805, 784, 763, 742, 721, 700, 679]
+        offsets: [1103, 1073, 1022, 992, 937, 865, 829, 777]
   print_str:
     export:
-      module: 1350
+      module: 1165
       offset: 152
     imports:
       - module: 0
-        offsets: [1273, 1243, 1228, 1192, 1162, 1147, 1107, 1092, 895, 871, 411, 395, 232]
+        offsets: [1088, 1058, 1043, 1007, 977, 962, 922, 907, 710, 686, 411, 395, 232]
   print_str_as_mem:
     export:
-      module: 1350
+      module: 1165
       offset: 185
     imports:
       - module: 0
-        offsets: [941]
+        offsets: [756]
   is_alphanum:
     export:
-      module: 1590
+      module: 1405
       offset: 145
     imports:
       - module: 0
         offsets: [302]
   __heap_start:
     export:
-      module: 1916
+      module: 1731
       offset: 0
     imports:
       - module: 0
-        offsets: [1343]
+        offsets: [1158]
   print_num_radix:
     export:
-      module: 1350
+      module: 1165
       offset: 28
     imports:
   is_digit:
     export:
-      module: 1590
+      module: 1405
       offset: 0
     imports:
   char_to_digit:
     export:
-      module: 1590
+      module: 1405
       offset: 24
     imports:
   is_alpha:
     export:
-      module: 1590
+      module: 1405
       offset: 107
     imports:
   strcmp:
     export:
-      module: 1590
+      module: 1405
       offset: 202
     imports:
   strcpy:
     export:
-      module: 1590
+      module: 1405
       offset: 256
     imports:
   zeromem:
     export:
-      module: 1590
+      module: 1405
       offset: 295
     imports:

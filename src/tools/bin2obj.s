@@ -5,15 +5,21 @@
 #       db  "name", 0                                       # Zero terminated binary name, variable length
 # <name>_section_count:
 #       db  <count>                                         # Number of sections
+# <name>_section_0_addr:
+#       db  <size0>                                         # Section 0 starting address
 # <name>_section_0_size:
 #       db  <size0>                                         # Section 0 size in bytes
 # <name>_section_0_data:
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 0 data, <size0> bytes
+# <name>_section_1_addr:
+#       db  <size0>                                         # Section 1 starting address
 # <name>_section_1_size:
 #       db  <size1>                                         # Section 1 size in bytes
 # <name>_section_1_data:
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 1 data, <size0> bytes
 # ...
+# <name>_section_<count-1>_addr:
+#       db  <sizeX>                                         # Section <count-1> starting address
 # <name>_section_<count-1>_size:
 #       db  <sizeX>                                         # Section <count-1> size in bytes
 # <name>_section_<count-1>_data:
@@ -36,7 +42,7 @@
 .IMPORT is_alphanum
 .IMPORT __heap_start
 
-.SYMBOL MAX_NAME_LENGTH                 20
+.SYMBOL MAX_NAME_LENGTH                 30
 .SYMBOL MAX_ZERO_COUNT                  64
 
 .SYMBOL SECTION_START                   0
@@ -361,65 +367,6 @@ detect_sections_done:
     # Mark section data as used memory
     mul [sections_count], 2, [rb + tmp]
     add [free_memory], [rb + tmp], [free_memory]
-
-# TODO remove
-add [sections_count], 0, [rb - 1]
-arb -1
-call print_num
-out '>'
-
-
-add [sections_addr], 0, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ','
-
-add [sections_addr], 1, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ' '
-
-
-add [sections_addr], 2, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ','
-
-add [sections_addr], 3, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ' '
-
-
-add [sections_addr], 4, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ','
-
-add [sections_addr], 5, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ' '
-
-
-add [sections_addr], 6, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ','
-
-add [sections_addr], 7, [ip + 1]
-add [0], 0, [rb - 1]
-arb -1
-call print_num
-out ' '
-
 
     arb 5
     ret 0
