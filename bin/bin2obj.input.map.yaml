@@ -1,23 +1,67 @@
 modules: [
-  0, 0, 0, 0, 0, 0, 0, 235, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 619, 804, 1130
 ]
 symbols:
   print_num:
     export:
-      module: 235
+      module: 619
       offset: 0
     imports:
       - module: 0
-        offsets: [86, 64]
+        offsets: [542, 510]
   print_str:
     export:
-      module: 235
+      module: 619
       offset: 152
     imports:
       - module: 0
-        offsets: [120, 104]
+        offsets: [564, 398, 382, 223]
+  is_alphanum:
+    export:
+      module: 804
+      offset: 145
+    imports:
+      - module: 0
+        offsets: [293]
+  __heap_start:
+    export:
+      module: 1130
+      offset: 0
+    imports:
+      - module: 0
+        offsets: [614]
   print_num_radix:
     export:
-      module: 235
+      module: 619
       offset: 28
+    imports:
+  is_digit:
+    export:
+      module: 804
+      offset: 0
+    imports:
+  char_to_digit:
+    export:
+      module: 804
+      offset: 24
+    imports:
+  is_alpha:
+    export:
+      module: 804
+      offset: 107
+    imports:
+  strcmp:
+    export:
+      module: 804
+      offset: 202
+    imports:
+  strcpy:
+    export:
+      module: 804
+      offset: 256
+    imports:
+  zeromem:
+    export:
+      module: 804
+      offset: 295
     imports:
