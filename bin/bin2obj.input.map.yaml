@@ -1,23 +1,90 @@
 modules: [
-  0, 0, 0, 0, 0, 0, 0, 235, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 391, 576, 902
 ]
 symbols:
-  print_num:
+  main:
     export:
-      module: 235
-      offset: 0
+      module: 0
+      offset: 62
     imports:
-      - module: 0
-        offsets: [86, 64]
+  read_name:
+    export:
+      module: 0
+      offset: 230
+    imports:
+  read_size:
+    export:
+      module: 0
+      offset: 144
+    imports:
+  parse_wc:
+    export:
+      module: 0
+      offset: 76
+    imports:
+  read_spaces:
+    export:
+      module: 0
+      offset: 123
+    imports:
   print_str:
     export:
-      module: 235
+      module: 391
       offset: 152
     imports:
       - module: 0
-        offsets: [120, 104]
+        offsets: [361, 209]
+  is_alphanum:
+    export:
+      module: 576
+      offset: 145
+    imports:
+      - module: 0
+        offsets: [279]
+  __heap_start:
+    export:
+      module: 902
+      offset: 0
+    imports:
+      - module: 0
+        offsets: [386]
+  print_num:
+    export:
+      module: 391
+      offset: 0
+    imports:
   print_num_radix:
     export:
-      module: 235
+      module: 391
       offset: 28
+    imports:
+  is_digit:
+    export:
+      module: 576
+      offset: 0
+    imports:
+  char_to_digit:
+    export:
+      module: 576
+      offset: 24
+    imports:
+  is_alpha:
+    export:
+      module: 576
+      offset: 107
+    imports:
+  strcmp:
+    export:
+      module: 576
+      offset: 202
+    imports:
+  strcpy:
+    export:
+      module: 576
+      offset: 256
+    imports:
+  zeromem:
+    export:
+      module: 576
+      offset: 295
     imports:
