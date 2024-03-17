@@ -5,20 +5,19 @@
 #       db  "name", 0                                       # Zero terminated binary name, variable length
 # <name>_section_count:
 #       db  <count>                                         # Number of sections
-# <name>_section_0_length:
+# <name>_section_0_size:
 #       db  <size0>                                         # Section 0 size in bytes
 # <name>_section_0_data:
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 0 data, <size0> bytes
-# <name>_section_1_length:
+# <name>_section_1_size:
 #       db  <size1>                                         # Section 1 size in bytes
 # <name>_section_1_data:
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 1 data, <size0> bytes
 # ...
-# <name>_section_<count-1>_length:
+# <name>_section_<count-1>_size:
 #       db  <sizeX>                                         # Section <count-1> size in bytes
 # <name>_section_<count-1>_data:
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section <count-1> data, <sizeX> bytes
-# the "binary
 
 # Input format:
 #
@@ -33,6 +32,7 @@
 
 .IMPORT print_num
 .IMPORT print_str
+.IMPORT print_str_as_mem
 .IMPORT is_alphanum
 .IMPORT __heap_start
 
@@ -209,6 +209,7 @@ read_name_done:
 
     # Mark the buffer as used memory
     add [free_memory], [name_length], [free_memory]
+    add [free_memory], 1, [free_memory]
 
     arb 2
     ret 0
@@ -262,19 +263,63 @@ load_data_done:
 
 ##########
 output_object:
+.FRAME
+    # Output start of the object file
+    add output_object_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    call output_data
+
+    # Output the middle part of the object file
+    add output_object_middle, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    call output_exports
+
+    ret 0
+
+output_object_start:
+    db ".C", 10, 0
+output_object_middle:
+    db  10, ".R", 10, ".I", 10, ".E", 10, 0
+.ENDFRAME
+
+##########
+output_data:
 .FRAME index, tmp
     arb -2
 
-    # Output .C header
-    out '.'
-    out 'C'
-    out 10
+    # Binary name
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str_as_mem
 
-    # Output data size
+    # Zero termination
+    out ','
+    out '0'
+
+    out ','
+
+    # Section count
+    # TODO real count
+    add 1, 0, [rb - 1]
+    arb -1
+    call print_num
+
+    # TODO loop all sections
+
+    out ','
+
+    # Current section size
+    # TODO not data_size
     add [data_size], 0, [rb - 1]
     arb -1
     call print_num
 
+    # Current section data
+    # TODO read from section, not all data
     add 0, 0, [rb + index]
 
 output_object_loop:
@@ -293,16 +338,98 @@ output_object_loop:
     jz  0, output_object_loop
 
 output_object_done:
-    # Output the rest of the object file, which is always the same
-    add output_object_end, 0, [rb - 1]
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+output_exports:
+.FRAME section, index, tmp
+    arb -3
+
+    # Symbols start after the name + zero termination
+    add [name_length], 1, [rb + index]
+
+    # Section count
+    add [name_addr], 0, [rb - 1]
     arb -1
     call print_str
 
-    arb 2
+    add output_exports_section_count, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + index], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add [rb + index], 1, [rb + index]
+
+    out 10
+
+    # TODO loop all sections
+    add 0, 0, [rb + section]
+
+    # Current section size
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add output_exports_section, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + section], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add output_exports_size, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + index], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+    add [rb + index], 1, [rb + index]
+
+    # Current section data
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add output_exports_section, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + section], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add output_exports_data, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + index], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+    # TODO use section size, not data size
+    add [rb + index], [data_size], [rb + index]
+
+    arb 3
     ret 0
 
-output_object_end:
-    db  10, ".R", 10, ".I", 10, ".E", 10, "binary_length:0", 10, "binary_data:1", 10, 0
+output_exports_section_count:
+    db  "_section_count:", 0
+output_exports_section:
+    db  "_section_", 0
+output_exports_size:
+    db  "_size:", 0
+output_exports_data:
+    db  "_data:", 0
 .ENDFRAME
 
 ##########

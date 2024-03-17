@@ -1,6 +1,7 @@
 .EXPORT print_num
 .EXPORT print_num_radix
 .EXPORT print_str
+.EXPORT print_str_as_mem
 
 ##########
 # convert number to string
@@ -96,6 +97,36 @@ print_str_loop:
     jz  0, print_str_loop
 
 print_str_done:
+    arb 3
+    ret 1
+.ENDFRAME
+
+##########
+print_str_as_mem:
+.FRAME str; index, tmp, char
+    arb -3
+
+    add 0, 0, [rb + index]
+
+print_str_as_mem_loop:
+    add [rb + str], [rb + index], [ip + 1]
+    add [0], 0, [rb + char]
+
+    jz  [rb + char], print_str_as_mem_done
+
+    jz  [rb + index], print_str_as_mem_skip_comma
+    out ','
+
+print_str_as_mem_skip_comma:
+    add [rb + char], 0, [rb - 1]
+    add 10, 0, [rb - 2]
+    arb -2
+    call print_num_radix
+
+    add [rb + index], 1, [rb + index]
+    jz  0, print_str_as_mem_loop
+
+print_str_as_mem_done:
     arb 3
     ret 1
 .ENDFRAME
