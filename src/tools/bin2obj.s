@@ -36,6 +36,8 @@
 .IMPORT is_alphanum
 .IMPORT __heap_start
 
+.SYMBOL MAX_NAME_LENGTH 20
+
 ##########
 # entry point
     arb stack
@@ -51,8 +53,8 @@ stack:
 main:
 .FRAME
     call parse_wc
-    #call load_data
-    #call output_object
+    call load_data
+    call output_object
 
     ret 0
 .ENDFRAME
@@ -76,25 +78,11 @@ parse_wc:
     # Read the size + one space after
     call read_size
 
-    # TODO remove
-    add [size], 0, [rb - 1]
-    arb -1
-    call print_num
-
-    out 10
-
     # Read zero or more spaces
     call read_spaces
 
     # Read binary name from the unix path
     call read_name
-
-    # TODO remove
-    add [name_addr], 0, [rb - 1]
-    arb -1
-    call print_str
-
-    out 10
 
     ret 0
 .ENDFRAME
@@ -122,7 +110,7 @@ read_size:
 .FRAME tmp
     arb -1
 
-    add 0, 0, [size]
+    add 0, 0, [data_size]
 
 read_size_loop:
     eq  [char], ' ', [rb + tmp]
@@ -133,8 +121,8 @@ read_size_loop:
     jnz [rb + tmp], read_size_invalid
 
     add [char], -'0', [char]
-    mul [size], 10, [size]
-    add [size], [char], [size]
+    mul [data_size], 10, [data_size]
+    add [data_size], [char], [data_size]
 
     in  [char]
     jz  0, read_size_loop
@@ -212,6 +200,9 @@ read_name_loop_end:
 read_name_done:
     jz  [name_length], read_name_invalid
 
+    lt  MAX_NAME_LENGTH, [name_length], [rb + tmp]
+    jnz [rb + tmp], read_name_too_long
+
     # Zero terminate the string
     add [name_addr], [name_length], [ip + 3]
     add 0, 0, [0]
@@ -229,8 +220,89 @@ read_name_invalid:
 
     hlt
 
+read_name_too_long:
+    add read_name_too_long_message, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    hlt
+
 read_name_invalid_message:
     db  "invalid binary name", 10, 0
+read_name_too_long_message:
+    db  "binary name too long", 10, 0
+.ENDFRAME
+
+##########
+load_data:
+.FRAME index, tmp
+    arb -2
+
+    add [free_memory], 0, [data_addr]
+    add 0, 0, [rb + index]
+
+load_data_loop:
+    eq  [rb + index], [data_size], [rb + tmp]
+    jnz [rb + tmp], load_data_done
+
+    in  [rb + tmp]
+    add [data_addr], [rb + index], [ip + 3]
+    add [rb + tmp], 0, [0]
+
+    add [rb + index], 1, [rb + index]
+    jz  0, load_data_loop
+
+load_data_done:
+    # Mark the buffer as used memory
+    add [free_memory], [data_size], [free_memory]
+
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+output_object:
+.FRAME index, tmp
+    arb -2
+
+    # Output .C header
+    out '.'
+    out 'C'
+    out 10
+
+    # Output data size
+    add [data_size], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add 0, 0, [rb + index]
+
+output_object_loop:
+    eq  [rb + index], [data_size], [rb + tmp]
+    jnz [rb + tmp], output_object_done
+
+    out ','
+
+    # Output next byte
+    add [data_addr], [rb + index], [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add [rb + index], 1, [rb + index]
+    jz  0, output_object_loop
+
+output_object_done:
+    # Output the rest of the object file, which is always the same
+    add output_object_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    arb 2
+    ret 0
+
+output_object_end:
+    db  10, ".R", 10, ".I", 10, ".E", 10, "binary_length:0", 10, "binary_data:1", 10, 0
 .ENDFRAME
 
 ##########
@@ -238,8 +310,6 @@ read_name_invalid_message:
 char:
     db  0
 
-size:
-    db  0
 free_memory:
     db  __heap_start
 
@@ -250,46 +320,7 @@ name_length:
 
 data_addr:
     db  0
-data_length:
+data_size:
     db  0
 
 .EOF
-
-
-
-
-
-    # Output .C header
-    out '.'
-    out 'C'
-    out 10
-
-    # Output file size
-    add [size], 0, [rb - 1]
-    arb -1
-    call print_num
-
-print_code_loop:
-    # Output the code
-    jz  [size], print_code_done
-    add [size], -1, [size]
-
-    out ','
-
-    in  [rb - 1]
-    arb -1
-    call print_num
-
-    jz  0, print_code_loop
-
-print_code_done:
-    # Output the rest of the object file, which is always the same
-    add object_file_end, 0, [rb - 1]
-    arb -1
-    call print_str
-
-    hlt
-
-
-object_file_end:
-    db  10, ".R", 10, ".I", 10, ".E", 10, "binary_length:0", 10, "binary_data:1", 10, 0

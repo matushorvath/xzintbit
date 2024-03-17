@@ -1,90 +1,67 @@
 modules: [
-  0, 0, 0, 0, 0, 0, 0, 391, 576, 902
+  0, 0, 0, 0, 0, 0, 0, 619, 804, 1130
 ]
 symbols:
-  main:
+  print_num:
     export:
-      module: 0
-      offset: 62
+      module: 619
+      offset: 0
     imports:
-  read_name:
-    export:
-      module: 0
-      offset: 230
-    imports:
-  read_size:
-    export:
-      module: 0
-      offset: 144
-    imports:
-  parse_wc:
-    export:
-      module: 0
-      offset: 76
-    imports:
-  read_spaces:
-    export:
-      module: 0
-      offset: 123
-    imports:
+      - module: 0
+        offsets: [542, 510]
   print_str:
     export:
-      module: 391
+      module: 619
       offset: 152
     imports:
       - module: 0
-        offsets: [361, 209]
+        offsets: [564, 398, 382, 223]
   is_alphanum:
     export:
-      module: 576
+      module: 804
       offset: 145
     imports:
       - module: 0
-        offsets: [279]
+        offsets: [293]
   __heap_start:
     export:
-      module: 902
+      module: 1130
       offset: 0
     imports:
       - module: 0
-        offsets: [386]
-  print_num:
-    export:
-      module: 391
-      offset: 0
-    imports:
+        offsets: [614]
   print_num_radix:
     export:
-      module: 391
+      module: 619
       offset: 28
     imports:
   is_digit:
     export:
-      module: 576
+      module: 804
       offset: 0
     imports:
   char_to_digit:
     export:
-      module: 576
+      module: 804
       offset: 24
     imports:
   is_alpha:
     export:
-      module: 576
+      module: 804
       offset: 107
     imports:
   strcmp:
     export:
-      module: 576
+      module: 804
       offset: 202
     imports:
   strcpy:
     export:
-      module: 576
+      module: 804
       offset: 256
     imports:
   zeromem:
     export:
-      module: 576
+      module: 804
       offset: 295
     imports:
