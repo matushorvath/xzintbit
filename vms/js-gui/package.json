@@ -1,0 +1,21 @@
+{
+  "name": "js-gui",
+  "version": "1.0.0",
+  "description": "Intcode virtual machine with a GUI",
+  "main": "main.mjs",
+  "scripts": {
+    "test": "npm run lint",
+    "lint": "npm run eslint",
+    "eslint": "eslint --ext js,mjs .",
+    "start": "electron ."
+  },
+  "author": "Matus Horvath <matus.horvath@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "eslint": "^8.56.0"
+  },
+  "dependencies": {
+    "zeromq": "^6.0.0-beta.19"
+  }
+}
