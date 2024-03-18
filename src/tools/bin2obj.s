@@ -2,23 +2,26 @@
 
 # Output file format:
 #
-#       db  "name", 0                                       # Zero terminated binary name, variable length
-# <name>_section_count:
+# <name>_count:
 #       db  <count>                                         # Number of sections
-# <name>_section_0_length:
+#
+# <name>_header:
+#       db  <address0>                                      # Section 0 load address
+#       db  <start0>                                        # Section 0 starting index
 #       db  <size0>                                         # Section 0 size in bytes
-# <name>_section_0_data:
-#       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 0 data, <size0> bytes
-# <name>_section_1_length:
+#       db  <address1>                                      # Section 1 load address
+#       db  <start1>                                        # Section 1 starting index
 #       db  <size1>                                         # Section 1 size in bytes
-# <name>_section_1_data:
-#       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 1 data, <size0> bytes
 # ...
-# <name>_section_<count-1>_length:
+#       db  <addressX>                                      # Section <count-1> load address
+#       db  <startX>                                        # Section <count-1> starting index
 #       db  <sizeX>                                         # Section <count-1> size in bytes
-# <name>_section_<count-1>_data:
+#
+# <name>_data:
+#       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 0 data, <size0> bytes
+#       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section 1 data, <size1> bytes
+# ...
 #       db  <byte_0>, <byte_1>, ... <byte_size-1>           # Section <count-1> data, <sizeX> bytes
-# the "binary
 
 # Input format:
 #
@@ -36,7 +39,13 @@
 .IMPORT is_alphanum
 .IMPORT __heap_start
 
-.SYMBOL MAX_NAME_LENGTH 20
+.SYMBOL MAX_NAME_LENGTH                 30
+.SYMBOL MAX_ZERO_COUNT                  64
+
+.SYMBOL SECTION_ADDRESS                 0
+.SYMBOL SECTION_START                   1
+.SYMBOL SECTION_SIZE                    2
+.SYMBOL SECTION_RECORD_SIZE             3
 
 ##########
 # entry point
@@ -54,6 +63,7 @@ main:
 .FRAME
     call parse_wc
     call load_data
+    call detect_sections
     call output_object
 
     ret 0
@@ -209,6 +219,7 @@ read_name_done:
 
     # Mark the buffer as used memory
     add [free_memory], [name_length], [free_memory]
+    add [free_memory], 1, [free_memory]
 
     arb 2
     ret 0
@@ -261,48 +272,293 @@ load_data_done:
 .ENDFRAME
 
 ##########
+detect_sections:
+.FRAME data_index, byte_index, section_size, zero_count, byte, tmp
+    arb -6
+
+    add [free_memory], 0, [section_addr]
+
+    add 0, 0, [section_count]
+    add 0, 0, [rb + section_size]
+    add 0, 0, [rb + zero_count]
+
+    # Loop through the data, detect large blocks of zeros and skip them
+    add 0, 0, [rb + data_index]
+    add 0, 0, [rb + byte_index]
+
+detect_sections_loop:
+    eq  [rb + data_index], [data_size], [rb + tmp]
+    jnz [rb + tmp], detect_sections_finish_last_section
+
+    # Read next byte
+    add [data_addr], [rb + data_index], [ip + 1]
+    add [0], 0, [rb + byte]
+
+    # Detect zeros
+    jnz [rb + byte], detect_sections_nonzero
+
+    # Count zeros, don't output them yet
+    add [rb + zero_count], 1, [rb + zero_count]
+    jz  0, detect_sections_loop_end
+
+detect_sections_nonzero:
+    # Was this a long run of zeros?
+    lt  MAX_ZERO_COUNT, [rb + zero_count], [rb + tmp]
+    jnz [rb + tmp], detect_sections_finish_section
+
+    # No, do we have a current section we can continue?
+    jz  [section_count], detect_sections_start_section
+
+    # Yes, continue the section
+    jz  0, detect_sections_continue_section
+
+detect_sections_finish_section:
+    # Finish current section if any
+    jz  [section_count], detect_sections_start_section
+
+    # section_addr[section_count - 1].SECTION_SIZE = [rb + section_size]
+    add [section_count], -1, [rb + tmp]
+    mul [rb + tmp], SECTION_RECORD_SIZE, [rb + tmp]
+    add [rb + tmp], [section_addr], [rb + tmp]
+    add [rb + tmp], SECTION_SIZE, [ip + 3]
+    add [rb + section_size], 0, [0]
+
+    add [rb + byte_index], [rb + section_size], [rb + byte_index]
+
+detect_sections_start_section:
+    # Start a new section
+    # section_addr[section_count].SECTION_ADDRESS = [rb + data_index]
+    # section_addr[section_count].SECTION_START = [rb + byte_index]
+    mul [section_count], SECTION_RECORD_SIZE, [rb + tmp]
+    add [rb + tmp], [section_addr], [rb + tmp]
+    add [rb + tmp], SECTION_ADDRESS, [ip + 3]
+    add [rb + data_index], 0, [0]
+    add [rb + tmp], SECTION_START, [ip + 3]
+    add [rb + byte_index], 0, [0]
+
+    add [section_count], 1, [section_count]
+    add 0, 0, [rb + section_size]
+    add 0, 0, [rb + zero_count]
+
+detect_sections_continue_section:
+    # Was there any run of zeros at all?
+    jz  [rb + zero_count], detect_sections_after_zeros
+
+    # Yes, output the zero run as regular data, it wasn't long enough
+    add [rb + section_size], [rb + zero_count], [rb + section_size]
+    add 0, 0, [rb + zero_count]
+
+detect_sections_after_zeros:
+    # Current byte belongs to this section
+    add [rb + section_size], 1, [rb + section_size]
+
+detect_sections_loop_end:
+    # Process next byte
+    add [rb + data_index], 1, [rb + data_index]
+    jz  0, detect_sections_loop
+
+detect_sections_finish_last_section:
+    # Is there a section to finish?
+    jz  [section_count], detect_sections_done
+
+    # Finish last section if by writing section size
+    add [section_count], -1, [rb + tmp]
+    mul [rb + tmp], SECTION_RECORD_SIZE, [rb + tmp]
+    add [rb + tmp], [section_addr], [rb + tmp]
+    add [rb + tmp], SECTION_SIZE, [ip + 3]
+    add [rb + section_size], 0, [0]
+
+detect_sections_done:
+    # Mark section data as used memory
+    mul [section_count], SECTION_RECORD_SIZE, [rb + tmp]
+    add [free_memory], [rb + tmp], [free_memory]
+
+    arb 6
+    ret 0
+.ENDFRAME
+
+##########
 output_object:
-.FRAME index, tmp
-    arb -2
+.FRAME
+    # Output start of the object file
+    add output_object_start, 0, [rb - 1]
+    arb -1
+    call print_str
 
-    # Output .C header
-    out '.'
-    out 'C'
-    out 10
+    call output_header
+    call output_data
 
-    # Output data size
-    add [data_size], 0, [rb - 1]
+    # Output the middle part of the object file
+    add output_object_middle, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    call output_exports
+
+    ret 0
+
+output_object_start:
+    db ".C", 10, 0
+output_object_middle:
+    db  10, ".R", 10, ".I", 10, ".E", 10, 0
+.ENDFRAME
+
+##########
+output_header:
+.FRAME section_index, section_address, section_start, section_size, tmp
+    arb -5
+
+    # Output section count
+    add [section_count], 0, [rb - 1]
     arb -1
     call print_num
 
-    add 0, 0, [rb + index]
+    # Loop all sections
+    add 0, 0, [rb + section_index]
 
-output_object_loop:
-    eq  [rb + index], [data_size], [rb + tmp]
-    jnz [rb + tmp], output_object_done
+output_header_sections_loop:
+    eq  [rb + section_index], [section_count], [rb + tmp]
+    jnz [rb + tmp], output_header_sections_done
+
+    # Load current section data to local variables
+    mul [rb + section_index], SECTION_RECORD_SIZE, [rb + tmp]
+    add [rb + tmp], [section_addr], [rb + tmp]
+
+    add [rb + tmp], SECTION_ADDRESS, [ip + 1]
+    add [0], 0, [rb + section_address]
+    add [rb + tmp], SECTION_START, [ip + 1]
+    add [0], 0, [rb + section_start]
+    add [rb + tmp], SECTION_SIZE, [ip + 1]
+    add [0], 0, [rb + section_size]
+
+    # Output current section address, start index and size
+    out ','
+    add [rb + section_address], 0, [rb - 1]
+    arb -1
+    call print_num
 
     out ','
+    add [rb + section_start], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ','
+    add [rb + section_size], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    # Next section
+    add [rb + section_index], 1, [rb + section_index]
+    jz  0, output_header_sections_loop
+
+output_header_sections_done:
+    arb 5
+    ret 0
+.ENDFRAME
+
+##########
+output_data:
+.FRAME section_index, section_address, section_size, data_index, data_limit, tmp
+    arb -6
+
+    # Loop all sections
+    add 0, 0, [rb + section_index]
+
+output_data_sections_loop:
+    eq  [rb + section_index], [section_count], [rb + tmp]
+    jnz [rb + tmp], output_data_sections_done
+
+    # Load current section data to local variables
+    mul [rb + section_index], SECTION_RECORD_SIZE, [rb + tmp]
+    add [rb + tmp], [section_addr], [rb + tmp]
+
+    add [rb + tmp], SECTION_ADDRESS, [ip + 1]
+    add [0], 0, [rb + section_address]
+    add [rb + tmp], SECTION_SIZE, [ip + 1]
+    add [0], 0, [rb + section_size]
+
+    # Calculate which data belongs to current section
+    add [rb + section_address], 0, [rb + data_index]
+    add [rb + section_address], [rb + section_size], [rb + data_limit]
+
+output_data_bytes_loop:
+    eq  [rb + data_index], [rb + data_limit], [rb + tmp]
+    jnz [rb + tmp], output_data_bytes_done
 
     # Output next byte
-    add [data_addr], [rb + index], [ip + 1]
+    out ','
+    add [data_addr], [rb + data_index], [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
     call print_num
 
-    add [rb + index], 1, [rb + index]
-    jz  0, output_object_loop
+    add [rb + data_index], 1, [rb + data_index]
+    jz  0, output_data_bytes_loop
 
-output_object_done:
-    # Output the rest of the object file, which is always the same
-    add output_object_end, 0, [rb - 1]
+output_data_bytes_done:
+    # Next section
+    add [rb + section_index], 1, [rb + section_index]
+    jz  0, output_data_sections_loop
+
+output_data_sections_done:
+    arb 6
+    ret 0
+.ENDFRAME
+
+##########
+output_exports:
+.FRAME
+    # Section count
+    add [name_addr], 0, [rb - 1]
     arb -1
     call print_str
 
-    arb 2
+    add output_exports_count, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # Section count is always at index 0
+    out '0'
+    out 10
+
+    # Section header
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add output_exports_header, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # Section header is always at index 1
+    out '1'
+    out 10
+
+    # Section data
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add output_exports_data, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # Section data starts after the header
+    mul [section_count], SECTION_RECORD_SIZE, [rb - 1]
+    add [rb - 1], 1, [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+
     ret 0
 
-output_object_end:
-    db  10, ".R", 10, ".I", 10, ".E", 10, "binary_length:0", 10, "binary_data:1", 10, 0
+output_exports_count:
+    db  "_count:", 0
+output_exports_header:
+    db  "_header:", 0
+output_exports_data:
+    db  "_data:", 0
 .ENDFRAME
 
 ##########
@@ -321,6 +577,11 @@ name_length:
 data_addr:
     db  0
 data_size:
+    db  0
+
+section_addr:
+    db  0
+section_count:
     db  0
 
 .EOF

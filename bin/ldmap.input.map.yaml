@@ -1,6 +1,6 @@
 modules: [
   0, 89, 143, 410, 431, 646, 1968, 2689, 2881, 0,
-  3736, 3967, 4073, 4199, 4719, 5264, 5449, 5775
+  3736, 3967, 4073, 4199, 4719, 5264, 5504, 5830
 ]
 symbols:
   process:
@@ -122,7 +122,7 @@ symbols:
         offsets: [134, 16]
   zeromem:
     export:
-      module: 5449
+      module: 5504
       offset: 295
     imports:
       - module: 143
@@ -278,45 +278,45 @@ symbols:
         offsets: [333, 196, 153]
   strcmp:
     export:
-      module: 5449
+      module: 5504
       offset: 202
     imports:
       - module: 2881
         offsets: [674]
   __heap_start:
     export:
-      module: 5775
+      module: 5830
       offset: 0
     imports:
       - module: 3967
         offsets: [77]
   is_digit:
     export:
-      module: 5449
+      module: 5504
       offset: 0
     imports:
   char_to_digit:
     export:
-      module: 5449
+      module: 5504
       offset: 24
     imports:
       - module: 4199
         offsets: [388]
   is_alpha:
     export:
-      module: 5449
+      module: 5504
       offset: 107
     imports:
   is_alphanum:
     export:
-      module: 5449
+      module: 5504
       offset: 145
     imports:
       - module: 4199
         offsets: [52]
   strcpy:
     export:
-      module: 5449
+      module: 5504
       offset: 256
     imports:
   halt_and_catch_fire:
@@ -338,4 +338,9 @@ symbols:
     export:
       module: 5264
       offset: 28
+    imports:
+  print_str_as_mem:
+    export:
+      module: 5264
+      offset: 185
     imports:

@@ -47,3 +47,5 @@
       arb 2
       ret 3
     .ENDFRAME
+
+- Split bin2obj.s to multiple sources, perhaps rename /tools to /bin2obj.

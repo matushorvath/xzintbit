@@ -1,7 +1,7 @@
 modules: [
   0, 107, 515, 594, 868, 1035, 1593, 1990, 2774, 2871,
   3407, 3787, 4122, 4201, 4929, 5643, 6570, 7052, 0, 7554,
-  7785, 7891, 8017, 8537, 9082, 9267, 9593
+  7785, 7891, 8017, 8537, 9082, 9322, 9648
 ]
 symbols:
   do_fixups:
@@ -41,7 +41,7 @@ symbols:
         offsets: [563]
   strcmp:
     export:
-      module: 9267
+      module: 9322
       offset: 202
     imports:
       - module: 107
@@ -258,7 +258,7 @@ symbols:
         offsets: [398, 287, 137]
   strcpy:
     export:
-      module: 9267
+      module: 9322
       offset: 256
     imports:
       - module: 868
@@ -425,14 +425,14 @@ symbols:
         offsets: [203, 188, 173, 158, 104, 74, 44, 29, 14]
   is_digit:
     export:
-      module: 9267
+      module: 9322
       offset: 0
     imports:
       - module: 1990
         offsets: [136]
   is_alpha:
     export:
-      module: 9267
+      module: 9322
       offset: 107
     imports:
       - module: 1990
@@ -688,21 +688,21 @@ symbols:
         offsets: [356]
   char_to_digit:
     export:
-      module: 9267
+      module: 9322
       offset: 24
     imports:
       - module: 8017
         offsets: [388]
   is_alphanum:
     export:
-      module: 9267
+      module: 9322
       offset: 145
     imports:
       - module: 8017
         offsets: [52]
   zeromem:
     export:
-      module: 9267
+      module: 9322
       offset: 295
     imports:
   report_error_with_symbol:
@@ -717,7 +717,7 @@ symbols:
     imports:
   __heap_start:
     export:
-      module: 9593
+      module: 9648
       offset: 0
     imports:
       - module: 7785
@@ -736,4 +736,9 @@ symbols:
     export:
       module: 9082
       offset: 28
+    imports:
+  print_str_as_mem:
+    export:
+      module: 9082
+      offset: 185
     imports:
