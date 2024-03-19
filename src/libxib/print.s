@@ -11,7 +11,8 @@ print_num:
 
     add [rb + num], 0, [rb - 1]
     add 10, 0, [rb - 2]
-    arb -2
+    add 0, 0, [rb - 3]
+    arb -3
     call print_num_radix
 
     arb 0
@@ -21,7 +22,7 @@ print_num:
 ##########
 # convert number to string using a radix
 print_num_radix:
-.FRAME num, radix; tmp, order, digit; digits
+.FRAME num, radix, width; tmp, order, digit; digits
     arb -3
 
     # determine highest power of radix
@@ -44,6 +45,20 @@ print_num_radix_next_order:
 
 print_num_radix_finish_order:
     add [print_num_radix_digit_ptr_1], 1, [print_num_radix_digit_ptr_2]
+
+    # Calculate padding amount
+    mul digits, -1, [rb + tmp]
+    add [print_num_radix_digit_ptr_1], [rb + tmp], [rb + tmp]
+    add [rb + width], [rb + tmp], [rb + width]
+
+print_num_radix_padding_loop:
+    lt  0, [rb + width], [rb + tmp]
+    jz [rb + tmp], print_num_radix_next_digit
+
+    add [rb + width], -1, [rb + width]
+    out '0'
+
+    jz  0, print_num_radix_padding_loop
 
 print_num_radix_next_digit:
 +1 = print_num_radix_digit_ptr_2:
@@ -72,7 +87,7 @@ print_num_radix_finish:
     add digits, 0, [print_num_radix_digit_ptr_1]
 
     arb 3
-    ret 2
+    ret 3
 
 print_num_radix_digits:
     db  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
@@ -120,7 +135,8 @@ print_str_as_mem_loop:
 print_str_as_mem_skip_comma:
     add [rb + char], 0, [rb - 1]
     add 10, 0, [rb - 2]
-    arb -2
+    add 0, 0, [rb - 3]
+    arb -3
     call print_num_radix
 
     add [rb + index], 1, [rb + index]
