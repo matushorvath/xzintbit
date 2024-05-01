@@ -50,7 +50,7 @@ clean-cs:
 .PHONY: build-rust
 build-rust: rust/ic
 rust/ic: rust/Cargo.toml rust/*.rs
-	cargo build --release --manifest-path=$<
+	( cd rust ; cargo build --release )
 	if [ "$$OS" = "Windows_NT" ] ; then cp rust/target/release/ic.exe rust/ ; fi
 	if [ "$$OS" != "Windows_NT" ] ; then cp rust/target/release/ic rust/ ; fi
 
