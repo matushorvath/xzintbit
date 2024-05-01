@@ -17,6 +17,11 @@ build-vm:
 build-vms:
 	make -C vms build
 
+# Build all fast Intcode VMs
+.PHONY: build-fast-vms
+build-fast-vms:
+	make -C vms build-fast
+
 # Build stage 1
 .PHONY: build-stage1
 build-stage1:
@@ -64,31 +69,26 @@ test: build run-test
 
 .PHONY: run-test
 run-test:
-	rm -rf $(TESTLOG)
-	failed=0 ; \
-	for testdir in $(TESTDIRS) ; do \
-		$(MAKE) -C $$testdir test || failed=1 ; \
-	done ; \
-	cat test/test.log ; \
-	[ $$failed = 0 ] || exit 1
+	MAKE=$(MAKE) TESTLOG="$(TESTLOG)" TESTDIRS="$(TESTDIRS)" \
+		./test/test-vms.sh $(ICVM_TYPE)
 
 # Test with all VMs
 .PHONY: test-vms
 test-vms: build-vms build run-test-vms
 
+# Test with all fast VMs
+.PHONY: test-fast-vms
+test-fast-vms: build-fast-vms build run-test-fast-vms
+
 .PHONY: run-test-vms
 run-test-vms:
-	rm -rf $(TESTLOG)
-	failed=0 ; \
-	for type in apl c cl cs go js js-fn rust; do \
-		echo "====================" >> $(TESTLOG) ; \
-		echo "ICVM_TYPE = $$type" >> $(TESTLOG) ; \
-		for testdir in $(TESTDIRS) ; do \
-			ICVM_TYPE=$$type $(MAKE) -C $$testdir test || failed=1 ; \
-		done ; \
-	done ; \
-	cat test/test.log ; \
-	[ $$failed = 0 ] || exit 1
+	MAKE=$(MAKE) TESTLOG="$(TESTLOG)" TESTDIRS="$(TESTDIRS)" \
+		./test/test-vms.sh apl c cl cs go js js-fn rust
+
+.PHONY: run-test-fast-vms
+run-test-fast-vms:
+	MAKE=$(MAKE) TESTLOG="$(TESTLOG)" TESTDIRS="$(TESTDIRS)" \
+		./test/test-vms.sh c cl cs go js rust
 
 # Clean
 .PHONY: clean

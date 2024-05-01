@@ -12,6 +12,9 @@ export GOFLAGS
 .PHONY: build
 build: build-apl build-c build-cs build-cl build-go build-js build-js-fn build-rust
 
+.PHONY: build-fast
+build-fast: build-c build-cs build-cl build-go build-js build-rust
+
 .PHONY: clean
 clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-rust
 
@@ -50,7 +53,7 @@ clean-cs:
 .PHONY: build-rust
 build-rust: rust/ic
 rust/ic: rust/Cargo.toml rust/*.rs
-	cargo build --release --manifest-path=$<
+	( cd rust ; cargo build --release )
 	if [ "$$OS" = "Windows_NT" ] ; then cp rust/target/release/ic.exe rust/ ; fi
 	if [ "$$OS" != "Windows_NT" ] ; then cp rust/target/release/ic rust/ ; fi
 
