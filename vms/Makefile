@@ -12,6 +12,9 @@ export GOFLAGS
 .PHONY: build
 build: build-apl build-c build-cs build-cl build-go build-js build-js-fn build-rust
 
+.PHONY: build-fast
+build-fast: build-c build-cs build-cl build-go build-js build-rust
+
 .PHONY: clean
 clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-rust
 
