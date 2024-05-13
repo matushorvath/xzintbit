@@ -85,10 +85,18 @@ read_string_loop:
     add [rb - 2], 0, [rb + char]
 
     # when we find a quote character, we are done
-    # TODO escaping
     eq  [rb + char], '"', [rb + tmp]
     jnz [rb + tmp], read_string_done
 
+    # backslash is an escape character
+    eq  [rb + char], '\', [rb + tmp]
+    jz  [rb + tmp], read_string_after_escape
+
+    # read the escaped character
+    call get_input
+    add [rb - 2], 0, [rb + char]
+
+read_string_after_escape:
     # store the character in buffer
     add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
