@@ -1,7 +1,9 @@
 import { Vm } from './vm.mjs';
+import { writeStreamAndWait } from './util.mjs';
 import yaml from 'yaml';
 import fs from 'node:fs/promises';
 import util from 'node:util';
+import '@ungap/with-resolvers';
 
 const parseCommandLine = () => {
     try {
@@ -65,7 +67,7 @@ const main = async () => {
         }
 
         for await (const char of vm.run(mem, getIns())) {
-            process.stdout.write(String.fromCharCode(char));
+            await writeStreamAndWait(process.stdout, String.fromCharCode(char));
         }
     } catch (error) {
         process.stderr.write(error.toString());
