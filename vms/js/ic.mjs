@@ -2,6 +2,7 @@ import { Vm } from './vm.mjs';
 import yaml from 'yaml';
 import fs from 'node:fs/promises';
 import util from 'node:util';
+import '@ungap/with-resolvers';
 
 const parseCommandLine = () => {
     try {
@@ -48,6 +49,18 @@ async function* getIns() {
     }
 }
 
+const writeStdoutAndFlush = async (chunk) => {
+    const { resolve, reject, promise } = Promise.withResolvers();
+    process.stdout.write(chunk, (error) => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve();
+        }
+    });
+    return promise;
+};
+
 const main = async () => {
     try {
         const args = parseCommandLine();
@@ -65,7 +78,7 @@ const main = async () => {
         }
 
         for await (const char of vm.run(mem, getIns())) {
-            process.stdout.write(String.fromCharCode(char));
+            await writeStdoutAndFlush(String.fromCharCode(char));
         }
     } catch (error) {
         process.stderr.write(error.toString());
