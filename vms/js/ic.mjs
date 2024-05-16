@@ -1,4 +1,5 @@
 import { Vm } from './vm.mjs';
+import { writeStreamAndWait } from './util.mjs';
 import yaml from 'yaml';
 import fs from 'node:fs/promises';
 import util from 'node:util';
@@ -49,18 +50,6 @@ async function* getIns() {
     }
 }
 
-const writeStdoutAndFlush = async (chunk) => {
-    const { resolve, reject, promise } = Promise.withResolvers();
-    process.stdout.write(chunk, (error) => {
-        if (error) {
-            reject(error);
-        } else {
-            resolve();
-        }
-    });
-    return promise;
-};
-
 const main = async () => {
     try {
         const args = parseCommandLine();
@@ -78,7 +67,7 @@ const main = async () => {
         }
 
         for await (const char of vm.run(mem, getIns())) {
-            await writeStdoutAndFlush(String.fromCharCode(char));
+            await writeStreamAndWait(process.stdout, String.fromCharCode(char));
         }
     } catch (error) {
         process.stderr.write(error.toString());

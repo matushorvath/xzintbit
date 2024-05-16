@@ -1,3 +1,5 @@
+import { writeStreamAndWait } from './util.mjs';
+
 export class Vm {
     mem = [];
 
@@ -73,12 +75,12 @@ export class Vm {
         }
     }
 
-    printTrace() {
+    async printTrace() {
         const op = this.getMem(this.ip);
 
         const ipSymbol = this.map?.[this.ip];
         if (ipSymbol !== undefined) {
-            process.stderr.write(`${ipSymbol}:\n`);
+            await writeStreamAndWait(process.stderr, `${ipSymbol}:\n`);
         }
 
         const info = Vm.OPCODES[op % 100];
@@ -96,7 +98,7 @@ export class Vm {
         const padding = ' '.repeat(Math.max(70 - instruction.length, 5));
         const state = `| params ${paramVals}`;
 
-        process.stderr.write(`${instruction}${padding}${state}\n`);
+        await writeStreamAndWait(process.stderr, `${instruction}${padding}${state}\n`);
     }
 
     async* run(mem, ins = (async function* () {})()) {
@@ -105,7 +107,7 @@ export class Vm {
 
         while (true) {
             if (this.trace) {
-                this.printTrace();
+                await this.printTrace();
             }
 
             const oc = Math.floor(this.getMem(this.ip) % 100);
