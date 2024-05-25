@@ -51,3 +51,5 @@
 - Split bin2obj.s to multiple sources, perhaps rename /tools to /bin2obj.
 - Support arbitrary length string literals. VM8086 could use longer literals in some places.
 - Create a preprocessor with macro support to solve code duplication everywhere.
+
+- Objects from a library that don't get included still have an entry in the map.yaml (try to link empty source with any .a)
