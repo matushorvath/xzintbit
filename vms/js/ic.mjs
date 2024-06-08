@@ -10,19 +10,29 @@ const parseCommandLine = () => {
         const { values, positionals } = util.parseArgs({
             options: {
                 debug: { type: 'boolean', short: 'd' },
-                trace: { type: 'boolean', short: 't' }
+                trace: { type: 'boolean', short: 't' },
+                'trace-address': { type: 'string', short: 'a' }
             },
             allowPositionals: true
         });
+
+        if (values['trace-address']) {
+            values['trace-address'] = Number.parseInt(values['trace-address']);
+        }
 
         if (positionals.length > 1) {
             throw new Error('invalid command line; too many parameters');
         }
 
-        return { debug: values.debug, trace: values.trace, image: positionals[0] };
+        return {
+            debug: values.debug,
+            trace: values.trace,
+            traceAddress: values['trace-address'],
+            image: positionals[0]
+        };
     } catch (error) {
         console.error(error.message);
-        console.log('Usage: node ic.mjs [(--debug|-d)] [(--trace|-t)] path/to/image.input');
+        console.log('Usage: node ic.mjs [(--debug|-d)] [(--trace|-t)] [(--trace-address|-a) <address>] path/to/image.input');
         process.exit(1);
     }
 };
@@ -61,8 +71,9 @@ const main = async () => {
 
         vm.debug = args.debug;
         vm.trace = args.trace;
+        vm.traceAddress = args.traceAddress;
 
-        if (vm.trace) {
+        if (vm.trace || vm.traceAddress) {
             vm.map = await loadMap(args.image);
         }
 
