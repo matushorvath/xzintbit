@@ -7,7 +7,6 @@ export class Vm {
     rb = 0;
 
     trace = false;
-    map = undefined;
 
     getMem(addr) {
         return this.mem[addr] ?? 0;
@@ -106,6 +105,9 @@ export class Vm {
         this.mem = mem;
 
         while (true) {
+            if (this.ip === this.traceAddress) {
+                this.trace = true;
+            }
             if (this.trace) {
                 await this.printTrace();
             }
