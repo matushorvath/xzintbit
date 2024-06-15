@@ -1,7 +1,7 @@
 modules: [
   0, 107, 515, 594, 868, 1035, 1593, 1990, 2774, 2871,
   3407, 3787, 4122, 4201, 4929, 5643, 6570, 7052, 0, 7554,
-  7785, 7891, 8017, 8557, 9102, 9378, 9704
+  7785, 7891, 8017, 8557, 9102, 9442, 9768
 ]
 symbols:
   do_fixups:
@@ -41,7 +41,7 @@ symbols:
         offsets: [563]
   strcmp:
     export:
-      module: 9378
+      module: 9442
       offset: 202
     imports:
       - module: 107
@@ -258,7 +258,7 @@ symbols:
         offsets: [398, 287, 137]
   strcpy:
     export:
-      module: 9378
+      module: 9442
       offset: 256
     imports:
       - module: 868
@@ -415,7 +415,7 @@ symbols:
   print_str:
     export:
       module: 9102
-      offset: 184
+      offset: 248
     imports:
       - module: 1990
         offsets: [667]
@@ -425,14 +425,14 @@ symbols:
         offsets: [203, 188, 173, 158, 104, 74, 44, 29, 14]
   is_digit:
     export:
-      module: 9378
+      module: 9442
       offset: 0
     imports:
       - module: 1990
         offsets: [136]
   is_alpha:
     export:
-      module: 9378
+      module: 9442
       offset: 107
     imports:
       - module: 1990
@@ -688,21 +688,21 @@ symbols:
         offsets: [356]
   char_to_digit:
     export:
-      module: 9378
+      module: 9442
       offset: 24
     imports:
       - module: 8017
         offsets: [408]
   is_alphanum:
     export:
-      module: 9378
+      module: 9442
       offset: 145
     imports:
       - module: 8017
         offsets: [52]
   zeromem:
     export:
-      module: 9378
+      module: 9442
       offset: 295
     imports:
   report_error_with_symbol:
@@ -717,7 +717,7 @@ symbols:
     imports:
   __heap_start:
     export:
-      module: 9704
+      module: 9768
       offset: 0
     imports:
       - module: 7785
@@ -732,13 +732,23 @@ symbols:
       module: 7891
       offset: 83
     imports:
-  print_num_radix:
+  print_num_2:
     export:
       module: 9102
       offset: 32
     imports:
+  print_num_16:
+    export:
+      module: 9102
+      offset: 64
+    imports:
+  print_num_radix:
+    export:
+      module: 9102
+      offset: 96
+    imports:
   print_str_as_mem:
     export:
       module: 9102
-      offset: 217
+      offset: 281
     imports:
