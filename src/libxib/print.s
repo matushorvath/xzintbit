@@ -1,5 +1,8 @@
 .EXPORT print_num
+.EXPORT print_num_2
+.EXPORT print_num_16
 .EXPORT print_num_radix
+
 .EXPORT print_str
 .EXPORT print_str_as_mem
 
@@ -11,6 +14,38 @@ print_num:
 
     add [rb + num], 0, [rb - 1]
     add 10, 0, [rb - 2]
+    add 0, 0, [rb - 3]
+    arb -3
+    call print_num_radix
+
+    arb 0
+    ret 1
+.ENDFRAME
+
+##########
+# convert number to binary string
+print_num_2:
+.FRAME num;
+    arb -0
+
+    add [rb + num], 0, [rb - 1]
+    add 2, 0, [rb - 2]
+    add 0, 0, [rb - 3]
+    arb -3
+    call print_num_radix
+
+    arb 0
+    ret 1
+.ENDFRAME
+
+##########
+# convert number to hexadecimal string
+print_num_16:
+.FRAME num;
+    arb -0
+
+    add [rb + num], 0, [rb - 1]
+    add 16, 0, [rb - 2]
     add 0, 0, [rb - 3]
     arb -3
     call print_num_radix
