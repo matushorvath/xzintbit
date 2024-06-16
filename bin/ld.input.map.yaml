@@ -1,6 +1,6 @@
 modules: [
   0, 89, 143, 410, 431, 646, 1968, 2689, 2881, 0,
-  3736, 3967, 4073, 4199, 4739, 5284, 5624, 5950
+  3736, 3967, 4073, 4199, 4739, 5284, 5752, 6078
 ]
 symbols:
   process:
@@ -122,7 +122,7 @@ symbols:
         offsets: [134, 16]
   zeromem:
     export:
-      module: 5624
+      module: 5752
       offset: 295
     imports:
       - module: 143
@@ -263,7 +263,7 @@ symbols:
   print_str:
     export:
       module: 5284
-      offset: 248
+      offset: 376
     imports:
       - module: 1968
         offsets: [576, 526, 488, 470, 447, 413, 375, 360, 345, 326, 304, 252, 230, 212, 156, 134]
@@ -278,45 +278,45 @@ symbols:
         offsets: [333, 196, 153]
   strcmp:
     export:
-      module: 5624
+      module: 5752
       offset: 202
     imports:
       - module: 2881
         offsets: [674]
   __heap_start:
     export:
-      module: 5950
+      module: 6078
       offset: 0
     imports:
       - module: 3967
         offsets: [77]
   is_digit:
     export:
-      module: 5624
+      module: 5752
       offset: 0
     imports:
   char_to_digit:
     export:
-      module: 5624
+      module: 5752
       offset: 24
     imports:
       - module: 4199
         offsets: [408]
   is_alpha:
     export:
-      module: 5624
+      module: 5752
       offset: 107
     imports:
   is_alphanum:
     export:
-      module: 5624
+      module: 5752
       offset: 145
     imports:
       - module: 4199
         offsets: [52]
   strcpy:
     export:
-      module: 5624
+      module: 5752
       offset: 256
     imports:
   halt_and_catch_fire:
@@ -339,18 +339,38 @@ symbols:
       module: 5284
       offset: 32
     imports:
-  print_num_16:
+  print_num_2_b:
     export:
       module: 5284
       offset: 64
     imports:
-  print_num_radix:
+  print_num_2_w:
     export:
       module: 5284
       offset: 96
     imports:
+  print_num_16:
+    export:
+      module: 5284
+      offset: 128
+    imports:
+  print_num_16_b:
+    export:
+      module: 5284
+      offset: 160
+    imports:
+  print_num_16_w:
+    export:
+      module: 5284
+      offset: 192
+    imports:
+  print_num_radix:
+    export:
+      module: 5284
+      offset: 224
+    imports:
   print_str_as_mem:
     export:
       module: 5284
-      offset: 281
+      offset: 409
     imports:
