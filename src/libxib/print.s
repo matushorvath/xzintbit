@@ -1,6 +1,10 @@
 .EXPORT print_num
 .EXPORT print_num_2
+.EXPORT print_num_2_b
+.EXPORT print_num_2_w
 .EXPORT print_num_16
+.EXPORT print_num_16_b
+.EXPORT print_num_16_w
 .EXPORT print_num_radix
 
 .EXPORT print_str
@@ -39,6 +43,38 @@ print_num_2:
 .ENDFRAME
 
 ##########
+# convert number to binary string, print 8 bits
+print_num_2_b:
+.FRAME num;
+    arb -0
+
+    add [rb + num], 0, [rb - 1]
+    add 2, 0, [rb - 2]
+    add 8, 0, [rb - 3]
+    arb -3
+    call print_num_radix
+
+    arb 0
+    ret 1
+.ENDFRAME
+
+##########
+# convert number to binary string, print 16 bits
+print_num_2_w:
+.FRAME num;
+    arb -0
+
+    add [rb + num], 0, [rb - 1]
+    add 2, 0, [rb - 2]
+    add 16, 0, [rb - 3]
+    arb -3
+    call print_num_radix
+
+    arb 0
+    ret 1
+.ENDFRAME
+
+##########
 # convert number to hexadecimal string
 print_num_16:
 .FRAME num;
@@ -47,6 +83,38 @@ print_num_16:
     add [rb + num], 0, [rb - 1]
     add 16, 0, [rb - 2]
     add 0, 0, [rb - 3]
+    arb -3
+    call print_num_radix
+
+    arb 0
+    ret 1
+.ENDFRAME
+
+##########
+# convert number to hexadecimal string, print 2 digits
+print_num_16_b:
+.FRAME num;
+    arb -0
+
+    add [rb + num], 0, [rb - 1]
+    add 16, 0, [rb - 2]
+    add 2, 0, [rb - 3]
+    arb -3
+    call print_num_radix
+
+    arb 0
+    ret 1
+.ENDFRAME
+
+##########
+# convert number to hexadecimal string, print 4 digits
+print_num_16_w:
+.FRAME num;
+    arb -0
+
+    add [rb + num], 0, [rb - 1]
+    add 16, 0, [rb - 2]
+    add 4, 0, [rb - 3]
     arb -3
     call print_num_radix
 
