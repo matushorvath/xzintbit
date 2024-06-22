@@ -2,6 +2,7 @@
 
 # Output file format:
 #
+# <name>_image:
 # <name>_count:
 #       db  <count>                                         # Number of sections
 #
@@ -508,6 +509,19 @@ output_data_sections_done:
 ##########
 output_exports:
 .FRAME
+    # Image
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add output_exports_image, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # Image is always at index 0
+    out '0'
+    out 10
+
     # Section count
     add [name_addr], 0, [rb - 1]
     arb -1
@@ -553,6 +567,8 @@ output_exports:
 
     ret 0
 
+output_exports_image:
+    db  "_image:", 0
 output_exports_count:
     db  "_count:", 0
 output_exports_header:
