@@ -1,4 +1,4 @@
-import { writeStreamAndWait } from './util.mjs';
+import { writeStreamAndWait } from './util.js';
 
 export class Vm {
     mem = [];

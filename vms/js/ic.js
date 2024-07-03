@@ -1,5 +1,5 @@
-import { Vm } from './vm.mjs';
-import { writeStreamAndWait } from './util.mjs';
+import { Vm } from './vm.js';
+import { writeStreamAndWait } from './util.js';
 import yaml from 'yaml';
 import fs from 'node:fs/promises';
 import util from 'node:util';
@@ -32,7 +32,7 @@ const parseCommandLine = () => {
         };
     } catch (error) {
         console.error(error.message);
-        console.log('Usage: node ic.mjs [(--debug|-d)] [(--trace|-t)] [(--trace-address|-a) <address>] path/to/image.input');
+        console.log('Usage: ic [(--debug|-d)] [(--trace|-t)] [(--trace-address|-a) <address>] path/to/image.input');
         process.exit(1);
     }
 };
