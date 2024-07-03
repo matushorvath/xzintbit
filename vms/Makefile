@@ -82,7 +82,7 @@ clean-js:
 
 # Intcode VM in Javascript, implemented as a single function
 .PHONY: build-js-fn
-build-js-fn: js-fn/ic js-fn/ic.mjs
+build-js-fn: js-fn/ic js-fn/ic.js
 
 .PHONY: clean-js-fn
 clean-js-fn:
