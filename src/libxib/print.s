@@ -202,19 +202,18 @@ print_str:
     arb -3
 
     add 0, 0, [rb + index]
+    jz  0, print_str_start
 
 print_str_loop:
+    out [rb + char]
+    add [rb + index], 1, [rb + index]
+
+print_str_start:
     add [rb + str], [rb + index], [ip + 1]
     add [0], 0, [rb + char]
 
-    jz  [rb + char], print_str_done
+    jnz [rb + char], print_str_loop
 
-    out [rb + char]
-
-    add [rb + index], 1, [rb + index]
-    jz  0, print_str_loop
-
-print_str_done:
     arb 3
     ret 1
 .ENDFRAME
