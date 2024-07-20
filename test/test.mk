@@ -1,9 +1,10 @@
 ICVM_TYPE ?= c
-
 ICVM ?= $(abspath ../../vms)/$(ICVM_TYPE)/ic
-ICAS ?= $(abspath ../../bin/as.input)
-ICBIN2OBJ ?= $(abspath ../../bin/bin2obj.input)
-ICLD ?= $(abspath ../../bin/ld.input)
+
+IC_BINDIR ?= $(abspath ../../bin)
+ICAS ?= $(IC_BINDIR)/as.input
+ICBIN2OBJ ?= $(IC_BINDIR)/bin2obj.input
+ICLD ?= $(IC_BINDIR)/ld.input
 
 BINDIR ?= bin
 OBJDIR ?= obj

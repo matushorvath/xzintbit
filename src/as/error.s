@@ -2,7 +2,8 @@
 
 .EXPORT report_error
 .EXPORT report_libxib_error
-.EXPORT report_symbol_error
+.EXPORT report_symbol_token_error
+.EXPORT report_symbol_fixup_error
 
 # from libxib/error.s
 .IMPORT report_error_at_location
@@ -10,6 +11,9 @@
 # from lexer.s
 .IMPORT token_line_num
 .IMPORT token_column_num
+
+# from libxib/print.s
+.IMPORT print_str
 
 ##########
 report_libxib_error:
@@ -25,9 +29,43 @@ report_error:
 .ENDFRAME
 
 ##########
-report_symbol_error:
+report_symbol_token_error:
+.FRAME symbol, message;
+    # error message with an identifier and a location taken from lexer
+
+    out '('
+
+    # print the identifier
+    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
+    arb -1
+    call print_str
+
+    out ')'
+    out ' '
+
+    # we don't bother with updating the stack pointer, this function never returns
+    add [rb + message], 0, [rb + 2]
+    add [token_line_num], 0, [rb + 1]
+    add [token_column_num], 0, [rb]
+    call report_error_at_location
+.ENDFRAME
+
+##########
+report_symbol_fixup_error:
 .FRAME symbol, message; fixup, line_num, column_num
     arb -3
+
+    # error message with an identifier and a location taken from the first symbol fixup
+
+    out '('
+
+    # print the identifier
+    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
+    arb -1
+    call print_str
+
+    out ')'
+    out ' '
 
     add 0, 0, [rb + line_num]
     add 0, 0, [rb + column_num]

@@ -8,7 +8,7 @@
 .IMPORT inc_mem
 
 # from error.s
-.IMPORT report_symbol_error
+.IMPORT report_symbol_fixup_error
 
 # from global.s
 .IMPORT find_global_symbol
@@ -101,7 +101,7 @@ do_fixups_symbol:
 
     add [rb + symbol], 0, [rb + 1]
     add err_unknown_symbol, 0, [rb]
-    call report_symbol_error
+    call report_symbol_fixup_error
 
 do_fixups_have_address:
     # iterate through all fixups for this symbol
