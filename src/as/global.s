@@ -14,7 +14,7 @@
 .IMPORT strcpy
 
 # from error.s
-.IMPORT report_symbol_error
+.IMPORT report_symbol_token_error
 
 ##########
 init_relocations:
@@ -133,7 +133,7 @@ set_global_symbol_address_check_duplicate:
 
     add [rb + symbol], 0, [rb + 1]
     add err_duplicate_global_symbol, 0, [rb]
-    call report_symbol_error
+    call report_symbol_token_error
 
 set_global_symbol_address_have_symbol:
     # store the address of the symbol
@@ -176,7 +176,7 @@ set_global_symbol_type_check:
 
     add [rb + symbol], 0, [rb + 1]
     add err_symbol_symbol_type_mix, 0, [rb]
-    call report_symbol_error
+    call report_symbol_token_error
 
 set_global_symbol_type_check_same:
     eq  [rb + type], 1, [rb + tmp]
@@ -186,17 +186,17 @@ set_global_symbol_type_check_same:
 
     add [rb + symbol], 0, [rb + 1]
     add err_constant_already_defined, 0, [rb]
-    call report_symbol_error
+    call report_symbol_token_error
 
 set_global_symbol_type_error_imported:
     add [rb + symbol], 0, [rb + 1]
     add err_symbol_already_imported, 0, [rb]
-    call report_symbol_error
+    call report_symbol_token_error
 
 set_global_symbol_type_error_exported:
     add [rb + symbol], 0, [rb + 1]
     add err_symbol_already_exported, 0, [rb]
-    call report_symbol_error
+    call report_symbol_token_error
 
 set_global_symbol_type_have_symbol:
     # set symbol type
