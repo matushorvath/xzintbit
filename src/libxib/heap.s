@@ -1,13 +1,16 @@
 .EXPORT alloc
 .EXPORT free
+.EXPORT dump_heap
 
 # from brk.s
 .IMPORT sbrk
 
+# from print.s
+.IMPORT print_num
+.IMPORT print_str
+
 # from builtin
 .IMPORT __heap_start
-
-# TODO logging for alloc/free
 
 .SYMBOL CHUNK_SIZE                      0
 .SYMBOL CHUNK_FREE                      1
@@ -23,7 +26,7 @@
 
 ##########
 alloc:
-.FRAME size; ptr, bin_idx, new_chunk, tmp                   # returns ptr TODO indent
+.FRAME size; ptr, bin, new_chunk, tmp   # returns ptr
     arb -4
 
     # parameter validation
@@ -34,47 +37,49 @@ alloc:
     jz  0, alloc_done
 
 alloc_size_ok:
-    # the chunk will use twp additional bytes for the chunk header
+    # the chunk will use two additional bytes for the chunk header
     add [rb + size], USED_CHUNK_HEADER_SIZE, [rb + size]
 
-    # the smallest bin we have is for MIN_CHUNK_SIZE = 8 byte chunks
-    add [rb + size], -8, [rb + bin_idx]
+    # make the size at least eight bytes
+    lt  [rb + size], MIN_CHUNK_SIZE, [rb + tmp]
+    jz  [rb + tmp], alloc_size_adjusted
+    add 8, 0, [rb + size]
 
-    # change negative bin indexes to bin_idx = 0
-    lt  0, [rb + bin_idx], [rb + tmp]
-    mul [rb + bin_idx], [rb + tmp], [rb + bin_idx]
+alloc_size_adjusted:
+    # the smallest bin we have is for MIN_CHUNK_SIZE = 8 byte chunks
+    add [rb + size], -8, [rb + bin]
 
 alloc_small_loop:
     # there are MAX_SMALL_CHUNK_SIZE - MIN_CHUNK_SIZE = 64 - 8 = 56 small bins
     # once we go through them, try the large bin
-    lt  [rb + bin_idx], 56, [rb + tmp]
+    lt  [rb + bin], 56, [rb + tmp]
     jz  [rb + tmp], alloc_large
 
     # if there is a chunk in current bin, use it
-    add small, [rb + bin_idx], [ip + 1]
+    add small, [rb + bin], [ip + 1]
     jnz [0], alloc_small_have_chunk
 
     # otherwise, try the next bin
-    add [rb + bin_idx], 1, [rb + bin_idx]
+    add [rb + bin], 1, [rb + bin]
     jz  0, alloc_small_loop
 
 alloc_small_have_chunk:
-    # use the first chunk from bin bin_idx
-    add small, [rb + bin_idx], [ip + 1]
+    # use the first chunk from bin bin
+    add small, [rb + bin], [ip + 1]
     add [0], 0, [rb + ptr]
 
     # second chunk, if any, is now head of the bin
-    # small[bin_idx] = small[bin_idx][CHUNK_NEXT] = ptr[CHUNK_NEXT]
+    # small[bin] = small[bin][CHUNK_NEXT] = ptr[CHUNK_NEXT]
     add [rb + ptr], CHUNK_NEXT, [ip + 5]
-    add small, [rb + bin_idx], [ip + 3]
+    add small, [rb + bin], [ip + 3]
     add [0], 0, [0]
 
     # does the bin still have a head?
-    add small, [rb + bin_idx], [ip + 1]
+    add small, [rb + bin], [ip + 1]
     jz  [0], alloc_cut_chunk
 
     # the bin has a head, set previous chunk of the new head to 0
-    add small, [rb + bin_idx], [ip + 1]
+    add small, [rb + bin], [ip + 1]
     add [0], CHUNK_PREV, [ip + 3]
     add 0, 0, [0]
 
@@ -242,6 +247,136 @@ free:
 
     arb 1
     ret 1
+.ENDFRAME
+
+##########
+dump_heap:
+.FRAME bin, chunk, tmp
+    arb -3
+
+    # dump brk
+    add dump_heap_brk_msg, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add 0, 0, [rb - 1]
+    arb -1
+    call sbrk
+
+    add [rb - 3], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+
+    # dump all small bins
+    add 0, 0, [rb + bin]
+
+dump_heap_small_bin_loop:
+    # there are MAX_SMALL_CHUNK_SIZE - MIN_CHUNK_SIZE = 64 - 8 = 56 small bins
+    lt  [rb + bin], 56, [rb + tmp]
+    jz  [rb + tmp], dump_heap_large
+
+    add dump_heap_small_bin_msg, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + bin], MIN_CHUNK_SIZE, [rb - 1]
+    arb -1
+    call print_num
+
+    out ':'
+
+    # dump all chunks in current bin
+    add small, [rb + bin], [ip + 1]
+    add [0], 0, [rb + chunk]
+
+dump_heap_small_chunk_loop:
+    jz  [rb + chunk], dump_heap_small_chunk_done
+
+    out ' '
+    out '['
+    out 'p'
+    out ' '
+
+    add [rb + chunk], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ','
+    out ' '
+    out 's'
+    out ' '
+
+    add [rb + chunk], CHUNK_SIZE, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ']'
+
+    # next chunk
+    add [rb + chunk], CHUNK_NEXT, [ip + 1]
+    add [0], 0, [rb + chunk]
+
+    jz  0, dump_heap_small_chunk_loop
+
+dump_heap_small_chunk_done:
+    # next bin
+    out 10
+
+    add [rb + bin], 1, [rb + bin]
+    jz  0, dump_heap_small_bin_loop
+
+dump_heap_large:
+    add dump_heap_large_bin_msg, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [large], 0, [rb + chunk]
+
+dump_heap_large_chunk_loop:
+    jz  [rb + chunk], dump_heap_large_chunk_done
+
+    out ' '
+    out '['
+    out 'p'
+    out ' '
+
+    add [rb + chunk], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ','
+    out ' '
+    out 's'
+    out ' '
+
+    add [rb + chunk], CHUNK_SIZE, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ']'
+
+    # next chunk
+    add [rb + chunk], CHUNK_NEXT, [ip + 1]
+    add [0], 0, [rb + chunk]
+
+    jz  0, dump_heap_large_chunk_loop
+
+dump_heap_large_chunk_done:
+    out 10
+
+    arb 3
+    ret 0
+
+dump_heap_brk_msg:
+    db  "brk: ", 0
+dump_heap_small_bin_msg:
+    db  "small bin ", 0
+dump_heap_large_bin_msg:
+    db  "large bin:", 0
 .ENDFRAME
 
 ##########
