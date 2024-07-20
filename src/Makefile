@@ -64,7 +64,7 @@ LDMAP_OBJS = ldmap.o process.o data.o error.o link.o load.o output.o relocate.o 
 $(BINDIR)/ldmap.input: $(addprefix $(OBJDIR)/ld/, $(LDMAP_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)
 
-LIBXIB_OBJS = libxib.o error.o heap.o input.o lexer.o memory.o print.o string.o
+LIBXIB_OBJS = libxib.o brk.o error.o heap.o input.o lexer.o memory.o print.o string.o
 
 $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 	$(run-ar)
