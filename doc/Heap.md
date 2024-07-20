@@ -59,13 +59,7 @@ chunk:
 
 min chunk size: >2, say 8
 
-small:
-    8
-    16
-    32
-    64
-
-    table request size -> bin to avoid division
+small: bins for sizes 8-64
 
 large:
     >64, probably just one list
@@ -75,17 +69,14 @@ alloc algorithm:
     else alloc_small
 
 alloc_small:
-    request_size = size rounded up to nearest power of min chunk size = 8, calculate using a table
     go through the respective list
     return first item from the list, relink
     if not found, go through larger small lists, first item, cut it, return and store the rest in correct small list
     if not found, call alloc_large (but we already have request_size so optimize and reuse it)
 
 alloc_large:
-    request_size = size rounded up to nearest power of min chunk size = 8
-        TODO how to calculate, do we actually divide?
     iterate through list
     if chunk_size >= request_size, cut chunk to request_size + rest, save rest to list, return request_sized chunk, relink list
     else if next chunk is free, merge chunks
     if end of list, optional go through the small lists and merge them, if large enough then cut and use, else store into large list if >64, small list if <=64
-    if still not found, call sbrk to make new chunk (nearest multiple of 8 sized)
+    if still not found, call sbrk to make new chunk
