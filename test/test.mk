@@ -1,7 +1,3 @@
-# diff-result needs .ONESHELL
-.ONESHELL:
-.SHELLFLAGS += -e
-
 ICVM_TYPE ?= c
 ICVM ?= $(abspath ../../vms)/$(ICVM_TYPE)/ic
 
@@ -26,20 +22,6 @@ ifeq ($(HAVE_COLOR),1)
 	COLOR_GREEN := "$(shell tput setaf 2)"
 endif
 
-define diff-result
-	# if the template file exists, or diffs are mandatory, run diff
-	if [ "x$(TEST_DIFF_OPTIONAL)" = "x" ] || [ -f "$(notdir $@)" ]
-	then
-		if ! diff $(notdir $@) $@ > /dev/null 2> /dev/null
-		then
-			echo $(COLOR_RED)FAILED$(COLOR_NORMAL) >> $(TESTLOG)
-			diff $(notdir $@) $@ >> $(TESTLOG)
-		fi
-	fi
-
-	echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
-endef
-
 .PHONY: default test
 default: test
 	[ $(MAKELEVEL) -eq 0 ] && cat $(TESTLOG) && rm -f $(TESTLOG)
@@ -52,32 +34,32 @@ test-prep:
 $(BINDIR)/%.stdout: $(BINDIR)/%.input %.stdin
 	printf '$(NAME): processing stdin ' >> $(TESTLOG)
 	$(ICVM) $< > $@ < $(patsubst %.input,%.stdin,$(notdir $<)) || ( cat $@ ; true )
-	$(diff-result)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.txt: $(BINDIR)/%.input
 	printf '$(NAME): executing ' >> $(TESTLOG)
 	$(ICVM) $< > $@ || ( cat $@ ; true )
-	$(diff-result)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	printf '$(NAME): linking ' >> $(TESTLOG)
 	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
-	$(diff-result)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.a: $(OBJDIR)/%.o
 	printf '$(NAME): archiving ' >> $(TESTLOG)
 	cat $^ | sed 's/^.C$$/.L/g' > $@ || true
-	$(diff-result)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.s
 	printf '$(NAME): assembling ' >> $(TESTLOG)
 	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; true )
-	$(diff-result)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.bin
 	printf '$(NAME): running bin2obj ' >> $(TESTLOG)
 	wc -c $< | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
-	$(diff-result)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 .PHONY: skip
 skip:
