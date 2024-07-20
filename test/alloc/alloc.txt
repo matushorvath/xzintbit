@@ -1,30 +1,61 @@
 ----------
-0: ptr 0
+alloc 0: ptr 0
 brk: 1000000
 ----------
-1: ptr 1000002, size 8
+alloc 1: ptr 1000002, size 8
 brk: 1000008
 ----------
-5: ptr 1000010, size 8
+alloc 5: ptr 1000010, size 8
 brk: 1000016
 ----------
-6: ptr 1000018, size 8
+alloc 6: ptr 1000018, size 8
 brk: 1000024
 ----------
-7: ptr 1000026, size 9
-brk: 1000033
+alloc 17: ptr 1000026, size 19
+brk: 1000043
 ----------
-17: ptr 1000035, size 19
-brk: 1000052
+alloc 5: ptr 1000045, size 8
+brk: 1000051
 ----------
-61: ptr 1000054, size 63
-brk: 1000115
+alloc 90: ptr 1000053, size 92
+brk: 1000143
 ----------
-62: ptr 1000117, size 64
-brk: 1000179
+alloc 17: ptr 1000145, size 19
+brk: 1000162
 ----------
-63: ptr 1000181, size 65
-brk: 1000244
+free 0
+brk: 1000162
 ----------
-500: ptr 1000246, size 502
-brk: 1000746
+free 1000002: size 8
+brk: 1000162
+small bin 8: [p 1000000, s 8]
+----------
+free 1000010: size 8
+brk: 1000162
+small bin 8: [p 1000008, s 8] [p 1000000, s 8]
+----------
+free 1000018: size 8
+brk: 1000162
+small bin 8: [p 1000016, s 8] [p 1000008, s 8] [p 1000000, s 8]
+----------
+free 1000026: size 19
+brk: 1000162
+small bin 8: [p 1000016, s 8] [p 1000008, s 8] [p 1000000, s 8]
+small bin 19: [p 1000024, s 19]
+----------
+free 1000045: size 8
+brk: 1000162
+small bin 8: [p 1000043, s 8] [p 1000016, s 8] [p 1000008, s 8] [p 1000000, s 8]
+small bin 19: [p 1000024, s 19]
+----------
+free 1000053: size 92
+brk: 1000162
+small bin 8: [p 1000043, s 8] [p 1000016, s 8] [p 1000008, s 8] [p 1000000, s 8]
+small bin 19: [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+free 1000145: size 19
+brk: 1000162
+small bin 8: [p 1000043, s 8] [p 1000016, s 8] [p 1000008, s 8] [p 1000000, s 8]
+small bin 19: [p 1000143, s 19] [p 1000024, s 19]
+large bin: [p 1000051, s 92]

@@ -243,6 +243,9 @@ free:
 .FRAME ptr; size, bin, tmp
     arb -3
 
+    # handle null pointers
+    jz  [rb + ptr], free_done
+
     # adjust the pointer by USED_CHUNK_HEADER_SIZE = 2, so it points to the chunk header
     add [rb + ptr], -2, [rb + ptr]
 
