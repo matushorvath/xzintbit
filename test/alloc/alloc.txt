@@ -1,3 +1,5 @@
+==========
+PHASE 0
 ----------
 alloc 0: ptr 0
 brk: 1000000
@@ -59,3 +61,56 @@ brk: 1000162
 small bin 8: [p 1000043, s 8] [p 1000016, s 8] [p 1000008, s 8] [p 1000000, s 8]
 small bin 19: [p 1000143, s 19] [p 1000024, s 19]
 large bin: [p 1000051, s 92]
+==========
+PHASE 1
+----------
+alloc 5: ptr 1000045, size 8
+brk: 1000162
+small bin 8: [p 1000016, s 8] [p 1000008, s 8] [p 1000000, s 8]
+small bin 19: [p 1000143, s 19] [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+alloc 6: ptr 1000018, size 8
+brk: 1000162
+small bin 8: [p 1000008, s 8] [p 1000000, s 8]
+small bin 19: [p 1000143, s 19] [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+alloc 1: ptr 1000010, size 8
+brk: 1000162
+small bin 8: [p 1000000, s 8]
+small bin 19: [p 1000143, s 19] [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+alloc 5: ptr 1000002, size 8
+brk: 1000162
+small bin 19: [p 1000143, s 19] [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+alloc 3: ptr 1000145, size 8
+brk: 1000162
+small bin 11: [p 1000151, s 11]
+small bin 19: [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+alloc 4: ptr 1000153, size 11
+brk: 1000162
+small bin 19: [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+alloc 91: ptr 1000164, size 93
+brk: 1000255
+small bin 19: [p 1000024, s 19]
+large bin: [p 1000051, s 92]
+----------
+alloc 89: ptr 1000053, size 92
+brk: 1000255
+small bin 19: [p 1000024, s 19]
+----------
+alloc 90: ptr 1000257, size 92
+brk: 1000347
+small bin 19: [p 1000024, s 19]
+----------
+alloc 29: ptr 1000349, size 31
+brk: 1000378
+small bin 19: [p 1000024, s 19]

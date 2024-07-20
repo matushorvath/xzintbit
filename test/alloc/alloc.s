@@ -23,6 +23,11 @@ main:
     arb -1
     call brk
 
+    ##########
+    add 0, 0, [rb - 1]
+    arb -1
+    call print_phase
+
     # phase 0: allocate 0 1 5 6 17 5 90 17 bytes, all from brk
     add 0, 0, [rb - 1]
     arb -1
@@ -100,6 +105,68 @@ main:
     # heap state after phase 0:
     # 8: 4, 19: 2, 92: 1
 
+    ##########
+    add 1, 0, [rb - 1]
+    arb -1
+    call print_phase
+
+    # phase 1: allocate 5 6 1 5 (all use 8, no split)
+    add 5, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_5a]
+
+    add 6, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_6]
+
+    add 1, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_1]
+
+    add 5, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_5b]
+
+    # phase 1: allocate 3 (uses 19, split off 11), 4 (uses 11, no split)
+    add 3, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_3]
+
+    add 4, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_4]
+
+    # phase 1: allocate 91(brk), 89(uses 92), 90(brk)
+    add 91, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_91]
+
+    add 89, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_89]
+
+    add 90, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_90]
+
+    # phase 1: allocate 29(brk)
+    add 29, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p1_29]
+
+    # heap state after phase 1:
+    # 19: 1
+
     ret 0
 .ENDFRAME
 
@@ -120,6 +187,45 @@ p0_90:
     db  0
 p0_17b:
     db  0
+
+p1_5a:
+    db  0
+p1_6:
+    db  0
+p1_1:
+    db  0
+p1_5b:
+    db  0
+p1_3:
+    db  0
+p1_4:
+    db  0
+p1_91:
+    db  0
+p1_89:
+    db  0
+p1_90:
+    db  0
+p1_29:
+    db  0
+
+print_phase:
+.FRAME phase;
+    add print_phase_msg, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + phase], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+
+    ret 1
+
+print_phase_msg:
+    db  "==========", 10, "PHASE ", 0
+.ENDFRAME
 
 test_alloc:
 .FRAME size; ptr                        # returns ptr

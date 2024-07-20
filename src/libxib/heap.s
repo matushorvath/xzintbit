@@ -195,7 +195,8 @@ alloc_cut_chunk:
     add [rb + new_chunk], CHUNK_FREE, [ip + 3]
     add 0, 0, [0]
 
-    add [rb + new_chunk], 0, [rb - 1]
+    # free expects its argument to point after the chunk header, so add USED_CHUNK_HEADER_SIZE
+    add [rb + new_chunk], USED_CHUNK_HEADER_SIZE, [rb - 1]
     arb -1
     call free
 
