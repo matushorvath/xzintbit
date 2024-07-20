@@ -80,3 +80,29 @@ alloc_large:
     else if next chunk is free, merge chunks
     if end of list, optional go through the small lists and merge them, if large enough then cut and use, else store into large list if >64, small list if <=64
     if still not found, call sbrk to make new chunk
+
+-----
+
+Test Design:
+
+empty bins
+
+alloc 0 1 5 6 17 5 90 17
+free all of them in same order, including the 0
+heap has 8: 4, 19: 2, 92: 1
+
+alloc 5 6 4 5(all use 8, no split) 3(uses 19, split off 11) 4(uses 11, no split) 91(brk) 89(uses 92) 90(brk) 29(brk)
+heap has 19: 1
+
+free 29
+heap has 19: 1, 31: 1
+
+alloc 21(uses 31, split off 8)
+alloc 17(uses 19), 6(uses 8)
+heap has nothing
+
+free 90
+heap has 92: 1
+
+alloc 1(uses 90, split off 82)
+alloc 80(uses 82, whole)
