@@ -106,3 +106,5 @@ heap has 92: 1
 
 alloc 1(uses 90, split off 82)
 alloc 80(uses 82, whole)
+
+alloc 500

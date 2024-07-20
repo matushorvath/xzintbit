@@ -340,6 +340,14 @@ dump_heap_small_bin_loop:
     lt  [rb + bin], 56, [rb + tmp]
     jz  [rb + tmp], dump_heap_large
 
+    # get first chunk in this bin
+    add small, [rb + bin], [ip + 1]
+    add [0], 0, [rb + chunk]
+
+    # if there are no chunks, don't dump this bin at all
+    jz  [rb + chunk], dump_heap_small_next_bin
+
+    # print bin header, then dump all chunks in the bin
     add dump_heap_small_bin_msg, 0, [rb - 1]
     arb -1
     call print_str
@@ -349,10 +357,6 @@ dump_heap_small_bin_loop:
     call print_num
 
     out ':'
-
-    # dump all chunks in current bin
-    add small, [rb + bin], [ip + 1]
-    add [0], 0, [rb + chunk]
 
 dump_heap_small_chunk_loop:
     jz  [rb + chunk], dump_heap_small_chunk_done
@@ -388,10 +392,14 @@ dump_heap_small_chunk_done:
     # next bin
     out 10
 
+dump_heap_small_next_bin:
     add [rb + bin], 1, [rb + bin]
     jz  0, dump_heap_small_bin_loop
 
 dump_heap_large:
+    # if there are no chunks, don't dump the large bin at all
+    jz  [large], dump_heap_done
+
     add dump_heap_large_bin_msg, 0, [rb - 1]
     arb -1
     call print_str
@@ -431,6 +439,7 @@ dump_heap_large_chunk_loop:
 dump_heap_large_chunk_done:
     out 10
 
+dump_heap_done:
     arb 3
     ret 0
 

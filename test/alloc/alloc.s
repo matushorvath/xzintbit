@@ -3,7 +3,11 @@
 .IMPORT alloc
 .IMPORT free
 .IMPORT dump_heap
+
 .IMPORT brk
+
+.IMPORT print_num
+.IMPORT print_str
 
     arb stack
     call main
@@ -19,194 +23,121 @@ main:
     arb -1
     call brk
 
-    # zero allocation
-    call separator
-    out '0'
-    out ' '
-
     add 0, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jnz [rb - 3], fail
-    call ok
-
-    # allocate 1 byte
-    call separator
-    out '1'
-    out ' '
+    call test_alloc
 
     add 1, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 5 bytes
-    call separator
-    out '5'
-    out ' '
+    call test_alloc
 
     add 5, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 6 bytes
-    call separator
-    out '6'
-    out ' '
+    call test_alloc
 
     add 6, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 7 bytes
-    call separator
-    out '7'
-    out ' '
+    call test_alloc
 
     add 7, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 17 bytes
-    call separator
-    out '1'
-    out '7'
-    out ' '
+    call test_alloc
 
     add 17, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 61 bytes
-    call separator
-    out '6'
-    out '1'
-    out ' '
+    call test_alloc
 
     add 61, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 62 bytes
-    call separator
-    out '6'
-    out '2'
-    out ' '
+    call test_alloc
 
     add 62, 0, [rb - 1]
     arb -1
-    call alloc
+    call test_alloc
 
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 63 bytes
-    call separator
-    out '6'
-    out '3'
-    out ' '
-
-    add 65, 0, [rb - 1]
+    add 63, 0, [rb - 1]
     arb -1
-    call alloc
-
-    jz  [rb - 3], fail
-    call ok
-
-    # allocate 500 bytes
-    call separator
-    out '5'
-    out '0'
-    out '0'
-    out ' '
+    call test_alloc
 
     add 500, 0, [rb - 1]
     arb -1
+    call test_alloc
+
+    ret 0
+.ENDFRAME
+
+test_alloc:
+.FRAME size; ptr
+    arb -1
+
+    # print separator and size to alloc
+    add test_alloc_separator_msg, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + size], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ':'
+    out ' '
+
+    # call alloc
+    add [rb + size], 0, [rb - 1]
+    arb -1
     call alloc
+    add [rb - 3], 0, [rb + ptr]
 
-    jz  [rb - 3], fail
-    call ok
+    # print the pointer returned
+    add test_alloc_ptr_msg, 0, [rb - 1]
+    arb -1
+    call print_str
 
-    jz  0, done
+    add [rb + ptr], 0, [rb - 1]
+    arb -1
+    call print_num
 
-fail:
-    out 'f'
-    out 'a'
-    out 'i'
-    out 'l'
+    # print returned chunk size, if any
+    jz  [rb + ptr], test_alloc_after_size
+
+    out ','
+    out ' '
+
+    add test_alloc_size_msg, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + ptr], -2, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+test_alloc_after_size:
+    # dump heap information
     out 10
-
     call dump_heap
 
-done:
-    ret 0
-.ENDFRAME
+    arb 1
+    ret 1
 
-separator:
-.FRAME
-    out '-'
-    out '-'
-    out '-'
-    out '-'
-    out '-'
-    out '-'
-    out '-'
-    out '-'
-    out '-'
-    out '-'
-    out 10
-
-    ret 0
-.ENDFRAME
-
-ok:
-.FRAME
-    out 'o'
-    out 'k'
-    out 10
-
-    call dump_heap
-
-    ret 0
+test_alloc_separator_msg:
+    db  "----------", 10, 0
+test_alloc_ptr_msg:
+    db  "ptr ", 0
+test_alloc_size_msg:
+    db  "size ", 0
 .ENDFRAME
 
 report_libxib_error:
 .FRAME
-    out 'l'
-    out 'i'
-    out 'b'
-    out 'x'
-    out 'i'
-    out 'b'
-    out ' '
-    out 'e'
-    out 'r'
-    out 'r'
-    out 'o'
-    out 'r'
-    out 10
-
-    call dump_heap
+    add report_libxib_error_msg, 0, [rb - 1]
+    arb -1
+    call print_str
 
     ret 0
+
+report_libxib_error_msg:
+    db  "libxib error", 10, 0
 .ENDFRAME
 
 .EOF
