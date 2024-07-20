@@ -240,12 +240,75 @@ merge_large_bins:
 
 ##########
 free:
-.FRAME ptr; tmp
-    arb -1
+.FRAME ptr; size, bin, tmp
+    arb -3
 
-    # TODO implement
+    # adjust the pointer by USED_CHUNK_HEADER_SIZE = 2, so it points to the chunk header
+    add [rb + ptr], -2, [rb + ptr]
 
-    arb 1
+    # mark the chunk as free
+    add [rb + ptr], CHUNK_FREE, [ip + 3]
+    add 1, 0, [0]
+
+    # decide which bin to use for storing this chunk
+    add [rb + ptr], CHUNK_SIZE, [ip + 1]
+    add [0], 0, [rb + size]
+
+    lt  MAX_SMALL_CHUNK_SIZE, [rb + size], [rb + tmp]
+    jz  [rb + tmp], free_small
+
+    # large chunk, add to the beginning of the large bin
+
+    # if (large)
+    jz  [large], free_large_after_prev
+
+    # large[CHUNK_PREV] = ptr
+    add [large], CHUNK_PREV, [ip + 3]
+    add [rb + ptr], 0, [0]
+
+free_large_after_prev:
+    # ptr[CHUNK_NEXT] = large
+    add [rb + ptr], CHUNK_NEXT, [ip + 3]
+    add [large], 0, [0]
+
+    # ptr[CHUNK_PREV] = 0
+    add [rb + ptr], CHUNK_PREV, [ip + 3]
+    add 0, 0, [0]
+
+    # large = ptr
+    add [rb + ptr], 0, [large]
+
+    jz  0, free_done
+
+free_small:
+    # small chunk, calculate bin index
+    add [rb + size], -8, [rb + bin]
+
+    # if (small[bin])
+    add small, [rb + bin], [ip + 1]
+    jz  [0], free_small_after_prev
+
+    # small[bin][CHUNK_PREV] = ptr
+    add small, [rb + bin], [ip + 1]
+    add [0], CHUNK_PREV, [ip + 3]
+    add [rb + ptr], 0, [0]
+
+free_small_after_prev:
+    # ptr[CHUNK_NEXT] = small[bin]
+    add small, [rb + bin], [ip + 5]
+    add [rb + ptr], CHUNK_NEXT, [ip + 3]
+    add [0], 0, [0]
+
+    # ptr[CHUNK_PREV] = 0
+    add [rb + ptr], CHUNK_PREV, [ip + 3]
+    add 0, 0, [0]
+
+    # small[bin] = ptr
+    add small, [rb + bin], [ip + 3]
+    add [rb + ptr], 0, [0]
+
+free_done:
+    arb 3
     ret 1
 .ENDFRAME
 
