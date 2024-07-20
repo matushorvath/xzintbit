@@ -102,8 +102,7 @@ main:
     arb -1
     call test_free
 
-    # heap state after phase 0:
-    # 8: 4, 19: 2, 92: 1
+    # heap state after phase 0: [8: 4], [19: 2], [92: 1]
 
     ##########
     add 1, 0, [rb - 1]
@@ -164,8 +163,37 @@ main:
     call test_alloc
     add [rb - 3], 0, [p1_29]
 
-    # heap state after phase 1:
-    # 19: 1
+    # heap state after phase 1: [19: 1]
+
+    ##########
+    add 2, 0, [rb - 1]
+    arb -1
+    call print_phase
+
+    # phase 2: free p1_29 (heap state: [19: 1], [31: 1])
+    add [p1_29], 0, [rb - 1]
+    arb -1
+    call test_free
+
+    # phase 2: alloc 21 (uses 31, split off 8)
+    add 21, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p2_21]
+
+    # phase 2: alloc 17 (uses 19)
+    add 17, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p2_17]
+
+    # phase 2: alloc 6 (uses 8)
+    add 6, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p2_6]
+
+    # heap state after phase 1: empty
 
     ret 0
 .ENDFRAME
@@ -207,6 +235,13 @@ p1_89:
 p1_90:
     db  0
 p1_29:
+    db  0
+
+p2_21:
+    db  0
+p2_17:
+    db  0
+p2_6:
     db  0
 
 print_phase:
