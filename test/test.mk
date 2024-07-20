@@ -34,44 +34,32 @@ test-prep:
 $(BINDIR)/%.stdout: $(BINDIR)/%.input %.stdin
 	printf '$(NAME): processing stdin ' >> $(TESTLOG)
 	$(ICVM) $< > $@ < $(patsubst %.input,%.stdin,$(notdir $<)) || ( cat $@ ; true )
-	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.txt: $(BINDIR)/%.input
 	printf '$(NAME): executing ' >> $(TESTLOG)
 	$(ICVM) $< > $@ || ( cat $@ ; true )
-	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	printf '$(NAME): linking ' >> $(TESTLOG)
 	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
-	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.a: $(OBJDIR)/%.o
 	printf '$(NAME): archiving ' >> $(TESTLOG)
 	cat $^ | sed 's/^.C$$/.L/g' > $@ || true
-	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.s
 	printf '$(NAME): assembling ' >> $(TESTLOG)
 	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; true )
-	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.bin
 	printf '$(NAME): running bin2obj ' >> $(TESTLOG)
 	wc -c $< | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
-	@diff $(notdir $@) $@ > /dev/null 2> /dev/null || \
-		( echo $(COLOR_RED)FAILED$(COLOR_NORMAL) ; diff $(notdir $@) $@ ) >> $(TESTLOG)
-	@echo $(COLOR_GREEN)OK$(COLOR_NORMAL) >> $(TESTLOG)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 .PHONY: skip
 skip:
