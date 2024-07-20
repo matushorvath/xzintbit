@@ -244,6 +244,8 @@ free:
 .FRAME ptr; size, bin, tmp
     arb -3
 
+    # TODO when freeing at the end of heap (near brk), reduce brk instead of adding to bin
+
     # handle null pointers
     jz  [rb + ptr], free_done
 

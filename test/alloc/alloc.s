@@ -175,25 +175,61 @@ main:
     arb -1
     call test_free
 
-    # phase 2: alloc 21 (uses 31, split off 8)
+    # phase 2: allocate 21 (uses 31, split off 8)
     add 21, 0, [rb - 1]
     arb -1
     call test_alloc
     add [rb - 3], 0, [p2_21]
 
-    # phase 2: alloc 17 (uses 19)
+    # phase 2: allocate 17 (uses 19)
     add 17, 0, [rb - 1]
     arb -1
     call test_alloc
     add [rb - 3], 0, [p2_17]
 
-    # phase 2: alloc 6 (uses 8)
+    # phase 2: allocate 6 (uses 8)
     add 6, 0, [rb - 1]
     arb -1
     call test_alloc
     add [rb - 3], 0, [p2_6]
 
-    # heap state after phase 1: empty
+    # heap state after phase 2: empty
+
+    ##########
+    add 3, 0, [rb - 1]
+    arb -1
+    call print_phase
+
+    # phase 3: free p1_90 (heap state: [92: 1])
+    add [p1_90], 0, [rb - 1]
+    arb -1
+    call test_free
+
+    # phase 3: allocate 1 (uses 92, split off 84 to large bin)
+    add 1, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p3_1]
+
+    # phase 3: allocate 32 (uses 84, split off 50 to small bin 50)
+    add 32, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p3_32]
+
+    # phase 3: allocate 48 (uses 50 whole)
+    add 48, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p3_48]
+
+    # phase 3: allocate 500 (brk)
+    add 500, 0, [rb - 1]
+    arb -1
+    call test_alloc
+    add [rb - 3], 0, [p3_500]
+
+    # heap state after phase 3: empty
 
     ret 0
 .ENDFRAME
@@ -242,6 +278,15 @@ p2_21:
 p2_17:
     db  0
 p2_6:
+    db  0
+
+p3_1:
+    db  0
+p3_32:
+    db  0
+p3_48:
+    db  0
+p3_500:
     db  0
 
 print_phase:

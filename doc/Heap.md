@@ -108,8 +108,8 @@ phase 3
 free 90
 heap has large: [92: 1]
 
-alloc 1(uses 90, split off 82 to large bin)
-alloc 30(uses 82, split off 50 to small bin 50)
-alloc 50(uses 50 whole)
+alloc 1(uses 92, split off 84 to large bin)
+alloc 32(uses 84, split off 50 to small bin 50)
+alloc 48(uses 50 whole)
 
 alloc 500
