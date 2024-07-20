@@ -11,6 +11,9 @@
 .IMPORT token_line_num
 .IMPORT token_column_num
 
+# from libxib/print.s
+.IMPORT print_str
+
 ##########
 report_libxib_error:
     # We also export this as report_libxib_error, to be used for error reporting from the libxib library
@@ -28,6 +31,16 @@ report_error:
 report_symbol_error:
 .FRAME symbol, message; fixup, line_num, column_num
     arb -3
+
+    out '('
+
+    # print the identifier
+    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
+    arb -1
+    call print_str
+
+    out ')'
+    out ' '
 
     add 0, 0, [rb + line_num]
     add 0, 0, [rb + column_num]
