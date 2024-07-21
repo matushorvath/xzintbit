@@ -1,9 +1,5 @@
 # common constants that will be available in each 'ld' source file
 
-# set_mem block size, from libxib
-# TODO import this from libxib as a symbol
-.SYMBOL MEM_BLOCK_SIZE              1006
-
 # module record layout:
 .SYMBOL MODULE_NEXT_PTR             0
 .SYMBOL MODULE_CODE_HEAD            1

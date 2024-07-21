@@ -2,6 +2,7 @@
 
 # from libxib/memory.s
 .IMPORT inc_mem
+.IMPORT mem_block_size
 
 # from data.s
 .IMPORT symbol_head
@@ -65,8 +66,8 @@ link_one_import_block:
     jz  [rb + buffer], link_one_import_done
     add 1, 0, [rb + index]
 
-    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
-    add MEM_BLOCK_SIZE, 0, [rb + limit]
+    # maximum index within a block is mem_block_size, except for last block
+    add [mem_block_size], 0, [rb + limit]
     add [rb + import], IMPORT_FIXUPS_TAIL, [ip + 1]
     eq  [0], [rb + buffer], [rb + tmp]
     jz  [rb + tmp], link_one_import_byte

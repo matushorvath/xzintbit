@@ -2,6 +2,7 @@
 .EXPORT inc_mem
 .EXPORT print_mem
 .EXPORT pretty_print_mem
+.EXPORT mem_block_size
 
 # from heap.s
 .IMPORT alloc_blocks
@@ -14,6 +15,10 @@
 
 .SYMBOL MEM_BLOCK_ALLOC_SIZE            126         # size in 8-byte memory blocks, for alloc_blocks (126 * 8 - 2 = 1006 bytes)
 .SYMBOL MEM_BLOCK_SIZE                  1006
+
+# MEM_BLOCK_SIZE exported for users of this library
+mem_block_size:
+    db  MEM_BLOCK_SIZE
 
 ##########
 set_mem:
