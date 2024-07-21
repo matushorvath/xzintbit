@@ -1,7 +1,7 @@
 modules: [
   0, 1057, 1465, 1607, 1881, 2048, 2626, 3023, 3807, 3904,
   4440, 4820, 5155, 5234, 5962, 6676, 7603, 8085, 0, 8587,
-  8614, 8845, 9640, 9766, 10306, 10851, 11319, 11614
+  8614, 8845, 9753, 9879, 10419, 10964, 11432, 11727
 ]
 symbols:
   do_fixups:
@@ -41,7 +41,7 @@ symbols:
         offsets: [563]
   strcmp:
     export:
-      module: 11319
+      module: 11432
       offset: 202
     imports:
       - module: 1057
@@ -82,9 +82,9 @@ symbols:
       module: 1465
       offset: 0
     imports:
-      - module: 10306
+      - module: 10419
         offsets: [307]
-      - module: 9766
+      - module: 9879
         offsets: [214, 87]
   report_symbol_token_error:
     export:
@@ -133,7 +133,7 @@ symbols:
         offsets: [484, 427]
   print_str:
     export:
-      module: 10851
+      module: 10964
       offset: 376
     imports:
       - module: 1465
@@ -145,7 +145,7 @@ symbols:
       - module: 8614
         offsets: [203, 188, 173, 158, 104, 74, 44, 29, 14]
       - module: 8845
-        offsets: [677, 567, 498]
+        offsets: [790, 680, 611]
   add_fixup:
     export:
       module: 1607
@@ -166,13 +166,13 @@ symbols:
         offsets: [65]
       - module: 2048
         offsets: [93]
-      - module: 10306
+      - module: 10419
         offsets: [92, 27]
-      - module: 9766
+      - module: 9879
         offsets: [134, 16]
   inc_mem:
     export:
-      module: 10306
+      module: 10419
       offset: 176
     imports:
       - module: 1607
@@ -260,7 +260,7 @@ symbols:
   free:
     export:
       module: 8845
-      offset: 323
+      offset: 436
     imports:
       - module: 1881
         offsets: [151]
@@ -276,7 +276,7 @@ symbols:
         offsets: [398, 287, 137]
   strcpy:
     export:
-      module: 11319
+      module: 11432
       offset: 256
     imports:
       - module: 1881
@@ -366,60 +366,60 @@ symbols:
         offsets: [402, 385, 366, 210, 141, 124, 105, 44]
   get_input:
     export:
-      module: 9640
+      module: 9753
       offset: 0
     imports:
       - module: 3023
         offsets: [325, 312, 198, 161, 18]
-      - module: 9766
+      - module: 9879
         offsets: [440, 378, 351, 324, 300, 280, 256, 178, 151, 33]
   unget_input:
     export:
-      module: 9640
+      module: 9753
       offset: 48
     imports:
       - module: 3023
         offsets: [367, 240]
-      - module: 9766
+      - module: 9879
         offsets: [466, 110]
   input_line_num:
     export:
-      module: 9640
+      module: 9753
       offset: 122
     imports:
       - module: 3023
         offsets: [3]
   input_column_num:
     export:
-      module: 9640
+      module: 9753
       offset: 123
     imports:
       - module: 3023
         offsets: [7]
   read_identifier:
     export:
-      module: 9766
+      module: 9879
       offset: 0
     imports:
       - module: 3023
         offsets: [548, 483]
   read_string:
     export:
-      module: 9766
+      module: 9879
       offset: 118
     imports:
       - module: 3023
         offsets: [292]
   read_number:
     export:
-      module: 9766
+      module: 9879
       offset: 230
     imports:
       - module: 3023
         offsets: [376]
   print_num:
     export:
-      module: 10851
+      module: 10964
       offset: 0
     imports:
       - module: 3023
@@ -429,19 +429,19 @@ symbols:
       - module: 8614
         offsets: [89, 59]
       - module: 8845
-        offsets: [734, 707, 637, 610, 582, 528]
-      - module: 10306
+        offsets: [847, 820, 750, 723, 695, 641]
+      - module: 10419
         offsets: [496]
   is_digit:
     export:
-      module: 11319
+      module: 11432
       offset: 0
     imports:
       - module: 3023
         offsets: [136]
   is_alpha:
     export:
-      module: 11319
+      module: 11432
       offset: 107
     imports:
       - module: 3023
@@ -466,14 +466,14 @@ symbols:
         offsets: [89]
   set_mem:
     export:
-      module: 10306
+      module: 10419
       offset: 0
     imports:
       - module: 3807
         offsets: [79, 28]
   print_mem:
     export:
-      module: 10306
+      module: 10419
       offset: 349
     imports:
       - module: 3904
@@ -597,7 +597,7 @@ symbols:
         offsets: [380]
   reset_input_location:
     export:
-      module: 9640
+      module: 9753
       offset: 105
     imports:
       - module: 5155
@@ -697,17 +697,17 @@ symbols:
         offsets: [356]
   char_to_digit:
     export:
-      module: 11319
+      module: 11432
       offset: 24
     imports:
-      - module: 9766
+      - module: 9879
         offsets: [408]
   is_alphanum:
     export:
-      module: 11319
+      module: 11432
       offset: 145
     imports:
-      - module: 9766
+      - module: 9879
         offsets: [52]
   report_error_with_symbol:
     export:
@@ -721,53 +721,58 @@ symbols:
     imports:
   print_num_2:
     export:
-      module: 10851
+      module: 10964
       offset: 32
     imports:
   print_num_2_b:
     export:
-      module: 10851
+      module: 10964
       offset: 64
     imports:
   print_num_2_w:
     export:
-      module: 10851
+      module: 10964
       offset: 96
     imports:
   print_num_16:
     export:
-      module: 10851
+      module: 10964
       offset: 128
     imports:
   print_num_16_b:
     export:
-      module: 10851
+      module: 10964
       offset: 160
     imports:
   print_num_16_w:
     export:
-      module: 10851
+      module: 10964
       offset: 192
     imports:
   print_num_radix:
     export:
-      module: 10851
+      module: 10964
       offset: 224
     imports:
   print_str_as_mem:
     export:
-      module: 10851
+      module: 10964
       offset: 409
+    imports:
+  realloc_more_blocks:
+    export:
+      module: 8845
+      offset: 323
     imports:
   zeromem_blocks:
     export:
       module: 8845
-      offset: 443
+      offset: 556
     imports:
   dump_heap:
     export:
       module: 8845
-      offset: 482
+      offset: 595
     imports:
   sbrk:
     export:
@@ -775,15 +780,22 @@ symbols:
       offset: 9
     imports:
       - module: 8845
-        offsets: [513, 131]
+        offsets: [626, 411, 131]
+  brk_addr:
+    export:
+      module: 8587
+      offset: 26
+    imports:
+      - module: 8845
+        offsets: [343]
   pretty_print_mem:
     export:
-      module: 10306
+      module: 10419
       offset: 385
     imports:
   peek_input:
     export:
-      module: 9640
+      module: 9753
       offset: 83
     imports:
   brk:
@@ -793,7 +805,7 @@ symbols:
     imports:
   __heap_start:
     export:
-      module: 11614
+      module: 11727
       offset: 0
     imports:
       - module: 8587

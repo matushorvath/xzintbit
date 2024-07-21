@@ -1,10 +1,12 @@
 .EXPORT alloc_blocks
+.EXPORT realloc_more_blocks
 .EXPORT free
 .EXPORT zeromem_blocks
 .EXPORT dump_heap
 
 # from brk.s
 .IMPORT sbrk
+.IMPORT brk_addr
 
 # from print.s
 .IMPORT print_num
@@ -235,6 +237,69 @@ alloc_return_ptr:
 alloc_done:
     arb 4
     ret 1
+.ENDFRAME
+
+##########
+realloc_more_blocks:
+.FRAME old_ptr, new_block_count; old_size, new_size, new_ptr, tmp               # returns new_ptr
+    arb -4
+
+    # TODO support decreasing block count, for now only increasing is supported
+
+    # adjust old_ptr to point to the chunk header by subtracting USED_CHUNK_HEADER_SIZE = 2
+    add [rb + old_ptr], -2, [rb + old_ptr]
+
+    # get current block size in bytes
+    add [rb + old_ptr], CHUNK_BLOCKS, [ip + 1]
+    mul [0], BLOCK_SIZE, [rb + old_size]
+
+    # is this the last block before sbrk?
+    add [rb + old_ptr], [rb + old_size], [rb + tmp]
+    eq  [rb + tmp], [brk_addr], [rb + tmp]
+    jnz [rb + tmp], realloc_blocks_sbrk
+
+    # this is not the last block, allocate a new block and copy data
+    # TODO first try merging this block with the following block, if it is free
+    add [rb + new_block_count], 0, [rb - 1]
+    arb -1
+    call alloc_blocks
+    add [rb - 3], 0, [rb + new_ptr]
+
+realloc_more_blocks_copy_loop:
+    add [rb + old_size], -1, [rb + old_size]
+
+    add [rb + old_ptr], [rb + old_size], [ip + 5]
+    add [rb + new_ptr], [rb + old_size], [ip + 3]
+    add [0], 0, [0]
+
+    jnz [rb + old_size], realloc_more_blocks_copy_loop
+
+    jz  0, realloc_more_blocks_done
+
+realloc_blocks_sbrk:
+    # allocate additional memory using sbrk
+    mul [rb + new_block_count], BLOCK_SIZE, [rb + new_size]
+    mul [rb + old_size], -1, [rb + tmp]
+    add [rb + new_size], [rb + tmp], [rb - 1]
+    arb -1
+    call sbrk
+    add [rb + old_ptr], 0, [rb + new_ptr]
+
+    # update block size
+    add [rb + new_ptr], CHUNK_BLOCKS, [ip + 3]
+    add [rb + new_block_count], 0, [0]
+
+realloc_more_blocks_done:
+    arb 4
+    ret 2
+.ENDFRAME
+
+##########
+memcpy:
+.FRAME src, tgt, size;
+memcpy_loop:
+
+    ret 3
 .ENDFRAME
 
 ##########

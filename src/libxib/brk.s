@@ -1,5 +1,6 @@
 .EXPORT brk
 .EXPORT sbrk
+.EXPORT brk_addr
 
 .IMPORT __heap_start
 
