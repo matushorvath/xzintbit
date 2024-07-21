@@ -16,13 +16,19 @@
 # from outside of this library
 .IMPORT report_libxib_error
 
+# TODO unlimited identifier length
+.SYMBOL IDENTIFIER_LENGTH 45
+
+# TODO unlimited string length
+.SYMBOL STRING_LENGTH 49
+
 ##########
 read_identifier:
 .FRAME buffer, index, char, tmp
     arb -4
 
     # we will store the identifier in dynamic memory that needs to be freed by caller
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add IDENTIFIER_LENGTH, 1, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + buffer]
@@ -71,7 +77,7 @@ read_string:
     arb -4
 
     # we will store the string in dynamic memory that needs to be freed by caller
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add STRING_LENGTH, 1, [rb - 1]
     arb -1
     call alloc
     add [rb - 3], 0, [rb + buffer]
@@ -103,7 +109,7 @@ read_string_after_escape:
 
     # increase index and check for maximum string length
     add [rb + index], 1, [rb + index]
-    lt  [rb + index], MEM_BLOCK_SIZE - 1, [rb + tmp]
+    lt  [rb + index], STRING_LENGTH, [rb + tmp]
     jnz [rb + tmp], read_string_loop
 
     add err_max_string_length, 0, [rb]
@@ -218,11 +224,6 @@ read_number_end:
     arb 7
     ret 0
 .ENDFRAME
-
-##########
-# globals
-
-.SYMBOL IDENTIFIER_LENGTH 45
 
 ##########
 # error messages

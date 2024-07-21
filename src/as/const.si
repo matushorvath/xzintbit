@@ -1,8 +1,5 @@
 # common constants that will be available in each 'as' source file
 
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE              50
-
 # global symbol record layout:
 .SYMBOL GLOBAL_NEXT_PTR             0
 .SYMBOL GLOBAL_IDENTIFIER           1           # 1-IDENTIFIER_LENGTH; zero-terminated
