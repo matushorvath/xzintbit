@@ -7,7 +7,7 @@
 .IMPORT unget_input
 
 # from heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
 
 # from string.s
 .IMPORT char_to_digit
@@ -17,10 +17,12 @@
 .IMPORT report_libxib_error
 
 # TODO unlimited identifier length
-.SYMBOL IDENTIFIER_LENGTH 45
+.SYMBOL IDENTIFIER_ALLOC_SIZE           7       # record size in memory blocks, for alloc_blocks (7 * 8 - 2 = 54 bytes)
+.SYMBOL IDENTIFIER_LENGTH               45
 
 # TODO unlimited string length
-.SYMBOL STRING_LENGTH 49
+.SYMBOL STRING_ALLOC_SIZE               7       # record size in memory blocks, for alloc_blocks (7 * 8 - 2 = 54 bytes)
+.SYMBOL STRING_LENGTH                   49
 
 ##########
 read_identifier:
@@ -28,9 +30,9 @@ read_identifier:
     arb -4
 
     # we will store the identifier in dynamic memory that needs to be freed by caller
-    add IDENTIFIER_LENGTH, 1, [rb - 1]
+    add IDENTIFIER_ALLOC_SIZE, 1, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
 
     add 0, 0, [rb + index]
@@ -77,9 +79,9 @@ read_string:
     arb -4
 
     # we will store the string in dynamic memory that needs to be freed by caller
-    add STRING_LENGTH, 1, [rb - 1]
+    add STRING_ALLOC_SIZE, 1, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
 
     add 0, 0, [rb + index]

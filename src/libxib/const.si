@@ -1,6 +1,0 @@
-# common constants that will be available in each 'libxib' source file
-
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE              1000
-
-.EOI

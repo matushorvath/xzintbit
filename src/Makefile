@@ -69,7 +69,7 @@ LIBXIB_OBJS = libxib.o brk.o error.o heap.o input.o lexer.o memory.o print.o str
 $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 	$(run-ar)
 
-$(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/const.si $(SRCDIR)/libxib/%.s
+$(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/%.s
 	$(run-as)
 
 define PROFILE_AWK

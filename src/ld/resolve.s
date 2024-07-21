@@ -5,11 +5,11 @@
 .IMPORT report_error_with_symbol
 
 # from libxib/heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
+.IMPORT zeromem_blocks
 
 # from libxib/string.s
 .IMPORT strcmp
-.IMPORT zeromem
 
 # from data.s
 .IMPORT module_head
@@ -227,16 +227,16 @@ include_imported_loop:
     jnz [rb + symbol], include_imported_have_symbol
 
     # no, create a new included symbol
-    add EXPORT_SIZE, 0, [rb - 1]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + symbol]
 
     # initialize to zeros
     add [rb + symbol], 0, [rb - 1]
-    add EXPORT_SIZE, 0, [rb - 2]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # default symbol address is -1, not 0
     add [rb + symbol], EXPORT_ADDRESS, [ip + 3]
