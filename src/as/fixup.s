@@ -3,6 +3,7 @@
 
 # from libxib/heap.s
 .IMPORT alloc_blocks
+.IMPORT free
 
 # from libxib/memory.s
 .IMPORT inc_mem
@@ -25,6 +26,8 @@ add_fixup:
 .FRAME identifier, address, line_num, column_num; symbol, fixup, tmp
     arb -3
 
+    # takes over ownership of identifier
+
     # find or create the symbol record
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -39,6 +42,11 @@ add_fixup:
     add [rb - 3], 0, [rb + symbol]
 
 add_fixup_have_symbol:
+    # free the identifier, the symbol already exists so we don't need it
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call free
+
     # allocate a block
     add FIXUP_ALLOC_SIZE, 0, [rb - 1]
     arb -1

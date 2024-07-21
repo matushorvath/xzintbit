@@ -168,7 +168,8 @@ print_imports_symbol:
 
 print_imports_no_address:
     # print the identifier
-    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
+    add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
     call print_str
 
@@ -252,7 +253,8 @@ print_exports_symbol:
 
 print_exports_have_address:
     # print the identifier
-    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
+    add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
     call print_str
 

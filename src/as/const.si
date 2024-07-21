@@ -2,11 +2,11 @@
 
 # global symbol record layout:
 .SYMBOL GLOBAL_NEXT_PTR             0
-.SYMBOL GLOBAL_IDENTIFIER           1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL GLOBAL_TYPE                 47          # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - relocation
-.SYMBOL GLOBAL_ADDRESS              48
-.SYMBOL GLOBAL_FIXUPS_HEAD          49
-.SYMBOL GLOBAL_ALLOC_SIZE           7           # record size in memory blocks, for alloc_blocks (7 * 8 - 2 = 54 bytes)
+.SYMBOL GLOBAL_IDENTIFIER_PTR       1           # pointer to identifier
+.SYMBOL GLOBAL_TYPE                 2           # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - relocation
+.SYMBOL GLOBAL_ADDRESS              3
+.SYMBOL GLOBAL_FIXUPS_HEAD          4
+.SYMBOL GLOBAL_ALLOC_SIZE           1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
 
 # fixup record layout:
 .SYMBOL FIXUP_NEXT_PTR              0

@@ -2,9 +2,6 @@
 .EXPORT parse_dir_symbol
 .EXPORT parse_dir_import_export
 
-# from libxib/heap.s
-.IMPORT free
-
 # from error.s
 .IMPORT report_error
 
@@ -73,12 +70,6 @@ parse_symbol_have_identifier:
     arb -2
     call set_global_symbol_address
 
-    # free the symbol value
-    add [token_value], 0, [rb - 1]
-    arb -1
-    call free
-    add 0, 0, [token_value]
-
     call get_token
 
     eq  [token_type], ':', [rb + tmp]
@@ -127,12 +118,6 @@ parse_dir_symbol_have_identifier:
     arb -2
     call set_global_symbol_type
 
-    # free the identifier
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    call free
-    add 0, 0, [rb + identifier]
-
     # check end of line
     eq  [token_type], '$', [rb + tmp]
     jnz [rb + tmp], parse_dir_symbol_done
@@ -172,12 +157,6 @@ parse_dir_import_export_have_identifier:
     add [rb + type], 0, [rb - 2]
     arb -2
     call set_global_symbol_type
-
-    # free the identifier
-    add [token_value], 0, [rb - 1]
-    arb -1
-    call free
-    add 0, 0, [token_value]
 
     # read end of line
     call get_token

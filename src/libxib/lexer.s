@@ -17,29 +17,49 @@
 .IMPORT is_alphanum
 
 # from outside of this library
+# TODO remove
 .IMPORT report_libxib_error
 
-# TODO unlimited identifier length
-.SYMBOL IDENTIFIER_ALLOC_SIZE           7       # record size in memory blocks, for alloc_blocks (7 * 8 - 2 = 54 bytes)
-.SYMBOL IDENTIFIER_LENGTH               45
-
+.SYMBOL IDENTIFIER_DEFAULT_ALLOC_SIZE   8       # size in memory blocks, for alloc_blocks (8 * 8 - 2 = 62 bytes)
 .SYMBOL STRING_DEFAULT_ALLOC_SIZE       8       # size in memory blocks, for alloc_blocks (8 * 8 - 2 = 62 bytes)
 .SYMBOL REALLOC_INCREMENT               8       # how many additional blocks to realloc when needed
 
 ##########
 read_identifier:
-.FRAME buffer, index, char, tmp
-    arb -4
+.FRAME buffer, index, char, blocks, space_left, tmp
+    arb -6
 
     # we will store the identifier in dynamic memory that needs to be freed by caller
-    add IDENTIFIER_ALLOC_SIZE, 1, [rb - 1]
+    add IDENTIFIER_DEFAULT_ALLOC_SIZE, 0, [rb + blocks]
+
+    add [rb + blocks], 0, [rb - 1]
     arb -1
     call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
 
+    # how many more characters we can input before allocating more memory?
+    mul [rb + blocks], [block_size], [rb + space_left]
+    add [rb + space_left], [neg_chunk_header_size], [rb + space_left]
+    add [rb + space_left], -1, [rb + space_left]            # space for zero termination
+
     add 0, 0, [rb + index]
 
 read_identifier_loop:
+    # any space for characters left?
+    jnz [rb + space_left], read_identifier_have_space
+
+    # no, need to allocate more
+    add [rb + buffer], 0, [rb - 1]
+    add [rb + blocks], REALLOC_INCREMENT, [rb + blocks]
+    add [rb + blocks], 0, [rb - 2]
+    arb -2
+    call realloc_more_blocks
+    add [rb - 4], 0, [rb + buffer]
+
+    # there is now more space left
+    mul REALLOC_INCREMENT, [block_size], [rb + space_left]
+
+read_identifier_have_space:
     call get_input
     add [rb - 2], 0, [rb + char]
 
@@ -53,13 +73,11 @@ read_identifier_loop:
     add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
-    # increase index and check for maximum identifier length
+    # increase index and decrease space left
     add [rb + index], 1, [rb + index]
-    lt  [rb + index], IDENTIFIER_LENGTH, [rb + tmp]
-    jnz [rb + tmp], read_identifier_loop
+    add [rb + space_left], -1, [rb + space_left]
 
-    add err_max_identifier_length, 0, [rb]
-    call report_libxib_error
+    jz  0, read_identifier_loop
 
 read_identifier_done:
     # zero terminate
@@ -71,7 +89,7 @@ read_identifier_done:
     arb -1
     call unget_input
 
-    arb 4
+    arb 6
     ret 0
 .ENDFRAME
 
@@ -249,11 +267,5 @@ read_number_end:
     arb 7
     ret 0
 .ENDFRAME
-
-##########
-# error messages
-
-err_max_identifier_length:
-    db  "Maximum identifier length exceeded", 0
 
 .EOF
