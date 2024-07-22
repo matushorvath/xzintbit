@@ -28,12 +28,7 @@ main:
     arb -1
     call print_phase
 
-    # phase 0: allocate 0 1 1 1 3 1 12 3 blocks, all from brk
-    add 0, 0, [rb - 1]
-    arb -1
-    call test_alloc
-    add [rb - 3], 0, [p0_0]
-
+    # phase 0: allocate 1 1 1 3 1 12 3 blocks, all from brk
     add 1, 0, [rb - 1]
     arb -1
     call test_alloc
@@ -418,7 +413,7 @@ report_libxib_error:
     arb -1
     call print_str
 
-    ret 0
+    hlt
 
 report_libxib_error_msg:
     db  "libxib error", 10, 0

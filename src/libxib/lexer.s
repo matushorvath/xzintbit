@@ -8,6 +8,9 @@
 
 # from heap.s
 .IMPORT alloc_blocks
+.IMPORT realloc_more_blocks
+.IMPORT neg_chunk_header_size
+.IMPORT block_size
 
 # from string.s
 .IMPORT char_to_digit
@@ -20,9 +23,8 @@
 .SYMBOL IDENTIFIER_ALLOC_SIZE           7       # record size in memory blocks, for alloc_blocks (7 * 8 - 2 = 54 bytes)
 .SYMBOL IDENTIFIER_LENGTH               45
 
-# TODO unlimited string length
-.SYMBOL STRING_ALLOC_SIZE               7       # record size in memory blocks, for alloc_blocks (7 * 8 - 2 = 54 bytes)
-.SYMBOL STRING_LENGTH                   49
+.SYMBOL STRING_DEFAULT_ALLOC_SIZE       8       # size in memory blocks, for alloc_blocks (8 * 8 - 2 = 62 bytes)
+.SYMBOL REALLOC_INCREMENT               8       # how many additional blocks to realloc when needed
 
 ##########
 read_identifier:
@@ -75,20 +77,43 @@ read_identifier_done:
 
 ##########
 read_string:
-.FRAME buffer, index, char, tmp
-    arb -4
+.FRAME buffer, index, char, blocks, space_left, tmp
+    arb -6
 
     # we will store the string in dynamic memory that needs to be freed by caller
-    add STRING_ALLOC_SIZE, 1, [rb - 1]
+    add STRING_DEFAULT_ALLOC_SIZE, 0, [rb + blocks]
+
+    add [rb + blocks], 0, [rb - 1]
     arb -1
     call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
+
+    # how many more characters we can input before allocating more memory?
+    mul [rb + blocks], [block_size], [rb + space_left]
+    add [rb + space_left], [neg_chunk_header_size], [rb + space_left]
+    add [rb + space_left], -1, [rb + space_left]            # space for zero termination
 
     add 0, 0, [rb + index]
 
     # the opening quote was already processed by caller
 
 read_string_loop:
+    # any space for characters left?
+    jnz [rb + space_left], read_string_have_space
+
+    # no, need to allocate more
+    add [rb + blocks], REALLOC_INCREMENT, [rb + blocks]
+
+    add [rb + buffer], 0, [rb - 1]
+    add [rb + blocks], 0, [rb - 2]
+    arb -2
+    call realloc_more_blocks
+    add [rb - 4], 0, [rb + buffer]
+
+    # there is now more space left
+    mul REALLOC_INCREMENT, [block_size], [rb + space_left]
+
+read_string_have_space:
     call get_input
     add [rb - 2], 0, [rb + char]
 
@@ -109,20 +134,18 @@ read_string_after_escape:
     add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
-    # increase index and check for maximum string length
+    # increase index and decrease space left
     add [rb + index], 1, [rb + index]
-    lt  [rb + index], STRING_LENGTH, [rb + tmp]
-    jnz [rb + tmp], read_string_loop
+    add [rb + space_left], -1, [rb + space_left]
 
-    add err_max_string_length, 0, [rb]
-    call report_libxib_error
+    jz  0, read_string_loop
 
 read_string_done:
     # zero terminate
     add [rb + buffer], [rb + index], [ip + 3]
     add 0, 0, [0]
 
-    arb 4
+    arb 6
     ret 0
 .ENDFRAME
 
