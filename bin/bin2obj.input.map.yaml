@@ -1,6 +1,6 @@
 modules: [
   0, 0, 0, 0, 0, 0, 0, 0, 2132, 2600,
-  2895
+  2926
 ]
 symbols:
   print_num:
@@ -26,7 +26,7 @@ symbols:
         offsets: [1252]
   __heap_start:
     export:
-      module: 2895
+      module: 2926
       offset: 0
     imports:
       - module: 0
@@ -95,4 +95,9 @@ symbols:
     export:
       module: 2600
       offset: 256
+    imports:
+  zeromem:
+    export:
+      module: 2600
+      offset: 295
     imports:

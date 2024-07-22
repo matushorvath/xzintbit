@@ -1,7 +1,7 @@
 modules: [
   0, 1057, 1465, 1652, 1926, 2093, 2671, 3068, 3852, 3949,
   4485, 4865, 5200, 5279, 6007, 6721, 7648, 8130, 0, 8632,
-  8659, 8890, 9800, 9926, 10466, 11012, 11480, 11775
+  8659, 8890, 9800, 9926, 10466, 11012, 11480, 11806
 ]
 symbols:
   do_fixups:
@@ -709,6 +709,11 @@ symbols:
     imports:
       - module: 9926
         offsets: [52]
+  zeromem:
+    export:
+      module: 11480
+      offset: 295
+    imports:
   report_error_with_symbol:
     export:
       module: 8659
@@ -820,7 +825,7 @@ symbols:
     imports:
   __heap_start:
     export:
-      module: 11775
+      module: 11806
       offset: 0
     imports:
       - module: 8632
