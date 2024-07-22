@@ -17,9 +17,9 @@
 
 # frame symbol record layout:
 .SYMBOL FRAME_NEXT_PTR              0
-.SYMBOL FRAME_IDENTIFIER            1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL FRAME_OFFSET                48          # symbol value
-.SYMBOL FRAME_BLOCK                 49          # block index (.FRAME block0; block1; block2)
-.SYMBOL FRAME_ALLOC_SIZE            7           # record size in memory blocks, for alloc_blocks (7 * 8 - 2 = 54 bytes)
+.SYMBOL FRAME_IDENTIFIER_PTR        1           # pointer to identifier
+.SYMBOL FRAME_OFFSET                2           # symbol value
+.SYMBOL FRAME_BLOCK                 3           # block index (.FRAME block0; block1; block2)
+.SYMBOL FRAME_ALLOC_SIZE            1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
 
 .EOI

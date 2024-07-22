@@ -9,7 +9,6 @@
 
 # from libxib/string.s
 .IMPORT strcmp
-.IMPORT strcpy
 
 ##########
 find_frame_symbol:
@@ -24,7 +23,8 @@ find_frame_symbol_loop:
 
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
-    add [rb + record], FRAME_IDENTIFIER, [rb - 2]
+    add [rb + record], FRAME_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb - 2]
     arb -2
     call strcmp
 
@@ -47,6 +47,8 @@ add_frame_symbol:
 .FRAME identifier, block_index; record
     arb -1
 
+    # takes over ownership of identifier
+
     # allocate a block
     add FRAME_ALLOC_SIZE, 0, [rb - 1]
     arb -1
@@ -57,11 +59,9 @@ add_frame_symbol:
     add [rb + record], FRAME_NEXT_PTR, [ip + 3]
     add [frame_head], 0, [0]
 
-    # store the identifier
-    add [rb + identifier], 0, [rb - 1]
-    add [rb + record], FRAME_IDENTIFIER, [rb - 2]
-    arb -2
-    call strcpy
+    # store the identifier pointer
+    add [rb + record], FRAME_IDENTIFIER_PTR, [ip + 3]
+    add [rb + identifier], 0, [0]
 
     # set block index
     add [rb + record], FRAME_BLOCK, [ip + 3]
@@ -91,6 +91,12 @@ reset_frame_symbol_loop:
     # move to next record
     add [rb + record], FRAME_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
+
+    # free the identifier
+    add [rb + tmp], FRAME_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call free
 
     # free current record
     add [rb + tmp], 0, [rb - 1]
