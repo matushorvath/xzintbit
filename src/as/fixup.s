@@ -2,7 +2,7 @@
 .EXPORT do_fixups
 
 # from libxib/heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
 
 # from libxib/memory.s
 .IMPORT inc_mem
@@ -40,9 +40,9 @@ add_fixup:
 
 add_fixup_have_symbol:
     # allocate a block
-    add FIXUP_SIZE, 0, [rb - 1]
+    add FIXUP_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + fixup]
 
     # store the address of the fixup

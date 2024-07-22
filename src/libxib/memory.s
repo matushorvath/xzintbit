@@ -2,15 +2,23 @@
 .EXPORT inc_mem
 .EXPORT print_mem
 .EXPORT pretty_print_mem
+.EXPORT mem_block_size
 
 # from heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
 
 # from print.s
 .IMPORT print_num
 
 # from outside of this library
 .IMPORT report_libxib_error
+
+.SYMBOL MEM_BLOCK_ALLOC_SIZE            126         # size in 8-byte memory blocks, for alloc_blocks (126 * 8 - 2 = 1006 bytes)
+.SYMBOL MEM_BLOCK_SIZE                  1006
+
+# MEM_BLOCK_SIZE exported for users of this library
+mem_block_size:
+    db  MEM_BLOCK_SIZE
 
 ##########
 set_mem:
@@ -24,9 +32,9 @@ set_mem:
     jnz [rb + buffer], set_mem_have_buffer
 
     # no, create one
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add MEM_BLOCK_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer
@@ -51,9 +59,9 @@ set_mem_have_buffer:
     jnz [rb + tmp], set_mem_have_space
 
     # no, create a new buffer
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add MEM_BLOCK_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer

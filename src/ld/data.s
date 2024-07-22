@@ -8,10 +8,8 @@
 .EXPORT symbol_tail
 
 # from libxib/heap.s
-.IMPORT alloc
-
-# from libxib/string.s
-.IMPORT zeromem
+.IMPORT alloc_blocks
+.IMPORT zeromem_blocks
 
 ##########
 create_module:
@@ -19,16 +17,16 @@ create_module:
     arb -1
 
     # allocate a block
-    add MODULE_SIZE, 0, [rb - 1]
+    add MODULE_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + module]
 
     # initialize to zeros
     add [rb + module], 0, [rb - 1]
-    add MODULE_SIZE, 0, [rb - 2]
+    add MODULE_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # object files are mandatory, libraries are optional
     add [rb + module], MODULE_NEEDED, [ip + 3]
@@ -58,16 +56,16 @@ create_import:
     arb -2
 
     # allocate a block
-    add IMPORT_SIZE, 0, [rb - 1]
+    add IMPORT_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + import]
 
     # initialize to zeros
     add [rb + import], 0, [rb - 1]
-    add IMPORT_SIZE, 0, [rb - 2]
+    add IMPORT_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # save module pointer
     add [rb + import], IMPORT_MODULE, [ip + 3]
@@ -96,16 +94,16 @@ create_export:
     arb -2
 
     # allocate a block
-    add EXPORT_SIZE, 0, [rb - 1]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + export]
 
     # initialize to zeros
     add [rb + export], 0, [rb - 1]
-    add EXPORT_SIZE, 0, [rb - 2]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # save module pointer
     add [rb + export], EXPORT_MODULE, [ip + 3]

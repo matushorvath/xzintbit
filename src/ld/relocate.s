@@ -2,6 +2,7 @@
 
 # from libxib/memory.s
 .IMPORT inc_mem
+.IMPORT mem_block_size
 
 # from data.s
 .IMPORT module_head
@@ -57,8 +58,8 @@ relocate_module_block:
     jz  [rb + buffer], relocate_module_done
     add 1, 0, [rb + index]
 
-    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
-    add MEM_BLOCK_SIZE, 0, [rb + limit]
+    # maximum index within a block is mem_block_size, except for last block
+    add [mem_block_size], 0, [rb + limit]
     add [rb + module], MODULE_RELOC_TAIL, [ip + 1]
     eq  [0], [rb + buffer], [rb + tmp]
     jz  [rb + tmp], relocate_module_byte

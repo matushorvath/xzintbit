@@ -4,7 +4,7 @@
 .EXPORT frame_head
 
 # from libxib/heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
 .IMPORT free
 
 # from libxib/string.s
@@ -48,9 +48,9 @@ add_frame_symbol:
     arb -1
 
     # allocate a block
-    add FRAME_SIZE, 0, [rb - 1]
+    add FRAME_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol

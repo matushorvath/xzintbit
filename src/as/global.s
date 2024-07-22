@@ -7,7 +7,7 @@
 .EXPORT relocation_symbol
 
 # from libxib/heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
 
 # from libxib/string.s
 .IMPORT strcmp
@@ -69,9 +69,9 @@ add_global_symbol:
     arb -1
 
     # allocate a block
-    add GLOBAL_SIZE, 0, [rb - 1]
+    add GLOBAL_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + record]
 
     # set pointer to next symbol
