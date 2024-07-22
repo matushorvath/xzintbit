@@ -255,7 +255,5 @@ read_number_end:
 
 err_max_identifier_length:
     db  "Maximum identifier length exceeded", 0
-err_max_string_length:
-    db  "Maximum string length exceeded", 0
 
 .EOF
