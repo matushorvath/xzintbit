@@ -23,29 +23,8 @@
 
 ##########
 add_fixup:
-.FRAME identifier, address, line_num, column_num; symbol, fixup, tmp
-    arb -3
-
-    # takes over ownership of identifier
-
-    # find or create the symbol record
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    call find_global_symbol
-    add [rb - 3], 0, [rb + symbol]
-
-    jnz [rb + symbol], add_fixup_have_symbol
-
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    call add_global_symbol
-    add [rb - 3], 0, [rb + symbol]
-
-add_fixup_have_symbol:
-    # free the identifier, the symbol already exists so we don't need it
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    call free
+.FRAME symbol, address, line_num, column_num; fixup, tmp
+    arb -2
 
     # allocate a block
     add FIXUP_ALLOC_SIZE, 0, [rb - 1]
@@ -77,7 +56,7 @@ add_fixup_have_symbol:
     add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 3]
     add [rb + fixup], 0, [0]
 
-    arb 3
+    arb 2
     ret 4
 .ENDFRAME
 

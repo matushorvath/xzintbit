@@ -15,6 +15,9 @@
 # from frame.s
 .IMPORT find_frame_symbol
 
+# from global.s
+.IMPORT add_or_find_global_symbol
+
 # from lexer.s
 .IMPORT get_token
 .IMPORT token_type
@@ -200,8 +203,14 @@ parse_value_is_global:
     call report_error
 
 parse_value_global_symbol_allowed:
-    # add a fixup for this identifier, handing over the identifier to add_fixup
+    # add or retrieve symbol from the symbol table
     add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # add a fixup for this identifier
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
@@ -215,8 +224,13 @@ parse_value_ip:
     add 1, 0, [rb + has_symbol]
     add [current_address], [rb + instruction_length], [rb + result]
 
-    # add a fixup (actually a relocation) for the use of current_address
+    # retrieve relocation symbol from the symbol table
     add 0, 0, [rb - 1]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
+
+    # add a fixup (actually a relocation) for the use of current_address
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
