@@ -16,6 +16,9 @@
 .IMPORT print_num
 .IMPORT print_str
 
+# from outside of this library
+.IMPORT report_libxib_error
+
 # from builtin
 .IMPORT __heap_start
 
@@ -32,6 +35,7 @@
 .SYMBOL MAX_SMALL_BLOCKS                8
 
 # constants exported for users of this library 
+# TODO use neg_chunk_header_size in this file instead of -2
 neg_chunk_header_size:
     db  -2          # negative of USED_CHUNK_HEADER_SIZE, for subtracting
 block_size:
@@ -69,9 +73,9 @@ alloc_small_table:
     db  alloc_small_8_blocks
 
 alloc_small_0_blocks:
-    # zero blocks, return a null pointer
-    add 0, 0, [rb + ptr]
-    jz  0, alloc_done
+    # zero blocks, fail
+    add err_zero_allocation, 0, [rb]
+    call report_libxib_error
 
 alloc_small_1_blocks:
     # if there is a chunk in current bin, use it
@@ -251,20 +255,20 @@ alloc_done:
 
 ##########
 realloc_more_blocks:
-.FRAME old_ptr, new_block_count; old_size, new_size, new_ptr, tmp               # returns new_ptr
-    arb -4
+.FRAME old_ptr, new_block_count; new_ptr, old_size, new_size, old_chunk, tmp               # returns new_ptr
+    arb -5
 
     # TODO support decreasing block count, for now only increasing is supported
 
     # adjust old_ptr to point to the chunk header by subtracting USED_CHUNK_HEADER_SIZE = 2
-    add [rb + old_ptr], -2, [rb + old_ptr]
+    add [rb + old_ptr], -2, [rb + old_chunk]
 
     # get current block size in bytes
-    add [rb + old_ptr], CHUNK_BLOCKS, [ip + 1]
+    add [rb + old_chunk], CHUNK_BLOCKS, [ip + 1]
     mul [0], BLOCK_SIZE, [rb + old_size]
 
     # is this the last block before sbrk?
-    add [rb + old_ptr], [rb + old_size], [rb + tmp]
+    add [rb + old_chunk], [rb + old_size], [rb + tmp]
     eq  [rb + tmp], [brk_addr], [rb + tmp]
     jnz [rb + tmp], realloc_blocks_sbrk
 
@@ -274,6 +278,9 @@ realloc_more_blocks:
     arb -1
     call alloc_blocks
     add [rb - 3], 0, [rb + new_ptr]
+
+    # old_size includes size of the chunk header, subtract it
+    add [rb + old_size], neg_chunk_header_size, [rb + old_size]
 
 realloc_more_blocks_copy_loop:
     add [rb + old_size], -1, [rb + old_size]
@@ -293,14 +300,15 @@ realloc_blocks_sbrk:
     add [rb + new_size], [rb + tmp], [rb - 1]
     arb -1
     call sbrk
-    add [rb + old_ptr], 0, [rb + new_ptr]
 
     # update block size
-    add [rb + new_ptr], CHUNK_BLOCKS, [ip + 3]
+    add [rb + old_chunk], CHUNK_BLOCKS, [ip + 3]
     add [rb + new_block_count], 0, [0]
 
+    add [rb + old_ptr], 0, [rb + new_ptr]
+
 realloc_more_blocks_done:
-    arb 4
+    arb 5
     ret 2
 .ENDFRAME
 
@@ -564,5 +572,11 @@ small:
 # large bin, for block counts >8, one doubly linked list
 large:
     db  0
+
+##########
+# error messages
+
+err_zero_allocation:
+    db  "Zero block memory allocation is not allowed", 0
 
 .EOF
