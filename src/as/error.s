@@ -33,15 +33,9 @@ report_symbol_token_error:
 .FRAME symbol, message;
     # error message with an identifier and a location taken from lexer
 
-    out '('
-
-    # print the identifier
-    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
+    add [rb + symbol], 0, [rb - 1]
     arb -1
-    call print_str
-
-    out ')'
-    out ' '
+    call print_symbol_identifier
 
     # we don't bother with updating the stack pointer, this function never returns
     add [rb + message], 0, [rb + 2]
@@ -57,15 +51,9 @@ report_symbol_fixup_error:
 
     # error message with an identifier and a location taken from the first symbol fixup
 
-    out '('
-
-    # print the identifier
-    add [rb + symbol], GLOBAL_IDENTIFIER, [rb - 1]
+    add [rb + symbol], 0, [rb - 1]
     arb -1
-    call print_str
-
-    out ')'
-    out ' '
+    call print_symbol_identifier
 
     add 0, 0, [rb + line_num]
     add 0, 0, [rb + column_num]
@@ -89,6 +77,34 @@ report_symbol_error_after_location:
     add [rb + line_num], 0, [rb + 1]
     add [rb + column_num], 0, [rb]
     call report_error_at_location
+.ENDFRAME
+
+##########
+print_symbol_identifier:
+.FRAME symbol; identifier
+    arb -1
+
+    out '('
+
+    add [rb + symbol], GLOBAL_IDENTIFIER, [rb + identifier]
+
+    jnz [rb + identifier], print_symbol_identifier_have_identifier
+    add print_symbol_identifier_null, 0, [rb + identifier]
+
+print_symbol_identifier_have_identifier:
+    # print the identifier
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    out ')'
+    out ' '
+
+    arb 1
+    ret 1
+
+print_symbol_identifier_null:
+    db  "null identifier", 0
 .ENDFRAME
 
 .EOF

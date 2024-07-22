@@ -2,6 +2,10 @@
 .EXPORT realloc_more_blocks
 .EXPORT free
 .EXPORT zeromem_blocks
+
+.EXPORT neg_chunk_header_size
+.EXPORT block_size
+
 .EXPORT dump_heap
 
 # from brk.s
@@ -26,6 +30,12 @@
 
 .SYMBOL BLOCK_SIZE                      8
 .SYMBOL MAX_SMALL_BLOCKS                8
+
+# constants exported for users of this library 
+neg_chunk_header_size:
+    db  -2          # negative of USED_CHUNK_HEADER_SIZE, for subtracting
+block_size:
+    db  BLOCK_SIZE
 
 # The amount of memory to allocate is not given in bytes, but in blocks of BLOCK_SIZE = 8 bytes.
 # This is because we internally want to allocate amounts that are multiples of 8, but in intcode
