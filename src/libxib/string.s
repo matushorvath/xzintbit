@@ -4,6 +4,7 @@
 .EXPORT is_alphanum
 .EXPORT strcmp
 .EXPORT strcpy
+.EXPORT zeromem
 
 ##########
 is_digit:
@@ -173,6 +174,26 @@ strcpy_loop:
 
 strcpy_done:
     arb 2
+    ret 2
+.ENDFRAME
+
+##########
+zeromem:
+.FRAME ptr, size; tmp
+    arb -1
+
+zeromem_loop:
+    add [rb + size], -1, [rb + size]
+    lt  [rb + size], 0, [rb + tmp]
+    jnz [rb + tmp], zeromem_done
+
+    add [rb + ptr], [rb + size], [ip + 3]
+    add 0, 0, [0]
+
+    jz  0, zeromem_loop
+
+zeromem_done:
+    arb 1
     ret 2
 .ENDFRAME
 
