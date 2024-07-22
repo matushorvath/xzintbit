@@ -2,9 +2,6 @@
 .EXPORT parse_dir_endframe
 .EXPORT is_frame
 
-# from libxib/heap.s
-.IMPORT free
-
 # from error.s
 .IMPORT report_error
 
@@ -116,11 +113,7 @@ parse_dir_frame_block_is_unique:
     add [rb + block_count], 0, [rb - 2]
     arb -2
     call add_frame_symbol
-
-    # free the identifier
-    add [token_value], 0, [rb - 1]
-    arb -1
-    call free
+    add 0, 0, [token_value]
 
     add [rb + symbol_count], 1, [rb + symbol_count]
     call get_token
