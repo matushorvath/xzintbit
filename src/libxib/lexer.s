@@ -49,8 +49,9 @@ read_identifier_loop:
     jnz [rb + space_left], read_identifier_have_space
 
     # no, need to allocate more
-    add [rb + buffer], 0, [rb - 1]
     add [rb + blocks], REALLOC_INCREMENT, [rb + blocks]
+
+    add [rb + buffer], 0, [rb - 1]
     add [rb + blocks], 0, [rb - 2]
     arb -2
     call realloc_more_blocks
