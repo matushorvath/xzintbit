@@ -6,7 +6,6 @@ Basics
 
 Programs are case sensitive. The assembler expects Unix-like line ends (character 10).
 Comments start with `#` and continue to the end of the line. Numbers are decimal.
-Maximum identifier length is 45 characters. Maximum string length is 49 characters.
 
 Since there is no way to detect end of input file from Intcode, each program must end with a line like this:
 ```asm
