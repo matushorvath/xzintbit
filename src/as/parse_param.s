@@ -16,7 +16,7 @@
 .IMPORT find_frame_symbol
 
 # from global.s
-.IMPORT relocation_symbol
+.IMPORT add_or_find_global_symbol
 
 # from lexer.s
 .IMPORT get_token
@@ -187,7 +187,13 @@ parse_value_frame_symbol_allowed:
     add [rb - 3], FRAME_OFFSET, [ip + 1]
     add [0], 0, [rb + result]
 
-    jz  0, parse_value_after_global
+    # free the identifier, it is no longer needed
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call free
+    add 0, 0, [token_value]
+
+    jz  0, parse_value_after_symbol
 
 parse_value_is_global:
     # it is a global symbol
@@ -197,20 +203,19 @@ parse_value_is_global:
     call report_error
 
 parse_value_global_symbol_allowed:
-    # add a fixup for this identifier
+    # add or retrieve symbol from the symbol table
     add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # add a fixup for this identifier
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
     arb -4
     call add_fixup
-
-parse_value_after_global:
-    # free the symbol value
-    add [token_value], 0, [rb - 1]
-    arb -1
-    call free
-    add 0, 0, [token_value]
 
     jz  0, parse_value_after_symbol
 
@@ -219,8 +224,13 @@ parse_value_ip:
     add 1, 0, [rb + has_symbol]
     add [current_address], [rb + instruction_length], [rb + result]
 
+    # retrieve relocation symbol from the symbol table
+    add 0, 0, [rb - 1]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
+
     # add a fixup (actually a relocation) for the use of current_address
-    add relocation_symbol, 0, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]

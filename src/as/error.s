@@ -86,7 +86,8 @@ print_symbol_identifier:
 
     out '('
 
-    add [rb + symbol], GLOBAL_IDENTIFIER, [rb + identifier]
+    add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb + identifier]
 
     jnz [rb + identifier], print_symbol_identifier_have_identifier
     add print_symbol_identifier_null, 0, [rb + identifier]

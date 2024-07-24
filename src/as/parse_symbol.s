@@ -2,13 +2,11 @@
 .EXPORT parse_dir_symbol
 .EXPORT parse_dir_import_export
 
-# from libxib/heap.s
-.IMPORT free
-
 # from error.s
 .IMPORT report_error
 
 # from global.s
+.IMPORT add_or_find_global_symbol
 .IMPORT set_global_symbol_address
 .IMPORT set_global_symbol_type
 
@@ -67,17 +65,17 @@ parse_symbol_after_offset:
     call report_error
 
 parse_symbol_have_identifier:
-    # add the symbol to symbol table
+    # add or retrieve symbol from the symbol table
     add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of set_global_symbol_address
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # set symbol address
     add [rb + address], 0, [rb - 2]
     arb -2
     call set_global_symbol_address
-
-    # free the symbol value
-    add [token_value], 0, [rb - 1]
-    arb -1
-    call free
-    add 0, 0, [token_value]
 
     call get_token
 
@@ -94,8 +92,8 @@ parse_symbol_done:
 
 ##########
 parse_dir_symbol:
-.FRAME tmp, identifier
-    arb -2
+.FRAME tmp, identifier, address, symbol
+    arb -4
 
     # get the identifier
     call get_token
@@ -114,24 +112,25 @@ parse_dir_symbol_have_identifier:
     call get_token
 
     call parse_number_or_char
-    add [rb - 2], 0, [rb + tmp]
+    add [rb - 2], 0, [rb + address]
 
-    # add the symbol to symbol table
+    # add or retrieve symbol from the symbol table
     add [rb + identifier], 0, [rb - 1]
-    add [rb + tmp], 0, [rb - 2]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb + symbol]
+    add 0, 0, [rb + identifier]             # identifier is now owned by add_or_find_global_symbol
+
+    # set symbol address and type
+    add [rb + symbol], 0, [rb - 1]
+    add [rb + address], 0, [rb - 2]
     arb -2
     call set_global_symbol_address
 
-    add [rb + identifier], 0, [rb - 1]
+    add [rb + symbol], 0, [rb - 1]
     add 3, 0, [rb - 2]
     arb -2
     call set_global_symbol_type
-
-    # free the identifier
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    call free
-    add 0, 0, [rb + identifier]
 
     # check end of line
     eq  [token_type], '$', [rb + tmp]
@@ -141,7 +140,7 @@ parse_dir_symbol_have_identifier:
     call report_error
 
 parse_dir_symbol_done:
-    arb 2
+    arb 4
     ret 0
 .ENDFRAME
 
@@ -167,17 +166,17 @@ parse_dir_import_export_have_type:
     call report_error
 
 parse_dir_import_export_have_identifier:
-    # set the global symbol as exported
+    # add or retrieve symbol from the symbol table
     add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of set_global_symbol_type
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # set the global symbol as exported
     add [rb + type], 0, [rb - 2]
     arb -2
     call set_global_symbol_type
-
-    # free the identifier
-    add [token_value], 0, [rb - 1]
-    arb -1
-    call free
-    add 0, 0, [token_value]
 
     # read end of line
     call get_token

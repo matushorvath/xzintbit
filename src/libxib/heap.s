@@ -259,6 +259,7 @@ realloc_more_blocks:
     arb -5
 
     # TODO support decreasing block count, for now only increasing is supported
+    # TODO check if the chunk is already larger than requested; sometimes alloc returns a larger chunk than requested
 
     # adjust old_ptr to point to the chunk header by subtracting USED_CHUNK_HEADER_SIZE = 2
     add [rb + old_ptr], -2, [rb + old_chunk]
@@ -280,7 +281,7 @@ realloc_more_blocks:
     add [rb - 3], 0, [rb + new_ptr]
 
     # old_size includes size of the chunk header, subtract it
-    add [rb + old_size], neg_chunk_header_size, [rb + old_size]
+    add [rb + old_size], [neg_chunk_header_size], [rb + old_size]
 
 realloc_more_blocks_copy_loop:
     add [rb + old_size], -1, [rb + old_size]
@@ -290,6 +291,11 @@ realloc_more_blocks_copy_loop:
     add [0], 0, [0]
 
     jnz [rb + old_size], realloc_more_blocks_copy_loop
+
+    # free the original chunk
+    add [rb + old_ptr], 0, [rb - 1]
+    arb -1
+    call free
 
     jz  0, realloc_more_blocks_done
 
@@ -310,14 +316,6 @@ realloc_blocks_sbrk:
 realloc_more_blocks_done:
     arb 5
     ret 2
-.ENDFRAME
-
-##########
-memcpy:
-.FRAME src, tgt, size;
-memcpy_loop:
-
-    ret 3
 .ENDFRAME
 
 ##########
