@@ -1,5 +1,5 @@
 # from fixup.s
-.IMPORT do_fixups
+.IMPORT process_fixups
 
 # from global.s
 .IMPORT init_relocations
@@ -24,7 +24,7 @@ main:
 
     call init_relocations
     call parse
-    call do_fixups
+    call process_fixups
     call output_object
 
     arb 0

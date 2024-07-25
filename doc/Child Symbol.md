@@ -8,7 +8,8 @@ OK set_child_symbol_address(child, address)
 
 change:
 
-parse_value - needs to accept 'd' as well as 'i' 'd'
+OK parse_value - needs to accept 'd'
+parse_value - needs to accept 'i' 'd'
 OK parse_symbol - that's the label +1 = label: - modified to accept +1 = .label: as well
 OK parse_dir_symbol - .SYMBOL identifier xyz - done since xyz can only be number or char
 OK parse_dir_import_export .IMPORT/.EXPORT identifier xyz - done, no value
@@ -17,8 +18,8 @@ OK parse_dir_import_export .IMPORT/.EXPORT identifier xyz - done, no value
 
 need to handle children:
 
-add_fixup needs to accept both global symbols and child symbol
-fixups are stored in the child, so we also need to support that
+OK add_fixup needs to accept both global symbols and child symbol
+process_fixups needs to process also child fixups
 
 report_global_symbol_error
 report_global_fixup_error
