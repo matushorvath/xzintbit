@@ -57,46 +57,90 @@ print_code:
 
 ##########
 print_reloc:
-.FRAME tmp, symbol, fixup, symbol_address, fixup_address, first
-    arb -6
+.FRAME tmp, global, child
+    arb -3
 
-    add 1, 0, [rb + first]
+    add 1, 0, [print_reloc_is_first]
 
     # print .R
     out '.'
     out 'R'
     out 10
 
-    add [global_head], 0, [rb + symbol]
+    add [global_head], 0, [rb + global]
 
-print_reloc_symbol:
+print_reloc_global_loop:
     # do we have more symbols?
-    jz  [rb + symbol], print_reloc_done
+    jz  [rb + global], print_reloc_done
 
     # check symbol type (skip imported and constants)
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
+    add [rb + global], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
-    jnz [rb + tmp], print_reloc_symbol_done
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
+    jnz [rb + tmp], print_reloc_global_next
+    add [rb + global], GLOBAL_TYPE, [ip + 1]
     eq  [0], 3, [rb + tmp]
-    jnz [rb + tmp], print_reloc_symbol_done
+    jnz [rb + tmp], print_reloc_global_next
+
+    # print relocations for the global symbol
+    add [rb + global], 0, [rb - 1]
+    arb -1
+    call print_symbol_reloc
+
+    # process child symbols as well, if any
+    add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
+    add [0], 0, [rb + child]
+
+print_reloc_child_loop:
+    # do we have more child symbols?
+    jz  [rb + child], print_reloc_global_next
+
+    # print relocations for this child symbol
+    add [rb + child], 0, [rb - 1]
+    arb -1
+    call print_symbol_reloc
+
+    # move to next child symbol
+    add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + child]
+
+    jz  0, print_reloc_child_loop
+
+print_reloc_global_next:
+    # move to next global symbol
+    add [rb + global], GLOBAL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + global]
+
+    jz  0, print_reloc_global_loop
+
+print_reloc_done:
+    # skip endline if nothing was printed
+    jnz [print_reloc_is_first], print_reloc_after_eol
+    out 10
+
+print_reloc_after_eol:
+    arb 3
+    ret 0
+.ENDFRAME
+
+##########
+print_symbol_reloc:
+.FRAME symbol; fixup, symbol_address, fixup_address
+    arb -3
 
     # iterate through all fixups for this symbol
     add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
 
-    jz  [rb + fixup], print_reloc_symbol_done
-
-print_reloc_fixup:
+print_symbol_reloc_loop:
     # do we have more fixups for this symbol?
-    jz  [rb + fixup], print_reloc_symbol_done
+    jz  [rb + fixup], print_symbol_reloc_done
 
     # skip comma when printing first reloc
-    jnz [rb + first], print_reloc_skip_comma
+    jnz [print_reloc_is_first], print_symbol_reloc_skip_comma
     out ','
 
-print_reloc_skip_comma:
-    add 0, 0, [rb + first]
+print_symbol_reloc_skip_comma:
+    add 0, 0, [print_reloc_is_first]
 
     # read fixup address
     add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
@@ -111,24 +155,16 @@ print_reloc_skip_comma:
     add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + fixup]
 
-    jz  0, print_reloc_fixup
+    jz  0, print_symbol_reloc_loop
 
-print_reloc_symbol_done:
-    # move to next symbol
-    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + symbol]
-
-    jz  0, print_reloc_symbol
-
-print_reloc_done:
-    # skip endline if nothing was printed
-    jnz [rb + first], print_reloc_after_eol
-    out 10
-
-print_reloc_after_eol:
-    arb 6
-    ret 0
+print_symbol_reloc_done:
+    arb 3
+    ret 1
 .ENDFRAME
+
+##########
+print_reloc_is_first:
+    db  0
 
 ##########
 print_imports:
