@@ -12,7 +12,7 @@
 ##########
 report_error_at_location:
 .FRAME message, line_num, column_num;
-    add report_error_at_location_msg_start, 0, [rb - 1]
+    add .msg_start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -20,7 +20,7 @@ report_error_at_location:
     arb -1
     call print_str
 
-    add report_error_at_location_msg_line, 0, [rb - 1]
+    add .msg_line, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -28,7 +28,7 @@ report_error_at_location:
     arb -1
     call print_num
 
-    add report_error_at_location_msg_column, 0, [rb - 1]
+    add .msg_column, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -36,7 +36,7 @@ report_error_at_location:
     arb -1
     call print_num
 
-    add report_error_at_location_msg_end, 0, [rb - 1]
+    add .msg_end, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -44,20 +44,20 @@ report_error_at_location:
 
     call halt_and_catch_fire
 
-report_error_at_location_msg_start:
+.msg_start:
     db  "Error: ", 0
-report_error_at_location_msg_line:
+.msg_line:
     db  " (line ", 0
-report_error_at_location_msg_column:
+.msg_column:
     db  ", column ", 0
-report_error_at_location_msg_end:
+.msg_end:
     db  ")", 0
 .ENDFRAME
 
 ##########
 report_error_with_symbol:
 .FRAME message, identifier;
-    add report_error_with_symbol_msg_start, 0, [rb - 1]
+    add .msg_start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -65,7 +65,7 @@ report_error_with_symbol:
     arb -1
     call print_str
 
-    add report_error_with_symbol_msg_symbol, 0, [rb - 1]
+    add .msg_symbol, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -77,9 +77,9 @@ report_error_with_symbol:
 
     call halt_and_catch_fire
 
-report_error_with_symbol_msg_start:
+.msg_start:
     db  "Error: ", 0
-report_error_with_symbol_msg_symbol:
+.msg_symbol:
     db  ": ", 0
 .ENDFRAME
 
@@ -90,9 +90,9 @@ halt_and_catch_fire:
     # will cause the intcode vm to crash, indicating a problem
     # this is the only way we can return a non-zero result from intcode
 
-halt_and_catch_fire_loop:
+.loop:
     in  [0]
-    jz  0, halt_and_catch_fire_loop
+    jz  0, .loop
 .ENDFRAME
 
 .EOF

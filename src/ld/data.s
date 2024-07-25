@@ -33,19 +33,19 @@ create_module:
     eq  [rb + is_library], 0, [0]
 
     # append to the tail if any
-    jz  [module_tail], create_module_is_first
+    jz  [module_tail], .is_first
 
     add [module_tail], MODULE_NEXT_PTR, [ip + 3]
     add [rb + module], 0, [0]
     add [rb + module], 0, [module_tail]
 
-    jz  0, create_module_done
+    jz  0, .done
 
-create_module_is_first:
+.is_first:
     add [rb + module], 0, [module_head]
     add [rb + module], 0, [module_tail]
 
-create_module_done:
+.done:
     arb 1
     ret 1
 .ENDFRAME

@@ -55,97 +55,97 @@ alloc_blocks:
 
     # we have small bins for block counts 0-MAX_SMALL_BLOCKS, bigger sizes are in the large bin
     lt  MAX_SMALL_BLOCKS, [rb + block_count], [rb + tmp]
-    jnz [rb + tmp], alloc_large
+    jnz [rb + tmp], .large
 
     # start with the smallest bin that fits
-    add alloc_small_table, [rb + block_count], [ip + 2]
+    add .small_table, [rb + block_count], [ip + 2]
     jz  0, [0]
 
-alloc_small_table:
-    db  alloc_small_0_blocks
-    db  alloc_small_1_blocks
-    db  alloc_small_2_blocks
-    db  alloc_small_3_blocks
-    db  alloc_small_4_blocks
-    db  alloc_small_5_blocks
-    db  alloc_small_6_blocks
-    db  alloc_small_7_blocks
-    db  alloc_small_8_blocks
+.small_table:
+    db  .small_0_blocks
+    db  .small_1_blocks
+    db  .small_2_blocks
+    db  .small_3_blocks
+    db  .small_4_blocks
+    db  .small_5_blocks
+    db  .small_6_blocks
+    db  .small_7_blocks
+    db  .small_8_blocks
 
-alloc_small_0_blocks:
+.small_0_blocks:
     # zero blocks, fail
     add err_zero_allocation, 0, [rb]
     call report_libxib_error
 
-alloc_small_1_blocks:
+.small_1_blocks:
     # if there is a chunk in current bin, use it
     add 1, 0, [rb + bin]
-    jnz [small + 1], alloc_from_small
+    jnz [small + 1], .alloc_from_small
     # fall through
 
-alloc_small_2_blocks:
+.small_2_blocks:
     # if there is a chunk in current bin, use it
     add 2, 0, [rb + bin]
-    jnz [small + 2], alloc_from_small
+    jnz [small + 2], .alloc_from_small
     # fall through
 
-alloc_small_3_blocks:
+.small_3_blocks:
     # if there is a chunk in current bin, use it
     add 3, 0, [rb + bin]
-    jnz [small + 3], alloc_from_small
+    jnz [small + 3], .alloc_from_small
     # fall through
 
-alloc_small_4_blocks:
+.small_4_blocks:
     # if there is a chunk in current bin, use it
     add 4, 0, [rb + bin]
-    jnz [small + 4], alloc_from_small
+    jnz [small + 4], .alloc_from_small
     # fall through
 
-alloc_small_5_blocks:
+.small_5_blocks:
     # if there is a chunk in current bin, use it
     add 5, 0, [rb + bin]
-    jnz [small + 5], alloc_from_small
+    jnz [small + 5], .alloc_from_small
     # fall through
 
-alloc_small_6_blocks:
+.small_6_blocks:
     # if there is a chunk in current bin, use it
     add 6, 0, [rb + bin]
-    jnz [small + 6], alloc_from_small
+    jnz [small + 6], .alloc_from_small
     # fall through
 
-alloc_small_7_blocks:
+.small_7_blocks:
     # if there is a chunk in current bin, use it
     add 7, 0, [rb + bin]
-    jnz [small + 7], alloc_from_small
+    jnz [small + 7], .alloc_from_small
     # fall through
 
-alloc_small_8_blocks:
+.small_8_blocks:
     # if there is a chunk in current bin, use it
     add 8, 0, [rb + bin]
-    jnz [small + 8], alloc_from_small
+    jnz [small + 8], .alloc_from_small
     # fall through
 
-alloc_large:
+.large:
     # try to find a fitting chunk in the large bin
     add [large], 0, [rb + ptr]
 
-alloc_large_loop:
+.large_loop:
     # if we went through the whole large bin, allocate memory using sbrk
     # TODO try merging small and large chunks first
-    jz  [rb + ptr], alloc_sbrk
+    jz  [rb + ptr], .sbrk
 
     # is this chunk large enough?
     add [rb + ptr], CHUNK_BLOCKS, [ip + 1]
     lt  [0], [rb + block_count], [rb + tmp]
-    jz  [rb + tmp], alloc_from_large
+    jz  [rb + tmp], .alloc_from_large
 
     # not large enough, try the next one
     add [rb + ptr], CHUNK_NEXT, [ip + 1]
     add [0], 0, [rb + ptr]
 
-    jz  0, alloc_large_loop
+    jz  0, .large_loop
 
-alloc_sbrk:
+.sbrk:
     # last resort, call sbrk to enlarge the heap
     mul [rb + block_count], BLOCK_SIZE, [rb - 1]
     arb -1
@@ -157,14 +157,14 @@ alloc_sbrk:
     add [rb + block_count], 0, [0]
 
     # return the new chunk
-    jz  0, alloc_return_ptr
+    jz  0, .return_ptr
 
-alloc_from_large:
+.alloc_from_large:
     # use the chunk pointed to by ptr, from the large bin
 
     # if (ptr[CHUNK_NEXT])
     add [rb + ptr], CHUNK_NEXT, [ip + 1]
-    jz  [0], alloc_from_large_after_next_prev
+    jz  [0], .alloc_from_large_after_next_prev
 
     # ptr[CHUNK_NEXT][CHUNK_PREV] = ptr[CHUNK_PREV]
     add [rb + ptr], CHUNK_NEXT, [ip + 1]
@@ -172,10 +172,10 @@ alloc_from_large:
     add [rb + ptr], CHUNK_PREV, [ip + 1]
     add [0], 0, [0]
 
-alloc_from_large_after_next_prev:
+.alloc_from_large_after_next_prev:
     # if (ptr[CHUNK_PREV])
     add [rb + ptr], CHUNK_PREV, [ip + 1]
-    jz  [0], alloc_from_large_replace_head
+    jz  [0], .alloc_from_large_replace_head
 
     # ptr[CHUNK_PREV][CHUNK_NEXT] = ptr[CHUNK_NEXT]
     add [rb + ptr], CHUNK_PREV, [ip + 1]
@@ -183,16 +183,16 @@ alloc_from_large_after_next_prev:
     add [rb + ptr], CHUNK_NEXT, [ip + 1]
     add [0], 0, [0]
 
-    jz  0, alloc_cut_chunk
+    jz  0, .alloc_cut_chunk
 
-alloc_from_large_replace_head:
+.alloc_from_large_replace_head:
     # large = ptr[CHUNK_NEXT]
     add [rb + ptr], CHUNK_NEXT, [ip + 1]
     add [0], 0, [large]
 
-    jz  0, alloc_cut_chunk
+    jz  0, .alloc_cut_chunk
 
-alloc_from_small:
+.alloc_from_small:
     # use first chunk from the small bin we found
     add small, [rb + bin], [ip + 1]
     add [0], 0, [rb + ptr]
@@ -205,19 +205,19 @@ alloc_from_small:
 
     # does the bin still have a head?
     add small, [rb + bin], [ip + 1]
-    jz  [0], alloc_cut_chunk
+    jz  [0], .alloc_cut_chunk
 
     # the bin has a head, set previous chunk of the new head to 0
     add small, [rb + bin], [ip + 1]
     add [0], CHUNK_PREV, [ip + 3]
     add 0, 0, [0]
 
-alloc_cut_chunk:
+.alloc_cut_chunk:
     # is the chunk pointed to by [rb + ptr] larger than requested?
     # TODO perhaps only cut if it is much larger, e.g. don't cut small chunks?
     add [rb + ptr], CHUNK_BLOCKS, [ip + 1]
     eq  [0], [rb + block_count], [rb + tmp]
-    jnz [rb + tmp], alloc_return_ptr
+    jnz [rb + tmp], .return_ptr
 
     # yes, split the chunk
     mul [rb + block_count], BLOCK_SIZE, [rb + tmp]
@@ -240,7 +240,7 @@ alloc_cut_chunk:
 
     # fall through
 
-alloc_return_ptr:
+.return_ptr:
     # mark the chunk as not free
     add [rb + ptr], CHUNK_FREE, [ip + 3]
     add 0, 0, [0]
@@ -248,7 +248,6 @@ alloc_return_ptr:
     # adjust the return value to point to the usable data buffer (after chunk header)
     add [rb + ptr], USED_CHUNK_HEADER_SIZE, [rb + ptr]
 
-alloc_done:
     arb 4
     ret 1
 .ENDFRAME
@@ -271,7 +270,7 @@ realloc_more_blocks:
     # is this the last block before sbrk?
     add [rb + old_chunk], [rb + old_size], [rb + tmp]
     eq  [rb + tmp], [brk_addr], [rb + tmp]
-    jnz [rb + tmp], realloc_blocks_sbrk
+    jnz [rb + tmp], .sbrk
 
     # this is not the last block, allocate a new block and copy data
     # TODO first try merging this block with the following block, if it is free
@@ -283,23 +282,23 @@ realloc_more_blocks:
     # old_size includes size of the chunk header, subtract it
     add [rb + old_size], [neg_chunk_header_size], [rb + old_size]
 
-realloc_more_blocks_copy_loop:
+.copy_loop:
     add [rb + old_size], -1, [rb + old_size]
 
     add [rb + old_ptr], [rb + old_size], [ip + 5]
     add [rb + new_ptr], [rb + old_size], [ip + 3]
     add [0], 0, [0]
 
-    jnz [rb + old_size], realloc_more_blocks_copy_loop
+    jnz [rb + old_size], .copy_loop
 
     # free the original chunk
     add [rb + old_ptr], 0, [rb - 1]
     arb -1
     call free
 
-    jz  0, realloc_more_blocks_done
+    jz  0, .done
 
-realloc_blocks_sbrk:
+.sbrk:
     # allocate additional memory using sbrk
     mul [rb + new_block_count], BLOCK_SIZE, [rb + new_size]
     mul [rb + old_size], -1, [rb + tmp]
@@ -313,7 +312,7 @@ realloc_blocks_sbrk:
 
     add [rb + old_ptr], 0, [rb + new_ptr]
 
-realloc_more_blocks_done:
+.done:
     arb 5
     ret 2
 .ENDFRAME
@@ -326,7 +325,7 @@ free:
     # TODO when freeing at the end of heap (near brk), reduce brk instead of adding to bin
 
     # handle null pointers
-    jz  [rb + ptr], free_done
+    jz  [rb + ptr], .done
 
     # adjust the pointer by USED_CHUNK_HEADER_SIZE = 2, so it points to the chunk header
     add [rb + ptr], -2, [rb + ptr]
@@ -340,18 +339,18 @@ free:
     add [0], 0, [rb + block_count]
 
     lt  MAX_SMALL_BLOCKS, [rb + block_count], [rb + tmp]
-    jz  [rb + tmp], free_small
+    jz  [rb + tmp], .small
 
     # large chunk, add to the beginning of the large bin
 
     # if (large)
-    jz  [large], free_large_after_prev
+    jz  [large], .large_after_prev
 
     # large[CHUNK_PREV] = ptr
     add [large], CHUNK_PREV, [ip + 3]
     add [rb + ptr], 0, [0]
 
-free_large_after_prev:
+.large_after_prev:
     # ptr[CHUNK_NEXT] = large
     add [rb + ptr], CHUNK_NEXT, [ip + 3]
     add [large], 0, [0]
@@ -363,21 +362,21 @@ free_large_after_prev:
     # large = ptr
     add [rb + ptr], 0, [large]
 
-    jz  0, free_done
+    jz  0, .done
 
-free_small:
+.small:
     # small chunk, return to small bin matching block_count
 
     # if (small[block_count])
     add small, [rb + block_count], [ip + 1]
-    jz  [0], free_small_after_prev
+    jz  [0], .small_after_prev
 
     # small[block_count][CHUNK_PREV] = ptr
     add small, [rb + block_count], [ip + 1]
     add [0], CHUNK_PREV, [ip + 3]
     add [rb + ptr], 0, [0]
 
-free_small_after_prev:
+.small_after_prev:
     # ptr[CHUNK_NEXT] = small[block_count]
     add small, [rb + block_count], [ip + 5]
     add [rb + ptr], CHUNK_NEXT, [ip + 3]
@@ -391,7 +390,7 @@ free_small_after_prev:
     add small, [rb + block_count], [ip + 3]
     add [rb + ptr], 0, [0]
 
-free_done:
+.done:
     arb 2
     ret 1
 .ENDFRAME
@@ -406,17 +405,17 @@ zeromem_blocks:
     # subtract chunk header size USED_CHUNK_HEADER_SIZE = 2
     add [rb + size], -2, [rb + size]
 
-zeromem_loop:
+.loop:
     add [rb + size], -1, [rb + size]
     lt  [rb + size], 0, [rb + tmp]
-    jnz [rb + tmp], zeromem_done
+    jnz [rb + tmp], .done
 
     add [rb + ptr], [rb + size], [ip + 3]
     add 0, 0, [0]
 
-    jz  0, zeromem_loop
+    jz  0, .loop
 
-zeromem_done:
+.done:
     arb 2
     ret 2
 .ENDFRAME
@@ -427,7 +426,7 @@ dump_heap:
     arb -3
 
     # dump brk
-    add dump_heap_brk_msg, 0, [rb - 1]
+    add .brk_msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -444,20 +443,20 @@ dump_heap:
     # dump all small bins, starting from 1 since 0 is a dummy bin
     add 1, 0, [rb + bin]
 
-dump_heap_small_bin_loop:
+.small_bin_loop:
     # there are MAX_SMALL_BLOCKS = 8 small bins, indexed from 1
     lt  MAX_SMALL_BLOCKS, [rb + bin], [rb + tmp]
-    jnz [rb + tmp], dump_heap_large
+    jnz [rb + tmp], .large
 
     # get first chunk in this bin
     add small, [rb + bin], [ip + 1]
     add [0], 0, [rb + chunk]
 
     # if there are no chunks, don't dump this bin at all
-    jz  [rb + chunk], dump_heap_small_next_bin
+    jz  [rb + chunk], .small_next_bin
 
     # print bin header, then dump all chunks in the bin
-    add dump_heap_small_bin_msg, 0, [rb - 1]
+    add .small_bin_msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -467,8 +466,8 @@ dump_heap_small_bin_loop:
 
     out ':'
 
-dump_heap_small_chunk_loop:
-    jz  [rb + chunk], dump_heap_small_chunk_done
+.small_chunk_loop:
+    jz  [rb + chunk], .small_chunk_done
 
     out ' '
     out '['
@@ -495,28 +494,28 @@ dump_heap_small_chunk_loop:
     add [rb + chunk], CHUNK_NEXT, [ip + 1]
     add [0], 0, [rb + chunk]
 
-    jz  0, dump_heap_small_chunk_loop
+    jz  0, .small_chunk_loop
 
-dump_heap_small_chunk_done:
+.small_chunk_done:
     # next bin
     out 10
 
-dump_heap_small_next_bin:
+.small_next_bin:
     add [rb + bin], 1, [rb + bin]
-    jz  0, dump_heap_small_bin_loop
+    jz  0, .small_bin_loop
 
-dump_heap_large:
+.large:
     # if there are no chunks, don't dump the large bin at all
-    jz  [large], dump_heap_done
+    jz  [large], .done
 
-    add dump_heap_large_bin_msg, 0, [rb - 1]
+    add .large_bin_msg, 0, [rb - 1]
     arb -1
     call print_str
 
     add [large], 0, [rb + chunk]
 
-dump_heap_large_chunk_loop:
-    jz  [rb + chunk], dump_heap_large_chunk_done
+.large_chunk_loop:
+    jz  [rb + chunk], .large_chunk_done
 
     out ' '
     out '['
@@ -543,20 +542,20 @@ dump_heap_large_chunk_loop:
     add [rb + chunk], CHUNK_NEXT, [ip + 1]
     add [0], 0, [rb + chunk]
 
-    jz  0, dump_heap_large_chunk_loop
+    jz  0, .large_chunk_loop
 
-dump_heap_large_chunk_done:
+.large_chunk_done:
     out 10
 
-dump_heap_done:
+.done:
     arb 3
     ret 0
 
-dump_heap_brk_msg:
+.brk_msg:
     db  "brk: ", 0
-dump_heap_small_bin_msg:
+.small_bin_msg:
     db  "small bin ", 0
-dump_heap_large_bin_msg:
+.large_bin_msg:
     db  "large bin:", 0
 .ENDFRAME
 

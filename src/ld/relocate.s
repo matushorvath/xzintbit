@@ -15,12 +15,12 @@ relocate:
     add [module_head], 0, [rb + module]
     add 0, 0, [rb + address]
 
-relocate_loop:
-    jz  [rb + module], relocate_done
+.loop:
+    jz  [rb + module], .done
 
     # skip modules that are not included
     add [rb + module], MODULE_INCLUDED, [ip + 1]
-    jz  [0], relocate_next
+    jz  [0], .next
 
     # set module address
     add [rb + module], MODULE_ADDRESS, [ip + 3]
@@ -35,13 +35,13 @@ relocate_loop:
     add [rb + module], MODULE_CODE_LENGTH, [ip + 1]
     add [0], [rb + address], [rb + address]
 
-relocate_next:
+.next:
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
-    jz  0, relocate_loop
+    jz  0, .loop
 
- relocate_done:
+.done:
     arb 3
     ret 0
 .ENDFRAME
@@ -54,22 +54,22 @@ relocate_module:
     add [rb + module], MODULE_RELOC_HEAD, [ip + 1]
     add [0], 0, [rb + buffer]
 
-relocate_module_block:
-    jz  [rb + buffer], relocate_module_done
+.block:
+    jz  [rb + buffer], .done
     add 1, 0, [rb + index]
 
     # maximum index within a block is mem_block_size, except for last block
     add [mem_block_size], 0, [rb + limit]
     add [rb + module], MODULE_RELOC_TAIL, [ip + 1]
     eq  [0], [rb + buffer], [rb + tmp]
-    jz  [rb + tmp], relocate_module_byte
+    jz  [rb + tmp], .byte
 
     add [rb + module], MODULE_RELOC_INDEX, [ip + 1]
     add [0], 0, [rb + limit]
 
-relocate_module_byte:
+.byte:
     lt  [rb + index], [rb + limit], [rb + tmp]
-    jz  [rb + tmp], relocate_module_block_done
+    jz  [rb + tmp], .block_done
 
     # increment memory at relocation address by module address
     add [rb + module], MODULE_CODE_HEAD, [ip + 1]
@@ -86,16 +86,16 @@ relocate_module_byte:
     call inc_mem
 
     add [rb + index], 1, [rb + index]
-    jz  0, relocate_module_byte
+    jz  0, .byte
 
-relocate_module_block_done:
+.block_done:
     # next block in linked list
     add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
-    jz  0, relocate_module_block
+    jz  0, .block
 
-relocate_module_done:
+.done:
     arb 4
     ret 1
 .ENDFRAME

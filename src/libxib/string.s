@@ -13,10 +13,10 @@ is_digit:
 
     # check if 0 <= char <= 9
     lt  '9', [rb + char], [rb + tmp]                        # if char > 9, not a digit
-    jnz [rb + tmp], is_digit_end
+    jnz [rb + tmp], .end
     lt  [rb + char], '0', [rb + tmp]                        # if char < 0, not a digit
 
-is_digit_end:
+.end:
     # the result is a logical negation of [rb + tmp]
     eq  [rb + tmp], 0, [rb + tmp]
 
@@ -31,44 +31,44 @@ char_to_digit:
 
     # convert char to digit
     lt  [rb + char], '0', [rb + tmp]
-    jnz [rb + tmp], char_to_digit_invalid
+    jnz [rb + tmp], .invalid
 
     lt  '9', [rb + char], [rb + tmp]
-    jz  [rb + tmp], char_to_digit_number
+    jz  [rb + tmp], .number
 
     lt  [rb + char], 'A', [rb + tmp]
-    jnz [rb + tmp], char_to_digit_invalid
+    jnz [rb + tmp], .invalid
 
     lt  'F', [rb + char], [rb + tmp]
-    jz  [rb + tmp], char_to_digit_upper_case
+    jz  [rb + tmp], .upper_case
 
     lt  [rb + char], 'a', [rb + tmp]
-    jnz [rb + tmp], char_to_digit_invalid
+    jnz [rb + tmp], .invalid
 
     lt  'f', [rb + char], [rb + tmp]
-    jz  [rb + tmp], char_to_digit_lower_case
+    jz  [rb + tmp], .lower_case
 
-    jz  0, char_to_digit_invalid
+    jz  0, .invalid
 
-char_to_digit_upper_case:
+.upper_case:
     add [rb + char], -55, [rb + digit]          # 'A' = 65
-    jz  0, char_to_digit_check_radix
+    jz  0, .check_radix
 
-char_to_digit_lower_case:
+.lower_case:
     add [rb + char], -87, [rb + digit]          # 'a' = 97
-    jz  0, char_to_digit_check_radix
+    jz  0, .check_radix
 
-char_to_digit_number:
+.number:
     add [rb + char], -'0', [rb + digit]
 
-char_to_digit_check_radix:
+.check_radix:
     lt  [rb + digit], [rb + radix], [rb + tmp]
-    jnz [rb + tmp], char_to_digit_end
+    jnz [rb + tmp], .end
 
-char_to_digit_invalid:
+.invalid:
     add -1, 0, [rb + digit]
 
-char_to_digit_end:
+.end:
     arb 2
     ret 2
 .ENDFRAME
@@ -80,16 +80,16 @@ is_alpha:
 
     # check if a <= char <= z
     lt  'z', [rb + char], [rb + tmp]                        # if char > z, not a letter
-    jnz [rb + tmp], is_alpha_end
+    jnz [rb + tmp], .end
     lt  [rb + char], 'a', [rb + tmp]                        # if !(char < a), is a letter
-    jz  [rb + tmp], is_alpha_end
+    jz  [rb + tmp], .end
 
     # check if A <= char <= Z
     lt  'Z', [rb + char], [rb + tmp]                        # if char > Z, not a letter
-    jnz [rb + tmp], is_alpha_end
+    jnz [rb + tmp], .end
     lt  [rb + char], 'A', [rb + tmp]                        # if !(char < A), is a letter
 
-is_alpha_end:
+.end:
     # the result is a logical negation of [rb + tmp]
     eq  [rb + tmp], 0, [rb + tmp]
 
@@ -106,17 +106,17 @@ is_alphanum:
     arb -1
     call is_alpha
     add [rb - 3], 0, [rb + tmp]
-    jnz [rb + tmp], is_alphanum_end
+    jnz [rb + tmp], .end
 
     add [rb + char], 0, [rb - 1]
     arb -1
     call is_digit
     add [rb - 3], 0, [rb + tmp]
-    jnz [rb + tmp], is_alphanum_end
+    jnz [rb + tmp], .end
 
     eq  [rb + char], '_', [rb + tmp]
 
-is_alphanum_end:
+.end:
     arb 1
     ret 1
 .ENDFRAME
@@ -128,7 +128,7 @@ strcmp:
 
     add 0, 0, [rb + index]
 
-strcmp_loop:
+.loop:
     add [rb + str1], [rb + index], [ip + 1]
     add [0], 0, [rb + char1]
 
@@ -137,15 +137,15 @@ strcmp_loop:
 
     # different characters, we are done
     eq  [rb + char1], [rb + char2], [rb + tmp]
-    jz  [rb + tmp], strcmp_done
+    jz  [rb + tmp], .done
 
     # same character, is it 0?
-    jz  [rb + char1], strcmp_done
+    jz  [rb + char1], .done
 
     add [rb + index], 1, [rb + index]
-    jz  0, strcmp_loop
+    jz  0, .loop
 
-strcmp_done:
+.done:
     mul [rb + char2], -1, [rb + tmp]
     add [rb + char1], [rb + tmp], [rb + tmp]
 
@@ -160,19 +160,19 @@ strcpy:
 
     add 0, 0, [rb + index]
 
-strcpy_loop:
+.loop:
     add [rb + src], [rb + index], [ip + 1]
     add [0], 0, [rb + char]
 
     add [rb + tgt], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
 
-    jz  [rb + char], strcpy_done
+    jz  [rb + char], .done
 
     add [rb + index], 1, [rb + index]
-    jz  0, strcpy_loop
+    jz  0, .loop
 
-strcpy_done:
+.done:
     arb 2
     ret 2
 .ENDFRAME
@@ -182,17 +182,17 @@ zeromem:
 .FRAME ptr, size; tmp
     arb -1
 
-zeromem_loop:
+.loop:
     add [rb + size], -1, [rb + size]
     lt  [rb + size], 0, [rb + tmp]
-    jnz [rb + tmp], zeromem_done
+    jnz [rb + tmp], .done
 
     add [rb + ptr], [rb + size], [ip + 3]
     add 0, 0, [0]
 
-    jz  0, zeromem_loop
+    jz  0, .loop
 
-zeromem_done:
+.done:
     arb 1
     ret 2
 .ENDFRAME
