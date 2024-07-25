@@ -100,22 +100,22 @@ parse_call:
     # for the 'arb -1' that we just performed one instruction before this one
     # see also test/call_local_variable
     eq  [rb + mode], 2, [rb + tmp]
-    jz  [rb + tmp], parse_call_not_mode_3
+    jz  [rb + tmp], .not_mode_3
 
     add [rb + param], 1, [rb + param]
 
-parse_call_not_mode_3:
+.not_mode_3:
     add [rb + param], 0, [rb - 1]
     arb -1
     call set_as_mem
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_call_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_call_done:
+.done:
     add [current_address], 9, [current_address]
 
     arb 3
@@ -160,12 +160,12 @@ parse_ret:
     call set_as_mem
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_ret_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_ret_done:
+.done:
     add [current_address], 5, [current_address]
 
     arb 2

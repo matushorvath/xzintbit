@@ -20,9 +20,9 @@ find_child_symbol:
     add [rb + parent], GLOBAL_CHILDREN_HEAD, [ip + 1]
     add [0], 0, [rb + child]
 
-find_child_symbol_loop:
+.loop:
     # are there any more children?
-    jz  [rb + child], find_child_symbol_done
+    jz  [rb + child], .done
 
     # does this child contain the identifier?
     add [rb + identifier], 0, [rb - 1]
@@ -32,15 +32,15 @@ find_child_symbol_loop:
     call strcmp
 
     # if strcmp result is 0, we are done
-    jz  [rb - 4], find_child_symbol_done
+    jz  [rb - 4], .done
 
     # move to next child
     add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + child]
 
-    jz  0, find_child_symbol_loop
+    jz  0, .loop
 
-find_child_symbol_done:
+.done:
     arb 1
     ret 2
 .ENDFRAME
@@ -101,12 +101,12 @@ add_or_find_current_child_symbol:
     arb -1
 
     # was there already a global symbol we can use as a parent?
-    jnz [last_global_symbol], add_or_find_current_child_symbol_have_parent
+    jnz [last_global_symbol], .have_parent
 
     add err_no_parent_symbol, 0, [rb]
     call report_error
 
-add_or_find_current_child_symbol_have_parent:
+.have_parent:
     add [last_global_symbol], 0, [rb - 1]
     add [rb + identifier], 0, [rb - 2]
     arb -2
@@ -132,7 +132,7 @@ add_or_find_child_symbol:
     add [rb - 4], 0, [rb + child]
 
     # did we find the record?
-    jnz [rb + child], add_or_find_child_symbol_found
+    jnz [rb + child], .found
 
     # no, add a new record
     add [rb + parent], 0, [rb - 1]
@@ -141,15 +141,15 @@ add_or_find_child_symbol:
     call add_child_symbol
     add [rb - 4], 0, [rb + child]
 
-    jz  0, add_or_find_child_symbol_done
+    jz  0, .done
 
-add_or_find_child_symbol_found:
+.found:
     # free the identifier, the child already exists so we don't need it
     add [rb + identifier], 0, [rb - 1]
     arb -1
     call free
 
-add_or_find_child_symbol_done:
+.done:
     arb 1
     ret 2
 .ENDFRAME

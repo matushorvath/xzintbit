@@ -38,40 +38,40 @@ parse_symbol:
 
     # check if there is an offset
     eq  [token_type], '+', [rb + tmp]
-    jz  [rb + tmp], parse_symbol_after_offset
+    jz  [rb + tmp], .after_offset
 
     call get_token
     eq  [token_type], 'n', [rb + tmp]
-    jnz [rb + tmp], parse_symbol_have_offset
+    jnz [rb + tmp], .have_offset
 
     add err_expect_number, 0, [rb]
     call report_error
 
-parse_symbol_have_offset:
+.have_offset:
     # add offset to symbol address
     add [rb + address], [token_value], [rb + address]
     call get_token
 
     eq  [token_type], '=', [rb + tmp]
-    jnz [rb + tmp], parse_symbol_after_equals
+    jnz [rb + tmp], .after_equals
 
     add err_expect_equals, 0, [rb]
     call report_error
 
-parse_symbol_after_equals:
+.after_equals:
     call get_token
 
-parse_symbol_after_offset:
+.after_offset:
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_symbol_have_identifier
+    jnz [rb + tmp], .have_identifier
 
     eq  [token_type], 'd', [rb + tmp]
-    jnz [rb + tmp], parse_symbol_have_dot_identifier
+    jnz [rb + tmp], .have_dot_identifier
 
     add err_expect_identifier, 0, [rb]
     call report_error
 
-parse_symbol_have_identifier:
+.have_identifier:
     # add or retrieve symbol from the symbol table
     add [token_value], 0, [rb - 1]
     arb -1
@@ -89,9 +89,9 @@ parse_symbol_have_identifier:
     # this is the now the current global symbol, any future child references are related to it
     add [rb + symbol], 0, [last_global_symbol]
 
-    jz  0, parse_symbol_colon
+    jz  0, .colon
 
-parse_symbol_have_dot_identifier:
+.have_dot_identifier:
     # add or retrieve child symbol of the current global symbol
     add [token_value], 0, [rb - 1]
     arb -1
@@ -104,16 +104,16 @@ parse_symbol_have_dot_identifier:
     arb -2
     call set_global_symbol_address
 
-parse_symbol_colon:
+.colon:
     call get_token
 
     eq  [token_type], ':', [rb + tmp]
-    jnz [rb + tmp], parse_symbol_done
+    jnz [rb + tmp], .done
 
     add err_expect_colon, 0, [rb]
     call report_error
 
-parse_symbol_done:
+.done:
     arb 3
     ret 0
 .ENDFRAME
@@ -127,12 +127,12 @@ parse_dir_symbol:
     call get_token
 
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_dir_symbol_have_identifier
+    jnz [rb + tmp], .have_identifier
 
     add err_expect_identifier, 0, [rb]
     call report_error
 
-parse_dir_symbol_have_identifier:
+.have_identifier:
     # save the identifier
     add [token_value], 0, [rb + identifier]
 
@@ -162,12 +162,12 @@ parse_dir_symbol_have_identifier:
 
     # check end of line
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_dir_symbol_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_dir_symbol_done:
+.done:
     arb 4
     ret 0
 .ENDFRAME
@@ -180,20 +180,20 @@ parse_dir_import_export:
     # determine if it's import (1) or export (2)
     add 1, 0, [rb + type]
     eq  [token_type], 'I', [rb + tmp]
-    jnz [rb + tmp], parse_dir_import_export_have_type
+    jnz [rb + tmp], .have_type
     add 2, 0, [rb + type]
 
-parse_dir_import_export_have_type:
+.have_type:
     # get the identifier
     call get_token
 
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_dir_import_export_have_identifier
+    jnz [rb + tmp], .have_identifier
 
     add err_expect_identifier, 0, [rb]
     call report_error
 
-parse_dir_import_export_have_identifier:
+.have_identifier:
     # add or retrieve symbol from the symbol table
     add [token_value], 0, [rb - 1]
     arb -1
@@ -210,12 +210,12 @@ parse_dir_import_export_have_identifier:
     call get_token
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_dir_import_export_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_dir_import_export_done:
+.done:
     arb 2
     ret 0
 .ENDFRAME

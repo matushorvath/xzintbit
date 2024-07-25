@@ -50,7 +50,7 @@ get_token:
 .FRAME tmp, char
     arb -2
 
-get_token_loop:
+.loop:
     # remember position at the start of the token
     add [input_line_num], 0, [token_line_num]
     add [input_column_num], 0, [token_column_num]
@@ -61,88 +61,88 @@ get_token_loop:
 
     # skip whitespace
     eq  [rb + char], ' ', [rb + tmp]
-    jnz [rb + tmp], get_token_loop
+    jnz [rb + tmp], .loop
     eq  [rb + char], 7, [rb + tmp]
-    jnz [rb + tmp], get_token_loop
+    jnz [rb + tmp], .loop
 
     # comments
     eq  [rb + char], 35, [rb + tmp]
-    jnz [rb + tmp], get_token_eat_comment
+    jnz [rb + tmp], .eat_comment
 
     # end of line
     eq  [rb + char], 10, [rb + tmp]
-    jnz [rb + tmp], get_token_eol
+    jnz [rb + tmp], .eol
     eq  [rb + char], 13, [rb + tmp]
-    jnz [rb + tmp], get_token_eol
+    jnz [rb + tmp], .eol
 
     # identifiers and keywords
     eq  [rb + char], '_', [rb + tmp]
-    jnz [rb + tmp], get_token_identifier
+    jnz [rb + tmp], .identifier
 
     add [rb + char], 0, [rb - 1]
     arb -1
     call is_alpha
-    jnz [rb - 3], get_token_identifier
+    jnz [rb - 3], .identifier
 
     # directives
     eq  [rb + char], '.', [rb + tmp]
-    jnz [rb + tmp], get_token_directive
+    jnz [rb + tmp], .directive
 
     # symbols
     add [rb + char], 0, [rb - 1]
     arb -1
     call is_symbol
-    jnz [rb - 3], get_token_symbol
+    jnz [rb - 3], .symbol
 
     # string literals
     eq  [rb + char], '"', [rb + tmp]
-    jnz [rb + tmp], get_token_string
+    jnz [rb + tmp], .string
 
     # character literals
     eq  [rb + char], ''', [rb + tmp]
-    jnz [rb + tmp], get_token_char
+    jnz [rb + tmp], .char
 
     # number literals
     add [rb + char], 0, [rb - 1]
     arb -1
     call is_digit
-    jnz [rb - 3], get_token_number
+    jnz [rb - 3], .number
 
     add err_invalid_token, 0, [rb]
     call report_error
 
-get_token_eat_comment:
+.eat_comment:
     # eat everything until end of line
 
-get_token_eat_comment_loop:
+.eat_comment_loop:
     call get_input
     add [rb - 2], 0, [rb + char]
 
     # the comment ends with an EOL, so we jump to EOL handling
     eq  [rb + char], 10, [rb + tmp]
-    jnz [rb + tmp], get_token_eol
+    jnz [rb + tmp], .eol
     eq  [rb + char], 13, [rb + tmp]
-    jnz [rb + tmp], get_token_eol
+    jnz [rb + tmp], .eol
 
-    jz  0, get_token_eat_comment_loop
+    jz  0, .eat_comment_loop
 
-get_token_eol:
+.eol:
     # handle Windows-style 13,10 line ends
     eq  [rb + char], 13, [rb + tmp]
-    jz  [rb + tmp], get_token_eol_unix
+    jz  [rb + tmp], .eol_unix
 
     call get_input
     eq  [rb - 2], 10, [rb + tmp]
-    jnz [rb + tmp], get_token_eol_unix
+    jnz [rb + tmp], .eol_unix
 
     add err_expect_10_after_13, 0, [rb]
     call report_error
 
-get_token_eol_unix:
+.eol_unix:
     add '$', 0, [token_type]
-    jz  0, get_token_done
+    jz  0, .done
 
-get_token_identifier:
+.identifier:
     # unget last char, read_identifier will get it again
     add [rb + char], 0, [rb - 1]
     arb -1
@@ -154,31 +154,31 @@ get_token_identifier:
     add [rb - 2], 0, [token_type]
     add [rb - 3], 0, [token_value]
 
-    jz  0, get_token_done
+    jz  0, .done
 
-get_token_directive:
+.directive:
     # return read identifier pointer in [token_value]
     # this memory needs to be freed by caller of get_token
     call read_dot_identifier_or_directive
     add [rb - 2], 0, [token_type]
     add [rb - 3], 0, [token_value]
 
-    jz  0, get_token_done
+    jz  0, .done
 
-get_token_symbol:
+.symbol:
     add [rb + char], 0, [token_type]
-    jz  0, get_token_done
+    jz  0, .done
 
-get_token_string:
+.string:
     # return read string pointer in [token_value]
     # this memory needs to be freed by caller of get_token
     call read_string
     add [rb - 2], 0, [token_value]
 
     add 's', 0, [token_type]
-    jz  0, get_token_done
+    jz  0, .done
 
-get_token_char:
+.char:
     # get one character and return it as token value
     call get_input
     add [rb - 2], 0, [token_value]
@@ -186,16 +186,16 @@ get_token_char:
     # get closing quote
     call get_input
     eq  [rb - 2], ''', [rb + tmp]
-    jnz [rb + tmp], get_token_char_done
+    jnz [rb + tmp], .char_done
 
     add err_expect_single_quote, 0, [rb]
     call report_error
 
-get_token_char_done:
+.char_done:
     add 'c', 0, [token_type]
-    jz  0, get_token_done
+    jz  0, .done
 
-get_token_number:
+.number:
     # unget last char, read_number will get it again
     add [rb + char], 0, [rb - 1]
     arb -1
@@ -206,16 +206,16 @@ get_token_number:
     add [rb - 2], 0, [token_value]
 
     # was there actually a number?
-    jnz [rb - 3], get_token_number_done
+    jnz [rb - 3], .number_done
 
     add err_expect_number, 0, [rb]
     call report_error
 
-get_token_number_done:
+.number_done:
     add 'n', 0, [token_type]
-    jz  0, get_token_done
+    jz  0, .done
 
-get_token_done:
+.done:
     arb 2
     ret 0
 .ENDFRAME
@@ -226,22 +226,22 @@ is_symbol:
     arb -1
 
     eq  [rb + char], '+', [rb + tmp]
-    jnz [rb + tmp], is_symbol_end
+    jnz [rb + tmp], .done
     eq  [rb + char], '-', [rb + tmp]
-    jnz [rb + tmp], is_symbol_end
+    jnz [rb + tmp], .done
     eq  [rb + char], '=', [rb + tmp]
-    jnz [rb + tmp], is_symbol_end
+    jnz [rb + tmp], .done
     eq  [rb + char], ',', [rb + tmp]
-    jnz [rb + tmp], is_symbol_end
+    jnz [rb + tmp], .done
     eq  [rb + char], ':', [rb + tmp]
-    jnz [rb + tmp], is_symbol_end
+    jnz [rb + tmp], .done
     eq  [rb + char], ';', [rb + tmp]
-    jnz [rb + tmp], is_symbol_end
+    jnz [rb + tmp], .done
     eq  [rb + char], '[', [rb + tmp]
-    jnz [rb + tmp], is_symbol_end
+    jnz [rb + tmp], .done
     eq  [rb + char], ']', [rb + tmp]
 
-is_symbol_end:
+.done:
     arb 1
     ret 1
 .ENDFRAME
@@ -264,14 +264,14 @@ read_identifier_or_keyword:
 
     # if it is a keyword, free the buffer, we don't need it
     eq  [rb + token], 'i', [rb + tmp]
-    jnz [rb + tmp], read_identifier_or_keyword_skip_free
+    jnz [rb + tmp], .skip_free
 
     add [rb + buffer], 0, [rb - 1]
     arb -1
     call free
     add 0, 0, [rb + buffer]
 
-read_identifier_or_keyword_skip_free:
+.skip_free:
     arb 3
     ret 0
 .ENDFRAME
@@ -294,14 +294,14 @@ read_dot_identifier_or_directive:
 
     # if it is a directive, free the buffer, we don't need it
     eq  [rb + token], 'd', [rb + tmp]
-    jnz [rb + tmp], read_dot_identifier_or_directive_skip_free
+    jnz [rb + tmp], .skip_free
 
     add [rb + buffer], 0, [rb - 1]
     arb -1
     call free
     add 0, 0, [rb + buffer]
 
-read_dot_identifier_or_directive_skip_free:
+.skip_free:
     arb 3
     ret 0
 .ENDFRAME
@@ -316,35 +316,35 @@ dump_token:
 
     # print token value if relevant
     eq  [token_type], 'n', [rb + tmp]
-    jnz [rb + tmp], dump_token_print_number
+    jnz [rb + tmp], .print_number
     eq  [token_type], 'c', [rb + tmp]
-    jnz [rb + tmp], dump_token_print_char
+    jnz [rb + tmp], .print_char
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], dump_token_print_string
+    jnz [rb + tmp], .print_string
     eq  [token_type], 'd', [rb + tmp]
-    jnz [rb + tmp], dump_token_print_string
-    jz  0, dump_token_finish
+    jnz [rb + tmp], .print_string
+    jz  0, .done
 
-dump_token_print_number:
+.print_number:
     out ' '
     add [token_value], 0, [rb - 1]
     arb -1
     call print_num
-    jz  0, dump_token_finish
+    jz  0, .done
 
-dump_token_print_char:
+.print_char:
     out ' '
     out [token_value]
-    jz  0, dump_token_finish
+    jz  0, .done
 
-dump_token_print_string:
+.print_string:
     out ' '
     add [token_value], 0, [rb - 1]
     arb -1
     call print_str
-    jz  0, dump_token_finish
+    jz  0, .done
 
-dump_token_finish:
+.done:
     out 10
 
     arb 1

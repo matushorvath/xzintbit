@@ -30,12 +30,12 @@ parse_dir_frame:
 
     # no nested frames, only one frame at a time
     # we can't use frame_head, because a frame could have no symbols
-    jz  [is_frame], parse_dir_frame_loop
+    jz  [is_frame], .loop
 
     add err_already_in_frame, 0, [rb]
     call report_error
 
-parse_dir_frame_loop:
+.loop:
     # eat the 'FRAME' token (first parameter block) or the semicolon (subsequent parameter blocks)
     call get_token
 
@@ -46,23 +46,23 @@ parse_dir_frame_loop:
 
     # are there any more blocks, or was this the last one?
     eq  [token_type], ';', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_check_count
+    jnz [rb + tmp], .check_count
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_eol
+    jnz [rb + tmp], .eol
 
     add err_expect_semicolon_eol, 0, [rb]
     call report_error
 
-parse_dir_frame_check_count:
+.check_count:
     # we support up to three identifier lists
     add [rb + block_index], 1, [rb + block_index]
     lt  [rb + block_index], 3, [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_loop
+    jnz [rb + tmp], .loop
 
     add err_too_many_lists, 0, [rb]
     call report_error
 
-parse_dir_frame_eol:
+.eol:
     # we have up to three identifier blocks stored in the frame list
     # now decide which block represents parameters, local variables and negative variables
     # then assign offsets to all symbols in the frame
@@ -86,28 +86,28 @@ parse_dir_frame_block:
 
     # handle empty block
     eq  [token_type], ';', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_block_done
+    jnz [rb + tmp], .done
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_block_done
+    jnz [rb + tmp], .done
 
-parse_dir_frame_block_loop:
+.loop:
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_block_identifier
+    jnz [rb + tmp], .identifier
 
     add err_expect_identifier, 0, [rb]
     call report_error
 
-parse_dir_frame_block_identifier:
+.identifier:
     # check for duplicate symbols
     add [token_value], 0, [rb - 1]
     arb -1
     call find_frame_symbol
-    jz  [rb - 3], parse_dir_frame_block_is_unique
+    jz  [rb - 3], .is_unique
 
     add err_duplicate_frame_symbol, 0, [rb]
     call report_error
 
-parse_dir_frame_block_is_unique:
+.is_unique:
     # store the symbol with block index
     add [token_value], 0, [rb - 1]
     add [rb + block_count], 0, [rb - 2]
@@ -119,20 +119,20 @@ parse_dir_frame_block_is_unique:
     call get_token
 
     eq  [token_type], ',', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_block_comma
+    jnz [rb + tmp], .comma
     eq  [token_type], ';', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_block_done
+    jnz [rb + tmp], .done
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_block_done
+    jnz [rb + tmp], .done
 
     add err_expect_comma_semicolon_eol, 0, [rb]
     call report_error
 
-parse_dir_frame_block_comma:
+.comma:
     call get_token
-    jz  0, parse_dir_frame_block_loop
+    jz  0, .loop
 
-parse_dir_frame_block_done:
+.done:
     arb 2
     ret 1
 .ENDFRAME
@@ -146,7 +146,7 @@ parse_dir_frame_offset_blocks:
 
     # are there any negative symbols?
     lt  [rb + block_count], 3, [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_offset_blocks_after_negative
+    jnz [rb + tmp], .after_negative
 
     # process block 2 as negative variables
     add 2, 0, [rb - 1]
@@ -154,10 +154,10 @@ parse_dir_frame_offset_blocks:
     arb -2
     call parse_dir_frame_offset
 
-parse_dir_frame_offset_blocks_after_negative:
+.after_negative:
     # if there is at least one block, that will be local variables
     lt  [rb + block_count], 1, [rb + tmp]
-    jnz [rb + tmp], parse_dir_frame_offset_blocks_done
+    jnz [rb + tmp], .done
 
     # process block 0 or 1 as local variables
     lt  1, [rb + block_count], [rb - 1]
@@ -171,7 +171,7 @@ parse_dir_frame_offset_blocks_after_negative:
 
     # if there were at least two blocks, the last one is parameters
     lt  1, [rb + block_count], [rb + tmp]
-    jz  [rb + tmp], parse_dir_frame_offset_blocks_done
+    jz  [rb + tmp], .done
 
     # process block 0 as parameters
     add 0, 0, [rb - 1]
@@ -179,7 +179,7 @@ parse_dir_frame_offset_blocks_after_negative:
     arb -2
     call parse_dir_frame_offset
 
-parse_dir_frame_offset_blocks_done:
+.done:
     arb 2
     ret 2
 .ENDFRAME
@@ -192,9 +192,9 @@ parse_dir_frame_offset:
     add [rb + start_offset], 0, [rb + offset]
     add [frame_head], 0, [rb + record]
 
-parse_dir_frame_offset_loop:
+.loop:
     # are there any more records?
-    jz  [rb + record], parse_dir_frame_offset_done
+    jz  [rb + record], .done
 
     # read block index field
     add [rb + record], FRAME_BLOCK, [ip + 1]
@@ -202,7 +202,7 @@ parse_dir_frame_offset_loop:
 
     # for records where block matches the block we are processing, set offset
     eq  [rb + record_block], [rb + current_block], [rb + tmp]
-    jz  [rb + tmp], parse_dir_frame_offset_after_update
+    jz  [rb + tmp], .after_update
 
     # write offset field
     add [rb + record], FRAME_OFFSET, [ip + 3]
@@ -211,14 +211,14 @@ parse_dir_frame_offset_loop:
     # increment offset for next symbol
     add [rb + offset], 1, [rb + offset]
 
-parse_dir_frame_offset_after_update:
+.after_update:
     # move to next record
     add [rb + record], FRAME_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
 
-    jz  0, parse_dir_frame_offset_loop
+    jz  0, .loop
 
-parse_dir_frame_offset_done:
+.done:
     arb 4
     ret 2
 .ENDFRAME
@@ -231,21 +231,21 @@ parse_dir_endframe:
     # check if we are in fact in a frame
     # we can't use frame_head, because a frame could have no symbols
     eq  [is_frame], 1, [rb + tmp]
-    jnz [rb + tmp], parse_dir_endframe_check_params
+    jnz [rb + tmp], .check_params
 
     add err_not_in_frame, 0, [rb]
     call report_error
 
-parse_dir_endframe_check_params:
+.check_params:
     call get_token
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_dir_endframe_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_dir_endframe_done:
+.done:
     call reset_frame
     add  0, 0, [is_frame]
 

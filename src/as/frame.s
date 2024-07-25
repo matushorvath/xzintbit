@@ -17,9 +17,9 @@ find_frame_symbol:
 
     add [frame_head], 0, [rb + record]
 
-find_frame_symbol_loop:
+.loop:
     # are there any more records?
-    jz  [rb + record], find_frame_symbol_done
+    jz  [rb + record], .done
 
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
@@ -29,15 +29,15 @@ find_frame_symbol_loop:
     call strcmp
 
     # if strcmp result is 0, we are done
-    jz  [rb - 4], find_frame_symbol_done
+    jz  [rb - 4], .done
 
     # move to next record
     add [rb + record], FRAME_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
 
-    jz  0, find_frame_symbol_loop
+    jz  0, .loop
 
-find_frame_symbol_done:
+.done:
     arb 1
     ret 1
 .ENDFRAME
@@ -81,9 +81,9 @@ reset_frame:
 
     add [frame_head], 0, [rb + record]
 
-reset_frame_symbol_loop:
+.loop:
     # are there any more records?
-    jz  [rb + record], reset_frame_symbol_done
+    jz  [rb + record], .done
 
     # save current record pointer
     add [rb + record], 0, [rb + tmp]
@@ -103,9 +103,9 @@ reset_frame_symbol_loop:
     arb -1
     call free
 
-    jz  0, reset_frame_symbol_loop
+    jz  0, .loop
 
-reset_frame_symbol_done:
+.done:
     # reset list head
     add 0, 0, [frame_head]
 
