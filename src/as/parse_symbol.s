@@ -4,6 +4,7 @@
 
 # from child.s
 .IMPORT add_or_find_current_child_symbol
+.IMPORT last_global_symbol
 
 # from error.s
 .IMPORT report_error
@@ -29,8 +30,8 @@
 
 ##########
 parse_symbol:
-.FRAME tmp, address
-    arb -2
+.FRAME tmp, address, symbol
+    arb -3
 
     # default symbol address is current_address
     add [current_address], 0, [rb + address]
@@ -75,13 +76,18 @@ parse_symbol_have_identifier:
     add [token_value], 0, [rb - 1]
     arb -1
     call add_or_find_global_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of set_global_symbol_address
+    add [rb - 3], 0, [rb + symbol]
+
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
 
     # set symbol address
+    add [rb + symbol], 0, [rb - 1]
     add [rb + address], 0, [rb - 2]
     arb -2
     call set_global_symbol_address
+
+    # this is the now the current global symbol, any future child references are related to it
+    add [rb + symbol], 0, [last_global_symbol]
 
     jz  0, parse_symbol_colon
 
@@ -108,7 +114,7 @@ parse_symbol_colon:
     call report_error
 
 parse_symbol_done:
-    arb 2
+    arb 3
     ret 0
 .ENDFRAME
 

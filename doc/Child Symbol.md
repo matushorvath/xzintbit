@@ -25,8 +25,8 @@ OK report_global_symbol_error
 OK report_global_fixup_error
 OK print_symbol_identifier
 
-remember last global symbol that has an address set, from parse_symbol only I think
-handle situation when there is no last global symbol yet (i.e. dot-identifier before first identifier)
+OK remember last global symbol that has an address set, from parse_symbol only I think
+OK handle situation when there is no last global symbol yet (i.e. dot-identifier before first identifier)
 
 
 

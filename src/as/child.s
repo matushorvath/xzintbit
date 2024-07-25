@@ -1,5 +1,6 @@
 .EXPORT add_or_find_current_child_symbol
 .EXPORT add_or_find_child_symbol
+.EXPORT last_global_symbol
 
 # from libxib/heap.s
 .IMPORT alloc_blocks
@@ -9,7 +10,7 @@
 .IMPORT strcmp
 
 # from error.s
-.IMPORT report_child_symbol_error
+.IMPORT report_error
 
 ##########
 find_child_symbol:
@@ -99,6 +100,13 @@ add_or_find_current_child_symbol:
 .FRAME identifier; child
     arb -1
 
+    # was there already a global symbol we can use as a parent?
+    jnz [last_global_symbol], add_or_find_current_child_symbol_have_parent
+
+    add err_no_parent_symbol, 0, [rb]
+    call report_error
+
+add_or_find_current_child_symbol_have_parent:
     add [last_global_symbol], 0, [rb - 1]
     add [rb + identifier], 0, [rb - 2]
     arb -2
@@ -152,5 +160,11 @@ add_or_find_child_symbol_done:
 # head of the linked list of global symbols
 last_global_symbol:
     db  0
+
+##########
+# errors
+
+err_no_parent_symbol:
+    db  "Child symbol without a preceding parent symbol", 0
 
 .EOF
