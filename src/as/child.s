@@ -129,7 +129,7 @@ add_or_find_child_symbol:
     add [rb + identifier], 0, [rb - 2]
     arb -2
     call find_child_symbol
-    add [rb - 3], 0, [rb + child]
+    add [rb - 4], 0, [rb + child]
 
     # did we find the record?
     jnz [rb + child], add_or_find_child_symbol_found
@@ -139,7 +139,7 @@ add_or_find_child_symbol:
     add [rb + identifier], 0, [rb - 2]
     arb -2
     call add_child_symbol
-    add [rb - 3], 0, [rb + child]
+    add [rb - 4], 0, [rb + child]
 
     jz  0, add_or_find_child_symbol_done
 

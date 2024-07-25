@@ -31,10 +31,12 @@ OK handle situation when there is no last global symbol yet (i.e. dot-identifier
 
 
 tests:
- - child symbol before first global symbol, should fail
- - create child after second global, check that it is assigned to the second global
- - child with with same name as a child under different global
- - access through dot, access through parent.dot, from inside the parent and outside
- - +1 = .child:
- - .child + 1, .child - 1, same with parent.child
+OK - child symbol before first global symbol, should fail
+OK - create child after second global, check that it is assigned to the second global
+OK - child with with same name as a child under different global
+OK - access through dot
+ - access through parent.dot, from inside the parent and outside
+OK - +1 = .child:
+OK - .child + 1, .child - 1
+ - +1, -1 with parent.child
  - check changes for other scenarios
