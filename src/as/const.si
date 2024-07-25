@@ -9,6 +9,14 @@
 .SYMBOL GLOBAL_CHILDREN_HEAD        5
 .SYMBOL GLOBAL_ALLOC_SIZE           1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
 
+# child symbol record layout:
+.SYMBOL CHILD_NEXT_PTR              0
+.SYMBOL CHILD_IDENTIFIER_PTR        1           # pointer to identifier
+.SYMBOL CHILD_ADDRESS               2
+.SYMBOL CHILD_PARENT                3
+.SYMBOL CHILD_FIXUPS_HEAD           4
+.SYMBOL CHILD_ALLOC_SIZE            1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
+
 # fixup record layout:
 .SYMBOL FIXUP_NEXT_PTR              0
 .SYMBOL FIXUP_ADDRESS               1

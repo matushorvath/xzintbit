@@ -1,9 +1,8 @@
 implement:
 
-add_or_find_current_child_symbol(identifier) -> child
-prepare also add_or_find_child_symbol(global, identifier) -> child
-
-set_child_symbol_address(child, address)
+OK add_or_find_current_child_symbol(identifier) -> child
+OK add_or_find_child_symbol(global, identifier) -> child
+OK set_child_symbol_address(child, address)
 
 
 
@@ -16,7 +15,18 @@ OK parse_dir_import_export .IMPORT/.EXPORT identifier xyz - done, no value
 
 
 
+need to handle children:
+
 add_fixup needs to accept both global symbols and child symbol
+fixups are stored in the child, so we also need to support that
+
+report_global_symbol_error
+report_global_fixup_error
+print_symbol_identifier
+
+remember last global symbol that has an address set, from parse_symbol only I think
+handle situation when there is no last global symbol yet (i.e. dot-identifier before first identifier)
+
 
 
 tests:

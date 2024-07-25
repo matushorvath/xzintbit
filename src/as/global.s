@@ -19,6 +19,8 @@ init_relocations:
 .FRAME symbol
     arb -1
 
+    # TODO this creates a lot of complications, instead store this single relocation as a separate pointer, not in list
+
     # add a dummy symbol (with null identifier) to store relocations that are not related to a symbol
     add 0, 0, [rb - 1]
     arb -1
