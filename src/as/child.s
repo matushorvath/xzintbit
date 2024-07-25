@@ -1,6 +1,5 @@
 .EXPORT add_or_find_current_child_symbol
 .EXPORT add_or_find_child_symbol
-.EXPORT set_child_symbol_address
 
 # from libxib/heap.s
 .IMPORT alloc_blocks
@@ -26,7 +25,7 @@ find_child_symbol_loop:
 
     # does this child contain the identifier?
     add [rb + identifier], 0, [rb - 1]
-    add [rb + child], CHILD_IDENTIFIER_PTR, [ip + 1]
+    add [rb + child], GLOBAL_IDENTIFIER_PTR, [ip + 1]
     add [0], 0, [rb - 2]
     arb -2
     call strcmp
@@ -35,7 +34,7 @@ find_child_symbol_loop:
     jz  [rb - 4], find_child_symbol_done
 
     # move to next child
-    add [rb + child], CHILD_NEXT_PTR, [ip + 1]
+    add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + child]
 
     jz  0, find_child_symbol_loop
@@ -53,30 +52,38 @@ add_child_symbol:
     # takes over ownership of identifier
 
     # allocate a block
-    add CHILD_ALLOC_SIZE, 0, [rb - 1]
+    add GLOBAL_ALLOC_SIZE, 0, [rb - 1]
     arb -1
     call alloc_blocks
     add [rb - 3], 0, [rb + child]
 
     # set pointer to next symbol
     add [rb + parent], GLOBAL_CHILDREN_HEAD, [ip + 5]
-    add [rb + child], CHILD_NEXT_PTR, [ip + 3]
+    add [rb + child], GLOBAL_NEXT_PTR, [ip + 3]
     add [0], 0, [0]
 
     # store the identifier pointer
-    add [rb + child], CHILD_IDENTIFIER_PTR, [ip + 3]
+    add [rb + child], GLOBAL_IDENTIFIER_PTR, [ip + 3]
     add [rb + identifier], 0, [0]
 
+    # set the symbol type to "child"
+    add [rb + child], GLOBAL_TYPE, [ip + 3]
+    add 5, 0, [0]
+
     # set address to -1, so we can detect when the address is set
-    add [rb + child], CHILD_ADDRESS, [ip + 3]
+    add [rb + child], GLOBAL_ADDRESS, [ip + 3]
     add -1, 0, [0]
 
     # save parent of this child
-    add [rb + child], CHILD_PARENT, [ip + 3]
+    add [rb + child], GLOBAL_PARENT, [ip + 3]
     add [rb + parent], 0, [0]
 
+    # set list of children to 0
+    add [rb + child], GLOBAL_CHILDREN_HEAD, [ip + 3]
+    add 0, 0, [0]
+
     # set fixup head to 0
-    add [rb + child], CHILD_FIXUPS_HEAD, [ip + 3]
+    add [rb + child], GLOBAL_FIXUPS_HEAD, [ip + 3]
     add 0, 0, [0]
 
     # set new children head in the parent
@@ -140,42 +147,10 @@ add_or_find_child_symbol_done:
 .ENDFRAME
 
 ##########
-set_child_symbol_address:
-.FRAME child, address; tmp
-    arb -1
-
-    # check for duplicate child definitions
-    add [rb + child], CHILD_ADDRESS, [ip + 1]
-    add [0], 0, [rb + tmp]
-
-    # does the child already have an address?
-    eq  [rb + tmp], -1, [rb + tmp]
-    jnz [rb + tmp], set_child_symbol_address_store
-
-    add [rb + child], 0, [rb + 1]
-    add err_duplicate_child_symbol, 0, [rb]
-    call report_child_symbol_error
-
-set_child_symbol_address_store:
-    # store the address of the symbol
-    add [rb + child], CHILD_ADDRESS, [ip + 3]
-    add [rb + address], 0, [0]
-
-    arb 1
-    ret 2
-.ENDFRAME
-
-##########
 # globals
 
 # head of the linked list of global symbols
 last_global_symbol:
     db  0
-
-##########
-# error messages
-
-err_duplicate_child_symbol:
-    db  "Duplicate child symbol definition", 0
 
 .EOF

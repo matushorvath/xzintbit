@@ -114,6 +114,12 @@ add_global_symbol:
     add [rb + record], GLOBAL_FIXUPS_HEAD, [ip + 3]
     add 0, 0, [0]
 
+    # set parent to 0 and initialize the list of children
+    add [rb + record], GLOBAL_PARENT, [ip + 3]
+    add 0, 0, [0]
+    add [rb + record], GLOBAL_CHILDREN_HEAD, [ip + 3]
+    add 0, 0, [0]
+
     # set new symbol head
     add [rb + record], 0, [global_head]
 

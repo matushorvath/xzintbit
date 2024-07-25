@@ -4,7 +4,6 @@
 
 # from child.s
 .IMPORT add_or_find_current_child_symbol
-.IMPORT set_child_symbol_address
 
 # from error.s
 .IMPORT report_error
@@ -91,13 +90,13 @@ parse_symbol_have_dot_identifier:
     add [token_value], 0, [rb - 1]
     arb -1
     call add_or_find_current_child_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of set_child_symbol_address
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of set_global_symbol_address
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_current_child_symbol
 
     # set child symbol address
     add [rb + address], 0, [rb - 2]
     arb -2
-    call set_child_symbol_address
+    call set_global_symbol_address
 
 parse_symbol_colon:
     call get_token
