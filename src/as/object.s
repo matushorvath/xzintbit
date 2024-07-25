@@ -8,7 +8,7 @@
 .IMPORT print_mem
 
 # from error.s
-.IMPORT report_symbol_fixup_error
+.IMPORT report_global_fixup_error
 
 # from global.s
 .IMPORT global_head
@@ -164,7 +164,7 @@ print_imports_symbol:
 
     add [rb + symbol], 0, [rb + 1]
     add err_imported_symbol_defined, 0, [rb]
-    call report_symbol_fixup_error
+    call report_global_fixup_error
 
 print_imports_no_address:
     # print the identifier
@@ -249,7 +249,7 @@ print_exports_symbol:
 
     add [rb + symbol], 0, [rb + 1]
     add err_unknown_symbol, 0, [rb]
-    call report_symbol_fixup_error
+    call report_global_fixup_error
 
 print_exports_have_address:
     # print the identifier

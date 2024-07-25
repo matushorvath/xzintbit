@@ -12,7 +12,7 @@
 .IMPORT strcmp
 
 # from error.s
-.IMPORT report_symbol_token_error
+.IMPORT report_global_symbol_error
 
 ##########
 init_relocations:
@@ -169,7 +169,7 @@ set_global_symbol_address:
 
     add [rb + symbol], 0, [rb + 1]
     add err_duplicate_global_symbol, 0, [rb]
-    call report_symbol_token_error
+    call report_global_symbol_error
 
 set_global_symbol_address_store:
     # store the address of the symbol
@@ -198,7 +198,7 @@ set_global_symbol_type:
 
     add [rb + symbol], 0, [rb + 1]
     add err_symbol_symbol_type_mix, 0, [rb]
-    call report_symbol_token_error
+    call report_global_symbol_error
 
 set_global_symbol_type_check_same:
     # the type is the same, is this a double import/export?
@@ -210,17 +210,17 @@ set_global_symbol_type_check_same:
     # not double import/export, must be a double constant
     add [rb + symbol], 0, [rb + 1]
     add err_constant_already_defined, 0, [rb]
-    call report_symbol_token_error
+    call report_global_symbol_error
 
 set_global_symbol_type_error_imported:
     add [rb + symbol], 0, [rb + 1]
     add err_symbol_already_imported, 0, [rb]
-    call report_symbol_token_error
+    call report_global_symbol_error
 
 set_global_symbol_type_error_exported:
     add [rb + symbol], 0, [rb + 1]
     add err_symbol_already_exported, 0, [rb]
-    call report_symbol_token_error
+    call report_global_symbol_error
 
 set_global_symbol_type_store:
     # set symbol type

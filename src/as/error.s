@@ -2,8 +2,8 @@
 
 .EXPORT report_error
 .EXPORT report_libxib_error
-.EXPORT report_symbol_token_error
-.EXPORT report_symbol_fixup_error
+.EXPORT report_global_symbol_error
+.EXPORT report_global_fixup_error
 
 # from libxib/error.s
 .IMPORT report_error_at_location
@@ -29,7 +29,7 @@ report_error:
 .ENDFRAME
 
 ##########
-report_symbol_token_error:
+report_global_symbol_error:
 .FRAME symbol, message;
     # error message with an identifier and a location taken from lexer
 
@@ -45,7 +45,7 @@ report_symbol_token_error:
 .ENDFRAME
 
 ##########
-report_symbol_fixup_error:
+report_global_fixup_error:
 .FRAME symbol, message; fixup, line_num, column_num
     arb -3
 
