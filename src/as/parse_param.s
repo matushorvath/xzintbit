@@ -246,7 +246,7 @@ parse_value_dot_global_symbol_allowed:
     add [token_value], 0, [rb - 1]
     arb -1
     call add_or_find_current_child_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of add_fixup xxx TODO new variant of add_fixup
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of add_fixup
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
 
     # add a fixup for this identifier
@@ -255,7 +255,6 @@ parse_value_dot_global_symbol_allowed:
     add [token_column_num], 0, [rb - 4]
     arb -4
     call add_fixup
-    # TODO but add_fixup needs to accept a child symbol
 
     call get_token
 

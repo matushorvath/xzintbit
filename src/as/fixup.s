@@ -26,6 +26,8 @@ add_fixup:
 .FRAME symbol, address, line_num, column_num; fixup, tmp
     arb -2
 
+    # symbol could be either parent or child symbol
+
     # allocate a block
     add FIXUP_ALLOC_SIZE, 0, [rb - 1]
     arb -1
@@ -62,8 +64,8 @@ add_fixup:
 
 ##########
 process_fixups:
-.FRAME tmp, global
-    arb -2
+.FRAME tmp, global, child
+    arb -3
 
     add [global_head], 0, [rb + global]
 
@@ -84,15 +86,34 @@ process_fixups_global_loop:
     arb -1
     call process_symbol_fixups
 
+    # process child symbols as well, if any
+    add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
+    add [0], 0, [rb + child]
+
+process_fixups_child_loop:
+    # do we have more child symbols?
+    jz  [rb + child], process_fixups_global_next
+
+    # process all fixups for this child symbol
+    add [rb + child], 0, [rb - 1]
+    arb -1
+    call process_symbol_fixups
+
+    # move to next child symbol
+    add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + child]
+
+    jz  0, process_fixups_child_loop
+
 process_fixups_global_next:
-    # move to next symbol
+    # move to next global symbol
     add [rb + global], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + global]
 
     jz  0, process_fixups_global_loop
 
 process_fixups_done:
-    arb 2
+    arb 3
     ret 0
 .ENDFRAME
 

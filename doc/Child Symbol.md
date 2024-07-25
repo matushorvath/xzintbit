@@ -19,11 +19,11 @@ OK parse_dir_import_export .IMPORT/.EXPORT identifier xyz - done, no value
 need to handle children:
 
 OK add_fixup needs to accept both global symbols and child symbol
-process_fixups needs to process also child fixups
+OK process_fixups needs to process also child fixups
 
-report_global_symbol_error
-report_global_fixup_error
-print_symbol_identifier
+OK report_global_symbol_error
+OK report_global_fixup_error
+OK print_symbol_identifier
 
 remember last global symbol that has an address set, from parse_symbol only I think
 handle situation when there is no last global symbol yet (i.e. dot-identifier before first identifier)
