@@ -25,6 +25,9 @@ second_global:
 .child_1_2:     # duplicate name
     db  212
 
+.child_3_1:     # no references
+    db  31
+
 +2 = .child_2_3_p2:
     db 230, 231, 232
 
@@ -41,5 +44,11 @@ second_global:
     out .before_definition
 .before_definition:
     db  -1
+
+    out [second_global.child_2_1]
+    out [second_global.child_1_2]
+    out [first_global.child_1_2]
+    out [second_global.child_2_1 + 23]
+    out [first_global.child_1_1 - 17]
 
 .EOF

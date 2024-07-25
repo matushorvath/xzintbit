@@ -5,6 +5,7 @@
 
 # from child.s
 .IMPORT add_or_find_current_child_symbol
+.IMPORT add_or_find_child_symbol
 
 # from error.s
 .IMPORT report_error
@@ -140,10 +141,10 @@ parse_in_param_done:
 
 ##########
 parse_value:
-.FRAME param_offset, instruction_length, allow_global_symbol, allow_frame_symbol; result, has_symbol, sign, tmp
+.FRAME param_offset, instruction_length, allow_global_symbol, allow_frame_symbol; result, has_symbol, sign, symbol, line_num, column_num, tmp
     # param_offset: offset of the current parameter from current_address
     # instruction_length: current instruction length
-    arb -4
+    arb -7
 
     add 0, 0, [rb + result]
     add 0, 0, [rb + has_symbol]
@@ -214,17 +215,45 @@ parse_value_global_symbol_allowed:
     add [token_value], 0, [rb - 1]
     arb -1
     call add_or_find_global_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
+    add [rb - 3], 0, [rb + symbol]
+
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
 
-    # is the global symbol followed by dot and a child symbol?
-    # TODO implement global.child symbol
-    # TODO move get_token here, check if it is ':' or 'd'; before get_token save token_line_num and token_column_num for add_fixup
+    # save line and column, then get next token
+    add [token_line_num], 0, [rb + line_num]
+    add [token_column_num], 0, [rb + column_num]
+
+    call get_token
+
+    # is this global symbol followed by dot and a child symbol?
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], parse_value_is_parent_dot_child
+
+    # no child symbol, add a fixup for this identifier
+    add [rb + symbol], 0, [rb - 1]
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [rb + line_num], 0, [rb - 3]
+    add [rb + column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
+
+    jz  0, parse_value_after_symbol
+
+parse_value_is_parent_dot_child:
+    # parent.child symbol reference, find the child symbol
+    add [rb + symbol], 0, [rb - 1]
+    add [token_value], 0, [rb - 2]
+    arb -2
+    call add_or_find_child_symbol
+    add [rb - 4], 0, [rb + symbol]
+
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_child_symbol
 
     # add a fixup for this identifier
+    add [rb + symbol], 0, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
-    add [token_line_num], 0, [rb - 3]
-    add [token_column_num], 0, [rb - 4]
+    add [rb + line_num], 0, [rb - 3]
+    add [rb + column_num], 0, [rb - 4]
     arb -4
     call add_fixup
 
@@ -319,7 +348,7 @@ parse_value_number_or_char_2:
     jz  0, parse_value_done
 
 parse_value_done:
-    arb 4
+    arb 7
     ret 4
 .ENDFRAME
 
