@@ -33,9 +33,9 @@ ifeq ($(ICVM_PROFILE),y)
 	rm -f icvm_profile.csv
 endif
 
-AS_OBJS = as.o directive.o error.o fixup.o frame.o global.o keyword.o lexer.o memory.o object.o \
-	parse_call_ret.o parse_data.o parse_eof_eoi.o parse_frame.o parse_instruction.o parse_param.o \
-	parse_symbol.o parser.o
+AS_OBJS = as.o child.o directive.o error.o fixup.o frame.o global.o keyword.o lexer.o memory.o \
+	object.o parse_call_ret.o parse_data.o parse_eof_eoi.o parse_frame.o parse_instruction.o \
+	parse_param.o parse_symbol.o parser.o
 
 $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
 	$(run-ld)

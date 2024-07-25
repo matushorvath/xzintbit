@@ -6,6 +6,7 @@
 .SYMBOL GLOBAL_TYPE                 2           # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - relocation
 .SYMBOL GLOBAL_ADDRESS              3
 .SYMBOL GLOBAL_FIXUPS_HEAD          4
+.SYMBOL GLOBAL_CHILDREN_HEAD        5
 .SYMBOL GLOBAL_ALLOC_SIZE           1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
 
 # fixup record layout:

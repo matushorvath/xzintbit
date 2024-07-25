@@ -1,0 +1,29 @@
+implement:
+
+add_or_find_current_child_symbol(identifier) -> child
+prepare also add_or_find_child_symbol(global, identifier) -> child
+
+set_child_symbol_address(child, address)
+
+
+
+change:
+
+parse_value - needs to accept 'd' as well as 'i' 'd'
+OK parse_symbol - that's the label +1 = label: - modified to accept +1 = .label: as well
+OK parse_dir_symbol - .SYMBOL identifier xyz - done since xyz can only be number or char
+OK parse_dir_import_export .IMPORT/.EXPORT identifier xyz - done, no value
+
+
+
+add_fixup needs to accept both global symbols and child symbol
+
+
+tests:
+ - child symbol before first global symbol, should fail
+ - create child after second global, check that it is assigned to the second global
+ - child with with same name as a child under different global
+ - access through dot, access through parent.dot, from inside the parent and outside
+ - +1 = .child:
+ - .child + 1, .child - 1, same with parent.child
+ - check changes for other scenarios

@@ -3,8 +3,8 @@
 .EXPORT parse_value
 .EXPORT parse_number_or_char
 
-# from libxib/heap.s
-.IMPORT free
+# from child.s
+.IMPORT add_or_find_current_child_symbol
 
 # from error.s
 .IMPORT report_error
@@ -27,6 +27,9 @@
 
 # from parser.s
 .IMPORT current_address
+
+# from libxib/heap.s
+.IMPORT free
 
 ##########
 parse_out_param:
@@ -155,6 +158,8 @@ parse_value:
     jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], parse_value_dot_identifier
     eq  [token_type], 'I', [rb + tmp]
     jnz [rb + tmp], parse_value_ip
 
@@ -193,6 +198,8 @@ parse_value_frame_symbol_allowed:
     call free
     add 0, 0, [token_value]
 
+    call get_token
+
     jz  0, parse_value_after_symbol
 
 parse_value_is_global:
@@ -210,12 +217,47 @@ parse_value_global_symbol_allowed:
     add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
 
+    # is the global symbol followed by dot and a child symbol?
+    # TODO implement global.child symbol
+    # TODO move get_token here, check if it is ':' or 'd'; before get_token save token_line_num and token_column_num for add_fixup
+
     # add a fixup for this identifier
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
     arb -4
     call add_fixup
+
+    call get_token
+
+    jz  0, parse_value_after_symbol
+
+parse_value_dot_identifier:
+    add 1, 0, [rb + has_symbol]
+
+    # child symbols are global symbols
+    jnz [rb + allow_global_symbol], parse_value_dot_global_symbol_allowed
+
+    add err_global_symbol_not_allowed, 0, [rb]
+    call report_error
+
+parse_value_dot_global_symbol_allowed:
+    # add or retrieve symbol from the child table for the current global symbol
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_current_child_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of add_fixup xxx TODO new variant of add_fixup
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # add a fixup for this identifier
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [token_line_num], 0, [rb - 3]
+    add [token_column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
+    # TODO but add_fixup needs to accept a child symbol
+
+    call get_token
 
     jz  0, parse_value_after_symbol
 
@@ -237,9 +279,10 @@ parse_value_ip:
     arb -4
     call add_fixup
 
+    call get_token
+
 parse_value_after_symbol:
     # optionally followed by + or - and a number or char
-    call get_token
     eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier_plus
     eq  [token_type], '-', [rb + tmp]
