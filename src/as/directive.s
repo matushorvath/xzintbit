@@ -70,9 +70,11 @@ detect_directive:
     ret 2
 
 detect_directive_is_not:
-    # not a directive
-    add err_invalid_directive, 0, [rb]
-    call report_error
+    # not a directive, so it is a dot-identifier
+    add 'd', 0, [rb + tmp]
+
+    arb 3
+    ret 2
 
 detect_directive_asso_values:
     # copied from gperf-directive.c

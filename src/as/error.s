@@ -2,8 +2,8 @@
 
 .EXPORT report_error
 .EXPORT report_libxib_error
-.EXPORT report_symbol_token_error
-.EXPORT report_symbol_fixup_error
+.EXPORT report_global_symbol_error
+.EXPORT report_global_fixup_error
 
 # from libxib/error.s
 .IMPORT report_error_at_location
@@ -29,11 +29,11 @@ report_error:
 .ENDFRAME
 
 ##########
-report_symbol_token_error:
-.FRAME symbol, message;
+report_global_symbol_error: # TODO rename to report_symbol_error
+.FRAME global, message;
     # error message with an identifier and a location taken from lexer
 
-    add [rb + symbol], 0, [rb - 1]
+    add [rb + global], 0, [rb - 1]
     arb -1
     call print_symbol_identifier
 
@@ -45,23 +45,23 @@ report_symbol_token_error:
 .ENDFRAME
 
 ##########
-report_symbol_fixup_error:
-.FRAME symbol, message; fixup, line_num, column_num
+report_global_fixup_error: # TODO rename to report_symbol_fixup_error
+.FRAME global, message; fixup, line_num, column_num
     arb -3
 
     # error message with an identifier and a location taken from the first symbol fixup
 
-    add [rb + symbol], 0, [rb - 1]
+    add [rb + global], 0, [rb - 1]
     arb -1
     call print_symbol_identifier
 
     add 0, 0, [rb + line_num]
     add 0, 0, [rb + column_num]
 
-    # get first fixup for this symbol
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    # get first fixup for this global
+    add [rb + global], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
-    jz  [rb + fixup], report_symbol_error_after_location
+    jz  [rb + fixup], report_global_error_after_location
 
     # read fixup line num
     add [rb + fixup], FIXUP_LINE_NUM, [ip + 1]
@@ -71,7 +71,7 @@ report_symbol_fixup_error:
     add [rb + fixup], FIXUP_COLUMN_NUM, [ip + 1]
     add [0], 0, [rb + column_num]
 
-report_symbol_error_after_location:
+report_global_error_after_location:
     # we don't bother with updating the stack pointer, this function never returns
     add [rb + message], 0, [rb + 2]
     add [rb + line_num], 0, [rb + 1]
@@ -81,11 +81,26 @@ report_symbol_error_after_location:
 
 ##########
 print_symbol_identifier:
-.FRAME symbol; identifier
-    arb -1
+.FRAME symbol; identifier, tmp
+    arb -2
 
     out '('
 
+    # is this a child symbol?
+    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
+    eq  [0], 5, [rb + tmp]
+    jz  [rb + tmp], print_symbol_identifier_after_parent
+
+    # yes, print the parent identifier first
+    add [rb + symbol], GLOBAL_PARENT, [ip + 1]
+    add [0], GLOBAL_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    out '.'
+
+print_symbol_identifier_after_parent:
     add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
     add [0], 0, [rb + identifier]
 
@@ -101,7 +116,7 @@ print_symbol_identifier_have_identifier:
     out ')'
     out ' '
 
-    arb 1
+    arb 2
     ret 1
 
 print_symbol_identifier_null:

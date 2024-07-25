@@ -2,6 +2,10 @@
 .EXPORT parse_dir_symbol
 .EXPORT parse_dir_import_export
 
+# from child.s
+.IMPORT add_or_find_current_child_symbol
+.IMPORT last_global_symbol
+
 # from error.s
 .IMPORT report_error
 
@@ -26,8 +30,8 @@
 
 ##########
 parse_symbol:
-.FRAME tmp, address
-    arb -2
+.FRAME tmp, address, symbol
+    arb -3
 
     # default symbol address is current_address
     add [current_address], 0, [rb + address]
@@ -61,6 +65,9 @@ parse_symbol_after_offset:
     eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_symbol_have_identifier
 
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], parse_symbol_have_dot_identifier
+
     add err_expect_identifier, 0, [rb]
     call report_error
 
@@ -69,14 +76,35 @@ parse_symbol_have_identifier:
     add [token_value], 0, [rb - 1]
     arb -1
     call add_or_find_global_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of set_global_symbol_address
+    add [rb - 3], 0, [rb + symbol]
+
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
 
     # set symbol address
+    add [rb + symbol], 0, [rb - 1]
     add [rb + address], 0, [rb - 2]
     arb -2
     call set_global_symbol_address
 
+    # this is the now the current global symbol, any future child references are related to it
+    add [rb + symbol], 0, [last_global_symbol]
+
+    jz  0, parse_symbol_colon
+
+parse_symbol_have_dot_identifier:
+    # add or retrieve child symbol of the current global symbol
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_current_child_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of set_global_symbol_address
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_current_child_symbol
+
+    # set child symbol address
+    add [rb + address], 0, [rb - 2]
+    arb -2
+    call set_global_symbol_address
+
+parse_symbol_colon:
     call get_token
 
     eq  [token_type], ':', [rb + tmp]
@@ -86,7 +114,7 @@ parse_symbol_have_identifier:
     call report_error
 
 parse_symbol_done:
-    arb 2
+    arb 3
     ret 0
 .ENDFRAME
 

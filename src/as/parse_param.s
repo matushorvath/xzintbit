@@ -3,8 +3,9 @@
 .EXPORT parse_value
 .EXPORT parse_number_or_char
 
-# from libxib/heap.s
-.IMPORT free
+# from child.s
+.IMPORT add_or_find_current_child_symbol
+.IMPORT add_or_find_child_symbol
 
 # from error.s
 .IMPORT report_error
@@ -27,6 +28,9 @@
 
 # from parser.s
 .IMPORT current_address
+
+# from libxib/heap.s
+.IMPORT free
 
 ##########
 parse_out_param:
@@ -137,10 +141,10 @@ parse_in_param_done:
 
 ##########
 parse_value:
-.FRAME param_offset, instruction_length, allow_global_symbol, allow_frame_symbol; result, has_symbol, sign, tmp
+.FRAME param_offset, instruction_length, allow_global_symbol, allow_frame_symbol; result, has_symbol, sign, symbol, line_num, column_num, tmp
     # param_offset: offset of the current parameter from current_address
     # instruction_length: current instruction length
-    arb -4
+    arb -7
 
     add 0, 0, [rb + result]
     add 0, 0, [rb + has_symbol]
@@ -155,6 +159,8 @@ parse_value:
     jnz [rb + tmp], parse_value_number_or_char_1
     eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], parse_value_dot_identifier
     eq  [token_type], 'I', [rb + tmp]
     jnz [rb + tmp], parse_value_ip
 
@@ -193,6 +199,8 @@ parse_value_frame_symbol_allowed:
     call free
     add 0, 0, [token_value]
 
+    call get_token
+
     jz  0, parse_value_after_symbol
 
 parse_value_is_global:
@@ -207,7 +215,67 @@ parse_value_global_symbol_allowed:
     add [token_value], 0, [rb - 1]
     arb -1
     call add_or_find_global_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
+    add [rb - 3], 0, [rb + symbol]
+
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # save line and column, then get next token
+    add [token_line_num], 0, [rb + line_num]
+    add [token_column_num], 0, [rb + column_num]
+
+    call get_token
+
+    # is this global symbol followed by dot and a child symbol?
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], parse_value_is_parent_dot_child
+
+    # no child symbol, add a fixup for this identifier
+    add [rb + symbol], 0, [rb - 1]
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [rb + line_num], 0, [rb - 3]
+    add [rb + column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
+
+    jz  0, parse_value_after_symbol
+
+parse_value_is_parent_dot_child:
+    # parent.child symbol reference, find the child symbol
+    add [rb + symbol], 0, [rb - 1]
+    add [token_value], 0, [rb - 2]
+    arb -2
+    call add_or_find_child_symbol
+    add [rb - 4], 0, [rb + symbol]
+
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_child_symbol
+
+    # add a fixup for this identifier
+    add [rb + symbol], 0, [rb - 1]
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [rb + line_num], 0, [rb - 3]
+    add [rb + column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
+
+    call get_token
+
+    jz  0, parse_value_after_symbol
+
+parse_value_dot_identifier:
+    add 1, 0, [rb + has_symbol]
+
+    # child symbols are global symbols
+    jnz [rb + allow_global_symbol], parse_value_dot_global_symbol_allowed
+
+    add err_global_symbol_not_allowed, 0, [rb]
+    call report_error
+
+parse_value_dot_global_symbol_allowed:
+    # add or retrieve symbol from the child table for the current global symbol
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_current_child_symbol
+    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of add_fixup
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
 
     # add a fixup for this identifier
@@ -216,6 +284,8 @@ parse_value_global_symbol_allowed:
     add [token_column_num], 0, [rb - 4]
     arb -4
     call add_fixup
+
+    call get_token
 
     jz  0, parse_value_after_symbol
 
@@ -237,9 +307,10 @@ parse_value_ip:
     arb -4
     call add_fixup
 
+    call get_token
+
 parse_value_after_symbol:
     # optionally followed by + or - and a number or char
-    call get_token
     eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_value_identifier_plus
     eq  [token_type], '-', [rb + tmp]
@@ -277,7 +348,7 @@ parse_value_number_or_char_2:
     jz  0, parse_value_done
 
 parse_value_done:
-    arb 4
+    arb 7
     ret 4
 .ENDFRAME
 

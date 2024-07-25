@@ -95,6 +95,8 @@ parse_loop:
     # symbols
     eq  [token_type], 'i', [rb + tmp]
     jnz [rb + tmp], parse_call_symbol
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], parse_call_symbol
     eq  [token_type], '+', [rb + tmp]
     jnz [rb + tmp], parse_call_symbol
 

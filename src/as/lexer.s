@@ -6,7 +6,7 @@
 # F .FRAME; D .ENDFRAME; Y .SYMBOL; E .EXPORT; I .IMPORT; N .EOF; O EOI
 # $ EOL; P rb; I ip
 # + - = , : ; [ ]
-# n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
+# n [0-9]+; i [a-zA-Z_][a-zA-Z0-9_]*; d .[a-zA-Z_][a-zA-Z0-9_]*; c '.'; s ".*"
 
 .EXPORT get_token
 .EXPORT token_type
@@ -157,8 +157,12 @@ get_token_identifier:
     jz  0, get_token_done
 
 get_token_directive:
-    call read_directive
+    # return read identifier pointer in [token_value]
+    # this memory needs to be freed by caller of get_token
+    call read_dot_identifier_or_directive
     add [rb - 2], 0, [token_type]
+    add [rb - 3], 0, [token_value]
+
     jz  0, get_token_done
 
 get_token_symbol:
@@ -273,27 +277,31 @@ read_identifier_or_keyword_skip_free:
 .ENDFRAME
 
 ##########
-read_directive:
+read_dot_identifier_or_directive:
 .FRAME token, buffer, tmp
     arb -3
 
-    # read an identifier (which is actually the directive without the initial dot) into a buffer
+    # read an identifier into a buffer
     call read_identifier
     add [rb - 2], 0, [rb + buffer]
 
-    # check if the identifier is a valid directive
+    # check if the identifier is actually a directive
     # reuse buffer [rb - 2] and length [rb - 3] as parameters
     arb -3
     call detect_directive
     arb 1
     add [rb - 5], 0, [rb + token]
 
-    # free the buffer, we don't need it anymore
+    # if it is a directive, free the buffer, we don't need it
+    eq  [rb + token], 'd', [rb + tmp]
+    jnz [rb + tmp], read_dot_identifier_or_directive_skip_free
+
     add [rb + buffer], 0, [rb - 1]
     arb -1
     call free
     add 0, 0, [rb + buffer]
 
+read_dot_identifier_or_directive_skip_free:
     arb 3
     ret 0
 .ENDFRAME
@@ -308,26 +316,28 @@ dump_token:
 
     # print token value if relevant
     eq  [token_type], 'n', [rb + tmp]
-    jnz [rb + tmp], dump_token_print_n
+    jnz [rb + tmp], dump_token_print_number
     eq  [token_type], 'c', [rb + tmp]
-    jnz [rb + tmp], dump_token_print_c
+    jnz [rb + tmp], dump_token_print_char
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], dump_token_print_i
+    jnz [rb + tmp], dump_token_print_string
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], dump_token_print_string
     jz  0, dump_token_finish
 
-dump_token_print_n:
+dump_token_print_number:
     out ' '
     add [token_value], 0, [rb - 1]
     arb -1
     call print_num
     jz  0, dump_token_finish
 
-dump_token_print_c:
+dump_token_print_char:
     out ' '
     out [token_value]
     jz  0, dump_token_finish
 
-dump_token_print_i:
+dump_token_print_string:
     out ' '
     add [token_value], 0, [rb - 1]
     arb -1
