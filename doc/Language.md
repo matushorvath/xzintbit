@@ -93,6 +93,44 @@ Or:
 104,7,4,4,204,9,42
 ```
 
+# Child Symbols
+
+Child symbols are symbols that begin with a dot. Their scope is controlled by the last global symbol, which makes them useful as local labels within a function.
+
+```asm
+function_a:
+    add 100, 0, [index]
+
+.loop
+    jz  [index], .done
+    add [index], -1, [index]
+
+    jz  0, .loop
+
+.done
+
+function_b:
+    jnz [index], .done
+    add [index], 42, [index]
+
+.done
+```
+
+The two `.done` labels don't conflict with each other, since each of them is only valid up to the next (non-dotted) global symbol. The first `.done` is only valid between `function_a` and `function_b`, the second `.done` is only valid between `function_b` and the end of the file.
+
+You can refer to child symbols from a different scope using a `parent.child` syntax:
+
+```asm
+function_a:
+
+.child1
+    db  42
+
+function_b:
+    out [function_a.child1]     # this works
+    #out [.child1]              # this doesn't work, .child1 is out of function_b scope
+```
+
 # Offset Symbols
 
 Symbols can also be defined to point to the middle of an instruction. This can be useful for self-modifying code:

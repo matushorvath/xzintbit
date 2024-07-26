@@ -10,15 +10,6 @@
 
 - Support exportable .SYMBOL that will not be relocated?
 
-- Support local labels like NASM. A label beginning with a single period is treated as a local label,
-  which means that it is associated with the previous non-local label.
-  function:
-    code
-  .loop (only needs to be unique within function)
-    code
-    jz  0, .loop (refers to .loop associated with the previous non-local label
-    jz  0, function.loop (refers to function.loop literally)
-
 - Map should not include zero modules (that are not mapped to the binary)
 
 - Optimize ret: Usually this generates two 'arb' at the end of each function.
@@ -49,7 +40,6 @@
     .ENDFRAME
 
 - Split bin2obj.s to multiple sources, perhaps rename /tools to /bin2obj.
-- Support arbitrary length string literals. VM8086 could use longer literals in some places.
 - Create a preprocessor with macro support to solve code duplication everywhere.
 
 - Objects from a library that don't get included still have an entry in the map.yaml (try to link empty source with any .a)
