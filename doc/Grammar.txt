@@ -10,6 +10,7 @@ line =
 
 symbol = 
     | [ "+" NUMBER "=" ] IDENTIFIER ":"
+    | [ "+" NUMBER "=" ] "." IDENTIFIER ":"
     .
 
 directive = 
@@ -57,6 +58,7 @@ db_param =
 value = 
       number_or_char
     | IDENTIFIER [ ( "+" | "-" ) number_or_char ]
+    | [ IDENTIFIER ] "." IDENTIFIER [ ( "+" | "-" ) number_or_char ]
     .
 
 number_or_char = 

@@ -285,7 +285,7 @@ p3_200:
 
 print_phase:
 .FRAME phase;
-    add print_phase_msg, 0, [rb - 1]
+    add .msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -297,7 +297,7 @@ print_phase:
 
     ret 1
 
-print_phase_msg:
+.msg:
     db  "==========", 10, "PHASE ", 0
 .ENDFRAME
 
@@ -306,7 +306,7 @@ test_alloc:
     arb -1
 
     # print test description and size to alloc
-    add test_alloc_desc_msg, 0, [rb - 1]
+    add .desc_msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -324,7 +324,7 @@ test_alloc:
     add [rb - 3], 0, [rb + ptr]
 
     # print the pointer returned
-    add test_alloc_ptr_msg, 0, [rb - 1]
+    add .ptr_msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -333,12 +333,12 @@ test_alloc:
     call print_num
 
     # print returned chunk size, if any
-    jz  [rb + ptr], test_alloc_after_size
+    jz  [rb + ptr], .after_size
 
     out ','
     out ' '
 
-    add test_alloc_size_msg, 0, [rb - 1]
+    add .size_msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -347,7 +347,7 @@ test_alloc:
     arb -1
     call print_num
 
-test_alloc_after_size:
+.after_size:
     # dump heap information
     out 10
     call dump_heap
@@ -355,18 +355,18 @@ test_alloc_after_size:
     arb 1
     ret 1
 
-test_alloc_desc_msg:
+.desc_msg:
     db  "----------", 10, "alloc ", 0
-test_alloc_ptr_msg:
+.ptr_msg:
     db  "ptr ", 0
-test_alloc_size_msg:
+.size_msg:
     db  "blocks ", 0
 .ENDFRAME
 
 test_free:
 .FRAME ptr;
     # print test description and pointer to free
-    add test_free_desc_msg, 0, [rb - 1]
+    add .desc_msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -375,12 +375,12 @@ test_free:
     call print_num
 
     # print freed chunk size, if any
-    jz  [rb + ptr], test_free_after_size
+    jz  [rb + ptr], .after_size
 
     out ':'
     out ' '
 
-    add test_free_size_msg, 0, [rb - 1]
+    add .size_msg, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -389,7 +389,7 @@ test_free:
     arb -1
     call print_num
 
-test_free_after_size:
+.after_size:
     # call free
     add [rb + ptr], 0, [rb - 1]
     arb -1
@@ -401,21 +401,21 @@ test_free_after_size:
 
     ret 1
 
-test_free_desc_msg:
+.desc_msg:
     db  "----------", 10, "free ", 0
-test_free_size_msg:
+.size_msg:
     db  "blocks ", 0
 .ENDFRAME
 
 report_libxib_error:
 .FRAME
-    add report_libxib_error_msg, 0, [rb - 1]
+    add .error_msg, 0, [rb - 1]
     arb -1
     call print_str
 
     hlt
 
-report_libxib_error_msg:
+.error_msg:
     db  "libxib error", 10, 0
 .ENDFRAME
 
