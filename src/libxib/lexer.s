@@ -44,9 +44,9 @@ read_identifier:
 
     add 0, 0, [rb + index]
 
-read_identifier_loop:
+.loop:
     # any space for characters left?
-    jnz [rb + space_left], read_identifier_have_space
+    jnz [rb + space_left], .have_space
 
     # no, need to allocate more
     add [rb + blocks], REALLOC_INCREMENT, [rb + blocks]
@@ -60,7 +60,7 @@ read_identifier_loop:
     # there is now more space left
     mul REALLOC_INCREMENT, [block_size], [rb + space_left]
 
-read_identifier_have_space:
+.have_space:
     call get_input
     add [rb - 2], 0, [rb + char]
 
@@ -68,7 +68,7 @@ read_identifier_have_space:
     add [rb + char], 0, [rb - 1]
     arb -1
     call is_alphanum
-    jz  [rb - 3], read_identifier_done
+    jz  [rb - 3], .done
 
     # store the character in buffer
     add [rb + buffer], [rb + index], [ip + 3]
@@ -78,9 +78,9 @@ read_identifier_have_space:
     add [rb + index], 1, [rb + index]
     add [rb + space_left], -1, [rb + space_left]
 
-    jz  0, read_identifier_loop
+    jz  0, .loop
 
-read_identifier_done:
+.done:
     # zero terminate
     add [rb + buffer], [rb + index], [ip + 3]
     add 0, 0, [0]
@@ -116,9 +116,9 @@ read_string:
 
     # the opening quote was already processed by caller
 
-read_string_loop:
+.loop:
     # any space for characters left?
-    jnz [rb + space_left], read_string_have_space
+    jnz [rb + space_left], .have_space
 
     # no, need to allocate more
     add [rb + blocks], REALLOC_INCREMENT, [rb + blocks]
@@ -132,23 +132,23 @@ read_string_loop:
     # there is now more space left
     mul REALLOC_INCREMENT, [block_size], [rb + space_left]
 
-read_string_have_space:
+.have_space:
     call get_input
     add [rb - 2], 0, [rb + char]
 
     # when we find a quote character, we are done
     eq  [rb + char], '"', [rb + tmp]
-    jnz [rb + tmp], read_string_done
+    jnz [rb + tmp], .done
 
     # backslash is an escape character
     eq  [rb + char], '\', [rb + tmp]
-    jz  [rb + tmp], read_string_after_escape
+    jz  [rb + tmp], .after_escape
 
     # read the escaped character
     call get_input
     add [rb - 2], 0, [rb + char]
 
-read_string_after_escape:
+.after_escape:
     # store the character in buffer
     add [rb + buffer], [rb + index], [ip + 3]
     add [rb + char], 0, [0]
@@ -157,9 +157,9 @@ read_string_after_escape:
     add [rb + index], 1, [rb + index]
     add [rb + space_left], -1, [rb + space_left]
 
-    jz  0, read_string_loop
+    jz  0, .loop
 
-read_string_done:
+.done:
     # zero terminate
     add [rb + buffer], [rb + index], [ip + 3]
     add 0, 0, [0]
@@ -183,56 +183,56 @@ read_number:
     add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], '-', [rb + tmp]
-    jz  [rb + tmp], read_number_prefix
+    jz  [rb + tmp], .prefix
 
     add -1, 0, [rb + sign]
 
     call get_input
     add [rb - 2], 0, [rb + char]
 
-read_number_prefix:
+.prefix:
     # detect a 0b, 0o or 0x prefix
     eq  [rb + char], '0', [rb + tmp]
-    jz  [rb + tmp], read_number_loop
+    jz  [rb + tmp], .loop
 
     # starts with zero, is there a 0b, 0o or 0x?
     call get_input
     add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], 'b', [rb + tmp]
-    jz  [rb + tmp], read_number_not_binary
+    jz  [rb + tmp], .not_binary
     add 2, 0, [rb + radix]
 
     call get_input
     add [rb - 2], 0, [rb + char]
 
-    jz  0, read_number_loop
+    jz  0, .loop
 
-read_number_not_binary:
+.not_binary:
     eq  [rb + char], 'o', [rb + tmp]
-    jz  [rb + tmp], read_number_not_octal
+    jz  [rb + tmp], .not_octal
     add 8, 0, [rb + radix]
 
     call get_input
     add [rb - 2], 0, [rb + char]
 
-    jz  0, read_number_loop
+    jz  0, .loop
 
-read_number_not_octal:
+.not_octal:
     eq  [rb + char], 'x', [rb + tmp]
-    jz  [rb + tmp], read_number_not_hexadecimal
+    jz  [rb + tmp], .not_hexadecimal
     add 16, 0, [rb + radix]
 
     call get_input
     add [rb - 2], 0, [rb + char]
 
-    jz  0, read_number_loop
+    jz  0, .loop
 
-read_number_not_hexadecimal:
+.not_hexadecimal:
     # no prefix, but we have the zero, so we have at least one digit
     add 1, 0, [rb + is_number]
 
-read_number_loop:
+.loop:
     # convert current character to a digit
     add [rb + char], 0, [rb - 1]
     add [rb + radix], 0, [rb - 2]
@@ -242,7 +242,7 @@ read_number_loop:
 
     # if it is not a digit, end
     eq  [rb + digit], -1, [rb + tmp]
-    jnz [rb + tmp], read_number_end
+    jnz [rb + tmp], .end
 
     # byte = byte * radix + digit
     mul [rb + byte], [rb + radix], [rb + byte]
@@ -255,9 +255,9 @@ read_number_loop:
     call get_input
     add [rb - 2], 0, [rb + char]
 
-    jz  0, read_number_loop
+    jz  0, .loop
 
-read_number_end:
+.end:
     mul [rb + byte], [rb + sign], [rb + byte]
 
     # unget last char

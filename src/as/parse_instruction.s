@@ -43,12 +43,12 @@ parse_add_mul_lt_eq:
     add [rb - 4], 0, [rb + param0]
 
     eq  [token_type], ',', [rb + tmp]
-    jnz [rb + tmp], parse_add_mul_lt_eq_param1
+    jnz [rb + tmp], .param1
 
     add err_expect_comma, 0, [rb]
     call report_error
 
-parse_add_mul_lt_eq_param1:
+.param1:
     call get_token
 
     add 2, 0, [rb - 1]
@@ -62,12 +62,12 @@ parse_add_mul_lt_eq_param1:
     add [rb - 4], 0, [rb + param1]
 
     eq  [token_type], ',', [rb + tmp]
-    jnz [rb + tmp], parse_add_mul_lt_eq_param2
+    jnz [rb + tmp], .param2
 
     add err_expect_comma, 0, [rb]
     call report_error
 
-parse_add_mul_lt_eq_param2:
+.param2:
     call get_token
 
     add 3, 0, [rb - 1]
@@ -81,12 +81,12 @@ parse_add_mul_lt_eq_param2:
     add [rb - 4], 0, [rb + param2]
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_add_mul_lt_eq_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_add_mul_lt_eq_done:
+.done:
     add [current_address], 4, [current_address]
 
     add [rb + op], 0, [rb - 1]
@@ -129,12 +129,12 @@ parse_jnz_jz:
     add [rb - 4], 0, [rb + param0]
 
     eq  [token_type], ',', [rb + tmp]
-    jnz [rb + tmp], parse_jnz_jz_param1
+    jnz [rb + tmp], .param1
 
     add err_expect_comma, 0, [rb]
     call report_error
 
-parse_jnz_jz_param1:
+.param1:
     call get_token
 
     add 2, 0, [rb - 1]
@@ -148,12 +148,12 @@ parse_jnz_jz_param1:
     add [rb - 4], 0, [rb + param1]
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_jnz_jz_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_jnz_jz_done:
+.done:
     add [current_address], 3, [current_address]
 
     add [rb + op], 0, [rb - 1]
@@ -192,12 +192,12 @@ parse_arb_out:
     add [rb - 4], 0, [rb + param0]
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_arb_out_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_arb_out_done:
+.done:
     add [current_address], 2, [current_address]
 
     add [rb + op], 0, [rb - 1]
@@ -232,12 +232,12 @@ parse_in:
     add [rb - 4], 0, [rb + param0]
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_in_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_in_done:
+.done:
     add [current_address], 2, [current_address]
 
     add [rb + op], 0, [rb - 1]
@@ -262,12 +262,12 @@ parse_hlt:
     call get_token
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_hlt_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_hlt_done:
+.done:
     add [current_address], 1, [current_address]
 
     add [rb + op], 0, [rb - 1]

@@ -50,140 +50,140 @@ parse:
 .FRAME tmp
     arb -1
 
-parse_loop:
+.loop:
     call get_token
 
     # skip empty lines
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_loop
+    jnz [rb + tmp], .loop
 
     # instructions
     eq  [token_type], 1, [rb + tmp]
-    jnz [rb + tmp], parse_call_add_mul_lt_eq
+    jnz [rb + tmp], .call_add_mul_lt_eq
     eq  [token_type], 2, [rb + tmp]
-    jnz [rb + tmp], parse_call_add_mul_lt_eq
+    jnz [rb + tmp], .call_add_mul_lt_eq
     eq  [token_type], 7, [rb + tmp]
-    jnz [rb + tmp], parse_call_add_mul_lt_eq
+    jnz [rb + tmp], .call_add_mul_lt_eq
     eq  [token_type], 8, [rb + tmp]
-    jnz [rb + tmp], parse_call_add_mul_lt_eq
+    jnz [rb + tmp], .call_add_mul_lt_eq
 
     eq  [token_type], 5, [rb + tmp]
-    jnz [rb + tmp], parse_call_jnz_jz
+    jnz [rb + tmp], .call_jnz_jz
     eq  [token_type], 6, [rb + tmp]
-    jnz [rb + tmp], parse_call_jnz_jz
+    jnz [rb + tmp], .call_jnz_jz
 
     eq  [token_type], 9, [rb + tmp]
-    jnz [rb + tmp], parse_call_arb_out
+    jnz [rb + tmp], .call_arb_out
     eq  [token_type], 4, [rb + tmp]
-    jnz [rb + tmp], parse_call_arb_out
+    jnz [rb + tmp], .call_arb_out
 
     eq  [token_type], 3, [rb + tmp]
-    jnz [rb + tmp], parse_call_in
+    jnz [rb + tmp], .call_in
     eq  [token_type], 99, [rb + tmp]
-    jnz [rb + tmp], parse_call_hlt
+    jnz [rb + tmp], .call_hlt
 
     # pseudo-instructions
     eq  [token_type], 'C', [rb + tmp]
-    jnz [rb + tmp], parse_call_call
+    jnz [rb + tmp], .call_call
     eq  [token_type], 'R', [rb + tmp]
-    jnz [rb + tmp], parse_call_ret
+    jnz [rb + tmp], .call_ret
     eq  [token_type], 'B', [rb + tmp]
-    jnz [rb + tmp], parse_call_db
+    jnz [rb + tmp], .call_db
     eq  [token_type], 'S', [rb + tmp]
-    jnz [rb + tmp], parse_call_ds
+    jnz [rb + tmp], .call_ds
 
     # symbols
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_call_symbol
+    jnz [rb + tmp], .call_symbol
     eq  [token_type], 'd', [rb + tmp]
-    jnz [rb + tmp], parse_call_symbol
+    jnz [rb + tmp], .call_symbol
     eq  [token_type], '+', [rb + tmp]
-    jnz [rb + tmp], parse_call_symbol
+    jnz [rb + tmp], .call_symbol
 
     # directives
     eq  [token_type], 'F', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_frame
+    jnz [rb + tmp], .call_directive_frame
     eq  [token_type], 'D', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_endframe
+    jnz [rb + tmp], .call_directive_endframe
     eq  [token_type], 'Y', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_symbol
+    jnz [rb + tmp], .call_directive_symbol
     eq  [token_type], 'E', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_import_export
+    jnz [rb + tmp], .call_directive_import_export
     eq  [token_type], 'I', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_import_export
+    jnz [rb + tmp], .call_directive_import_export
     eq  [token_type], 'N', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_eof
+    jnz [rb + tmp], .call_directive_eof
     eq  [token_type], 'O', [rb + tmp]
-    jnz [rb + tmp], parse_call_directive_eoi
+    jnz [rb + tmp], .call_directive_eoi
 
     add err_unexpected_token, 0, [rb]
     call report_error
 
-parse_call_add_mul_lt_eq:
+.call_add_mul_lt_eq:
     call parse_add_mul_lt_eq
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_jnz_jz:
+.call_jnz_jz:
     call parse_jnz_jz
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_arb_out:
+.call_arb_out:
     call parse_arb_out
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_in:
+.call_in:
     call parse_in
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_hlt:
+.call_hlt:
     call parse_hlt
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_call:
+.call_call:
     call parse_call
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_ret:
+.call_ret:
     call parse_ret
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_db:
+.call_db:
     call parse_db
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_ds:
+.call_ds:
     call parse_ds
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_symbol:
+.call_symbol:
     call parse_symbol
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_directive_frame:
+.call_directive_frame:
     call parse_dir_frame
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_directive_endframe:
+.call_directive_endframe:
     call parse_dir_endframe
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_directive_symbol:
+.call_directive_symbol:
     call parse_dir_symbol
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_directive_import_export:
+.call_directive_import_export:
     call parse_dir_import_export
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_call_directive_eof:
+.call_directive_eof:
     call parse_dir_eof
-    jz  0, parse_done
+    jz  0, .done
 
-parse_call_directive_eoi:
+.call_directive_eoi:
     call parse_dir_eoi
-    jz  0, parse_loop
+    jz  0, .loop
 
-parse_done:
+.done:
     arb 1
     ret 0
 .ENDFRAME

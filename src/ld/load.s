@@ -34,7 +34,7 @@ load_objects_loop:
     # check for more files
     call expect_next_file
     eq  [rb - 2], '$', [rb + tmp]
-    jnz [rb + tmp], load_objects_load_done
+    jnz [rb + tmp], .done
     eq  [rb - 2], 'L', [rb + is_library]
 
     # create a module
@@ -83,7 +83,7 @@ load_objects_loop:
 
     jz  0, load_objects_loop
 
-load_objects_load_done:
+.done:
     call add_linker_symbols
 
     arb 3
@@ -102,16 +102,16 @@ expect_next_file:
 
     # object files begin with a .C, libraries begin with a .L, after the last file we expect a .$
     eq  [rb + char], '$', [rb + tmp]
-    jnz [rb + tmp], expect_next_file_done
+    jnz [rb + tmp], .done
     eq  [rb + char], 'C', [rb + tmp]
-    jnz [rb + tmp], expect_next_file_done
+    jnz [rb + tmp], .done
     eq  [rb + char], 'L', [rb + tmp]
-    jnz [rb + tmp], expect_next_file_done
+    jnz [rb + tmp], .done
 
     add err_expect_dot_c_l_at, 0, [rb]
     call report_error
 
-expect_next_file_done:
+.done:
     # return [rb + char]
 
     arb 2
@@ -128,12 +128,12 @@ expect_directive:
     call read_directive
 
     eq  [rb - 3], [rb + directive], [rb + tmp]
-    jz  [rb + tmp], expect_directive_error
+    jz  [rb + tmp], .error
 
     arb 2
     ret 2
 
-expect_directive_error:
+.error:
     add [rb + error_message], 0, [rb]
     call report_error
 .ENDFRAME
@@ -147,7 +147,7 @@ read_directive:
     add [rb - 2], 0, [rb + char]
 
     eq  [rb + char], '.', [rb + tmp]
-    jz  [rb + tmp], read_directive_error
+    jz  [rb + tmp], .error
 
     call get_input
     add [rb - 2], 0, [rb + char]
@@ -156,14 +156,14 @@ read_directive:
     add [rb - 2], 0, [rb + tmp]
 
     eq  [rb + tmp], 10, [rb + tmp]
-    jz  [rb + tmp], read_directive_error
+    jz  [rb + tmp], .error
 
     # return [rb + char]
 
     arb 2
     ret 1
 
-read_directive_error:
+.error:
     add [rb + error_message], 0, [rb]
     call report_error
 .ENDFRAME
@@ -178,32 +178,32 @@ load_code:
     # detect when there is no code at all
     call get_input
     eq  [rb - 2], 10, [rb + tmp]
-    jnz [rb + tmp], load_code_done
+    jnz [rb + tmp], .done
 
     # unget last char, read_number will get it again
     add [rb - 2], 0, [rb - 1]
     arb -1
     call unget_input
 
-load_code_loop:
+.loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
     # was there actually a number?
-    jnz [rb - 3], load_code_have_number
+    jnz [rb - 3], .have_number
 
     add err_expect_number, 0, [rb]
     call report_error
 
-load_code_have_number:
+.have_number:
     # was the number base 10?
     eq  [rb - 4], 10, [rb + tmp]
-    jnz [rb + tmp], load_code_decimal
+    jnz [rb + tmp], .decimal
 
     add err_expect_decimal, 0, [rb]
     call report_error
 
-load_code_decimal:
+.decimal:
     # store the byte
     add [rb + module], MODULE_CODE_HEAD, [rb - 1]
     add [rb + module], MODULE_CODE_TAIL, [rb - 2]
@@ -218,14 +218,14 @@ load_code_decimal:
     call get_input
 
     eq  [rb - 2], ',', [rb + tmp]
-    jnz [rb + tmp], load_code_loop
+    jnz [rb + tmp], .loop
     eq  [rb - 2], 10, [rb + tmp]
-    jnz [rb + tmp], load_code_done
+    jnz [rb + tmp], .done
 
     add err_expect_comma_eol, 0, [rb]
     call report_error
 
-load_code_done:
+.done:
     add [rb + module], MODULE_CODE_LENGTH, [ip + 3]
     add [rb + length], 0, [0]
 
@@ -242,27 +242,27 @@ load_relocated:
     call peek_input
 
     eq  [rb - 2], '.', [rb + tmp]
-    jnz [rb + tmp], load_relocated_done
+    jnz [rb + tmp], .done
 
-load_relocated_loop:
+.loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
     # was there actually a number?
-    jnz [rb - 3], load_relocated_have_number
+    jnz [rb - 3], .have_number
 
     add err_expect_number, 0, [rb]
     call report_error
 
-load_relocated_have_number:
+.have_number:
     # was the number base 10?
     eq  [rb - 4], 10, [rb + tmp]
-    jnz [rb + tmp], load_relocated_decimal
+    jnz [rb + tmp], .decimal
 
     add err_expect_decimal, 0, [rb]
     call report_error
 
-load_relocated_decimal:
+.decimal:
     # store the byte
     add [rb + module], MODULE_RELOC_HEAD, [rb - 1]
     add [rb + module], MODULE_RELOC_TAIL, [rb - 2]
@@ -275,14 +275,14 @@ load_relocated_decimal:
     call get_input
 
     eq  [rb - 2], ',', [rb + tmp]
-    jnz [rb + tmp], load_relocated_loop
+    jnz [rb + tmp], .loop
     eq  [rb - 2], 10, [rb + tmp]
-    jnz [rb + tmp], load_relocated_done
+    jnz [rb + tmp], .done
 
     add err_expect_comma_eol, 0, [rb]
     call report_error
 
-load_relocated_done:
+.done:
     arb 2
     ret 1
 .ENDFRAME
@@ -292,23 +292,23 @@ load_imported:
 .FRAME module; import, identifier, byte, tmp
     arb -4
 
-load_imported_loop:
+.loop:
     # read the identifier
     call read_identifier
     add [rb - 2], 0, [rb + identifier]
 
     # if there is no identifier, finish
     add [rb + identifier], 0, [ip + 1]
-    jz  [0], load_imported_done
+    jz  [0], .done
 
     call get_input
     eq  [rb - 2], ':', [rb + tmp]
-    jnz [rb + tmp], load_imported_save_identifier
+    jnz [rb + tmp], .save_identifier
 
     add err_expect_colon, 0, [rb]
     call report_error
 
-load_imported_save_identifier:
+.save_identifier:
     add [rb + module], 0, [rb - 1]
     arb -1
     call create_import
@@ -317,25 +317,25 @@ load_imported_save_identifier:
     add [rb + import], IMPORT_IDENTIFIER, [ip + 3]
     add [rb + identifier], 0, [0]
 
-load_imported_fixup_loop:
+.fixup_loop:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
     # was there actually a number?
-    jnz [rb - 3], load_imported_fixup_have_number
+    jnz [rb - 3], .fixup_have_number
 
     add err_expect_number, 0, [rb]
     call report_error
 
-load_imported_fixup_have_number:
+.fixup_have_number:
     # was the number base 10?
     eq  [rb - 4], 10, [rb + tmp]
-    jnz [rb + tmp], load_imported_decimal
+    jnz [rb + tmp], .decimal
 
     add err_expect_decimal, 0, [rb]
     call report_error
 
-load_imported_decimal:
+.decimal:
     # store the byte
     add [rb + import], IMPORT_FIXUPS_HEAD, [rb - 1]
     add [rb + import], IMPORT_FIXUPS_TAIL, [rb - 2]
@@ -348,14 +348,14 @@ load_imported_decimal:
     call get_input
 
     eq  [rb - 2], ',', [rb + tmp]
-    jnz [rb + tmp], load_imported_fixup_loop
+    jnz [rb + tmp], .fixup_loop
     eq  [rb - 2], 10, [rb + tmp]
-    jnz [rb + tmp], load_imported_loop
+    jnz [rb + tmp], .loop
 
     add err_expect_comma_eol, 0, [rb]
     call report_error
 
-load_imported_done:
+.done:
     # free the empty identifier
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -370,23 +370,23 @@ load_exported:
 .FRAME module; export, identifier, byte, tmp
     arb -4
 
-load_exported_loop:
+.loop:
     # read the identifier
     call read_identifier
     add [rb - 2], 0, [rb + identifier]
 
     # if there is no identifier, finish
     add [rb + identifier], 0, [ip + 1]
-    jz  [0], load_exported_done
+    jz  [0], .done
 
     call get_input
     eq  [rb - 2], ':', [rb + tmp]
-    jnz [rb + tmp], load_exported_save_identifier
+    jnz [rb + tmp], .save_identifier
 
     add err_expect_colon, 0, [rb]
     call report_error
 
-load_exported_save_identifier:
+.save_identifier:
     add [rb + module], 0, [rb - 1]
     arb -1
     call create_export
@@ -399,20 +399,20 @@ load_exported_save_identifier:
     add [rb - 2], 0, [rb + byte]
 
     # was there actually a number?
-    jnz [rb - 3], load_exported_have_number
+    jnz [rb - 3], .have_number
 
     add err_expect_number, 0, [rb]
     call report_error
 
-load_exported_have_number:
+.have_number:
     # was the number base 10?
     eq  [rb - 4], 10, [rb + tmp]
-    jnz [rb + tmp], load_exported_decimal
+    jnz [rb + tmp], .decimal
 
     add err_expect_decimal, 0, [rb]
     call report_error
 
-load_exported_decimal:
+.decimal:
     # store the byte
     add [rb + export], EXPORT_ADDRESS, [ip + 3]
     add [rb + byte], 0, [0]
@@ -421,12 +421,12 @@ load_exported_decimal:
     call get_input
 
     eq  [rb - 2], 10, [rb + tmp]
-    jnz [rb + tmp], load_exported_loop
+    jnz [rb + tmp], .loop
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-load_exported_done:
+.done:
     # free the empty identifier
     add [rb + identifier], 0, [rb - 1]
     arb -1

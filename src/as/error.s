@@ -61,7 +61,7 @@ report_global_fixup_error: # TODO rename to report_symbol_fixup_error
     # get first fixup for this global
     add [rb + global], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
-    jz  [rb + fixup], report_global_error_after_location
+    jz  [rb + fixup], .after_location
 
     # read fixup line num
     add [rb + fixup], FIXUP_LINE_NUM, [ip + 1]
@@ -71,7 +71,7 @@ report_global_fixup_error: # TODO rename to report_symbol_fixup_error
     add [rb + fixup], FIXUP_COLUMN_NUM, [ip + 1]
     add [0], 0, [rb + column_num]
 
-report_global_error_after_location:
+.after_location:
     # we don't bother with updating the stack pointer, this function never returns
     add [rb + message], 0, [rb + 2]
     add [rb + line_num], 0, [rb + 1]
@@ -89,7 +89,7 @@ print_symbol_identifier:
     # is this a child symbol?
     add [rb + symbol], GLOBAL_TYPE, [ip + 1]
     eq  [0], 5, [rb + tmp]
-    jz  [rb + tmp], print_symbol_identifier_after_parent
+    jz  [rb + tmp], .after_parent
 
     # yes, print the parent identifier first
     add [rb + symbol], GLOBAL_PARENT, [ip + 1]
@@ -100,14 +100,14 @@ print_symbol_identifier:
 
     out '.'
 
-print_symbol_identifier_after_parent:
+.after_parent:
     add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
     add [0], 0, [rb + identifier]
 
-    jnz [rb + identifier], print_symbol_identifier_have_identifier
-    add print_symbol_identifier_null, 0, [rb + identifier]
+    jnz [rb + identifier], .have_identifier
+    add .identifier_null, 0, [rb + identifier]
 
-print_symbol_identifier_have_identifier:
+.have_identifier:
     # print the identifier
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -119,7 +119,7 @@ print_symbol_identifier_have_identifier:
     arb 2
     ret 1
 
-print_symbol_identifier_null:
+.identifier_null:
     db  "null identifier", 0
 .ENDFRAME
 

@@ -103,14 +103,14 @@ read_spaces:
 .FRAME tmp
     arb -1
 
-read_spaces_loop:
+.loop:
     eq  [char], ' ', [rb + tmp]
-    jz  [rb + tmp], read_spaces_done
+    jz  [rb + tmp], .done
 
     in  [char]
-    jz  0, read_spaces_loop
+    jz  0, .loop
 
-read_spaces_done:
+.done:
 
     arb 1
     ret 0
@@ -123,33 +123,33 @@ read_size:
 
     add 0, 0, [data_size]
 
-read_size_loop:
+.loop:
     eq  [char], ' ', [rb + tmp]
-    jnz [rb + tmp], read_size_done
+    jnz [rb + tmp], .done
     lt  [char], '0', [rb + tmp]
-    jnz [rb + tmp], read_size_invalid
+    jnz [rb + tmp], .invalid
     lt  '9', [char], [rb + tmp]
-    jnz [rb + tmp], read_size_invalid
+    jnz [rb + tmp], .invalid
 
     add [char], -'0', [char]
     mul [data_size], 10, [data_size]
     add [data_size], [char], [data_size]
 
     in  [char]
-    jz  0, read_size_loop
+    jz  0, .loop
 
-read_size_done:
+.done:
     arb 1
     ret 0
 
-read_size_invalid:
-    add read_size_invalid_message, 0, [rb - 1]
+.invalid:
+    add .invalid_message, 0, [rb - 1]
     arb -1
     call print_str
 
     hlt
 
-read_size_invalid_message:
+.invalid_message:
     db  "invalid file size", 10, 0
 .ENDFRAME
 
@@ -167,52 +167,52 @@ read_name:
     # When we see a dot, we start ignoring the input until the end, or until a reset
     # When we see a non-alphanumeric character, we reset the name and start again
 
-read_name_loop:
+.loop:
     # Handle 0xa as the end of input, ignore 0xd
     eq  [char], 0xa, [rb + tmp]
-    jnz [rb + tmp], read_name_done
+    jnz [rb + tmp], .done
     eq  [char], 0xd, [rb + tmp]
-    jnz [rb + tmp], read_name_loop_end
+    jnz [rb + tmp], .loop_end
 
     # Handle '.' as start of an extension
     eq  [char], '.', [rb + tmp]
-    jnz [rb + tmp], read_name_ext
+    jnz [rb + tmp], .ext
 
     # Alphanumeric characters could be the name
     add [char], 0, [rb - 1]
     arb -1
     call is_alphanum
-    jnz [rb - 3], read_name_alnum
+    jnz [rb - 3], .alnum
 
     # Anything else means this wasn't the name after all, reset
     add [free_memory], 0, [name_addr]
     add 0, 0, [name_length]
     add 0, 0, [rb + is_ext]
 
-    jz  0, read_name_loop_end
+    jz  0, .loop_end
 
-read_name_ext:
+.ext:
     add 1, 0, [rb + is_ext]
-    jz  0, read_name_loop_end
+    jz  0, .loop_end
 
-read_name_alnum:
+.alnum:
     # Ignore everythig after a dot
-    jnz [rb + is_ext], read_name_loop_end
+    jnz [rb + is_ext], .loop_end
 
     # Save the character
     add [name_addr], [name_length], [ip + 3]
     add [char], 0, [0]
     add [name_length], 1, [name_length]
 
-read_name_loop_end:
+.loop_end:
     in  [char]
-    jz  0, read_name_loop
+    jz  0, .loop
 
-read_name_done:
-    jz  [name_length], read_name_invalid
+.done:
+    jz  [name_length], .invalid
 
     lt  MAX_NAME_LENGTH, [name_length], [rb + tmp]
-    jnz [rb + tmp], read_name_too_long
+    jnz [rb + tmp], .too_long
 
     # Zero terminate the string
     add [name_addr], [name_length], [ip + 3]
@@ -225,23 +225,23 @@ read_name_done:
     arb 2
     ret 0
 
-read_name_invalid:
-    add read_name_invalid_message, 0, [rb - 1]
+.invalid:
+    add .invalid_message, 0, [rb - 1]
     arb -1
     call print_str
 
     hlt
 
-read_name_too_long:
-    add read_name_too_long_message, 0, [rb - 1]
+.too_long:
+    add .too_long_message, 0, [rb - 1]
     arb -1
     call print_str
 
     hlt
 
-read_name_invalid_message:
+.invalid_message:
     db  "invalid binary name", 10, 0
-read_name_too_long_message:
+.too_long_message:
     db  "binary name too long", 10, 0
 .ENDFRAME
 
@@ -253,18 +253,18 @@ load_data:
     add [free_memory], 0, [data_addr]
     add 0, 0, [rb + index]
 
-load_data_loop:
+.loop:
     eq  [rb + index], [data_size], [rb + tmp]
-    jnz [rb + tmp], load_data_done
+    jnz [rb + tmp], .done
 
     in  [rb + tmp]
     add [data_addr], [rb + index], [ip + 3]
     add [rb + tmp], 0, [0]
 
     add [rb + index], 1, [rb + index]
-    jz  0, load_data_loop
+    jz  0, .loop
 
-load_data_done:
+.done:
     # Mark the buffer as used memory
     add [free_memory], [data_size], [free_memory]
 
@@ -287,35 +287,35 @@ detect_sections:
     add 0, 0, [rb + data_index]
     add 0, 0, [rb + byte_index]
 
-detect_sections_loop:
+.loop:
     eq  [rb + data_index], [data_size], [rb + tmp]
-    jnz [rb + tmp], detect_sections_finish_last_section
+    jnz [rb + tmp], .finish_last_section
 
     # Read next byte
     add [data_addr], [rb + data_index], [ip + 1]
     add [0], 0, [rb + byte]
 
     # Detect zeros
-    jnz [rb + byte], detect_sections_nonzero
+    jnz [rb + byte], .nonzero
 
     # Count zeros, don't output them yet
     add [rb + zero_count], 1, [rb + zero_count]
-    jz  0, detect_sections_loop_end
+    jz  0, .loop_end
 
-detect_sections_nonzero:
+.nonzero:
     # Was this a long run of zeros?
     lt  MAX_ZERO_COUNT, [rb + zero_count], [rb + tmp]
-    jnz [rb + tmp], detect_sections_finish_section
+    jnz [rb + tmp], .finish_section
 
     # No, do we have a current section we can continue?
-    jz  [section_count], detect_sections_start_section
+    jz  [section_count], .start_section
 
     # Yes, continue the section
-    jz  0, detect_sections_continue_section
+    jz  0, .continue_section
 
-detect_sections_finish_section:
+.finish_section:
     # Finish current section if any
-    jz  [section_count], detect_sections_start_section
+    jz  [section_count], .start_section
 
     # section_addr[section_count - 1].SECTION_SIZE = [rb + section_size]
     add [section_count], -1, [rb + tmp]
@@ -326,7 +326,7 @@ detect_sections_finish_section:
 
     add [rb + byte_index], [rb + section_size], [rb + byte_index]
 
-detect_sections_start_section:
+.start_section:
     # Start a new section
     # section_addr[section_count].SECTION_ADDRESS = [rb + data_index]
     # section_addr[section_count].SECTION_START = [rb + byte_index]
@@ -341,26 +341,26 @@ detect_sections_start_section:
     add 0, 0, [rb + section_size]
     add 0, 0, [rb + zero_count]
 
-detect_sections_continue_section:
+.continue_section:
     # Was there any run of zeros at all?
-    jz  [rb + zero_count], detect_sections_after_zeros
+    jz  [rb + zero_count], .after_zeros
 
     # Yes, output the zero run as regular data, it wasn't long enough
     add [rb + section_size], [rb + zero_count], [rb + section_size]
     add 0, 0, [rb + zero_count]
 
-detect_sections_after_zeros:
+.after_zeros:
     # Current byte belongs to this section
     add [rb + section_size], 1, [rb + section_size]
 
-detect_sections_loop_end:
+.loop_end:
     # Process next byte
     add [rb + data_index], 1, [rb + data_index]
-    jz  0, detect_sections_loop
+    jz  0, .loop
 
-detect_sections_finish_last_section:
+.finish_last_section:
     # Is there a section to finish?
-    jz  [section_count], detect_sections_done
+    jz  [section_count], .done
 
     # Finish last section if by writing section size
     add [section_count], -1, [rb + tmp]
@@ -369,7 +369,7 @@ detect_sections_finish_last_section:
     add [rb + tmp], SECTION_SIZE, [ip + 3]
     add [rb + section_size], 0, [0]
 
-detect_sections_done:
+.done:
     # Mark section data as used memory
     mul [section_count], SECTION_RECORD_SIZE, [rb + tmp]
     add [free_memory], [rb + tmp], [free_memory]
@@ -382,7 +382,7 @@ detect_sections_done:
 output_object:
 .FRAME
     # Output start of the object file
-    add output_object_start, 0, [rb - 1]
+    add .start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -390,7 +390,7 @@ output_object:
     call output_data
 
     # Output the middle part of the object file
-    add output_object_middle, 0, [rb - 1]
+    add .middle, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -398,9 +398,9 @@ output_object:
 
     ret 0
 
-output_object_start:
+.start:
     db ".C", 10, 0
-output_object_middle:
+.middle:
     db  10, ".R", 10, ".I", 10, ".E", 10, 0
 .ENDFRAME
 
@@ -417,9 +417,9 @@ output_header:
     # Loop all sections
     add 0, 0, [rb + section_index]
 
-output_header_sections_loop:
+.sections_loop:
     eq  [rb + section_index], [section_count], [rb + tmp]
-    jnz [rb + tmp], output_header_sections_done
+    jnz [rb + tmp], .sections_done
 
     # Load current section data to local variables
     mul [rb + section_index], SECTION_RECORD_SIZE, [rb + tmp]
@@ -450,9 +450,9 @@ output_header_sections_loop:
 
     # Next section
     add [rb + section_index], 1, [rb + section_index]
-    jz  0, output_header_sections_loop
+    jz  0, .sections_loop
 
-output_header_sections_done:
+.sections_done:
     arb 5
     ret 0
 .ENDFRAME
@@ -465,9 +465,9 @@ output_data:
     # Loop all sections
     add 0, 0, [rb + section_index]
 
-output_data_sections_loop:
+.sections_loop:
     eq  [rb + section_index], [section_count], [rb + tmp]
-    jnz [rb + tmp], output_data_sections_done
+    jnz [rb + tmp], .sections_done
 
     # Load current section data to local variables
     mul [rb + section_index], SECTION_RECORD_SIZE, [rb + tmp]
@@ -482,9 +482,9 @@ output_data_sections_loop:
     add [rb + section_address], 0, [rb + data_index]
     add [rb + section_address], [rb + section_size], [rb + data_limit]
 
-output_data_bytes_loop:
+.bytes_loop:
     eq  [rb + data_index], [rb + data_limit], [rb + tmp]
-    jnz [rb + tmp], output_data_bytes_done
+    jnz [rb + tmp], .bytes_done
 
     # Output next byte
     out ','
@@ -494,14 +494,14 @@ output_data_bytes_loop:
     call print_num
 
     add [rb + data_index], 1, [rb + data_index]
-    jz  0, output_data_bytes_loop
+    jz  0, .bytes_loop
 
-output_data_bytes_done:
+.bytes_done:
     # Next section
     add [rb + section_index], 1, [rb + section_index]
-    jz  0, output_data_sections_loop
+    jz  0, .sections_loop
 
-output_data_sections_done:
+.sections_done:
     arb 6
     ret 0
 .ENDFRAME
@@ -514,7 +514,7 @@ output_exports:
     arb -1
     call print_str
 
-    add output_exports_image, 0, [rb - 1]
+    add .image, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -527,7 +527,7 @@ output_exports:
     arb -1
     call print_str
 
-    add output_exports_count, 0, [rb - 1]
+    add .count, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -540,7 +540,7 @@ output_exports:
     arb -1
     call print_str
 
-    add output_exports_header, 0, [rb - 1]
+    add .header, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -553,7 +553,7 @@ output_exports:
     arb -1
     call print_str
 
-    add output_exports_data, 0, [rb - 1]
+    add .data, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -567,13 +567,13 @@ output_exports:
 
     ret 0
 
-output_exports_image:
+.image:
     db  "_image:", 0
-output_exports_count:
+.count:
     db  "_count:", 0
-output_exports_header:
+.header:
     db  "_header:", 0
-output_exports_data:
+.data:
     db  "_data:", 0
 .ENDFRAME
 
