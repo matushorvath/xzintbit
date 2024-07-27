@@ -1,9 +1,6 @@
 # from fixup.s
 .IMPORT process_fixups
 
-# from global.s
-.IMPORT init_relocations
-
 # from object.s
 .IMPORT output_object
 
@@ -22,7 +19,6 @@ main:
 .FRAME
     arb -0
 
-    call init_relocations
     call parse
     call process_fixups
     call output_object

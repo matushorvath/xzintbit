@@ -88,7 +88,7 @@ print_symbol_identifier:
 
     # is this a child symbol?
     add [rb + symbol], GLOBAL_TYPE, [ip + 1]
-    eq  [0], 5, [rb + tmp]
+    eq  [0], 4, [rb + tmp]
     jz  [rb + tmp], .after_parent
 
     # yes, print the parent identifier first

@@ -12,6 +12,7 @@
 
 # from global.s
 .IMPORT global_head
+.IMPORT current_address_fixups_head
 
 # from memory.s
 .IMPORT mem_head
@@ -67,6 +68,13 @@ print_reloc:
     out 'R'
     out 10
 
+    # print relocations for the current_address symbol
+    add current_address_fixups_head, 0, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_fixups_list
+
+    # print relocations for the regular symbols
     add [global_head], 0, [rb + global]
 
 .global_loop:
@@ -82,9 +90,10 @@ print_reloc:
     jnz [rb + tmp], .global_next
 
     # print relocations for the global symbol
-    add [rb + global], 0, [rb - 1]
+    add [rb + global], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
-    call print_symbol_reloc
+    call print_fixups_list
 
     # process child symbols as well, if any
     add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
@@ -95,9 +104,10 @@ print_reloc:
     jz  [rb + child], .global_next
 
     # print relocations for this child symbol
-    add [rb + child], 0, [rb - 1]
+    add [rb + child], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
     arb -1
-    call print_symbol_reloc
+    call print_fixups_list
 
     # move to next child symbol
     add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
@@ -123,13 +133,12 @@ print_reloc:
 .ENDFRAME
 
 ##########
-print_symbol_reloc:
-.FRAME symbol; fixup, symbol_address, fixup_address
+print_fixups_list:
+.FRAME fixups_head; fixup, symbol_address, fixup_address
     arb -3
 
-    # iterate through all fixups for this symbol
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb + fixup]
+    # iterate through all fixups starting from the head
+    add [rb + fixups_head], 0, [rb + fixup]
 
 .loop:
     # do we have more fixups for this symbol?

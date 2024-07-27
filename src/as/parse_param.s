@@ -18,6 +18,7 @@
 
 # from global.s
 .IMPORT add_or_find_global_symbol
+.IMPORT current_address_fixups_head
 
 # from lexer.s
 .IMPORT get_token
@@ -230,7 +231,7 @@ parse_value:
     jnz [rb + tmp], .is_parent_dot_child
 
     # no child symbol, add a fixup for this identifier
-    add [rb + symbol], 0, [rb - 1]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [rb + line_num], 0, [rb - 3]
     add [rb + column_num], 0, [rb - 4]
@@ -250,7 +251,7 @@ parse_value:
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_child_symbol
 
     # add a fixup for this identifier
-    add [rb + symbol], 0, [rb - 1]
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [rb + line_num], 0, [rb - 3]
     add [rb + column_num], 0, [rb - 4]
@@ -275,10 +276,12 @@ parse_value:
     add [token_value], 0, [rb - 1]
     arb -1
     call add_or_find_current_child_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_current_child_symbol -> first param of add_fixup
+    add [rb - 3], 0, [rb + symbol]
+
     add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
 
     # add a fixup for this identifier
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
@@ -294,13 +297,8 @@ parse_value:
     add 1, 0, [rb + has_symbol]
     add [current_address], [rb + instruction_length], [rb + result]
 
-    # retrieve relocation symbol from the symbol table
-    add 0, 0, [rb - 1]
-    arb -1
-    call add_or_find_global_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
-
     # add a fixup (actually a relocation) for the use of current_address
+    add current_address_fixups_head, 0, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]

@@ -69,7 +69,7 @@ add_child_symbol:
 
     # set the symbol type to "child"
     add [rb + child], GLOBAL_TYPE, [ip + 3]
-    add 5, 0, [0]
+    add 4, 0, [0]
 
     # set address to -1, so we can detect when the address is set
     add [rb + child], GLOBAL_ADDRESS, [ip + 3]

@@ -1,8 +1,9 @@
 .EXPORT add_or_find_global_symbol
 .EXPORT set_global_symbol_address
 .EXPORT set_global_symbol_type
+
 .EXPORT global_head
-.EXPORT init_relocations
+.EXPORT current_address_fixups_head
 
 # from libxib/heap.s
 .IMPORT alloc_blocks
@@ -13,29 +14,6 @@
 
 # from error.s
 .IMPORT report_global_symbol_error
-
-##########
-init_relocations:
-.FRAME symbol
-    arb -1
-
-    # TODO this creates a lot of complications, instead store this single relocation as a separate pointer, not in list
-
-    # add a dummy symbol (with null identifier) to store relocations that are not related to a symbol
-    add 0, 0, [rb - 1]
-    arb -1
-    call add_or_find_global_symbol
-    add [rb - 3], 0, [rb + symbol]
-
-    # set symbol type to 4 (relocation)
-    add [rb + symbol], 0, [rb - 1]
-    add 4, 0, [rb - 2]
-    arb -2
-    call set_global_symbol_type
-
-    arb 1
-    ret 0
-.ENDFRAME
 
 ##########
 find_global_symbol:
@@ -52,14 +30,6 @@ find_global_symbol:
     add [rb + record], GLOBAL_IDENTIFIER_PTR, [ip + 1]
     add [0], 0, [rb + record_identifier]
 
-    # treat two null identifiers as equal, see init_relocations for such identifier
-    add [rb + identifier], [rb + record_identifier], [rb + tmp]
-    jz  [rb + tmp], .done
-
-    # skip strcmp if just one of the identifiers is null
-    jz  [rb + identifier], .after_strcmp
-    jz  [rb + record_identifier], .after_strcmp
-
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
     add [rb + record_identifier], 0, [rb - 2]
@@ -69,7 +39,6 @@ find_global_symbol:
     # if strcmp result is 0, we are done
     jz  [rb - 4], .done
 
-.after_strcmp:
     # move to next record
     add [rb + record], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
@@ -244,6 +213,10 @@ set_global_symbol_type:
 
 # head of the linked list of global symbols
 global_head:
+    db  0
+
+# list of relocations for every usage of [current_address]
+current_address_fixups_head:
     db  0
 
 ##########
