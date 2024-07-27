@@ -23,10 +23,8 @@
 
 ##########
 add_fixup:
-.FRAME symbol, address, line_num, column_num; fixup, tmp
+.FRAME fixups_head_ptr, address, line_num, column_num; fixup, tmp
     arb -2
-
-    # symbol could be either parent or child symbol
 
     # allocate a block
     add FIXUP_ALLOC_SIZE, 0, [rb - 1]
@@ -47,7 +45,7 @@ add_fixup:
     add [rb + column_num], 0, [0]
 
     # read current fixup list head
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    add [rb + fixups_head_ptr], 0, [ip + 1]
     add [0], 0, [rb + tmp]
 
     # set pointer to next fixup
@@ -55,7 +53,7 @@ add_fixup:
     add [rb + tmp], 0, [0]
 
     # set new fixup list head
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 3]
+    add [rb + fixups_head_ptr], 0, [ip + 3]
     add [rb + fixup], 0, [0]
 
     arb 2
