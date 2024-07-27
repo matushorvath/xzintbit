@@ -1,42 +1,19 @@
 .EXPORT add_or_find_global_symbol
 .EXPORT set_global_symbol_address
 .EXPORT set_global_symbol_type
-.EXPORT global_head
 
-.EXPORT init_relocations
-.EXPORT current_address_symbol
+.EXPORT global_head
+.EXPORT current_address_fixups_head
 
 # from libxib/heap.s
 .IMPORT alloc_blocks
 .IMPORT free
-.IMPORT zeromem_blocks
 
 # from libxib/string.s
 .IMPORT strcmp
 
 # from error.s
 .IMPORT report_global_symbol_error
-
-##########
-init_relocations:
-.FRAME
-    arb -1
-
-    # initialize current_address_symbol (we only use the list of fixups it contains)
-    # TODO change add_fixup and print_reloc so we can only store the list of fixups here
-    add GLOBAL_ALLOC_SIZE, 0, [rb - 1]
-    arb -1
-    call alloc_blocks
-    add [rb - 3], 0, [current_address_symbol]
-
-    add [current_address_symbol], 0, [rb - 1]
-    add GLOBAL_ALLOC_SIZE, 0, [rb - 2]
-    arb -2
-    call zeromem_blocks
-
-    arb 1
-    ret 0
-.ENDFRAME
 
 ##########
 find_global_symbol:
@@ -238,8 +215,8 @@ set_global_symbol_type:
 global_head:
     db  0
 
-# dummy symbol to store relocations whenever we use [current_address] in output
-current_address_symbol:
+# list of relocations for every usage of [current_address]
+current_address_fixups_head:
     db  0
 
 ##########

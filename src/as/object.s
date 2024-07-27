@@ -12,7 +12,7 @@
 
 # from global.s
 .IMPORT global_head
-.IMPORT current_address_symbol
+.IMPORT current_address_fixups_head
 
 # from memory.s
 .IMPORT mem_head
@@ -69,7 +69,7 @@ print_reloc:
     out 10
 
     # print relocations for the current_address symbol
-    add [current_address_symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    add current_address_fixups_head, 0, [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
     call print_fixups_list
