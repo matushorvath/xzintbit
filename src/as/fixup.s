@@ -73,12 +73,9 @@ process_fixups:
     # do we have more global symbols?
     jz  [rb + global], .done
 
-    # special handling of imported symbols and relocations, they don't require fixups
+    # special handling of imported symbols, they don't require fixups
     add [rb + global], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
-    jnz [rb + tmp], .global_next
-    add [rb + global], GLOBAL_TYPE, [ip + 1]
-    eq  [0], 4, [rb + tmp]
     jnz [rb + tmp], .global_next
 
     # process all fixups for this global symbol

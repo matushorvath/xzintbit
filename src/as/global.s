@@ -2,11 +2,14 @@
 .EXPORT set_global_symbol_address
 .EXPORT set_global_symbol_type
 .EXPORT global_head
+
 .EXPORT init_relocations
+.EXPORT current_address_symbol
 
 # from libxib/heap.s
 .IMPORT alloc_blocks
 .IMPORT free
+.IMPORT zeromem_blocks
 
 # from libxib/string.s
 .IMPORT strcmp
@@ -16,22 +19,21 @@
 
 ##########
 init_relocations:
-.FRAME symbol
+.FRAME
     arb -1
 
-    # TODO this creates a lot of complications, instead store this single relocation as a separate pointer, not in list
-
-    # add a dummy symbol (with null identifier) to store relocations that are not related to a symbol
-    add 0, 0, [rb - 1]
+    # initialize current_address_symbol (we only use the list of fixups it contains)
+    # TODO change add_fixup and print_reloc so we can only store the list of fixups here
+    # TODO remove the strcmp null, ? cases from find_global_symbol
+    add GLOBAL_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call add_or_find_global_symbol
-    add [rb - 3], 0, [rb + symbol]
+    call alloc_blocks
+    add [rb - 3], 0, [current_address_symbol]
 
-    # set symbol type to 4 (relocation)
-    add [rb + symbol], 0, [rb - 1]
-    add 4, 0, [rb - 2]
+    add [current_address_symbol], 0, [rb - 1]
+    add GLOBAL_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call set_global_symbol_type
+    call zeromem_blocks
 
     arb 1
     ret 0
@@ -244,6 +246,10 @@ set_global_symbol_type:
 
 # head of the linked list of global symbols
 global_head:
+    db  0
+
+# dummy symbol to store relocations whenever we use [current_address] in output
+current_address_symbol:
     db  0
 
 ##########

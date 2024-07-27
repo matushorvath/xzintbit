@@ -12,6 +12,7 @@
 
 # from global.s
 .IMPORT global_head
+.IMPORT current_address_symbol
 
 # from memory.s
 .IMPORT mem_head
@@ -67,6 +68,12 @@ print_reloc:
     out 'R'
     out 10
 
+    # print relocations for the current_address symbol
+    add [current_address_symbol], 0, [rb - 1]
+    arb -1
+    call print_symbol_reloc
+
+    # print relocations for the regular symbols
     add [global_head], 0, [rb + global]
 
 .global_loop:

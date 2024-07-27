@@ -52,3 +52,5 @@ second_global:
     out [first_global.child_1_1 - 17]
 
 .EOF
+
+# TODO also test linking child symbols, to make sure they are correctly relocated in second object file

@@ -18,6 +18,7 @@
 
 # from global.s
 .IMPORT add_or_find_global_symbol
+.IMPORT current_address_symbol
 
 # from lexer.s
 .IMPORT get_token
@@ -294,13 +295,8 @@ parse_value:
     add 1, 0, [rb + has_symbol]
     add [current_address], [rb + instruction_length], [rb + result]
 
-    # retrieve relocation symbol from the symbol table
-    add 0, 0, [rb - 1]
-    arb -1
-    call add_or_find_global_symbol
-    add [rb - 3], 0, [rb - 1]           # result of add_or_find_global_symbol -> first param of add_fixup
-
     # add a fixup (actually a relocation) for the use of current_address
+    add [current_address_symbol], 0, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
