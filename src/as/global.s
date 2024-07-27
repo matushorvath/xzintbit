@@ -24,7 +24,6 @@ init_relocations:
 
     # initialize current_address_symbol (we only use the list of fixups it contains)
     # TODO change add_fixup and print_reloc so we can only store the list of fixups here
-    # TODO remove the strcmp null, ? cases from find_global_symbol
     add GLOBAL_ALLOC_SIZE, 0, [rb - 1]
     arb -1
     call alloc_blocks
@@ -54,14 +53,6 @@ find_global_symbol:
     add [rb + record], GLOBAL_IDENTIFIER_PTR, [ip + 1]
     add [0], 0, [rb + record_identifier]
 
-    # treat two null identifiers as equal, see init_relocations for such identifier
-    add [rb + identifier], [rb + record_identifier], [rb + tmp]
-    jz  [rb + tmp], .done
-
-    # skip strcmp if just one of the identifiers is null
-    jz  [rb + identifier], .after_strcmp
-    jz  [rb + record_identifier], .after_strcmp
-
     # does this record contain the identifier?
     add [rb + identifier], 0, [rb - 1]
     add [rb + record_identifier], 0, [rb - 2]
@@ -71,7 +62,6 @@ find_global_symbol:
     # if strcmp result is 0, we are done
     jz  [rb - 4], .done
 
-.after_strcmp:
     # move to next record
     add [rb + record], GLOBAL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + record]
