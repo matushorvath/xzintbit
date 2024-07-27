@@ -1,26 +1,9 @@
-ICVM_TYPE ?= c
-
-ICVM ?= $(abspath ../vms)/$(ICVM_TYPE)/ic
-ICAS ?= $(abspath ../bin/as.input)
-ICLD ?= $(abspath ../bin/ld.input)
-ICLDMAP ?= $(abspath ../bin/ldmap.input)
+ICDIR ?= $(abspath ..)
+include $(ICDIR)/intcode.mk
 
 SRCDIR = .
 BINDIR ?= bin
 OBJDIR ?= obj
-
-define run-as
-cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; false )
-endef
-
-define run-ar
-cat $^ | sed 's/^.C$$/.L/g' > $@ || ( cat $@ ; false )
-endef
-
-define run-ld
-echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; false )
-echo .$$ | cat $^ - | $(ICVM) $(ICLDMAP) > $@.map.yaml || ( cat $@.map.yaml ; false )
-endef
 
 # Build
 .PHONY: build
@@ -35,39 +18,39 @@ AS_OBJS = as.o child.o directive.o error.o fixup.o frame.o global.o keyword.o le
 	parse_param.o parse_symbol.o parser.o
 
 $(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
-	$(run-ld)
+	$(run-intcode-ld)
 
-$(OBJDIR)/as/%.o: $(SRCDIR)/as/const.si $(SRCDIR)/as/%.s
-	$(run-as)
+$(OBJDIR)/as/%.o: $(SRCDIR)/as/%.s $(SRCDIR)/as/const.si
+	$(run-intcode-as)
 
 BIN2OBJ_OBJS = bin2obj.o
 
 $(BINDIR)/bin2obj.input: $(addprefix $(OBJDIR)/tools/, $(BIN2OBJ_OBJS)) $(BINDIR)/libxib.a
-	$(run-ld)
+	$(run-intcode-ld)
 
 $(OBJDIR)/tools/%.o: $(SRCDIR)/tools/%.s
-	$(run-as)
+	$(run-intcode-as)
 
 LD_OBJS = ld.o process.o data.o error.o link.o load.o output.o relocate.o resolve.o
 
 $(BINDIR)/ld.input: $(addprefix $(OBJDIR)/ld/, $(LD_OBJS)) $(BINDIR)/libxib.a
-	$(run-ld)
+	$(run-intcode-ld)
 
-$(OBJDIR)/ld/%.o: $(SRCDIR)/ld/const.si $(SRCDIR)/ld/%.s
-	$(run-as)
+$(OBJDIR)/ld/%.o: $(SRCDIR)/ld/%.s $(SRCDIR)/ld/const.si
+	$(run-intcode-as)
 
 LDMAP_OBJS = ldmap.o process.o data.o error.o link.o load.o output.o relocate.o resolve.o
 
 $(BINDIR)/ldmap.input: $(addprefix $(OBJDIR)/ld/, $(LDMAP_OBJS)) $(BINDIR)/libxib.a
-	$(run-ld)
+	$(run-intcode-ld)
 
 LIBXIB_OBJS = libxib.o brk.o error.o heap.o input.o lexer.o memory.o print.o string.o
 
 $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
-	$(run-ar)
+	$(run-intcode-ar)
 
 $(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/%.s
-	$(run-as)
+	$(run-intcode-as)
 
 # Clean
 .PHONY: clean
