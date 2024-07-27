@@ -1,13 +1,11 @@
-ICVM_TYPE ?= c
-ICVM ?= $(abspath ../../vms)/$(ICVM_TYPE)/ic
-
-IC_BINDIR ?= $(abspath ../../bin)
-ICAS ?= $(IC_BINDIR)/as.input
-ICBIN2OBJ ?= $(IC_BINDIR)/bin2obj.input
-ICLD ?= $(IC_BINDIR)/ld.input
+ICDIR ?= $(abspath ../..)
+include $(ICDIR)/intcode.mk
 
 BINDIR ?= bin
 OBJDIR ?= obj
+
+# Ignore compilation errors, some tests expect compilation to fail
+IC_ERROR_RESULT = true
 
 ifndef TESTLOG
 	TESTLOG := $(shell mktemp)
@@ -33,32 +31,32 @@ test-prep:
 
 $(BINDIR)/%.stdout: $(BINDIR)/%.input %.stdin
 	printf '$(NAME): processing stdin ' >> $(TESTLOG)
-	$(ICVM) $< > $@ < $(patsubst %.input,%.stdin,$(notdir $<)) || ( cat $@ ; true )
+	$(run-intcode-vm) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.txt: $(BINDIR)/%.input
 	printf '$(NAME): executing ' >> $(TESTLOG)
-	$(ICVM) $< > $@ || ( cat $@ ; true )
+	$(run-intcode-vm) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	printf '$(NAME): linking ' >> $(TESTLOG)
-	echo .$$ | cat $^ - | $(ICVM) $(ICLD) > $@ || ( cat $@ ; true )
+	$(run-intcode-ld) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(BINDIR)/%.a: $(OBJDIR)/%.o
 	printf '$(NAME): archiving ' >> $(TESTLOG)
-	cat $^ | sed 's/^.C$$/.L/g' > $@ || true
+	$(run-intcode-ar) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.s
 	printf '$(NAME): assembling ' >> $(TESTLOG)
-	cat $^ | $(ICVM) $(ICAS) > $@ || ( cat $@ ; true )
+	$(run-intcode-as) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 $(OBJDIR)/%.o: %.bin
 	printf '$(NAME): running bin2obj ' >> $(TESTLOG)
-	wc -c $< | cat - $< | $(ICVM) $(ICBIN2OBJ) > $@ || ( cat $@ ; false )
+	$(run-intcode-bin2obj) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 
 .PHONY: skip

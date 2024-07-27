@@ -6,7 +6,7 @@
   In load_code handle the missing empty line by doing a peek_input, same as we do for .R, .I and .E.
   This probably detecting no memory to print and skip the out 10 just before print_code calls print_mem.
 
-- Make all tests that use the linker run ldmap as well.
+- Make all tests that use the linker compare the ldmap as well.
 
 - Support exportable .SYMBOL that will not be relocated?
 
@@ -39,7 +39,6 @@
       ret 3
     .ENDFRAME
 
-- Split bin2obj.s to multiple sources, perhaps rename /tools to /bin2obj.
 - Create a preprocessor with macro support to solve code duplication everywhere.
 
 - Objects from a library that don't get included still have an entry in the map.yaml (try to link empty source with any .a)

@@ -4,4 +4,4 @@ include ../test.mk
 TEST_DIFF_OPTIONAL = 1
 
 test: test-prep $(BINDIR)/$(NAME).txt
-$(BINDIR)/$(NAME).input: $(OBJDIR)/$(NAME).o $(IC_BINDIR)/libxib.a
+$(BINDIR)/$(NAME).input: $(OBJDIR)/$(NAME).o $(LIBXIB)
