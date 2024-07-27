@@ -8,8 +8,6 @@
 #   include <io.h>
 #endif
 
-#include "profile.h"
-
 int *mem = NULL;
 int mem_size = 0;
 
@@ -17,8 +15,6 @@ int ip = 0;
 int rb = 0;
 
 void resize_mem(int addr) {
-    profile_addr(addr);
-
     if (addr >= mem_size) {
         int old_mem_size = mem_size;
         while (addr >= mem_size) mem_size <<= 1;
@@ -33,7 +29,6 @@ int get_mem(int addr) {
 }
 
 void set_mem(int addr, int val) {
-    profile_value(val);
     resize_mem(addr);
     mem[addr] = val;
 }
@@ -72,8 +67,6 @@ void set_param(int idx, int val) {
 
 void run(int (*get_input)(), void (*set_output)(int)) {
     while (true) {
-        profile_inst();
-
         int oc = get_mem(ip) % 100;
 
         switch (oc) {
@@ -151,8 +144,6 @@ int main(int argc, char **argv) {
     _setmode(_fileno(stdout), _O_BINARY);
 #endif
 
-    profile_init();
-
     mem_size = 64;
     mem = (int*)malloc(mem_size * sizeof(int));
     memset(mem, 0, mem_size * sizeof(int));
@@ -172,8 +163,6 @@ int main(int argc, char **argv) {
     }
 
     run(get_input, set_output);
-
-    profile_done();
 
     return 0;
 }
