@@ -14,12 +14,21 @@ int mem_size = 0;
 int ip = 0;
 int rb = 0;
 
+#ifdef PROFILE
+int *profile = NULL;
+#endif
+
 void resize_mem(int addr) {
     if (addr >= mem_size) {
         int old_mem_size = mem_size;
         while (addr >= mem_size) mem_size <<= 1;
         mem = (int *)realloc(mem, mem_size * sizeof(int));
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
+
+#ifdef PROFILE
+        profile = (int *)realloc(profile, mem_size * sizeof(int));
+        memset(profile + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
+#endif
     }
 }
 
@@ -126,6 +135,10 @@ void run(int (*get_input)(), void (*set_output)(int)) {
                 fprintf(stderr, "opcode error: ip %d oc %d\n", ip, oc);
                 exit(1);
         }
+
+#ifdef PROFILE
+        profile[ip]++;
+#endif
     }
 }
 
@@ -138,6 +151,38 @@ void set_output(int val) {
     fflush(stdout);
 }
 
+#ifdef PROFILE
+typedef struct { int addr; int hits; } data_t;
+
+int compare_data(const void *data1, const void *data2) {
+    return ((data_t*)data2)->hits - ((data_t*)data1)->hits;
+}
+
+void save_profile(char *program_name) {
+    data_t *data = (data_t *)malloc(mem_size * sizeof(data_t));
+
+    for (int i = 0; i < mem_size; i++) {
+        data[i].addr = i;
+        data[i].hits = profile[i];
+    }
+
+    qsort(data, mem_size, sizeof(data_t), &compare_data);
+
+    char profile_name[256];
+    sprintf(profile_name, "%s.profile", program_name);
+
+    FILE *fprofile = fopen(profile_name, "wt");
+
+    for (int i = 0; i < mem_size; i++) {
+        if (data[i].hits > 0) {
+            fprintf(fprofile, "%i: %i\n", data[i].addr, data[i].hits);
+        }
+    }
+
+    fclose(fprofile);
+}
+#endif
+
 int main(int argc, char **argv) {
 #ifdef _WIN32
     _setmode(_fileno(stdin), _O_BINARY);
@@ -147,6 +192,11 @@ int main(int argc, char **argv) {
     mem_size = 64;
     mem = (int*)malloc(mem_size * sizeof(int));
     memset(mem, 0, mem_size * sizeof(int));
+
+#ifdef PROFILE
+    profile = (int *)malloc(mem_size * sizeof(int));
+    memset(profile, 0, mem_size * sizeof(int));
+#endif
 
     FILE *input = fopen(argv[1], "rt");
 
@@ -163,6 +213,10 @@ int main(int argc, char **argv) {
     }
 
     run(get_input, set_output);
+
+#ifdef PROFILE
+    save_profile(argv[1]);
+#endif
 
     return 0;
 }
