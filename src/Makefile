@@ -24,14 +24,11 @@ endef
 
 # Build
 .PHONY: build
-build: build-prep $(BINDIR)/as.input $(BINDIR)/bin2obj.input $(BINDIR)/ld.input $(BINDIR)/ldmap.input print-profile
+build: build-prep $(BINDIR)/as.input $(BINDIR)/bin2obj.input $(BINDIR)/ld.input $(BINDIR)/ldmap.input
 
 .PHONY: build-prep
 build-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib $(OBJDIR)/tools
-ifeq ($(ICVM_PROFILE),y)
-	rm -f icvm_profile.csv
-endif
 
 AS_OBJS = as.o child.o directive.o error.o fixup.o frame.o global.o keyword.o lexer.o memory.o \
 	object.o parse_call_ret.o parse_data.o parse_eof_eoi.o parse_frame.o parse_instruction.o \
@@ -71,26 +68,6 @@ $(BINDIR)/libxib.a: $(addprefix $(OBJDIR)/libxib/, $(LIBXIB_OBJS))
 
 $(OBJDIR)/libxib/%.o: $(SRCDIR)/libxib/%.s
 	$(run-as)
-
-define PROFILE_AWK
-{
-	max_mem_size = $$1 > max_mem_size ? $$1 : max_mem_size;
-	inst_count += $$2;
-	min_value = $$3 < min_value ? $$3 : min_value;
-	max_value = $$4 > max_value ? $$4 : max_value;
-}
-END {
-	printf("summary: max_mem_size = %d inst_count = %d min_value = %d max_value = %d\n",
-		max_mem_size, inst_count, min_value, max_value);
-}
-endef
-export PROFILE_AWK
-
-.PHONY: print-profile
-print-profile:
-ifeq ($(ICVM_PROFILE),y)
-	[ ! -f icvm_profile.csv ] || < icvm_profile.csv awk -F, "$$PROFILE_AWK"
-endif
 
 # Clean
 .PHONY: clean

@@ -2,7 +2,6 @@
 .apl.history
 *.tmp
 local.*
-icvm_profile.csv
 /vms/*/ic
 !/vms/apl/ic
 !/vms/js/ic

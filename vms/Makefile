@@ -2,11 +2,6 @@ CFLAGS = -O3 -Wall -Werror -std=c11
 
 DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
 
-ifeq ($(ICVM_PROFILE),y)
-	CFLAGS += -DICVM_PROFILE
-	GOFLAGS += --tags=profile
-endif
-
 export GOFLAGS
 
 .PHONY: build
@@ -21,7 +16,7 @@ clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-r
 # Intcode VM in C
 .PHONY: build-c
 build-c: c/ic
-c/ic: c/ic.o c/profile.o
+c/ic: c/ic.o
 
 .PHONY: clean-c
 clean-c:

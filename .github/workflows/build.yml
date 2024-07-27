@@ -13,28 +13,18 @@ env:
 
 jobs:
   build:
-    name: OS=${{ matrix.os }} VM=${{ matrix.icvm }} P=${{ matrix.profile }}
+    name: OS=${{ matrix.os }} VM=${{ matrix.icvm }}
     runs-on: ${{ matrix.os }}
     env:
-      ICVM_PROFILE: ${{ matrix.profile }}
       ICVM_TYPE: ${{ matrix.icvm }}
 
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         icvm: [c, cs, go, js, rust]
-        profile: [n, y]
-        exclude:
-          - icvm: cs
-            profile: y
-          - icvm: js
-            profile: y
-          - icvm: rust
-            profile: y
         include:
           - os: ubuntu-latest
             icvm: cl
-            profile: n
 
     steps:
       - name: Checkout xzintbit
