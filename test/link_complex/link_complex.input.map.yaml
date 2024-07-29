@@ -1,5 +1,5 @@
 modules: [
-  0, 32, 0
+  0, 32
 ]
 symbols:
   circular_symbol:

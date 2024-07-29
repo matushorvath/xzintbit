@@ -4,8 +4,6 @@
 
 - Support exportable .SYMBOL that will not be relocated?
 
-- Map should not include zero modules (that are not mapped to the binary)
-
 - Optimize ret: Usually this generates two 'arb' at the end of each function.
   Instead make ret check if last instruction was an arb and just increase the number if so.
 

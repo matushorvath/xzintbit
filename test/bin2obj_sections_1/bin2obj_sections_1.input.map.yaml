@@ -1,5 +1,5 @@
 modules: [
-  0, 0
+  0
 ]
 symbols:
   bin2obj_sections_1_data:
