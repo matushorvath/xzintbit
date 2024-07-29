@@ -1,851 +1,851 @@
 modules: [
-  0, 1044, 1369, 1775, 2002, 2285, 2464, 3007, 3404, 4206,
-  4303, 4924, 5304, 5639, 5710, 6427, 7141, 8279, 8821, 9330,
-  9357, 9588, 10562, 10684, 11232, 11770, 12210, 12536
+  0, 1050, 1375, 1781, 2008, 2291, 2470, 3013, 3410, 4212,
+  4309, 4930, 5310, 5645, 5716, 6433, 7147, 8285, 8827, 9336,
+  9363, 9594, 10568, 10690, 11238, 11776, 12216, 12542
 ]
 symbols:
   process_fixups:
     export:
-      module: 2002
+      module: 2008
       offset: 76
     imports:
       - module: 0
         offsets: [29]
   output_object:
     export:
-      module: 4303
+      module: 4309
       offset: 0
     imports:
       - module: 0
-        offsets: [38]
+        offsets: [44]
   parse:
     export:
-      module: 8821
+      module: 8827
       offset: 0
     imports:
       - module: 0
         offsets: [20]
   add_or_find_current_child_symbol:
     export:
-      module: 1044
+      module: 1050
       offset: 153
     imports:
-      - module: 7141
+      - module: 7147
         offsets: [626]
-      - module: 8279
+      - module: 8285
         offsets: [174]
   add_or_find_child_symbol:
     export:
-      module: 1044
+      module: 1050
       offset: 201
     imports:
-      - module: 7141
+      - module: 7147
         offsets: [544]
   last_global_symbol:
     export:
-      module: 1044
+      module: 1050
       offset: 277
     imports:
-      - module: 8279
+      - module: 8285
         offsets: [156]
   alloc_blocks:
     export:
-      module: 9588
+      module: 9594
       offset: 2
     imports:
-      - module: 1044
+      - module: 1050
         offsets: [73]
-      - module: 2002
+      - module: 2008
         offsets: [16]
-      - module: 2285
+      - module: 2291
         offsets: [69]
-      - module: 2464
+      - module: 2470
         offsets: [73]
-      - module: 11232
+      - module: 11238
         offsets: [93, 28]
-      - module: 10684
+      - module: 10690
         offsets: [175, 20]
   free:
     export:
-      module: 9588
+      module: 9594
       offset: 458
     imports:
-      - module: 1044
+      - module: 1050
         offsets: [269]
-      - module: 2285
+      - module: 2291
         offsets: [163, 148]
-      - module: 2464
+      - module: 2470
         offsets: [205]
-      - module: 3404
+      - module: 3410
         offsets: [595, 530]
-      - module: 5304
+      - module: 5310
         offsets: [108]
-      - module: 7141
+      - module: 7147
         offsets: [416]
   strcmp:
     export:
-      module: 12210
+      module: 12216
       offset: 202
     imports:
-      - module: 1044
+      - module: 1050
         offsets: [35]
-      - module: 1369
+      - module: 1375
         offsets: [113]
-      - module: 2285
+      - module: 2291
         offsets: [31]
-      - module: 2464
+      - module: 2470
         offsets: [35]
-      - module: 3007
+      - module: 3013
         offsets: [113]
   report_error:
     export:
-      module: 1775
+      module: 1781
       offset: 0
     imports:
-      - module: 1044
+      - module: 1050
         offsets: [170]
-      - module: 3404
+      - module: 3410
         offsets: [400, 349, 218, 152]
-      - module: 4924
+      - module: 4930
         offsets: [368, 234]
-      - module: 5304
+      - module: 5310
         offsets: [269, 223, 190, 148]
-      - module: 5639
+      - module: 5645
         offsets: [36, 15]
-      - module: 5710
+      - module: 5716
         offsets: [490, 461, 271, 201, 170, 100, 76, 21]
-      - module: 6427
+      - module: 6433
         offsets: [687, 611, 504, 382, 322, 185, 125, 65]
-      - module: 7141
+      - module: 7147
         offsets: [888, 798, 611, 448, 393, 339, 170, 150, 33]
-      - module: 8279
+      - module: 8285
         offsets: [491, 424, 371, 264, 226, 110, 74, 41]
-      - module: 8821
+      - module: 8827
         offsets: [198]
   detect_directive:
     export:
-      module: 1369
+      module: 1375
       offset: 0
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [567]
   report_libxib_error:
     export:
-      module: 1775
+      module: 1781
       offset: 0
     imports:
-      - module: 9588
+      - module: 9594
         offsets: [39]
-      - module: 11232
+      - module: 11238
         offsets: [308]
   report_symbol_error:
     export:
-      module: 1775
+      module: 1781
       offset: 21
     imports:
-      - module: 2464
+      - module: 2470
         offsets: [363, 346, 329, 298, 246]
   report_symbol_fixup_error:
     export:
-      module: 1775
+      module: 1781
       offset: 57
     imports:
-      - module: 2002
+      - module: 2008
         offsets: [199]
-      - module: 4303
+      - module: 4309
         offsets: [496, 347]
   report_error_at_location:
     export:
-      module: 9357
+      module: 9363
       offset: 0
     imports:
-      - module: 1775
+      - module: 1781
         offsets: [129, 56, 20]
   token_line_num:
     export:
-      module: 3404
+      module: 3410
       offset: 698
     imports:
-      - module: 1775
+      - module: 1781
         offsets: [41, 5]
-      - module: 4924
+      - module: 4930
         offsets: [50]
-      - module: 7141
+      - module: 7147
         offsets: [691, 644, 473]
   token_column_num:
     export:
-      module: 3404
+      module: 3410
       offset: 699
     imports:
-      - module: 1775
+      - module: 1781
         offsets: [45, 9]
-      - module: 4924
+      - module: 4930
         offsets: [54]
-      - module: 7141
+      - module: 7147
         offsets: [695, 648, 477]
   print_str:
     export:
-      module: 11770
+      module: 11776
       offset: 348
     imports:
-      - module: 1775
+      - module: 1781
         offsets: [199, 167]
-      - module: 3404
+      - module: 3410
         offsets: [685]
-      - module: 4303
+      - module: 4309
         offsets: [515, 366]
-      - module: 9588
+      - module: 9594
         offsets: [812, 702, 633]
-      - module: 9357
+      - module: 9363
         offsets: [203, 188, 173, 158, 104, 74, 44, 29, 14]
   add_fixup:
     export:
-      module: 2002
+      module: 2008
       offset: 0
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [67]
-      - module: 7141
+      - module: 7147
         offsets: [708, 661, 579, 522]
   inc_mem:
     export:
-      module: 11232
+      module: 11238
       offset: 177
     imports:
-      - module: 2002
+      - module: 2008
         offsets: [249]
   global_head:
     export:
-      module: 2464
+      module: 2470
       offset: 379
     imports:
-      - module: 2002
+      - module: 2008
         offsets: [79]
-      - module: 4303
+      - module: 4309
         offsets: [448, 292, 112]
   mem_head:
     export:
-      module: 4206
+      module: 4212
       offset: 94
     imports:
-      - module: 2002
+      - module: 2008
         offsets: [220]
-      - module: 4303
+      - module: 4309
         offsets: [51, 48]
   mem_tail:
     export:
-      module: 4206
+      module: 4212
       offset: 95
     imports:
-      - module: 2002
+      - module: 2008
         offsets: [224]
-      - module: 4303
+      - module: 4309
         offsets: [55]
   mem_index:
     export:
-      module: 4206
+      module: 4212
       offset: 96
     imports:
-      - module: 2002
+      - module: 2008
         offsets: [228]
-      - module: 4303
+      - module: 4309
         offsets: [59]
   find_frame_symbol:
     export:
-      module: 2285
+      module: 2291
       offset: 0
     imports:
-      - module: 5710
+      - module: 5716
         offsets: [185]
-      - module: 7141
+      - module: 7147
         offsets: [374]
   add_frame_symbol:
     export:
-      module: 2285
+      module: 2291
       offset: 53
     imports:
-      - module: 5710
+      - module: 5716
         offsets: [220]
   reset_frame:
     export:
-      module: 2285
+      module: 2291
       offset: 109
     imports:
-      - module: 5710
+      - module: 5716
         offsets: [499]
   frame_head:
     export:
-      module: 2285
+      module: 2291
       offset: 178
     imports:
-      - module: 5710
+      - module: 5716
         offsets: [389]
   add_or_find_global_symbol:
     export:
-      module: 2464
+      module: 2470
       offset: 145
     imports:
-      - module: 7141
+      - module: 7147
         offsets: [463]
-      - module: 8279
+      - module: 8285
         offsets: [439, 305, 125]
   set_global_symbol_address:
     export:
-      module: 2464
+      module: 2470
       offset: 213
     imports:
-      - module: 8279
+      - module: 8285
         offsets: [332, 197, 152]
   set_global_symbol_type:
     export:
-      module: 2464
+      module: 2470
       offset: 262
     imports:
-      - module: 8279
+      - module: 8285
         offsets: [462, 351]
   current_address_fixups_head:
     export:
-      module: 2464
+      module: 2470
       offset: 380
     imports:
-      - module: 4303
+      - module: 4309
         offsets: [93]
-      - module: 4924
+      - module: 4930
         offsets: [42]
-      - module: 7141
+      - module: 7147
         offsets: [683]
   detect_keyword:
     export:
-      module: 3007
+      module: 3013
       offset: 0
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [502]
   get_token:
     export:
-      module: 3404
+      module: 3410
       offset: 0
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [256, 10]
-      - module: 5304
+      - module: 5310
         offsets: [232, 203, 170, 121, 14]
-      - module: 5710
+      - module: 5716
         offsets: [470, 280, 237, 30]
-      - module: 6427
+      - module: 6433
         offsets: [667, 560, 453, 331, 271, 134, 74, 14]
-      - module: 7141
+      - module: 7147
         offsets: [901, 861, 757, 717, 670, 588, 488, 429, 179, 92, 62, 42]
-      - module: 8279
+      - module: 8285
         offsets: [471, 404, 277, 244, 206, 83, 54, 21]
-      - module: 8821
+      - module: 8827
         offsets: [10]
   token_type:
     export:
-      module: 3404
+      module: 3410
       offset: 700
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [350, 216]
-      - module: 5304
+      - module: 5310
         offsets: [251, 205, 172, 130, 123, 16]
-      - module: 5710
+      - module: 5716
         offsets: [472, 253, 246, 239, 152, 145, 138, 58, 51]
-      - module: 6427
+      - module: 6433
         offsets: [669, 656, 593, 549, 486, 442, 364, 304, 260, 167, 107, 47, 3]
-      - module: 7141
+      - module: 7147
         offsets: [870, 863, 840, 833, 780, 773, 766, 759, 726, 719, 490, 321, 314, 307, 300, 293, 286, 279, 190, 152, 71, 64, 44, 15]
-      - module: 8279
+      - module: 8285
         offsets: [473, 406, 386, 353, 246, 208, 92, 85, 56, 23, 7]
-      - module: 8821
+      - module: 8827
         offsets: [180, 173, 166, 159, 152, 145, 138, 131, 124, 117, 110, 103, 96, 89, 82, 75, 68, 61, 54, 47, 40, 33, 26, 19, 12]
   token_value:
     export:
-      module: 3404
+      module: 3410
       offset: 701
     imports:
-      - module: 5304
+      - module: 5310
         offsets: [192, 112, 95, 76]
-      - module: 5710
+      - module: 5716
         offsets: [224, 203, 172]
-      - module: 7141
+      - module: 7147
         offsets: [890, 634, 613, 552, 531, 471, 450, 420, 403, 361]
-      - module: 8279
+      - module: 8285
         offsets: [447, 426, 266, 182, 161, 133, 112, 44]
   get_input:
     export:
-      module: 10562
+      module: 10568
       offset: 0
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [329, 316, 198, 161, 18]
-      - module: 10684
+      - module: 10690
         offsets: [514, 452, 425, 398, 374, 354, 330, 265, 238, 83]
   unget_input:
     export:
-      module: 10562
+      module: 10568
       offset: 48
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [371, 240]
-      - module: 10684
+      - module: 10690
         offsets: [540, 147]
   input_line_num:
     export:
-      module: 10562
+      module: 10568
       offset: 118
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [3]
   input_column_num:
     export:
-      module: 10562
+      module: 10568
       offset: 119
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [7]
   read_identifier:
     export:
-      module: 10684
+      module: 10690
       offset: 0
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [552, 487]
   read_string:
     export:
-      module: 10684
+      module: 10690
       offset: 155
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [296]
   read_number:
     export:
-      module: 10684
+      module: 10690
       offset: 304
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [380]
   print_num:
     export:
-      module: 11770
+      module: 11776
       offset: 0
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [658]
-      - module: 4303
+      - module: 4309
         offsets: [536, 402, 263]
-      - module: 9588
+      - module: 9594
         offsets: [869, 842, 772, 745, 717, 663]
-      - module: 9357
+      - module: 9363
         offsets: [89, 59]
-      - module: 11232
+      - module: 11238
         offsets: [489]
   is_digit:
     export:
-      module: 12210
+      module: 12216
       offset: 0
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [136]
   is_alpha:
     export:
-      module: 12210
+      module: 12216
       offset: 107
     imports:
-      - module: 3404
+      - module: 3410
         offsets: [79]
   set_as_mem:
     export:
-      module: 4206
+      module: 4212
       offset: 0
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [348, 329, 314, 299, 284, 214, 188, 173, 127, 112, 97, 82, 40, 25]
-      - module: 5304
+      - module: 5310
         offsets: [284, 67]
-      - module: 6427
+      - module: 6433
         offsets: [706, 645, 630, 538, 523, 431, 416, 401, 249, 234, 219, 204]
   set_as_mem_str:
     export:
-      module: 4206
+      module: 4212
       offset: 36
     imports:
-      - module: 5304
+      - module: 5310
         offsets: [89]
   set_mem:
     export:
-      module: 11232
+      module: 11238
       offset: 1
     imports:
-      - module: 4206
+      - module: 4212
         offsets: [79, 28]
   print_mem:
     export:
-      module: 11232
+      module: 11238
       offset: 350
     imports:
-      - module: 4303
+      - module: 4309
         offsets: [72]
   parse_call:
     export:
-      module: 4924
+      module: 4930
       offset: 0
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [267]
   parse_ret:
     export:
-      module: 4924
+      module: 4930
       offset: 246
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [279]
   parse_in_param:
     export:
-      module: 7141
+      module: 7147
       offset: 187
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [146]
-      - module: 6427
+      - module: 6433
         offsets: [472, 350, 290, 93, 33]
   parse_number_or_char:
     export:
-      module: 7141
+      module: 7147
       offset: 826
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [265]
-      - module: 5304
+      - module: 5310
         offsets: [241]
-      - module: 8279
+      - module: 8285
         offsets: [286]
   current_address:
     export:
-      module: 8821
+      module: 8827
       offset: 398
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [372, 370, 238, 236, 46, 27]
-      - module: 5304
+      - module: 5310
         offsets: [249, 247, 152, 150]
-      - module: 6427
+      - module: 6433
         offsets: [691, 689, 615, 613, 508, 506, 386, 384, 189, 187]
-      - module: 7141
+      - module: 7147
         offsets: [687, 679, 640, 558, 501]
-      - module: 8279
+      - module: 8285
         offsets: [3]
   err_expect_eol:
     export:
-      module: 8821
+      module: 8827
       offset: 434
     imports:
-      - module: 4924
+      - module: 4930
         offsets: [357, 223]
-      - module: 5304
+      - module: 5310
         offsets: [258]
-      - module: 5710
+      - module: 5716
         offsets: [479]
-      - module: 6427
+      - module: 6433
         offsets: [676, 600, 493, 371, 174]
-      - module: 8279
+      - module: 8285
         offsets: [480, 360]
   parse_db:
     export:
-      module: 5304
+      module: 5310
       offset: 0
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [291]
   parse_ds:
     export:
-      module: 5304
+      module: 5310
       offset: 160
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [303]
   parse_value:
     export:
-      module: 7141
+      module: 7147
       offset: 268
     imports:
-      - module: 5304
+      - module: 5310
         offsets: [48]
   err_expect_comma:
     export:
-      module: 8821
+      module: 8827
       offset: 416
     imports:
-      - module: 5304
+      - module: 5310
         offsets: [212]
-      - module: 6427
+      - module: 6433
         offsets: [311, 114, 54]
   err_expect_number:
     export:
-      module: 8821
+      module: 8827
       offset: 466
     imports:
-      - module: 5304
+      - module: 5310
         offsets: [179]
-      - module: 8279
+      - module: 8285
         offsets: [30]
   parse_dir_eof:
     export:
-      module: 5639
+      module: 5645
       offset: 0
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [375]
   parse_dir_eoi:
     export:
-      module: 5639
+      module: 5645
       offset: 21
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [387]
   reset_input_location:
     export:
-      module: 10562
+      module: 10568
       offset: 105
     imports:
-      - module: 5639
+      - module: 5645
         offsets: [45]
   is_frame:
     export:
-      module: 5710
+      module: 5716
       offset: 511
     imports:
-      - module: 5639
+      - module: 5645
         offsets: [22, 1]
   parse_dir_frame:
     export:
-      module: 5710
+      module: 5716
       offset: 0
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [327]
   parse_dir_endframe:
     export:
-      module: 5710
+      module: 5716
       offset: 440
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [339]
   err_expect_identifier:
     export:
-      module: 8821
+      module: 8827
       offset: 485
     imports:
-      - module: 5710
+      - module: 5716
         offsets: [159]
-      - module: 8279
+      - module: 8285
         offsets: [413, 253, 99]
   parse_add_mul_lt_eq:
     export:
-      module: 6427
+      module: 6433
       offset: 0
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [207]
   parse_jnz_jz:
     export:
-      module: 6427
+      module: 6433
       offset: 257
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [219]
   parse_arb_out:
     export:
-      module: 6427
+      module: 6433
       offset: 439
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [231]
   parse_in:
     export:
-      module: 6427
+      module: 6433
       offset: 546
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [243]
   parse_hlt:
     export:
-      module: 6427
+      module: 6433
       offset: 653
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [255]
   parse_out_param:
     export:
-      module: 7141
+      module: 7147
       offset: 0
     imports:
-      - module: 6427
+      - module: 6433
         offsets: [579, 153]
   parse_symbol:
     export:
-      module: 8279
+      module: 8285
       offset: 0
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [315]
   parse_dir_symbol:
     export:
-      module: 8279
+      module: 8285
       offset: 234
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [351]
   parse_dir_import_export:
     export:
-      module: 8279
+      module: 8285
       offset: 379
     imports:
-      - module: 8821
+      - module: 8827
         offsets: [363]
   realloc_more_blocks:
     export:
-      module: 9588
+      module: 9594
       offset: 331
     imports:
-      - module: 10684
+      - module: 10690
         offsets: [221, 66]
   zeromem_blocks:
     export:
-      module: 9588
+      module: 9594
       offset: 578
     imports:
   neg_chunk_header_size:
     export:
-      module: 9588
+      module: 9594
       offset: 0
     imports:
-      - module: 10684
+      - module: 10690
         offsets: [186, 31]
   block_size:
     export:
-      module: 9588
+      module: 9594
       offset: 1
     imports:
-      - module: 10684
+      - module: 10690
         offsets: [228, 182, 73, 27]
   dump_heap:
     export:
-      module: 9588
+      module: 9594
       offset: 617
     imports:
   sbrk:
     export:
-      module: 9330
+      module: 9336
       offset: 9
     imports:
-      - module: 9588
+      - module: 9594
         offsets: [648, 438, 139]
   brk_addr:
     export:
-      module: 9330
+      module: 9336
       offset: 26
     imports:
-      - module: 9588
+      - module: 9594
         offsets: [351]
   char_to_digit:
     export:
-      module: 12210
+      module: 12216
       offset: 24
     imports:
-      - module: 10684
+      - module: 10690
         offsets: [482]
   is_alphanum:
     export:
-      module: 12210
+      module: 12216
       offset: 145
     imports:
-      - module: 10684
+      - module: 10690
         offsets: [102]
   strcpy:
     export:
-      module: 12210
+      module: 12216
       offset: 256
     imports:
   zeromem:
     export:
-      module: 12210
+      module: 12216
       offset: 295
     imports:
   report_error_with_symbol:
     export:
-      module: 9357
+      module: 9363
       offset: 144
     imports:
   halt_and_catch_fire:
     export:
-      module: 9357
+      module: 9363
       offset: 226
     imports:
   print_num_2:
     export:
-      module: 11770
+      module: 11776
       offset: 28
     imports:
   print_num_2_b:
     export:
-      module: 11770
+      module: 11776
       offset: 56
     imports:
   print_num_2_w:
     export:
-      module: 11770
+      module: 11776
       offset: 84
     imports:
   print_num_16:
     export:
-      module: 11770
+      module: 11776
       offset: 112
     imports:
   print_num_16_b:
     export:
-      module: 11770
+      module: 11776
       offset: 140
     imports:
   print_num_16_w:
     export:
-      module: 11770
+      module: 11776
       offset: 168
     imports:
   print_num_radix:
     export:
-      module: 11770
+      module: 11776
       offset: 196
     imports:
   print_str_as_mem:
     export:
-      module: 11770
+      module: 11776
       offset: 381
     imports:
   pretty_print_mem:
     export:
-      module: 11232
+      module: 11238
       offset: 382
     imports:
   mem_block_size:
     export:
-      module: 11232
+      module: 11238
       offset: 0
     imports:
   peek_input:
     export:
-      module: 10562
+      module: 10568
       offset: 83
     imports:
   brk:
     export:
-      module: 9330
+      module: 9336
       offset: 0
     imports:
   __heap_start:
     export:
-      module: 12536
+      module: 12542
       offset: 0
     imports:
-      - module: 9330
+      - module: 9336
         offsets: [26]

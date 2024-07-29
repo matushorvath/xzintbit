@@ -21,13 +21,13 @@
 
 ##########
 output_object:
-.FRAME
+.FRAME debug;
     call print_code
     call print_reloc
     call print_imports
     call print_exports
 
-    ret 0
+    ret 1
 .ENDFRAME
 
 ##########
