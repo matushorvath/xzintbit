@@ -27,6 +27,11 @@ output_object:
     call print_imports
     call print_exports
 
+    jz  [rb + debug], .done
+
+    call print_symbols
+
+.done:
     ret 1
 .ENDFRAME
 
@@ -55,10 +60,10 @@ print_code:
 
 ##########
 print_reloc:
-.FRAME tmp, global, child, fixup_printed
+.FRAME tmp, global, child, printed
     arb -4
 
-    add 0, 0, [rb + fixup_printed]
+    add 0, 0, [rb + printed]
 
     # print .R
     out '.'
@@ -68,10 +73,10 @@ print_reloc:
     # print relocations for the current_address symbol
     add current_address_fixups_head, 0, [ip + 1]
     add [0], 0, [rb - 1]
-    add [rb + fixup_printed], 0, [rb - 2]
+    add [rb + printed], 0, [rb - 2]
     arb -2
     call print_fixups_list
-    add [rb + fixup_printed], [rb - 4], [rb + fixup_printed]
+    add [rb + printed], [rb - 4], [rb + printed]
 
     # print relocations for the regular symbols
     add [global_head], 0, [rb + global]
@@ -91,10 +96,10 @@ print_reloc:
     # print relocations for the global symbol
     add [rb + global], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb - 1]
-    add [rb + fixup_printed], 0, [rb - 2]
+    add [rb + printed], 0, [rb - 2]
     arb -2
     call print_fixups_list
-    add [rb + fixup_printed], [rb - 4], [rb + fixup_printed]
+    add [rb + printed], [rb - 4], [rb + printed]
 
     # process child symbols as well, if any
     add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
@@ -107,10 +112,10 @@ print_reloc:
     # print relocations for this child symbol
     add [rb + child], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb - 1]
-    add [rb + fixup_printed], 0, [rb - 2]
+    add [rb + printed], 0, [rb - 2]
     arb -2
     call print_fixups_list
-    add [rb + fixup_printed], [rb - 4], [rb + fixup_printed]
+    add [rb + printed], [rb - 4], [rb + printed]
 
     # move to next child symbol
     add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
@@ -127,7 +132,7 @@ print_reloc:
 
 .done:
     # skip endline if nothing was printed
-    jz  [rb + fixup_printed], .after_eol
+    jz  [rb + printed], .after_eol
     out 10
 
 .after_eol:
@@ -137,8 +142,8 @@ print_reloc:
 
 ##########
 print_imports:
-.FRAME tmp, symbol, fixup, symbol_address, fixup_address
-    arb -5
+.FRAME tmp, symbol, address
+    arb -3
 
     # print .I
     out '.'
@@ -162,9 +167,9 @@ print_imports:
 
     # imported symbols must not have an address
     add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
-    add [0], 0, [rb + symbol_address]
+    add [0], 0, [rb + address]
 
-    eq  [rb + symbol_address], -1, [rb + tmp]
+    eq  [rb + address], -1, [rb + tmp]
     jnz [rb + tmp], .no_address
 
     add [rb + symbol], 0, [rb + 1]
@@ -198,14 +203,14 @@ print_imports:
     jz  0, .symbol_loop
 
 print_imports_done:
-    arb 5
+    arb 3
     ret 0
 .ENDFRAME
 
 ##########
 print_exports:
-.FRAME tmp, symbol, symbol_address
-    arb -3
+.FRAME tmp, symbol
+    arb -2
 
     # print .E
     out '.'
@@ -223,31 +228,10 @@ print_exports:
     eq  [0], 2, [rb + tmp]
     jz  [rb + tmp], .symbol_done
 
-    # exported symbols must have an address
-    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
-    add [0], 0, [rb + symbol_address]
-
-    eq  [rb + symbol_address], -1, [rb + tmp]
-    jz  [rb + tmp], .have_address
-
-    add [rb + symbol], 0, [rb + 1]
-    add err_unknown_symbol, 0, [rb]
-    call report_symbol_fixup_error
-
-.have_address:
-    # print the identifier
-    add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
-    add [0], 0, [rb - 1]
+    # print the identifier and the address
+    add [rb + symbol], 0, [rb - 1]
     arb -1
-    call print_str
-
-    out ':'
-
-    # print the address
-    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
-    add [0], 0, [rb - 1]
-    arb -1
-    call print_num
+    call print_identifier_and_address
 
     out 10
 
@@ -259,14 +243,142 @@ print_exports:
     jz  0, .symbol_loop
 
 .done:
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+print_symbols:
+.FRAME tmp, global, child
+    arb -3
+
+    # print .S
+    out '.'
+    out 'S'
+    out 10
+
+    # print the regular symbols
+    add [global_head], 0, [rb + global]
+
+.global_loop:
+    # do we have more symbols?
+    jz  [rb + global], .done
+
+    # check symbol type, print only local symbols
+    add [rb + global], GLOBAL_TYPE, [ip + 1]
+    jnz [0], .global_next
+
+    # print the identifier and the address
+    add [rb + global], 0, [rb - 1]
+    arb -1
+    call print_identifier_and_address
+
+    out ';'
+
+    # print relocations for the symbol
+    add [rb + global], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
+    add 0, 0, [rb - 2]
+    arb -2
+    call print_fixups_list
+
+    out 10
+
+    # process child symbols as well, if any
+    add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
+    add [0], 0, [rb + child]
+
+.child_loop:
+    # do we have more child symbols?
+    jz  [rb + child], .global_next
+
+    # print the identifier and the address
+    add [rb + child], 0, [rb - 1]
+    arb -1
+    call print_identifier_and_address
+
+    out ';'
+
+    # print relocations for this child symbol
+    add [rb + child], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
+    add 0, 0, [rb - 2]
+    arb -2
+    call print_fixups_list
+
+    out 10
+
+    # move to next child symbol
+    add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + child]
+
+    jz  0, .child_loop
+
+.global_next:
+    # move to next global symbol
+    add [rb + global], GLOBAL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + global]
+
+    jz  0, .global_loop
+
+.done:
     arb 3
     ret 0
 .ENDFRAME
 
 ##########
+print_identifier_and_address:
+.FRAME symbol; tmp, parent, address
+    arb -3
+
+    # local symbols must have an address
+    add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
+    add [0], 0, [rb + address]
+
+    eq  [rb + address], -1, [rb + tmp]
+    jz  [rb + tmp], .have_address
+
+    add [rb + symbol], 0, [rb + 1]
+    add err_unknown_symbol, 0, [rb]
+    call report_symbol_fixup_error
+
+.have_address:
+    # is this a child symbol?
+    add [rb + symbol], GLOBAL_PARENT, [ip + 1]
+    add [0], 0, [rb + parent]
+
+    jz  [rb + parent], .after_parent
+
+    # yes, print the parent identifier first
+    add [rb + parent], GLOBAL_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    out '.'
+
+.after_parent:
+    # print the identifier
+    add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    out ':'
+
+    # print the address
+    add [rb + address], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    arb 3
+    ret 1
+.ENDFRAME
+
+##########
 print_fixups_list:
-.FRAME fixups_head, printed_in; printed_out, fixup, symbol_address, fixup_address
-    arb -4
+.FRAME fixups_head, printed_in; printed_out, fixup, address
+    arb -3
 
     # iterate through all fixups starting from the head
     add [rb + fixups_head], 0, [rb + fixup]
@@ -284,10 +396,10 @@ print_fixups_list:
 
     # read fixup address
     add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
-    add [0], 0, [rb + fixup_address]
+    add [0], 0, [rb + address]
 
     # print the fixup
-    add [rb + fixup_address], 0, [rb - 1]
+    add [rb + address], 0, [rb - 1]
     arb -1
     call print_num
 
@@ -300,7 +412,7 @@ print_fixups_list:
 .done:
     add [rb + printed_in], 0, [rb + printed_out]
 
-    arb 4
+    arb 3
     ret 2
 .ENDFRAME
 

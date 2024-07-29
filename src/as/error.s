@@ -5,12 +5,12 @@
 .EXPORT report_symbol_error
 .EXPORT report_symbol_fixup_error
 
-# from libxib/error.s
-.IMPORT report_error_at_location
-
 # from lexer.s
 .IMPORT token_line_num
 .IMPORT token_column_num
+
+# from libxib/error.s
+.IMPORT report_error_at_location
 
 # from libxib/print.s
 .IMPORT print_str
@@ -104,10 +104,6 @@ print_symbol_identifier:
     add [rb + symbol], GLOBAL_IDENTIFIER_PTR, [ip + 1]
     add [0], 0, [rb + identifier]
 
-    jnz [rb + identifier], .have_identifier
-    add .identifier_null, 0, [rb + identifier]
-
-.have_identifier:
     # print the identifier
     add [rb + identifier], 0, [rb - 1]
     arb -1
@@ -118,9 +114,6 @@ print_symbol_identifier:
 
     arb 2
     ret 1
-
-.identifier_null:
-    db  "null identifier", 0
 .ENDFRAME
 
 .EOF
