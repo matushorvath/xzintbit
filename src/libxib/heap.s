@@ -35,7 +35,6 @@
 .SYMBOL MAX_SMALL_BLOCKS                8
 
 # constants exported for users of this library 
-# TODO use neg_chunk_header_size in this file instead of -2
 neg_chunk_header_size:
     db  -2          # negative of USED_CHUNK_HEADER_SIZE, for subtracting
 block_size:
@@ -260,8 +259,8 @@ realloc_more_blocks:
     # TODO support decreasing block count, for now only increasing is supported
     # TODO check if the chunk is already larger than requested; sometimes alloc returns a larger chunk than requested
 
-    # adjust old_ptr to point to the chunk header by subtracting USED_CHUNK_HEADER_SIZE = 2
-    add [rb + old_ptr], -2, [rb + old_chunk]
+    # adjust old_ptr to point to the chunk header by subtracting USED_CHUNK_HEADER_SIZE
+    add [rb + old_ptr], [neg_chunk_header_size], [rb + old_chunk]
 
     # get current block size in bytes
     add [rb + old_chunk], CHUNK_BLOCKS, [ip + 1]
@@ -327,8 +326,8 @@ free:
     # handle null pointers
     jz  [rb + ptr], .done
 
-    # adjust the pointer by USED_CHUNK_HEADER_SIZE = 2, so it points to the chunk header
-    add [rb + ptr], -2, [rb + ptr]
+    # adjust the pointer by USED_CHUNK_HEADER_SIZE, so it points to the chunk header
+    add [rb + ptr], [neg_chunk_header_size], [rb + ptr]
 
     # mark the chunk as free
     add [rb + ptr], CHUNK_FREE, [ip + 3]
@@ -402,8 +401,8 @@ zeromem_blocks:
 
     # the block_count argument is in memory blocks, calculate size
     mul [rb + block_count], BLOCK_SIZE, [rb + size]
-    # subtract chunk header size USED_CHUNK_HEADER_SIZE = 2
-    add [rb + size], -2, [rb + size]
+    # subtract chunk header size USED_CHUNK_HEADER_SIZE
+    add [rb + size], [neg_chunk_header_size], [rb + size]
 
 .loop:
     add [rb + size], -1, [rb + size]
