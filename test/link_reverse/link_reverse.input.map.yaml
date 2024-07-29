@@ -1,0 +1,11 @@
+modules: [
+  0, 25, 0
+]
+symbols:
+  external_symbol:
+    export:
+      module: 0
+      offset: 17
+    imports:
+      - module: 25
+        offsets: [12]

@@ -1,0 +1,11 @@
+modules: [
+  0, 53, 0
+]
+symbols:
+  print:
+    export:
+      module: 53
+      offset: 0
+    imports:
+      - module: 0
+        offsets: [16]

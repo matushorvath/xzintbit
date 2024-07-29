@@ -1,0 +1,11 @@
+modules: [
+  0, 7919, 0
+]
+symbols:
+  end_of_file:
+    export:
+      module: 0
+      offset: 0
+    imports:
+      - module: 7919
+        offsets: [0]

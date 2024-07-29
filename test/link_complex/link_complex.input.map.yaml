@@ -1,0 +1,18 @@
+modules: [
+  0, 32, 0
+]
+symbols:
+  circular_symbol:
+    export:
+      module: 0
+      offset: 23
+    imports:
+      - module: 32
+        offsets: [42, 40, 38, 36]
+  external_symbol:
+    export:
+      module: 32
+      offset: 17
+    imports:
+      - module: 0
+        offsets: [22, 20, 18, 16, 12]

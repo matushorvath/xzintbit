@@ -1,0 +1,139 @@
+modules: [
+  0, 0, 2110, 0, 2137, 0, 0, 0, 3111, 0,
+  3579
+]
+symbols:
+  report_libxib_error:
+    export:
+      module: 0
+      offset: 2080
+    imports:
+      - module: 2137
+        offsets: [39]
+  alloc_blocks:
+    export:
+      module: 2137
+      offset: 2
+    imports:
+      - module: 0
+        offsets: [1828]
+  free:
+    export:
+      module: 2137
+      offset: 458
+    imports:
+      - module: 0
+        offsets: [2038]
+  dump_heap:
+    export:
+      module: 2137
+      offset: 617
+    imports:
+      - module: 0
+        offsets: [2049, 1914]
+  brk:
+    export:
+      module: 2110
+      offset: 0
+    imports:
+      - module: 0
+        offsets: [1026]
+  print_num:
+    export:
+      module: 3111
+      offset: 0
+    imports:
+      - module: 0
+        offsets: [2023, 1982, 1903, 1862, 1809, 1752]
+      - module: 2137
+        offsets: [869, 842, 772, 745, 717, 663]
+  print_str:
+    export:
+      module: 3111
+      offset: 376
+    imports:
+      - module: 0
+        offsets: [2094, 2004, 1967, 1884, 1847, 1794, 1737]
+      - module: 2137
+        offsets: [812, 702, 633]
+  realloc_more_blocks:
+    export:
+      module: 2137
+      offset: 331
+    imports:
+  zeromem_blocks:
+    export:
+      module: 2137
+      offset: 578
+    imports:
+  neg_chunk_header_size:
+    export:
+      module: 2137
+      offset: 0
+    imports:
+  block_size:
+    export:
+      module: 2137
+      offset: 1
+    imports:
+  sbrk:
+    export:
+      module: 2110
+      offset: 9
+    imports:
+      - module: 2137
+        offsets: [648, 438, 139]
+  brk_addr:
+    export:
+      module: 2110
+      offset: 26
+    imports:
+      - module: 2137
+        offsets: [351]
+  __heap_start:
+    export:
+      module: 3579
+      offset: 0
+    imports:
+      - module: 2110
+        offsets: [26]
+  print_num_2:
+    export:
+      module: 3111
+      offset: 32
+    imports:
+  print_num_2_b:
+    export:
+      module: 3111
+      offset: 64
+    imports:
+  print_num_2_w:
+    export:
+      module: 3111
+      offset: 96
+    imports:
+  print_num_16:
+    export:
+      module: 3111
+      offset: 128
+    imports:
+  print_num_16_b:
+    export:
+      module: 3111
+      offset: 160
+    imports:
+  print_num_16_w:
+    export:
+      module: 3111
+      offset: 192
+    imports:
+  print_num_radix:
+    export:
+      module: 3111
+      offset: 224
+    imports:
+  print_str_as_mem:
+    export:
+      module: 3111
+      offset: 409
+    imports:

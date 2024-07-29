@@ -2,8 +2,6 @@
   This would be used for debugging purposes. Linker should then store those symbols in the map.
 - Handle frame symbols somehow, pass them through the .o file into the map, for debugging.
 
-- Make all tests that use the linker compare the ldmap as well.
-
 - Support exportable .SYMBOL that will not be relocated?
 
 - Map should not include zero modules (that are not mapped to the binary)
