@@ -7,17 +7,21 @@ OBJDIR ?= obj
 
 # Build
 .PHONY: build
-build: build-prep $(BINDIR)/as.input $(BINDIR)/bin2obj.input $(BINDIR)/ld.input $(BINDIR)/ldmap.input
+build: build-prep $(BINDIR)/as.input $(BINDIR)/asd.input $(BINDIR)/bin2obj.input \
+	$(BINDIR)/ld.input $(BINDIR)/ldmap.input
 
 .PHONY: build-prep
 build-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)/as $(OBJDIR)/ld $(OBJDIR)/libxib $(OBJDIR)/tools
 
-AS_OBJS = as.o child.o directive.o error.o fixup.o frame.o global.o keyword.o lexer.o memory.o \
+AS_OBJS = child.o directive.o error.o fixup.o frame.o global.o keyword.o lexer.o memory.o \
 	object.o parse_call_ret.o parse_data.o parse_eof_eoi.o parse_frame.o parse_instruction.o \
 	parse_param.o parse_symbol.o parser.o
 
-$(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, $(AS_OBJS)) $(BINDIR)/libxib.a
+$(BINDIR)/as.input: $(addprefix $(OBJDIR)/as/, as.o $(AS_OBJS)) $(BINDIR)/libxib.a
+	$(run-intcode-ld)
+
+$(BINDIR)/asd.input: $(addprefix $(OBJDIR)/as/, asd.o $(AS_OBJS)) $(BINDIR)/libxib.a
 	$(run-intcode-ld)
 
 $(OBJDIR)/as/%.o: $(SRCDIR)/as/%.s $(SRCDIR)/as/const.si

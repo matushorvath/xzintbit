@@ -32,3 +32,16 @@
     .ENDFRAME
 
 - Create a preprocessor with macro support to solve code duplication everywhere.
+
+- Profiling:
+  - https://code.visualstudio.com/docs/nodejs/profiling#_analyzing-a-profile
+  - https://chromedevtools.github.io/devtools-protocol/tot/Profiler/#type-Profile
+  - https://stackoverflow.com/questions/26981155/google-chrome-developer-tools-profiling-results-file-format
+  - https://kcachegrind.github.io/html/Home.html
+  - https://github.com/lahmatiy/cpupro
+  - https://profilerpedia.markhansen.co.nz/formats/chrome-javascript-profiler-cpuprofile/
+
+- test/link_empty_code has found a bug - the object with no code has a random address assigned,
+  it should instead have the same address as the object right after it (or, since it is last,
+  past the object right before it)
+  currently the imports: - module number is some random garbage that keeps changing

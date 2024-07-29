@@ -21,13 +21,13 @@
 
 ##########
 output_object:
-.FRAME
+.FRAME debug;
     call print_code
     call print_reloc
     call print_imports
     call print_exports
 
-    ret 0
+    ret 1
 .ENDFRAME
 
 ##########
@@ -55,10 +55,10 @@ print_code:
 
 ##########
 print_reloc:
-.FRAME tmp, global, child
-    arb -3
+.FRAME tmp, global, child, fixup_printed
+    arb -4
 
-    add 1, 0, [print_reloc_is_first]
+    add 0, 0, [rb + fixup_printed]
 
     # print .R
     out '.'
@@ -68,8 +68,10 @@ print_reloc:
     # print relocations for the current_address symbol
     add current_address_fixups_head, 0, [ip + 1]
     add [0], 0, [rb - 1]
-    arb -1
+    add [rb + fixup_printed], 0, [rb - 2]
+    arb -2
     call print_fixups_list
+    add [rb + fixup_printed], [rb - 4], [rb + fixup_printed]
 
     # print relocations for the regular symbols
     add [global_head], 0, [rb + global]
@@ -89,8 +91,10 @@ print_reloc:
     # print relocations for the global symbol
     add [rb + global], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb - 1]
-    arb -1
+    add [rb + fixup_printed], 0, [rb - 2]
+    arb -2
     call print_fixups_list
+    add [rb + fixup_printed], [rb - 4], [rb + fixup_printed]
 
     # process child symbols as well, if any
     add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
@@ -103,8 +107,10 @@ print_reloc:
     # print relocations for this child symbol
     add [rb + child], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb - 1]
-    arb -1
+    add [rb + fixup_printed], 0, [rb - 2]
+    arb -2
     call print_fixups_list
+    add [rb + fixup_printed], [rb - 4], [rb + fixup_printed]
 
     # move to next child symbol
     add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
@@ -121,56 +127,13 @@ print_reloc:
 
 .done:
     # skip endline if nothing was printed
-    jnz [print_reloc_is_first], .after_eol
+    jz  [rb + fixup_printed], .after_eol
     out 10
 
 .after_eol:
-    arb 3
+    arb 4
     ret 0
 .ENDFRAME
-
-##########
-print_fixups_list:
-.FRAME fixups_head; fixup, symbol_address, fixup_address
-    arb -3
-
-    # iterate through all fixups starting from the head
-    add [rb + fixups_head], 0, [rb + fixup]
-
-.loop:
-    # do we have more fixups for this symbol?
-    jz  [rb + fixup], .done
-
-    # skip comma when printing first reloc
-    jnz [print_reloc_is_first], .skip_comma
-    out ','
-
-.skip_comma:
-    add 0, 0, [print_reloc_is_first]
-
-    # read fixup address
-    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
-    add [0], 0, [rb + fixup_address]
-
-    # print the fixup
-    add [rb + fixup_address], 0, [rb - 1]
-    arb -1
-    call print_num
-
-    # move to next fixup
-    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + fixup]
-
-    jz  0, .loop
-
-.done:
-    arb 3
-    ret 1
-.ENDFRAME
-
-##########
-print_reloc_is_first:
-    db  0
 
 ##########
 print_imports:
@@ -220,33 +183,11 @@ print_imports:
 
     # iterate through all fixups for this symbol
     add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb + fixup]
+    add [0], 0, [rb - 1]
+    add 0, 0, [rb - 2]                  # always skip the initial comma
+    arb -2
+    call print_fixups_list
 
-    jz  [rb + fixup], .line_end
-
-.fixup_loop:
-    # read fixup address
-    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
-    add [0], 0, [rb + fixup_address]
-
-    # print the fixup
-    add [rb + fixup_address], 0, [rb - 1]
-    arb -1
-    call print_num
-
-    # move to next fixup
-    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + fixup]
-
-    # do we have more fixups for this symbol?
-    jz  [rb + fixup], .line_end
-
-    # print a comma
-    out ','
-
-    jz  0, .fixup_loop
-
-.line_end:
     out 10
 
 .symbol_done:
@@ -320,6 +261,47 @@ print_exports:
 .done:
     arb 3
     ret 0
+.ENDFRAME
+
+##########
+print_fixups_list:
+.FRAME fixups_head, printed_in; printed_out, fixup, symbol_address, fixup_address
+    arb -4
+
+    # iterate through all fixups starting from the head
+    add [rb + fixups_head], 0, [rb + fixup]
+
+.loop:
+    # do we have more fixups for this symbol?
+    jz  [rb + fixup], .done
+
+    # skip comma when printing first reloc
+    jz  [rb + printed_in], .skip_comma
+    out ','
+
+.skip_comma:
+    add 1, 0, [rb + printed_in]
+
+    # read fixup address
+    add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
+    add [0], 0, [rb + fixup_address]
+
+    # print the fixup
+    add [rb + fixup_address], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    # move to next fixup
+    add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + fixup]
+
+    jz  0, .loop
+
+.done:
+    add [rb + printed_in], 0, [rb + printed_out]
+
+    arb 4
+    ret 2
 .ENDFRAME
 
 ##########
