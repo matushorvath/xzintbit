@@ -1,5 +1,5 @@
 modules: [
-  0, 2132, 2600, 2926
+  0, 2132, 2572, 2898
 ]
 symbols:
   print_num:
@@ -12,20 +12,20 @@ symbols:
   print_str:
     export:
       module: 2132
-      offset: 376
+      offset: 348
     imports:
       - module: 0
         offsets: [2065, 2050, 2031, 2016, 1997, 1982, 1963, 1948, 1685, 1652, 1361, 1345, 1182]
   is_alphanum:
     export:
-      module: 2600
+      module: 2572
       offset: 145
     imports:
       - module: 0
         offsets: [1252]
   __heap_start:
     export:
-      module: 2926
+      module: 2898
       offset: 0
     imports:
       - module: 0
@@ -33,70 +33,70 @@ symbols:
   print_num_2:
     export:
       module: 2132
-      offset: 32
+      offset: 28
     imports:
   print_num_2_b:
     export:
       module: 2132
-      offset: 64
+      offset: 56
     imports:
   print_num_2_w:
     export:
       module: 2132
-      offset: 96
+      offset: 84
     imports:
   print_num_16:
     export:
       module: 2132
-      offset: 128
+      offset: 112
     imports:
   print_num_16_b:
     export:
       module: 2132
-      offset: 160
+      offset: 140
     imports:
   print_num_16_w:
     export:
       module: 2132
-      offset: 192
+      offset: 168
     imports:
   print_num_radix:
     export:
       module: 2132
-      offset: 224
+      offset: 196
     imports:
   print_str_as_mem:
     export:
       module: 2132
-      offset: 409
+      offset: 381
     imports:
   is_digit:
     export:
-      module: 2600
+      module: 2572
       offset: 0
     imports:
   char_to_digit:
     export:
-      module: 2600
+      module: 2572
       offset: 24
     imports:
   is_alpha:
     export:
-      module: 2600
+      module: 2572
       offset: 107
     imports:
   strcmp:
     export:
-      module: 2600
+      module: 2572
       offset: 202
     imports:
   strcpy:
     export:
-      module: 2600
+      module: 2572
       offset: 256
     imports:
   zeromem:
     export:
-      module: 2600
+      module: 2572
       offset: 295
     imports:
