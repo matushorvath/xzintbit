@@ -22,22 +22,17 @@
 ##########
 output_object:
 .FRAME
-    arb -0
-
     call print_code
     call print_reloc
     call print_imports
     call print_exports
 
-    arb 0
     ret 0
 .ENDFRAME
 
 ##########
 print_code:
 .FRAME
-    arb -0
-
     # print .C
     out '.'
     out 'C'
@@ -55,7 +50,6 @@ print_code:
     out 10
 
 .done:
-    arb 0
     ret 0
 .ENDFRAME
 

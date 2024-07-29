@@ -16,15 +16,12 @@
 ##########
 process:
 .FRAME
-    arb -0
-
     call load_objects
     call include_objects
     call resolve_symbols
     call relocate
     call link_imports
 
-    arb 0
     ret 0
 .ENDFRAME
 

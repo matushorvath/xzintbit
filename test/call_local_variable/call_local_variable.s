@@ -24,12 +24,9 @@ caller:
 
 callee:
 .FRAME address
-    arb -0
-
     out 'A'
     out 10
 
-    arb 0
     ret 0
 .ENDFRAME
 

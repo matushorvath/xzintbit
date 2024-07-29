@@ -61,12 +61,9 @@ print_modules:
 ##########
 print_map:
 .FRAME
-    arb -0
-
     call dump_modules
     call dump_symbols
 
-    arb 0
     ret 0
 .ENDFRAME
 

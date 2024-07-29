@@ -1,5 +1,5 @@
 modules: [
-  0, 7948
+  0, 7896
 ]
 symbols:
   end_of_file:
@@ -7,5 +7,5 @@ symbols:
       module: 0
       offset: 0
     imports:
-      - module: 7948
+      - module: 7896
         offsets: [0]

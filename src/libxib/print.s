@@ -14,15 +14,12 @@
 # convert number to string
 print_num:
 .FRAME num;
-    arb -0
-
     add [rb + num], 0, [rb - 1]
     add 10, 0, [rb - 2]
     add 0, 0, [rb - 3]
     arb -3
     call print_num_radix
 
-    arb 0
     ret 1
 .ENDFRAME
 
@@ -30,15 +27,12 @@ print_num:
 # convert number to binary string
 print_num_2:
 .FRAME num;
-    arb -0
-
     add [rb + num], 0, [rb - 1]
     add 2, 0, [rb - 2]
     add 0, 0, [rb - 3]
     arb -3
     call print_num_radix
 
-    arb 0
     ret 1
 .ENDFRAME
 
@@ -46,15 +40,12 @@ print_num_2:
 # convert number to binary string, print 8 bits
 print_num_2_b:
 .FRAME num;
-    arb -0
-
     add [rb + num], 0, [rb - 1]
     add 2, 0, [rb - 2]
     add 8, 0, [rb - 3]
     arb -3
     call print_num_radix
 
-    arb 0
     ret 1
 .ENDFRAME
 
@@ -62,15 +53,12 @@ print_num_2_b:
 # convert number to binary string, print 16 bits
 print_num_2_w:
 .FRAME num;
-    arb -0
-
     add [rb + num], 0, [rb - 1]
     add 2, 0, [rb - 2]
     add 16, 0, [rb - 3]
     arb -3
     call print_num_radix
 
-    arb 0
     ret 1
 .ENDFRAME
 
@@ -78,15 +66,12 @@ print_num_2_w:
 # convert number to hexadecimal string
 print_num_16:
 .FRAME num;
-    arb -0
-
     add [rb + num], 0, [rb - 1]
     add 16, 0, [rb - 2]
     add 0, 0, [rb - 3]
     arb -3
     call print_num_radix
 
-    arb 0
     ret 1
 .ENDFRAME
 
@@ -94,15 +79,12 @@ print_num_16:
 # convert number to hexadecimal string, print 2 digits
 print_num_16_b:
 .FRAME num;
-    arb -0
-
     add [rb + num], 0, [rb - 1]
     add 16, 0, [rb - 2]
     add 2, 0, [rb - 3]
     arb -3
     call print_num_radix
 
-    arb 0
     ret 1
 .ENDFRAME
 
@@ -110,15 +92,12 @@ print_num_16_b:
 # convert number to hexadecimal string, print 4 digits
 print_num_16_w:
 .FRAME num;
-    arb -0
-
     add [rb + num], 0, [rb - 1]
     add 16, 0, [rb - 2]
     add 4, 0, [rb - 3]
     arb -3
     call print_num_radix
 
-    arb 0
     ret 1
 .ENDFRAME
 

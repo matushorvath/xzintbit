@@ -193,8 +193,6 @@ inc_mem_internal:
 ##########
 print_mem:
 .FRAME head, tail, tail_index;
-    arb -0
-
     add [rb + head], 0, [rb - 1]
     add [rb + tail], 0, [rb - 2]
     add [rb + tail_index], 0, [rb - 3]
@@ -202,15 +200,12 @@ print_mem:
     arb -4
     call print_mem_internal
 
-    arb 0
     ret 3
 .ENDFRAME
 
 ##########
 pretty_print_mem:
 .FRAME head, tail, tail_index;
-    arb -0
-
     add [rb + head], 0, [rb - 1]
     add [rb + tail], 0, [rb - 2]
     add [rb + tail_index], 0, [rb - 3]
@@ -218,7 +213,6 @@ pretty_print_mem:
     arb -4
     call print_mem_internal
 
-    arb 0
     ret 3
 .ENDFRAME
 
