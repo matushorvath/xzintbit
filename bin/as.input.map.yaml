@@ -138,14 +138,14 @@ symbols:
         offsets: [39]
       - module: 11256
         offsets: [308]
-  report_global_symbol_error:
+  report_symbol_error:
     export:
       module: 1779
       offset: 21
     imports:
       - module: 2468
         offsets: [363, 346, 329, 298, 246]
-  report_global_fixup_error:
+  report_symbol_fixup_error:
     export:
       module: 1779
       offset: 57

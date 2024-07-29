@@ -16,10 +16,6 @@
 .IMPORT char_to_digit
 .IMPORT is_alphanum
 
-# from outside of this library
-# TODO remove
-.IMPORT report_libxib_error
-
 .SYMBOL IDENTIFIER_DEFAULT_ALLOC_SIZE   8       # size in memory blocks, for alloc_blocks (8 * 8 - 2 = 62 bytes)
 .SYMBOL STRING_DEFAULT_ALLOC_SIZE       8       # size in memory blocks, for alloc_blocks (8 * 8 - 2 = 62 bytes)
 .SYMBOL REALLOC_INCREMENT               8       # how many additional blocks to realloc when needed
