@@ -173,17 +173,13 @@ load_code:
 .FRAME module; byte, length, tmp
     arb -3
 
-    add 0, 0, [rb + length]
+    # peek one character to see if we have code at all
+    call peek_input
 
-    # detect when there is no code at all
-    call get_input
-    eq  [rb - 2], 10, [rb + tmp]
+    eq  [rb - 2], '.', [rb + tmp]
     jnz [rb + tmp], .done
 
-    # unget last char, read_number will get it again
-    add [rb - 2], 0, [rb - 1]
-    arb -1
-    call unget_input
+    add 0, 0, [rb + length]
 
 .loop:
     call read_number

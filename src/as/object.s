@@ -43,6 +43,8 @@ print_code:
     out 'C'
     out 10
 
+    jz  [mem_head], .done
+
     # print compiled memory contents
     add [mem_head], 0, [rb - 1]
     add [mem_tail], 0, [rb - 2]
@@ -52,6 +54,7 @@ print_code:
 
     out 10
 
+.done:
     arb 0
     ret 0
 .ENDFRAME
