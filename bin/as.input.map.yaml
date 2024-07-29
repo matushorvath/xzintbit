@@ -153,7 +153,7 @@ symbols:
       - module: 2008
         offsets: [199]
       - module: 4309
-        offsets: [496, 347]
+        offsets: [433, 311]
   report_error_at_location:
     export:
       module: 9363
@@ -193,7 +193,7 @@ symbols:
       - module: 3410
         offsets: [685]
       - module: 4309
-        offsets: [515, 366]
+        offsets: [452, 330]
       - module: 9594
         offsets: [812, 702, 633]
       - module: 9363
@@ -222,7 +222,7 @@ symbols:
       - module: 2008
         offsets: [79]
       - module: 4309
-        offsets: [448, 292, 112]
+        offsets: [385, 256, 120]
   mem_head:
     export:
       module: 4212
@@ -433,7 +433,7 @@ symbols:
       - module: 3410
         offsets: [658]
       - module: 4309
-        offsets: [536, 402, 263]
+        offsets: [534, 473]
       - module: 9594
         offsets: [869, 842, 772, 745, 717, 663]
       - module: 9363
