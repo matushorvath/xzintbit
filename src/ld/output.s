@@ -96,11 +96,15 @@ dump_modules:
     arb -1
     call print_num
 
+.next:
     # advance to next module
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
     jz  [rb + module], .done
+
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jz  [0], .next
 
     # more modules, print separator
     add [rb + count], -1, [rb + count]
@@ -146,7 +150,7 @@ dump_modules:
 
 ##########
 dump_symbols:
-.FRAME symbol, import
+.FRAME symbol, import, module
     arb -3
 
     add .str_start, 0, [rb - 1]
@@ -157,6 +161,14 @@ dump_symbols:
 
 .loop:
     jz  [rb + symbol], .done
+
+    # get the module for this symbol
+    add [rb + symbol], EXPORT_MODULE, [ip + 1]
+    add [0], 0, [rb + module]
+
+    # skip exports from excluded modules
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jz  [0], .next_export
 
     # print symbol identifier
     add .str_symbol_start, 0, [rb - 1]
@@ -177,8 +189,7 @@ dump_symbols:
     arb -1
     call print_str
 
-    add [rb + symbol], EXPORT_MODULE, [ip + 1]
-    add [0], MODULE_ADDRESS, [ip + 1]
+    add [rb + module], MODULE_ADDRESS, [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
     call print_num
@@ -205,15 +216,22 @@ dump_symbols:
     call print_str
 
 .imports_loop:
-    jz  [rb + import], .imports_done
+    jz  [rb + import], .next_export
+
+    # get the module for this import
+    add [rb + import], IMPORT_MODULE, [ip + 1]
+    add [0], 0, [rb + module]
+
+    # skip imports into excluded modules
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jz  [0], .next_import
 
     # print array of imports
     add .str_import_module_start, 0, [rb - 1]
     arb -1
     call print_str
 
-    add [rb + import], IMPORT_MODULE, [ip + 1]
-    add [0], MODULE_ADDRESS, [ip + 1]
+    add [rb + module], MODULE_ADDRESS, [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
     call print_num
@@ -236,12 +254,13 @@ dump_symbols:
     arb -1
     call print_str
 
+.next_import:
     add [rb + import], IMPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + import]
 
     jz  0, .imports_loop
 
-.imports_done:
+.next_export:
     add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 

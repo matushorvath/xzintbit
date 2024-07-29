@@ -43,6 +43,8 @@ $(BINDIR)/%.input: $(OBJDIR)/%.o
 	printf '$(NAME): linking ' >> $(TESTLOG)
 	$(run-intcode-ld) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
+	printf '$(NAME): comparing map ' >> $(TESTLOG)
+	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@).map.yaml $@.map.yaml >> $(TESTLOG)
 
 $(BINDIR)/%.a: $(OBJDIR)/%.o
 	printf '$(NAME): archiving ' >> $(TESTLOG)

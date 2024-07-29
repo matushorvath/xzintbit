@@ -1,5 +1,6 @@
 # The standard for Intcode binaries is to use 10 as line end, which is LF
 *.input text eol=lf
+*.input.map.yaml text eol=lf
 *.a text eol=lf
 *.o text eol=lf
 test/*/*.txt text eol=lf

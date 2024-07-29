@@ -1,0 +1,9 @@
+modules: [
+  0, 1
+]
+symbols:
+  external_symbol:
+    export:
+      module: 1
+      offset: 0
+    imports:
