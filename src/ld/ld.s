@@ -14,12 +14,9 @@
 ##########
 main:
 .FRAME
-    arb -0
-
     call process
     call print_modules
 
-    arb 0
     ret 0
 .ENDFRAME
 

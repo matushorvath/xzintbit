@@ -17,13 +17,10 @@
 ##########
 main:
 .FRAME
-    arb -0
-
     call parse
     call process_fixups
     call output_object
 
-    arb 0
     ret 0
 .ENDFRAME
 
