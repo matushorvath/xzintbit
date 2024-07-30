@@ -146,54 +146,6 @@
     address: 2388
   zeromem:
     address: 2427
-  print_num:
-    address: 2132
-  print_num_2:
-    address: 2160
-  print_num_2_b:
-    address: 2188
-  print_num_2_w:
-    address: 2216
-  print_num_16:
-    address: 2244
-  print_num_16_b:
-    address: 2272
-  print_num_16_w:
-    address: 2300
-  print_num_radix.next_order:
-    address: 2347
-  print_num_radix.digit_ptr_1:
-    address: 2350
-  print_num_radix.finish_order:
-    address: 2366
-  print_num_radix.digit_ptr_2:
-    address: 2399
-  print_num_radix.padding_loop:
-    address: 2382
-  print_num_radix.next_digit:
-    address: 2398
-  print_num_radix.increase:
-    address: 2406
-  print_num_radix.digits:
-    address: 2464
-  print_num_radix.finish:
-    address: 2449
-  print_num_radix:
-    address: 2328
-  print_str.start:
-    address: 2495
-  print_str.loop:
-    address: 2489
-  print_str:
-    address: 2480
-  print_str_as_mem.loop:
-    address: 2519
-  print_str_as_mem.done:
-    address: 2565
-  print_str_as_mem.skip_comma:
-    address: 2535
-  print_str_as_mem:
-    address: 2513
 2572:
   is_digit:
     address: 2572
@@ -205,50 +157,6 @@
     address: 2774
   strcpy:
     address: 2828
-  zeromem:
-    address: 2867
-  is_digit.end:
-    address: 2585
-  is_digit:
-    address: 2572
-  char_to_digit.invalid:
-    address: 2668
-  char_to_digit.number:
-    address: 2657
-  char_to_digit.upper_case:
-    address: 2643
-  char_to_digit.lower_case:
-    address: 2650
-  char_to_digit.check_radix:
-    address: 2661
-  char_to_digit.end:
-    address: 2672
-  char_to_digit:
-    address: 2596
-  is_alpha.end:
-    address: 2706
-  is_alpha:
-    address: 2679
-  is_alphanum.end:
-    address: 2767
-  is_alphanum:
-    address: 2717
-  strcmp.loop:
-    address: 2780
-  strcmp.done:
-    address: 2813
-  strcmp:
-    address: 2774
-  strcpy.loop:
-    address: 2834
-  strcpy.done:
-    address: 2860
-  strcpy:
-    address: 2828
-  zeromem.loop:
-    address: 2869
-  zeromem.done:
-    address: 2891
   zeromem:
     address: 2867
 2898:

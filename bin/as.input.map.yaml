@@ -204,18 +204,6 @@
     address: 1044
   __heap_start:
     address: 1044
-  add_or_find_current_child_symbol.have_parent:
-    address: 1215
-  add_or_find_current_child_symbol:
-    address: 1197
-  add_or_find_child_symbol.found:
-    address: 1299
-  add_or_find_child_symbol.done:
-    address: 1314
-  add_or_find_child_symbol:
-    address: 1245
-  last_global_symbol:
-    address: 1321
   find_child_symbol.loop:
     address: 1054
   find_child_symbol.done:
@@ -413,16 +401,6 @@
     address: 1369
   __heap_start:
     address: 1369
-  detect_directive.not_directive:
-    address: 1501
-  detect_directive.asso_values:
-    address: 1512
-  detect_directive.wordlist:
-    address: 1548
-  detect_directive.tokens:
-    address: 1738
-  detect_directive:
-    address: 1369
   err_invalid_directive:
     address: 1757
 1775:
@@ -612,16 +590,6 @@
     address: 1775
   __heap_start:
     address: 1775
-  report_error:
-    address: 1775
-  report_libxib_error:
-    address: 1775
-  report_symbol_error:
-    address: 1796
-  report_symbol_fixup_error.after_location:
-    address: 1884
-  report_symbol_fixup_error:
-    address: 1832
   print_symbol_identifier.after_parent:
     address: 1945
   print_symbol_identifier:
@@ -797,18 +765,6 @@
     address: 1979
   __heap_start:
     address: 1979
-  add_fixup:
-    address: 1979
-  process_fixups.global_loop:
-    address: 2061
-  process_fixups.done:
-    address: 2138
-  process_fixups.global_next:
-    address: 2127
-  process_fixups.child_loop:
-    address: 2098
-  process_fixups:
-    address: 2055
   process_symbol_fixups.have_address:
     address: 2179
   process_symbol_fixups.loop:
@@ -978,22 +934,6 @@
     address: 2262
   __heap_start:
     address: 2262
-  find_frame_symbol.loop:
-    address: 2268
-  find_frame_symbol.done:
-    address: 2308
-  find_frame_symbol:
-    address: 2262
-  add_frame_symbol:
-    address: 2315
-  reset_frame.loop:
-    address: 2377
-  reset_frame.done:
-    address: 2429
-  reset_frame:
-    address: 2371
-  frame_head:
-    address: 2440
 2441:
   add_or_find_global_symbol:
     address: 2586
@@ -1145,30 +1085,6 @@
     address: 2441
   __heap_start:
     address: 2441
-  add_or_find_global_symbol.found:
-    address: 2632
-  add_or_find_global_symbol.done:
-    address: 2647
-  add_or_find_global_symbol:
-    address: 2586
-  set_global_symbol_address.store:
-    address: 2688
-  set_global_symbol_address:
-    address: 2654
-  set_global_symbol_type.store:
-    address: 2805
-  set_global_symbol_type.check_same:
-    address: 2740
-  set_global_symbol_type.error_imported:
-    address: 2771
-  set_global_symbol_type.error_exported:
-    address: 2788
-  set_global_symbol_type:
-    address: 2703
-  global_head:
-    address: 2820
-  current_address_fixups_head:
-    address: 2821
   find_global_symbol.loop:
     address: 2447
   find_global_symbol.done:
@@ -1330,16 +1246,6 @@
     address: 2984
   __heap_start:
     address: 2984
-  detect_keyword.not_keyword:
-    address: 3116
-  detect_keyword.asso_values:
-    address: 3127
-  detect_keyword.wordlist:
-    address: 3153
-  detect_keyword.tokens:
-    address: 3343
-  detect_keyword:
-    address: 2984
 3381:
   get_token:
     address: 3381
@@ -1481,44 +1387,6 @@
     address: 3381
   __heap_start:
     address: 3381
-  get_token.loop:
-    address: 3383
-  get_token.eat_comment:
-    address: 3534
-  get_token.eol:
-    address: 3564
-  get_token.identifier:
-    address: 3607
-  get_token.directive:
-    address: 3642
-  get_token.symbol:
-    address: 3662
-  get_token.string:
-    address: 3669
-  get_token.char:
-    address: 3689
-  get_token.number:
-    address: 3738
-  get_token.eat_comment_loop:
-    address: 3534
-  get_token.eol_unix:
-    address: 3600
-  get_token.done:
-    address: 3789
-  get_token.char_done:
-    address: 3731
-  get_token.number_done:
-    address: 3782
-  get_token:
-    address: 3381
-  token_type:
-    address: 4081
-  token_value:
-    address: 4082
-  token_line_num:
-    address: 4079
-  token_column_num:
-    address: 4080
   is_symbol.done:
     address: 3851
   is_symbol:
@@ -1664,23 +1532,7 @@
     address: 4183
   __heap_start:
     address: 4183
-  set_as_mem:
-    address: 4183
-  set_as_mem_str.loop:
-    address: 4225
-  set_as_mem_str.done:
-    address: 4270
-  set_as_mem_str:
-    address: 4219
-  mem_head:
-    address: 4277
-  mem_tail:
-    address: 4278
-  mem_index:
-    address: 4279
 4280:
-  output_object:
-    address: 4280
   output_object:
     address: 4280
   print_code.done:
@@ -1718,1347 +1570,847 @@
   print_symbols.global_loop:
     address: 4738
   print_symbols.done:
-    address: 4883
-  print_symbols.include:
-    address: 4766
+    address: 4865
   print_symbols.global_next:
-    address: 4872
+    address: 4854
   print_symbols.child_loop:
-    address: 4816
+    address: 4798
   print_symbols:
     address: 4726
   print_fixups_list.loop:
-    address: 5005
+    address: 4987
   print_fixups_list.done:
-    address: 5051
+    address: 5033
   print_fixups_list.skip_comma:
-    address: 5013
+    address: 4995
   print_fixups_list:
-    address: 4999
+    address: 4981
   print_imports_done:
     address: 4658
   err_imported_symbol_defined:
-    address: 5077
+    address: 5059
   print_identifier_and_address.have_address:
-    address: 4924
+    address: 4906
   print_identifier_and_address.after_parent:
-    address: 4956
+    address: 4938
   print_identifier_and_address:
-    address: 4890
+    address: 4872
   err_unknown_symbol:
-    address: 5062
-5126:
+    address: 5044
+5108:
   parse_call:
-    address: 5126
+    address: 5108
   parse_ret:
-    address: 5372
+    address: 5354
   parse_in_param:
-    address: 5313
+    address: 5295
   parse_number_or_char:
-    address: 5952
-  current_address:
-    address: 5524
-  err_expect_eol:
-    address: 5560
-  parse_db:
-    address: 5126
-  parse_ds:
-    address: 5286
-  parse_value:
-    address: 5394
-  err_expect_comma:
-    address: 5542
-  err_expect_number:
-    address: 5592
-  parse_dir_eof:
-    address: 5126
-  parse_dir_eoi:
-    address: 5147
-  reset_input_location:
-    address: 5231
-  is_frame:
-    address: 5637
-  parse_dir_frame:
-    address: 5126
-  parse_dir_endframe:
-    address: 5566
-  err_expect_identifier:
-    address: 5611
-  parse_add_mul_lt_eq:
-    address: 5126
-  parse_jnz_jz:
-    address: 5383
-  parse_arb_out:
-    address: 5565
-  parse_in:
-    address: 5672
-  parse_hlt:
-    address: 5779
-  parse_out_param:
-    address: 5126
-  parse_symbol:
-    address: 5126
-  parse_dir_symbol:
-    address: 5360
-  parse_dir_import_export:
-    address: 5505
-  realloc_more_blocks:
-    address: 5457
-  zeromem_blocks:
-    address: 5704
-  neg_chunk_header_size:
-    address: 5126
-  block_size:
-    address: 5127
-  dump_heap:
-    address: 5743
-  sbrk:
-    address: 5135
-  brk_addr:
-    address: 5152
-  char_to_digit:
-    address: 5150
-  is_alphanum:
-    address: 5271
-  strcpy:
-    address: 5382
-  zeromem:
-    address: 5421
-  report_error_with_symbol:
-    address: 5270
-  halt_and_catch_fire:
-    address: 5352
-  print_num_2:
-    address: 5154
-  print_num_2_b:
-    address: 5182
-  print_num_2_w:
-    address: 5210
-  print_num_16:
-    address: 5238
-  print_num_16_b:
-    address: 5266
-  print_num_16_w:
-    address: 5294
-  print_num_radix:
-    address: 5322
-  print_str_as_mem:
-    address: 5507
-  pretty_print_mem:
-    address: 5508
-  mem_block_size:
-    address: 5126
-  peek_input:
-    address: 5209
-  brk:
-    address: 5126
-  __heap_start:
-    address: 5126
-  parse_call.not_mode_3:
-    address: 5326
-  parse_call.done:
-    address: 5361
-  parse_call:
-    address: 5126
-  parse_ret.done:
-    address: 5495
-  parse_ret:
-    address: 5372
-5506:
-  parse_db:
-    address: 5506
-  parse_ds:
-    address: 5666
-  parse_value:
-    address: 5774
-  err_expect_comma:
-    address: 5922
-  err_expect_number:
-    address: 5972
-  parse_dir_eof:
-    address: 5506
-  parse_dir_eoi:
-    address: 5527
-  reset_input_location:
-    address: 5611
-  is_frame:
-    address: 6017
-  parse_dir_frame:
-    address: 5506
-  parse_dir_endframe:
-    address: 5946
-  err_expect_identifier:
-    address: 5991
-  parse_add_mul_lt_eq:
-    address: 5506
-  parse_jnz_jz:
-    address: 5763
-  parse_arb_out:
-    address: 5945
-  parse_in:
-    address: 6052
-  parse_hlt:
-    address: 6159
-  parse_out_param:
-    address: 5506
-  parse_symbol:
-    address: 5506
-  parse_dir_symbol:
-    address: 5740
-  parse_dir_import_export:
-    address: 5885
-  realloc_more_blocks:
-    address: 5837
-  zeromem_blocks:
-    address: 6084
-  neg_chunk_header_size:
-    address: 5506
-  block_size:
-    address: 5507
-  dump_heap:
-    address: 6123
-  sbrk:
-    address: 5515
-  brk_addr:
-    address: 5532
-  char_to_digit:
-    address: 5530
-  is_alphanum:
-    address: 5651
-  strcpy:
-    address: 5762
-  zeromem:
-    address: 5801
-  report_error_with_symbol:
-    address: 5650
-  halt_and_catch_fire:
-    address: 5732
-  print_num_2:
-    address: 5534
-  print_num_2_b:
-    address: 5562
-  print_num_2_w:
-    address: 5590
-  print_num_16:
-    address: 5618
-  print_num_16_b:
-    address: 5646
-  print_num_16_w:
-    address: 5674
-  print_num_radix:
-    address: 5702
-  print_str_as_mem:
-    address: 5887
-  pretty_print_mem:
-    address: 5888
-  mem_block_size:
-    address: 5506
-  peek_input:
-    address: 5589
-  brk:
-    address: 5506
-  __heap_start:
-    address: 5506
-  parse_db.loop:
-    address: 5512
-  parse_db.string:
-    address: 5581
-  parse_db.after_param:
-    address: 5628
-  parse_db.done:
-    address: 5655
-  parse_db:
-    address: 5506
-  parse_ds.have_count:
-    address: 5697
-  parse_ds.have_comma:
-    address: 5730
-  parse_ds.loop:
-    address: 5776
-  parse_ds:
-    address: 5666
-  err_expect_comma_eol:
-    address: 5809
-5841:
-  parse_dir_eof:
-    address: 5841
-  parse_dir_eoi:
-    address: 5862
-  reset_input_location:
-    address: 5946
-  is_frame:
-    address: 6352
-  parse_dir_frame:
-    address: 5841
-  parse_dir_endframe:
-    address: 6281
-  err_expect_identifier:
-    address: 6326
-  parse_add_mul_lt_eq:
-    address: 5841
-  parse_jnz_jz:
-    address: 6098
-  parse_arb_out:
-    address: 6280
-  parse_in:
-    address: 6387
-  parse_hlt:
-    address: 6494
-  parse_out_param:
-    address: 5841
-  parse_symbol:
-    address: 5841
-  parse_dir_symbol:
-    address: 6075
-  parse_dir_import_export:
-    address: 6220
-  realloc_more_blocks:
-    address: 6172
-  zeromem_blocks:
-    address: 6419
-  neg_chunk_header_size:
-    address: 5841
-  block_size:
-    address: 5842
-  dump_heap:
-    address: 6458
-  sbrk:
-    address: 5850
-  brk_addr:
-    address: 5867
-  char_to_digit:
-    address: 5865
-  is_alphanum:
-    address: 5986
-  strcpy:
-    address: 6097
-  zeromem:
-    address: 6136
-  report_error_with_symbol:
-    address: 5985
-  halt_and_catch_fire:
-    address: 6067
-  print_num_2:
-    address: 5869
-  print_num_2_b:
-    address: 5897
-  print_num_2_w:
-    address: 5925
-  print_num_16:
-    address: 5953
-  print_num_16_b:
-    address: 5981
-  print_num_16_w:
-    address: 6009
-  print_num_radix:
-    address: 6037
-  print_str_as_mem:
-    address: 6222
-  pretty_print_mem:
-    address: 6223
-  mem_block_size:
-    address: 5841
-  peek_input:
-    address: 5924
-  brk:
-    address: 5841
-  __heap_start:
-    address: 5841
-  parse_dir_eof.done:
-    address: 5857
-  parse_dir_eof:
-    address: 5841
-  parse_dir_eoi.done:
-    address: 5878
-  parse_dir_eoi:
-    address: 5862
-  err_expect_endframe:
-    address: 5892
-5912:
-  parse_dir_frame:
-    address: 5912
-  parse_dir_endframe:
-    address: 6352
-  err_expect_identifier:
-    address: 6397
-  parse_add_mul_lt_eq:
-    address: 5912
-  parse_jnz_jz:
-    address: 6169
-  parse_arb_out:
-    address: 6351
-  parse_in:
-    address: 6458
-  parse_hlt:
-    address: 6565
-  parse_out_param:
-    address: 5912
-  parse_symbol:
-    address: 5912
-  parse_dir_symbol:
-    address: 6146
-  parse_dir_import_export:
-    address: 6291
-  realloc_more_blocks:
-    address: 6243
-  zeromem_blocks:
-    address: 6490
-  neg_chunk_header_size:
-    address: 5912
-  block_size:
-    address: 5913
-  dump_heap:
-    address: 6529
-  sbrk:
-    address: 5921
-  brk_addr:
-    address: 5938
-  char_to_digit:
-    address: 5936
-  is_alphanum:
-    address: 6057
-  strcpy:
-    address: 6168
-  zeromem:
-    address: 6207
-  report_error_with_symbol:
-    address: 6056
-  halt_and_catch_fire:
-    address: 6138
-  print_num_2:
-    address: 5940
-  print_num_2_b:
-    address: 5968
-  print_num_2_w:
-    address: 5996
-  print_num_16:
-    address: 6024
-  print_num_16_b:
-    address: 6052
-  print_num_16_w:
-    address: 6080
-  print_num_radix:
-    address: 6108
-  print_str_as_mem:
-    address: 6293
-  pretty_print_mem:
-    address: 6294
-  mem_block_size:
-    address: 5912
-  peek_input:
-    address: 5995
-  brk:
-    address: 5912
-  __heap_start:
-    address: 5912
-  parse_dir_frame.loop:
     address: 5934
-  parse_dir_frame.check_count:
-    address: 5989
-  parse_dir_frame.eol:
-    address: 6013
-  parse_dir_frame:
-    address: 5912
-  parse_dir_endframe.check_params:
-    address: 6374
-  parse_dir_endframe.done:
-    address: 6403
-  parse_dir_endframe:
-    address: 6352
-  is_frame:
-    address: 6423
-  err_already_in_frame:
-    address: 6505
-  parse_dir_frame_block.done:
-    address: 6196
-  parse_dir_frame_block.loop:
-    address: 6063
-  parse_dir_frame_block.identifier:
-    address: 6083
-  parse_dir_frame_block.is_unique:
-    address: 6114
-  parse_dir_frame_block.comma:
-    address: 6184
-  parse_dir_frame_block:
-    address: 6043
-  err_expect_semicolon_eol:
-    address: 6424
-  err_too_many_lists:
-    address: 6531
-  parse_dir_frame_offset_blocks.after_negative:
-    address: 6231
-  parse_dir_frame_offset_blocks.done:
-    address: 6287
-  parse_dir_frame_offset_blocks:
-    address: 6203
-  err_duplicate_frame_symbol:
-    address: 6570
-  err_expect_comma_semicolon_eol:
-    address: 6460
-  parse_dir_frame_offset.loop:
-    address: 6304
-  parse_dir_frame_offset.done:
-    address: 6345
-  parse_dir_frame_offset.after_update:
-    address: 6334
-  parse_dir_frame_offset:
-    address: 6294
-  err_not_in_frame:
-    address: 6604
-6629:
-  parse_add_mul_lt_eq:
-    address: 6629
-  parse_jnz_jz:
-    address: 6886
-  parse_arb_out:
-    address: 7068
-  parse_in:
-    address: 7175
-  parse_hlt:
-    address: 7282
-  parse_out_param:
-    address: 6629
-  parse_symbol:
-    address: 6629
-  parse_dir_symbol:
-    address: 6863
-  parse_dir_import_export:
-    address: 7008
-  realloc_more_blocks:
-    address: 6960
-  zeromem_blocks:
-    address: 7207
-  neg_chunk_header_size:
-    address: 6629
-  block_size:
-    address: 6630
-  dump_heap:
-    address: 7246
-  sbrk:
-    address: 6638
-  brk_addr:
-    address: 6655
-  char_to_digit:
-    address: 6653
-  is_alphanum:
-    address: 6774
-  strcpy:
-    address: 6885
-  zeromem:
-    address: 6924
-  report_error_with_symbol:
-    address: 6773
-  halt_and_catch_fire:
-    address: 6855
-  print_num_2:
-    address: 6657
-  print_num_2_b:
-    address: 6685
-  print_num_2_w:
-    address: 6713
-  print_num_16:
-    address: 6741
-  print_num_16_b:
-    address: 6769
-  print_num_16_w:
-    address: 6797
-  print_num_radix:
-    address: 6825
-  print_str_as_mem:
-    address: 7010
-  pretty_print_mem:
-    address: 7011
-  mem_block_size:
-    address: 6629
-  peek_input:
-    address: 6712
-  brk:
-    address: 6629
-  __heap_start:
-    address: 6629
-  parse_add_mul_lt_eq.param1:
-    address: 6695
-  parse_add_mul_lt_eq.param2:
-    address: 6755
-  parse_add_mul_lt_eq.done:
-    address: 6815
-  parse_add_mul_lt_eq:
-    address: 6629
-  parse_jnz_jz.param1:
-    address: 6952
-  parse_jnz_jz.done:
-    address: 7012
-  parse_jnz_jz:
-    address: 6886
-  parse_arb_out.done:
-    address: 7134
-  parse_arb_out:
-    address: 7068
-  parse_in.done:
-    address: 7241
-  parse_in:
-    address: 7175
-  parse_hlt.done:
-    address: 7317
-  parse_hlt:
-    address: 7282
-7343:
-  parse_out_param:
-    address: 7343
-  parse_in_param:
-    address: 7530
-  parse_value:
-    address: 7611
-  parse_number_or_char:
-    address: 8169
-  parse_out_param.try_rb:
-    address: 7377
-  parse_out_param.after_rb:
-    address: 7436
-  parse_out_param.rb_plus:
-    address: 7427
-  parse_out_param.rb_minus:
-    address: 7423
-  parse_out_param.after_value:
-    address: 7494
-  parse_out_param.done:
-    address: 7514
-  parse_out_param:
-    address: 7343
-  parse_in_param.immediate:
-    address: 7569
-  parse_in_param.done:
-    address: 7604
-  parse_in_param:
-    address: 7530
-  parse_value.number_or_char_1:
-    address: 7683
-  parse_value.identifier:
-    address: 7699
-  parse_value.dot_identifier:
-    address: 7935
-  parse_value.ip:
-    address: 8017
-  parse_value.done:
-    address: 8162
-  parse_value.is_global:
-    address: 7776
-  parse_value.frame_symbol_allowed:
-    address: 7737
-  parse_value.after_symbol:
-    address: 8061
-  parse_value.global_symbol_allowed:
-    address: 7792
-  parse_value.is_parent_dot_child:
-    address: 7869
-  parse_value.dot_global_symbol_allowed:
-    address: 7955
-  parse_value.identifier_plus:
-    address: 8078
-  parse_value.identifier_minus:
-    address: 8085
-  parse_value.identifier_after_sign:
-    address: 8092
-  parse_value.number_or_char_2:
-    address: 8142
-  parse_value:
-    address: 7611
-  parse_number_or_char.plus:
-    address: 8196
-  parse_number_or_char.minus:
-    address: 8192
-  parse_number_or_char.after_sign:
-    address: 8205
-  parse_number_or_char.have_value:
-    address: 8232
-  parse_number_or_char:
-    address: 8169
-  err_expect_open_brace:
-    address: 8252
-  err_subtract_symbol:
-    address: 8305
-  err_expect_close_brace:
-    address: 8279
-  err_expect_number_char_identifier:
-    address: 8338
-  err_frame_symbol_not_allowed:
-    address: 8448
-  err_global_symbol_not_allowed:
-    address: 8414
-  err_expect_number_char:
-    address: 8382
-8481:
-  parse_symbol:
-    address: 8481
-  parse_dir_symbol:
-    address: 8715
-  parse_dir_import_export:
-    address: 8860
-  realloc_more_blocks:
-    address: 8812
-  zeromem_blocks:
-    address: 9059
-  neg_chunk_header_size:
-    address: 8481
-  block_size:
-    address: 8482
-  dump_heap:
-    address: 9098
-  sbrk:
-    address: 8490
-  brk_addr:
-    address: 8507
-  char_to_digit:
-    address: 8505
-  is_alphanum:
-    address: 8626
-  strcpy:
-    address: 8737
-  zeromem:
-    address: 8776
-  report_error_with_symbol:
-    address: 8625
-  halt_and_catch_fire:
-    address: 8707
-  print_num_2:
-    address: 8509
-  print_num_2_b:
-    address: 8537
-  print_num_2_w:
-    address: 8565
-  print_num_16:
-    address: 8593
-  print_num_16_b:
-    address: 8621
-  print_num_16_w:
-    address: 8649
-  print_num_radix:
-    address: 8677
-  print_str_as_mem:
-    address: 8862
-  pretty_print_mem:
-    address: 8863
-  mem_block_size:
-    address: 8481
-  peek_input:
-    address: 8564
-  brk:
-    address: 8481
-  __heap_start:
-    address: 8481
-  parse_symbol.after_offset:
-    address: 8565
-  parse_symbol.have_offset:
-    address: 8523
-  parse_symbol.after_equals:
-    address: 8556
-  parse_symbol.have_identifier:
-    address: 8592
-  parse_symbol.have_dot_identifier:
-    address: 8641
-  parse_symbol.colon:
-    address: 8679
-  parse_symbol.done:
-    address: 8708
-  parse_symbol:
-    address: 8481
-  parse_dir_symbol.have_identifier:
-    address: 8746
-  parse_dir_symbol.done:
-    address: 8853
-  parse_dir_symbol:
-    address: 8715
-  parse_dir_import_export.have_type:
-    address: 8877
-  parse_dir_import_export.have_identifier:
-    address: 8906
-  parse_dir_import_export.done:
-    address: 8973
-  parse_dir_import_export:
-    address: 8860
-  err_expect_equals:
-    address: 8980
-  err_expect_colon:
-    address: 9005
-9023:
-  parse:
-    address: 9023
   current_address:
-    address: 9421
-  err_expect_comma:
-    address: 9439
+    address: 5506
   err_expect_eol:
-    address: 9457
-  err_expect_identifier:
-    address: 9508
-  err_expect_number:
-    address: 9489
-  parse.loop:
-    address: 9025
-  parse.call_add_mul_lt_eq:
-    address: 9222
-  parse.call_jnz_jz:
-    address: 9234
-  parse.call_arb_out:
-    address: 9246
-  parse.call_in:
-    address: 9258
-  parse.call_hlt:
-    address: 9270
-  parse.call_call:
-    address: 9282
-  parse.call_ret:
-    address: 9294
-  parse.call_db:
-    address: 9306
-  parse.call_ds:
-    address: 9318
-  parse.call_symbol:
-    address: 9330
-  parse.call_directive_frame:
-    address: 9342
-  parse.call_directive_endframe:
-    address: 9354
-  parse.call_directive_symbol:
-    address: 9366
-  parse.call_directive_import_export:
-    address: 9378
-  parse.call_directive_eof:
-    address: 9390
-  parse.call_directive_eoi:
-    address: 9402
-  parse.done:
-    address: 9414
-  parse:
-    address: 9023
-  current_address:
-    address: 9421
+    address: 5542
+  parse_db:
+    address: 5108
+  parse_ds:
+    address: 5268
+  parse_value:
+    address: 5376
   err_expect_comma:
-    address: 9439
-  err_expect_eol:
-    address: 9457
-  err_expect_identifier:
-    address: 9508
+    address: 5524
   err_expect_number:
-    address: 9489
-  err_unexpected_token:
-    address: 9422
-9532:
-  brk:
-    address: 9532
-  __heap_start:
-    address: 9532
-  brk:
-    address: 9532
-  sbrk:
-    address: 9541
-  brk_addr:
-    address: 9558
-9559:
-  report_error_at_location:
-    address: 9559
-  report_error_with_symbol:
-    address: 9703
-  halt_and_catch_fire:
-    address: 9785
-  print_num_2:
-    address: 9587
-  print_num_2_b:
-    address: 9615
-  print_num_2_w:
-    address: 9643
-  print_num_16:
-    address: 9671
-  print_num_16_b:
-    address: 9699
-  print_num_16_w:
-    address: 9727
-  print_num_radix:
-    address: 9755
-  print_str_as_mem:
-    address: 9940
-  pretty_print_mem:
-    address: 9941
-  mem_block_size:
-    address: 9559
-  peek_input:
-    address: 9642
-  brk:
-    address: 9559
-  __heap_start:
-    address: 9559
-  report_error_at_location.msg_start:
-    address: 9675
-  report_error_at_location.msg_line:
-    address: 9683
-  report_error_at_location.msg_column:
-    address: 9691
-  report_error_at_location.msg_end:
-    address: 9701
-  report_error_at_location:
-    address: 9559
-  report_error_with_symbol.msg_start:
-    address: 9774
-  report_error_with_symbol.msg_symbol:
-    address: 9782
-  report_error_with_symbol:
-    address: 9703
-  halt_and_catch_fire.loop:
-    address: 9785
-  halt_and_catch_fire:
-    address: 9785
-9790:
-  alloc_blocks:
-    address: 9792
-  realloc_more_blocks:
-    address: 10121
-  zeromem_blocks:
-    address: 10368
-  neg_chunk_header_size:
-    address: 9790
-  block_size:
-    address: 9791
-  dump_heap:
-    address: 10407
-  sbrk:
-    address: 9799
-  brk_addr:
-    address: 9816
-  char_to_digit:
-    address: 9814
-  is_alphanum:
-    address: 9935
-  strcpy:
-    address: 10046
-  zeromem:
-    address: 10085
-  report_error_with_symbol:
-    address: 9934
-  halt_and_catch_fire:
-    address: 10016
-  print_num_2:
-    address: 9818
-  print_num_2_b:
-    address: 9846
-  print_num_2_w:
-    address: 9874
-  print_num_16:
-    address: 9902
-  print_num_16_b:
-    address: 9930
-  print_num_16_w:
-    address: 9958
-  print_num_radix:
-    address: 9986
-  print_str_as_mem:
-    address: 10171
-  pretty_print_mem:
-    address: 10172
-  mem_block_size:
-    address: 9790
-  peek_input:
-    address: 9873
-  brk:
-    address: 9790
-  __heap_start:
-    address: 9790
-  alloc_blocks.large:
-    address: 9886
-  alloc_blocks.small_table:
-    address: 9808
-  alloc_blocks.small_0_blocks:
-    address: 9817
-  alloc_blocks.small_1_blocks:
-    address: 9830
-  alloc_blocks.small_2_blocks:
-    address: 9837
-  alloc_blocks.small_3_blocks:
-    address: 9844
-  alloc_blocks.small_4_blocks:
-    address: 9851
-  alloc_blocks.small_5_blocks:
-    address: 9858
-  alloc_blocks.small_6_blocks:
-    address: 9865
-  alloc_blocks.small_7_blocks:
-    address: 9872
-  alloc_blocks.small_8_blocks:
-    address: 9879
-  alloc_blocks.alloc_from_small:
-    address: 10005
-  alloc_blocks.large_loop:
-    address: 9890
-  alloc_blocks.sbrk:
-    address: 9915
-  alloc_blocks.alloc_from_large:
-    address: 9945
-  alloc_blocks.return_ptr:
-    address: 10102
-  alloc_blocks.alloc_from_large_after_next_prev:
-    address: 9968
-  alloc_blocks.alloc_from_large_replace_head:
-    address: 9994
-  alloc_blocks.alloc_cut_chunk:
-    address: 10044
-  alloc_blocks:
-    address: 9792
-  realloc_more_blocks.sbrk:
-    address: 10206
-  realloc_more_blocks.copy_loop:
-    address: 10169
-  realloc_more_blocks.done:
-    address: 10241
-  realloc_more_blocks:
-    address: 10121
-  free.done:
-    address: 10361
-  free.small:
-    address: 10314
-  free.large_after_prev:
-    address: 10291
-  free.small_after_prev:
-    address: 10333
-  free:
-    address: 10248
-  zeromem_blocks.loop:
-    address: 10378
-  zeromem_blocks.done:
-    address: 10400
-  zeromem_blocks:
-    address: 10368
-  neg_chunk_header_size:
-    address: 9790
-  block_size:
-    address: 9791
-  dump_heap.brk_msg:
-    address: 10682
-  dump_heap.small_bin_loop:
-    address: 10460
-  dump_heap.large:
-    address: 10585
-  dump_heap.small_next_bin:
-    address: 10578
-  dump_heap.small_bin_msg:
-    address: 10688
-  dump_heap.small_chunk_loop:
-    address: 10510
-  dump_heap.small_chunk_done:
-    address: 10576
-  dump_heap.done:
-    address: 10675
-  dump_heap.large_bin_msg:
-    address: 10699
-  dump_heap.large_chunk_loop:
-    address: 10607
-  dump_heap.large_chunk_done:
-    address: 10673
-  dump_heap:
-    address: 10407
-  err_zero_allocation:
-    address: 10720
-  small:
-    address: 10710
-  large:
-    address: 10719
-10764:
-  get_input:
-    address: 10764
-  unget_input:
-    address: 10812
-  peek_input:
-    address: 10847
-  brk:
-    address: 10764
-  __heap_start:
-    address: 10764
-  get_input.have_char:
-    address: 10779
-  get_input.same_line:
-    address: 10801
-  get_input.done:
-    address: 10805
-  get_input:
-    address: 10764
-  unget_input.same_line:
-    address: 10836
-  unget_input.done:
-    address: 10840
-  unget_input:
-    address: 10812
-  peek_input.done:
-    address: 10862
-  peek_input:
-    address: 10847
+    address: 5574
+  parse_dir_eof:
+    address: 5108
+  parse_dir_eoi:
+    address: 5129
   reset_input_location:
-    address: 10869
-  input_line_num:
-    address: 10882
-  input_column_num:
-    address: 10883
-  input_buffer:
-    address: 10885
-  input_prev_column_num:
-    address: 10884
-10886:
-  read_identifier:
-    address: 10886
-  read_string:
-    address: 11041
-  read_number:
-    address: 11190
-  read_identifier.loop:
-    address: 10927
-  read_identifier.have_space:
-    address: 10961
-  read_identifier.done:
-    address: 11011
-  read_identifier:
-    address: 10886
-  read_string.loop:
-    address: 11082
-  read_string.have_space:
-    address: 11116
-  read_string.done:
-    address: 11175
-  read_string.after_escape:
-    address: 11156
-  read_string:
-    address: 11041
-  read_number.prefix:
-    address: 11245
-  read_number.loop:
-    address: 11350
-  read_number.not_binary:
-    address: 11292
-  read_number.not_octal:
-    address: 11319
-  read_number.not_hexadecimal:
-    address: 11346
-  read_number.end:
-    address: 11408
-  read_number:
-    address: 11190
-11434:
-  set_mem:
-    address: 11435
-  inc_mem:
-    address: 11611
-  print_mem:
-    address: 11784
-  pretty_print_mem:
-    address: 11816
-  mem_block_size:
-    address: 11434
-  peek_input:
-    address: 11517
-  brk:
-    address: 11434
-  __heap_start:
-    address: 11434
-  set_mem.have_buffer:
-    address: 11502
-  set_mem.have_space:
-    address: 11568
-  set_mem:
-    address: 11435
-  inc_mem:
-    address: 11611
-  print_mem:
-    address: 11784
-  pretty_print_mem:
-    address: 11816
-  mem_block_size:
-    address: 11434
-  calc_mem.loop:
-    address: 11688
-  calc_mem.done:
-    address: 11710
-  calc_mem:
-    address: 11678
-  inc_mem_internal.loop:
-    address: 11727
-  inc_mem_internal.have_block:
-    address: 11743
-  inc_mem_internal.this_block:
-    address: 11761
-  inc_mem_internal:
-    address: 11721
-  err_invalid_address:
-    address: 11949
-  print_mem_internal.done:
-    address: 11942
-  print_mem_internal.block:
-    address: 11861
-  print_mem_internal.byte:
-    address: 11880
-  print_mem_internal.block_done:
-    address: 11931
-  print_mem_internal.skip_comma:
-    address: 11897
-  print_mem_internal:
-    address: 11848
-11972:
-  print_num:
-    address: 11972
-  print_num_2:
-    address: 12000
-  print_num_2_b:
-    address: 12028
-  print_num_2_w:
-    address: 12056
-  print_num_16:
-    address: 12084
-  print_num_16_b:
-    address: 12112
-  print_num_16_w:
-    address: 12140
-  print_num_radix:
-    address: 12168
-  print_str_as_mem:
-    address: 12353
-  pretty_print_mem:
-    address: 12354
-  mem_block_size:
-    address: 11972
-  peek_input:
-    address: 12055
-  brk:
-    address: 11972
-  __heap_start:
-    address: 11972
-  print_num:
-    address: 11972
-  print_num_2:
-    address: 12000
-  print_num_2_b:
-    address: 12028
-  print_num_2_w:
-    address: 12056
-  print_num_16:
-    address: 12084
-  print_num_16_b:
-    address: 12112
-  print_num_16_w:
-    address: 12140
-  print_num_radix.next_order:
-    address: 12187
-  print_num_radix.digit_ptr_1:
-    address: 12190
-  print_num_radix.finish_order:
-    address: 12206
-  print_num_radix.digit_ptr_2:
-    address: 12239
-  print_num_radix.padding_loop:
-    address: 12222
-  print_num_radix.next_digit:
-    address: 12238
-  print_num_radix.increase:
-    address: 12246
-  print_num_radix.digits:
-    address: 12304
-  print_num_radix.finish:
-    address: 12289
-  print_num_radix:
-    address: 12168
-  print_str.start:
-    address: 12335
-  print_str.loop:
-    address: 12329
-  print_str:
-    address: 12320
-  print_str_as_mem.loop:
-    address: 12359
-  print_str_as_mem.done:
-    address: 12405
-  print_str_as_mem.skip_comma:
-    address: 12375
-  print_str_as_mem:
-    address: 12353
-12412:
-  is_digit:
-    address: 12412
+    address: 5213
+  is_frame:
+    address: 5619
+  parse_dir_frame:
+    address: 5108
+  parse_dir_endframe:
+    address: 5548
+  err_expect_identifier:
+    address: 5593
+  parse_add_mul_lt_eq:
+    address: 5108
+  parse_jnz_jz:
+    address: 5365
+  parse_arb_out:
+    address: 5547
+  parse_in:
+    address: 5654
+  parse_hlt:
+    address: 5761
+  parse_out_param:
+    address: 5108
+  parse_symbol:
+    address: 5108
+  parse_dir_symbol:
+    address: 5342
+  parse_dir_import_export:
+    address: 5487
+  realloc_more_blocks:
+    address: 5439
+  zeromem_blocks:
+    address: 5686
+  neg_chunk_header_size:
+    address: 5108
+  block_size:
+    address: 5109
+  dump_heap:
+    address: 5725
+  sbrk:
+    address: 5117
+  brk_addr:
+    address: 5134
   char_to_digit:
-    address: 12436
+    address: 5132
   is_alphanum:
-    address: 12557
+    address: 5253
   strcpy:
-    address: 12668
+    address: 5364
   zeromem:
-    address: 12707
+    address: 5403
   report_error_with_symbol:
-    address: 12556
+    address: 5252
   halt_and_catch_fire:
-    address: 12638
+    address: 5334
   print_num_2:
-    address: 12440
+    address: 5136
   print_num_2_b:
-    address: 12468
+    address: 5164
   print_num_2_w:
-    address: 12496
+    address: 5192
   print_num_16:
-    address: 12524
+    address: 5220
   print_num_16_b:
-    address: 12552
+    address: 5248
   print_num_16_w:
-    address: 12580
+    address: 5276
   print_num_radix:
-    address: 12608
+    address: 5304
   print_str_as_mem:
-    address: 12793
+    address: 5489
   pretty_print_mem:
-    address: 12794
+    address: 5490
   mem_block_size:
-    address: 12412
+    address: 5108
   peek_input:
-    address: 12495
+    address: 5191
   brk:
-    address: 12412
+    address: 5108
   __heap_start:
-    address: 12412
-  is_digit.end:
-    address: 12425
-  is_digit:
-    address: 12412
-  char_to_digit.invalid:
-    address: 12508
-  char_to_digit.number:
-    address: 12497
-  char_to_digit.upper_case:
-    address: 12483
-  char_to_digit.lower_case:
-    address: 12490
-  char_to_digit.check_radix:
-    address: 12501
-  char_to_digit.end:
-    address: 12512
+    address: 5108
+5488:
+  parse_db:
+    address: 5488
+  parse_ds:
+    address: 5648
+  parse_value:
+    address: 5756
+  err_expect_comma:
+    address: 5904
+  err_expect_number:
+    address: 5954
+  parse_dir_eof:
+    address: 5488
+  parse_dir_eoi:
+    address: 5509
+  reset_input_location:
+    address: 5593
+  is_frame:
+    address: 5999
+  parse_dir_frame:
+    address: 5488
+  parse_dir_endframe:
+    address: 5928
+  err_expect_identifier:
+    address: 5973
+  parse_add_mul_lt_eq:
+    address: 5488
+  parse_jnz_jz:
+    address: 5745
+  parse_arb_out:
+    address: 5927
+  parse_in:
+    address: 6034
+  parse_hlt:
+    address: 6141
+  parse_out_param:
+    address: 5488
+  parse_symbol:
+    address: 5488
+  parse_dir_symbol:
+    address: 5722
+  parse_dir_import_export:
+    address: 5867
+  realloc_more_blocks:
+    address: 5819
+  zeromem_blocks:
+    address: 6066
+  neg_chunk_header_size:
+    address: 5488
+  block_size:
+    address: 5489
+  dump_heap:
+    address: 6105
+  sbrk:
+    address: 5497
+  brk_addr:
+    address: 5514
   char_to_digit:
-    address: 12436
-  is_alpha.end:
-    address: 12546
-  is_alpha:
-    address: 12519
-  is_alphanum.end:
-    address: 12607
+    address: 5512
   is_alphanum:
-    address: 12557
-  strcmp.loop:
-    address: 12620
-  strcmp.done:
-    address: 12653
-  strcmp:
-    address: 12614
-  strcpy.loop:
-    address: 12674
-  strcpy.done:
-    address: 12700
+    address: 5633
   strcpy:
-    address: 12668
-  zeromem.loop:
-    address: 12709
-  zeromem.done:
-    address: 12731
+    address: 5744
   zeromem:
-    address: 12707
-12738:
+    address: 5783
+  report_error_with_symbol:
+    address: 5632
+  halt_and_catch_fire:
+    address: 5714
+  print_num_2:
+    address: 5516
+  print_num_2_b:
+    address: 5544
+  print_num_2_w:
+    address: 5572
+  print_num_16:
+    address: 5600
+  print_num_16_b:
+    address: 5628
+  print_num_16_w:
+    address: 5656
+  print_num_radix:
+    address: 5684
+  print_str_as_mem:
+    address: 5869
+  pretty_print_mem:
+    address: 5870
+  mem_block_size:
+    address: 5488
+  peek_input:
+    address: 5571
+  brk:
+    address: 5488
   __heap_start:
-    address: 12738
+    address: 5488
+  err_expect_comma_eol:
+    address: 5791
+5823:
+  parse_dir_eof:
+    address: 5823
+  parse_dir_eoi:
+    address: 5844
+  reset_input_location:
+    address: 5928
+  is_frame:
+    address: 6334
+  parse_dir_frame:
+    address: 5823
+  parse_dir_endframe:
+    address: 6263
+  err_expect_identifier:
+    address: 6308
+  parse_add_mul_lt_eq:
+    address: 5823
+  parse_jnz_jz:
+    address: 6080
+  parse_arb_out:
+    address: 6262
+  parse_in:
+    address: 6369
+  parse_hlt:
+    address: 6476
+  parse_out_param:
+    address: 5823
+  parse_symbol:
+    address: 5823
+  parse_dir_symbol:
+    address: 6057
+  parse_dir_import_export:
+    address: 6202
+  realloc_more_blocks:
+    address: 6154
+  zeromem_blocks:
+    address: 6401
+  neg_chunk_header_size:
+    address: 5823
+  block_size:
+    address: 5824
+  dump_heap:
+    address: 6440
+  sbrk:
+    address: 5832
+  brk_addr:
+    address: 5849
+  char_to_digit:
+    address: 5847
+  is_alphanum:
+    address: 5968
+  strcpy:
+    address: 6079
+  zeromem:
+    address: 6118
+  report_error_with_symbol:
+    address: 5967
+  halt_and_catch_fire:
+    address: 6049
+  print_num_2:
+    address: 5851
+  print_num_2_b:
+    address: 5879
+  print_num_2_w:
+    address: 5907
+  print_num_16:
+    address: 5935
+  print_num_16_b:
+    address: 5963
+  print_num_16_w:
+    address: 5991
+  print_num_radix:
+    address: 6019
+  print_str_as_mem:
+    address: 6204
+  pretty_print_mem:
+    address: 6205
+  mem_block_size:
+    address: 5823
+  peek_input:
+    address: 5906
+  brk:
+    address: 5823
+  __heap_start:
+    address: 5823
+  err_expect_endframe:
+    address: 5874
+5894:
+  parse_dir_frame:
+    address: 5894
+  parse_dir_endframe:
+    address: 6334
+  err_expect_identifier:
+    address: 6379
+  parse_add_mul_lt_eq:
+    address: 5894
+  parse_jnz_jz:
+    address: 6151
+  parse_arb_out:
+    address: 6333
+  parse_in:
+    address: 6440
+  parse_hlt:
+    address: 6547
+  parse_out_param:
+    address: 5894
+  parse_symbol:
+    address: 5894
+  parse_dir_symbol:
+    address: 6128
+  parse_dir_import_export:
+    address: 6273
+  realloc_more_blocks:
+    address: 6225
+  zeromem_blocks:
+    address: 6472
+  neg_chunk_header_size:
+    address: 5894
+  block_size:
+    address: 5895
+  dump_heap:
+    address: 6511
+  sbrk:
+    address: 5903
+  brk_addr:
+    address: 5920
+  char_to_digit:
+    address: 5918
+  is_alphanum:
+    address: 6039
+  strcpy:
+    address: 6150
+  zeromem:
+    address: 6189
+  report_error_with_symbol:
+    address: 6038
+  halt_and_catch_fire:
+    address: 6120
+  print_num_2:
+    address: 5922
+  print_num_2_b:
+    address: 5950
+  print_num_2_w:
+    address: 5978
+  print_num_16:
+    address: 6006
+  print_num_16_b:
+    address: 6034
+  print_num_16_w:
+    address: 6062
+  print_num_radix:
+    address: 6090
+  print_str_as_mem:
+    address: 6275
+  pretty_print_mem:
+    address: 6276
+  mem_block_size:
+    address: 5894
+  peek_input:
+    address: 5977
+  brk:
+    address: 5894
+  __heap_start:
+    address: 5894
+  err_already_in_frame:
+    address: 6487
+  parse_dir_frame_block.done:
+    address: 6178
+  parse_dir_frame_block.loop:
+    address: 6045
+  parse_dir_frame_block.identifier:
+    address: 6065
+  parse_dir_frame_block.is_unique:
+    address: 6096
+  parse_dir_frame_block.comma:
+    address: 6166
+  parse_dir_frame_block:
+    address: 6025
+  err_expect_semicolon_eol:
+    address: 6406
+  err_too_many_lists:
+    address: 6513
+  parse_dir_frame_offset_blocks.after_negative:
+    address: 6213
+  parse_dir_frame_offset_blocks.done:
+    address: 6269
+  parse_dir_frame_offset_blocks:
+    address: 6185
+  err_duplicate_frame_symbol:
+    address: 6552
+  err_expect_comma_semicolon_eol:
+    address: 6442
+  parse_dir_frame_offset.loop:
+    address: 6286
+  parse_dir_frame_offset.done:
+    address: 6327
+  parse_dir_frame_offset.after_update:
+    address: 6316
+  parse_dir_frame_offset:
+    address: 6276
+  err_not_in_frame:
+    address: 6586
+6611:
+  parse_add_mul_lt_eq:
+    address: 6611
+  parse_jnz_jz:
+    address: 6868
+  parse_arb_out:
+    address: 7050
+  parse_in:
+    address: 7157
+  parse_hlt:
+    address: 7264
+  parse_out_param:
+    address: 6611
+  parse_symbol:
+    address: 6611
+  parse_dir_symbol:
+    address: 6845
+  parse_dir_import_export:
+    address: 6990
+  realloc_more_blocks:
+    address: 6942
+  zeromem_blocks:
+    address: 7189
+  neg_chunk_header_size:
+    address: 6611
+  block_size:
+    address: 6612
+  dump_heap:
+    address: 7228
+  sbrk:
+    address: 6620
+  brk_addr:
+    address: 6637
+  char_to_digit:
+    address: 6635
+  is_alphanum:
+    address: 6756
+  strcpy:
+    address: 6867
+  zeromem:
+    address: 6906
+  report_error_with_symbol:
+    address: 6755
+  halt_and_catch_fire:
+    address: 6837
+  print_num_2:
+    address: 6639
+  print_num_2_b:
+    address: 6667
+  print_num_2_w:
+    address: 6695
+  print_num_16:
+    address: 6723
+  print_num_16_b:
+    address: 6751
+  print_num_16_w:
+    address: 6779
+  print_num_radix:
+    address: 6807
+  print_str_as_mem:
+    address: 6992
+  pretty_print_mem:
+    address: 6993
+  mem_block_size:
+    address: 6611
+  peek_input:
+    address: 6694
+  brk:
+    address: 6611
+  __heap_start:
+    address: 6611
+7325:
+  parse_out_param:
+    address: 7325
+  parse_in_param:
+    address: 7512
+  parse_value:
+    address: 7593
+  parse_number_or_char:
+    address: 8151
+  err_expect_open_brace:
+    address: 8234
+  err_subtract_symbol:
+    address: 8287
+  err_expect_close_brace:
+    address: 8261
+  err_expect_number_char_identifier:
+    address: 8320
+  err_frame_symbol_not_allowed:
+    address: 8430
+  err_global_symbol_not_allowed:
+    address: 8396
+  err_expect_number_char:
+    address: 8364
+8463:
+  parse_symbol:
+    address: 8463
+  parse_dir_symbol:
+    address: 8697
+  parse_dir_import_export:
+    address: 8842
+  realloc_more_blocks:
+    address: 8794
+  zeromem_blocks:
+    address: 9041
+  neg_chunk_header_size:
+    address: 8463
+  block_size:
+    address: 8464
+  dump_heap:
+    address: 9080
+  sbrk:
+    address: 8472
+  brk_addr:
+    address: 8489
+  char_to_digit:
+    address: 8487
+  is_alphanum:
+    address: 8608
+  strcpy:
+    address: 8719
+  zeromem:
+    address: 8758
+  report_error_with_symbol:
+    address: 8607
+  halt_and_catch_fire:
+    address: 8689
+  print_num_2:
+    address: 8491
+  print_num_2_b:
+    address: 8519
+  print_num_2_w:
+    address: 8547
+  print_num_16:
+    address: 8575
+  print_num_16_b:
+    address: 8603
+  print_num_16_w:
+    address: 8631
+  print_num_radix:
+    address: 8659
+  print_str_as_mem:
+    address: 8844
+  pretty_print_mem:
+    address: 8845
+  mem_block_size:
+    address: 8463
+  peek_input:
+    address: 8546
+  brk:
+    address: 8463
+  __heap_start:
+    address: 8463
+  err_expect_equals:
+    address: 8962
+  err_expect_colon:
+    address: 8987
+9005:
+  parse:
+    address: 9005
+  current_address:
+    address: 9403
+  err_expect_comma:
+    address: 9421
+  err_expect_eol:
+    address: 9439
+  err_expect_identifier:
+    address: 9490
+  err_expect_number:
+    address: 9471
+  err_unexpected_token:
+    address: 9404
+9514:
+  brk:
+    address: 9514
+  __heap_start:
+    address: 9514
+9541:
+  report_error_at_location:
+    address: 9541
+  report_error_with_symbol:
+    address: 9685
+  halt_and_catch_fire:
+    address: 9767
+  print_num_2:
+    address: 9569
+  print_num_2_b:
+    address: 9597
+  print_num_2_w:
+    address: 9625
+  print_num_16:
+    address: 9653
+  print_num_16_b:
+    address: 9681
+  print_num_16_w:
+    address: 9709
+  print_num_radix:
+    address: 9737
+  print_str_as_mem:
+    address: 9922
+  pretty_print_mem:
+    address: 9923
+  mem_block_size:
+    address: 9541
+  peek_input:
+    address: 9624
+  brk:
+    address: 9541
+  __heap_start:
+    address: 9541
+9772:
+  alloc_blocks:
+    address: 9774
+  realloc_more_blocks:
+    address: 10103
+  zeromem_blocks:
+    address: 10350
+  neg_chunk_header_size:
+    address: 9772
+  block_size:
+    address: 9773
+  dump_heap:
+    address: 10389
+  sbrk:
+    address: 9781
+  brk_addr:
+    address: 9798
+  char_to_digit:
+    address: 9796
+  is_alphanum:
+    address: 9917
+  strcpy:
+    address: 10028
+  zeromem:
+    address: 10067
+  report_error_with_symbol:
+    address: 9916
+  halt_and_catch_fire:
+    address: 9998
+  print_num_2:
+    address: 9800
+  print_num_2_b:
+    address: 9828
+  print_num_2_w:
+    address: 9856
+  print_num_16:
+    address: 9884
+  print_num_16_b:
+    address: 9912
+  print_num_16_w:
+    address: 9940
+  print_num_radix:
+    address: 9968
+  print_str_as_mem:
+    address: 10153
+  pretty_print_mem:
+    address: 10154
+  mem_block_size:
+    address: 9772
+  peek_input:
+    address: 9855
+  brk:
+    address: 9772
+  __heap_start:
+    address: 9772
+  err_zero_allocation:
+    address: 10702
+  small:
+    address: 10692
+  large:
+    address: 10701
+10746:
+  get_input:
+    address: 10746
+  unget_input:
+    address: 10794
+  peek_input:
+    address: 10829
+  brk:
+    address: 10746
+  __heap_start:
+    address: 10746
+  input_buffer:
+    address: 10867
+  input_prev_column_num:
+    address: 10866
+10868:
+  read_identifier:
+    address: 10868
+  read_string:
+    address: 11023
+  read_number:
+    address: 11172
+11416:
+  set_mem:
+    address: 11417
+  inc_mem:
+    address: 11593
+  print_mem:
+    address: 11766
+  pretty_print_mem:
+    address: 11798
+  mem_block_size:
+    address: 11416
+  peek_input:
+    address: 11499
+  brk:
+    address: 11416
+  __heap_start:
+    address: 11416
+  calc_mem.loop:
+    address: 11670
+  calc_mem.done:
+    address: 11692
+  calc_mem:
+    address: 11660
+  inc_mem_internal.loop:
+    address: 11709
+  inc_mem_internal.have_block:
+    address: 11725
+  inc_mem_internal.this_block:
+    address: 11743
+  inc_mem_internal:
+    address: 11703
+  err_invalid_address:
+    address: 11931
+  print_mem_internal.done:
+    address: 11924
+  print_mem_internal.block:
+    address: 11843
+  print_mem_internal.byte:
+    address: 11862
+  print_mem_internal.block_done:
+    address: 11913
+  print_mem_internal.skip_comma:
+    address: 11879
+  print_mem_internal:
+    address: 11830
+11954:
+  print_num:
+    address: 11954
+  print_num_2:
+    address: 11982
+  print_num_2_b:
+    address: 12010
+  print_num_2_w:
+    address: 12038
+  print_num_16:
+    address: 12066
+  print_num_16_b:
+    address: 12094
+  print_num_16_w:
+    address: 12122
+  print_num_radix:
+    address: 12150
+  print_str_as_mem:
+    address: 12335
+  pretty_print_mem:
+    address: 12336
+  mem_block_size:
+    address: 11954
+  peek_input:
+    address: 12037
+  brk:
+    address: 11954
+  __heap_start:
+    address: 11954
+12394:
+  is_digit:
+    address: 12394
+  char_to_digit:
+    address: 12418
+  is_alphanum:
+    address: 12539
+  strcpy:
+    address: 12650
+  zeromem:
+    address: 12689
+  report_error_with_symbol:
+    address: 12538
+  halt_and_catch_fire:
+    address: 12620
+  print_num_2:
+    address: 12422
+  print_num_2_b:
+    address: 12450
+  print_num_2_w:
+    address: 12478
+  print_num_16:
+    address: 12506
+  print_num_16_b:
+    address: 12534
+  print_num_16_w:
+    address: 12562
+  print_num_radix:
+    address: 12590
+  print_str_as_mem:
+    address: 12775
+  pretty_print_mem:
+    address: 12776
+  mem_block_size:
+    address: 12394
+  peek_input:
+    address: 12477
+  brk:
+    address: 12394
+  __heap_start:
+    address: 12394
+12720:
+  __heap_start:
+    address: 12720

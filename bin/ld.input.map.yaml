@@ -6,8 +6,6 @@
 1035:
   process:
     address: 1035
-  process:
-    address: 1035
 1085:
   create_module:
     address: 1085
@@ -121,26 +119,6 @@
     address: 1085
   __heap_start:
     address: 1085
-  create_module.is_first:
-    address: 1151
-  create_module.done:
-    address: 1159
-  create_module:
-    address: 1085
-  create_import:
-    address: 1166
-  create_export:
-    address: 1253
-  create_symbol:
-    address: 1348
-  module_head:
-    address: 1443
-  module_tail:
-    address: 1444
-  resolved_head:
-    address: 1445
-  resolved_tail:
-    address: 1446
 1447:
   report_error:
     address: 1447
@@ -234,21 +212,7 @@
     address: 1447
   __heap_start:
     address: 1447
-  report_error:
-    address: 1447
-  report_libxib_error:
-    address: 1447
 1468:
-  link_imports:
-    address: 1468
-  link_imports.symbols_loop:
-    address: 1474
-  link_imports.symbols_done:
-    address: 1529
-  link_imports.imports_loop:
-    address: 1485
-  link_imports.imports_done:
-    address: 1518
   link_imports:
     address: 1468
   link_one_import.block:
@@ -262,14 +226,6 @@
   link_one_import:
     address: 1536
 1683:
-  load_objects:
-    address: 1683
-  load_objects.done:
-    address: 1903
-  load_objects.loop:
-    address: 1705
-  load_objects.no_symbols:
-    address: 1889
   load_objects:
     address: 1683
   expect_next_file.done:
@@ -457,24 +413,6 @@
     address: 3623
   __heap_start:
     address: 3623
-  print_modules.loop:
-    address: 3633
-  print_modules.done:
-    address: 3705
-  print_modules.next:
-    address: 3694
-  print_modules.skip_comma:
-    address: 3655
-  print_modules:
-    address: 3623
-  print_map.loop:
-    address: 3720
-  print_map.done:
-    address: 3794
-  print_map.next:
-    address: 3783
-  print_map:
-    address: 3714
   print_map_exports.loop:
     address: 3811
   print_map_exports.done:
@@ -494,14 +432,6 @@
 4047:
   relocate:
     address: 4047
-  relocate.loop:
-    address: 4057
-  relocate.done:
-    address: 4109
-  relocate.next:
-    address: 4098
-  relocate:
-    address: 4047
   relocate_module.block:
     address: 4126
   relocate_module.done:
@@ -515,22 +445,6 @@
 4239:
   include_objects:
     address: 4239
-  resolve_symbols:
-    address: 4295
-  include_objects.loop:
-    address: 4245
-  include_objects.done:
-    address: 4288
-  include_objects.next:
-    address: 4277
-  include_objects:
-    address: 4239
-  resolve_symbols.loop:
-    address: 4301
-  resolve_symbols.done:
-    address: 4337
-  resolve_symbols.next:
-    address: 4326
   resolve_symbols:
     address: 4295
   include_module:
@@ -590,12 +504,6 @@
     address: 5094
   __heap_start:
     address: 5094
-  brk:
-    address: 5094
-  sbrk:
-    address: 5103
-  brk_addr:
-    address: 5120
 5121:
   report_error_at_location:
     address: 5121
@@ -643,26 +551,6 @@
     address: 5121
   __heap_start:
     address: 5121
-  report_error_at_location.msg_start:
-    address: 5237
-  report_error_at_location.msg_line:
-    address: 5245
-  report_error_at_location.msg_column:
-    address: 5253
-  report_error_at_location.msg_end:
-    address: 5263
-  report_error_at_location:
-    address: 5121
-  report_error_with_symbol.msg_start:
-    address: 5336
-  report_error_with_symbol.msg_symbol:
-    address: 5344
-  report_error_with_symbol:
-    address: 5265
-  halt_and_catch_fire.loop:
-    address: 5347
-  halt_and_catch_fire:
-    address: 5347
 5352:
   alloc_blocks:
     address: 5354
@@ -720,98 +608,6 @@
     address: 5352
   __heap_start:
     address: 5352
-  alloc_blocks.large:
-    address: 5448
-  alloc_blocks.small_table:
-    address: 5370
-  alloc_blocks.small_0_blocks:
-    address: 5379
-  alloc_blocks.small_1_blocks:
-    address: 5392
-  alloc_blocks.small_2_blocks:
-    address: 5399
-  alloc_blocks.small_3_blocks:
-    address: 5406
-  alloc_blocks.small_4_blocks:
-    address: 5413
-  alloc_blocks.small_5_blocks:
-    address: 5420
-  alloc_blocks.small_6_blocks:
-    address: 5427
-  alloc_blocks.small_7_blocks:
-    address: 5434
-  alloc_blocks.small_8_blocks:
-    address: 5441
-  alloc_blocks.alloc_from_small:
-    address: 5567
-  alloc_blocks.large_loop:
-    address: 5452
-  alloc_blocks.sbrk:
-    address: 5477
-  alloc_blocks.alloc_from_large:
-    address: 5507
-  alloc_blocks.return_ptr:
-    address: 5664
-  alloc_blocks.alloc_from_large_after_next_prev:
-    address: 5530
-  alloc_blocks.alloc_from_large_replace_head:
-    address: 5556
-  alloc_blocks.alloc_cut_chunk:
-    address: 5606
-  alloc_blocks:
-    address: 5354
-  realloc_more_blocks.sbrk:
-    address: 5768
-  realloc_more_blocks.copy_loop:
-    address: 5731
-  realloc_more_blocks.done:
-    address: 5803
-  realloc_more_blocks:
-    address: 5683
-  free.done:
-    address: 5923
-  free.small:
-    address: 5876
-  free.large_after_prev:
-    address: 5853
-  free.small_after_prev:
-    address: 5895
-  free:
-    address: 5810
-  zeromem_blocks.loop:
-    address: 5940
-  zeromem_blocks.done:
-    address: 5962
-  zeromem_blocks:
-    address: 5930
-  neg_chunk_header_size:
-    address: 5352
-  block_size:
-    address: 5353
-  dump_heap.brk_msg:
-    address: 6244
-  dump_heap.small_bin_loop:
-    address: 6022
-  dump_heap.large:
-    address: 6147
-  dump_heap.small_next_bin:
-    address: 6140
-  dump_heap.small_bin_msg:
-    address: 6250
-  dump_heap.small_chunk_loop:
-    address: 6072
-  dump_heap.small_chunk_done:
-    address: 6138
-  dump_heap.done:
-    address: 6237
-  dump_heap.large_bin_msg:
-    address: 6261
-  dump_heap.large_chunk_loop:
-    address: 6169
-  dump_heap.large_chunk_done:
-    address: 6235
-  dump_heap:
-    address: 5969
   err_zero_allocation:
     address: 6282
   small:
@@ -861,30 +657,6 @@
     address: 6326
   __heap_start:
     address: 6326
-  get_input.have_char:
-    address: 6341
-  get_input.same_line:
-    address: 6363
-  get_input.done:
-    address: 6367
-  get_input:
-    address: 6326
-  unget_input.same_line:
-    address: 6398
-  unget_input.done:
-    address: 6402
-  unget_input:
-    address: 6374
-  peek_input.done:
-    address: 6424
-  peek_input:
-    address: 6409
-  reset_input_location:
-    address: 6431
-  input_line_num:
-    address: 6444
-  input_column_num:
-    address: 6445
   input_buffer:
     address: 6447
   input_prev_column_num:
@@ -926,38 +698,6 @@
     address: 6448
   __heap_start:
     address: 6448
-  read_identifier.loop:
-    address: 6489
-  read_identifier.have_space:
-    address: 6523
-  read_identifier.done:
-    address: 6573
-  read_identifier:
-    address: 6448
-  read_string.loop:
-    address: 6644
-  read_string.have_space:
-    address: 6678
-  read_string.done:
-    address: 6737
-  read_string.after_escape:
-    address: 6718
-  read_string:
-    address: 6603
-  read_number.prefix:
-    address: 6807
-  read_number.loop:
-    address: 6912
-  read_number.not_binary:
-    address: 6854
-  read_number.not_octal:
-    address: 6881
-  read_number.not_hexadecimal:
-    address: 6908
-  read_number.end:
-    address: 6970
-  read_number:
-    address: 6752
 6996:
   set_mem:
     address: 6997
@@ -1000,20 +740,6 @@
   brk:
     address: 6996
   __heap_start:
-    address: 6996
-  set_mem.have_buffer:
-    address: 7064
-  set_mem.have_space:
-    address: 7130
-  set_mem:
-    address: 6997
-  inc_mem:
-    address: 7173
-  print_mem:
-    address: 7346
-  pretty_print_mem:
-    address: 7378
-  mem_block_size:
     address: 6996
   calc_mem.loop:
     address: 7250
@@ -1074,54 +800,6 @@
     address: 7534
   __heap_start:
     address: 7534
-  print_num:
-    address: 7534
-  print_num_2:
-    address: 7562
-  print_num_2_b:
-    address: 7590
-  print_num_2_w:
-    address: 7618
-  print_num_16:
-    address: 7646
-  print_num_16_b:
-    address: 7674
-  print_num_16_w:
-    address: 7702
-  print_num_radix.next_order:
-    address: 7749
-  print_num_radix.digit_ptr_1:
-    address: 7752
-  print_num_radix.finish_order:
-    address: 7768
-  print_num_radix.digit_ptr_2:
-    address: 7801
-  print_num_radix.padding_loop:
-    address: 7784
-  print_num_radix.next_digit:
-    address: 7800
-  print_num_radix.increase:
-    address: 7808
-  print_num_radix.digits:
-    address: 7866
-  print_num_radix.finish:
-    address: 7851
-  print_num_radix:
-    address: 7730
-  print_str.start:
-    address: 7897
-  print_str.loop:
-    address: 7891
-  print_str:
-    address: 7882
-  print_str_as_mem.loop:
-    address: 7921
-  print_str_as_mem.done:
-    address: 7967
-  print_str_as_mem.skip_comma:
-    address: 7937
-  print_str_as_mem:
-    address: 7915
 7974:
   is_digit:
     address: 7974
@@ -1135,50 +813,6 @@
     address: 7974
   __heap_start:
     address: 7974
-  is_digit.end:
-    address: 7987
-  is_digit:
-    address: 7974
-  char_to_digit.invalid:
-    address: 8070
-  char_to_digit.number:
-    address: 8059
-  char_to_digit.upper_case:
-    address: 8045
-  char_to_digit.lower_case:
-    address: 8052
-  char_to_digit.check_radix:
-    address: 8063
-  char_to_digit.end:
-    address: 8074
-  char_to_digit:
-    address: 7998
-  is_alpha.end:
-    address: 8108
-  is_alpha:
-    address: 8081
-  is_alphanum.end:
-    address: 8169
-  is_alphanum:
-    address: 8119
-  strcmp.loop:
-    address: 8182
-  strcmp.done:
-    address: 8215
-  strcmp:
-    address: 8176
-  strcpy.loop:
-    address: 8236
-  strcpy.done:
-    address: 8262
-  strcpy:
-    address: 8230
-  zeromem.loop:
-    address: 8271
-  zeromem.done:
-    address: 8293
-  zeromem:
-    address: 8269
 8300:
   __heap_start:
     address: 8300
