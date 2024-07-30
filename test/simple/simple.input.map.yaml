@@ -1,13 +1,9 @@
 0:
   data:
     address: 71
-    references: [126, 15, 13, 11, 10, 7, 5]
   stack:
     address: 125
-    references: [17]
   test:
     address: 38
-    references: [36]
   data1:
     address: 72
-    references: []

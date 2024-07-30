@@ -1,11 +1,8 @@
 0:
   code:
     address: 11
-    references: [2]
 15:
   external_symbol:
     address: 32
-    references: [24]
   code:
     address: 38
-    references: [2]

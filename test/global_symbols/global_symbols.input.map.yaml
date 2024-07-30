@@ -1,13 +1,9 @@
 0:
   sym0:
     address: 0
-    references: [3]
   sym1:
     address: 0
-    references: [1]
   sym2:
     address: 1
-    references: [0]
   sym3:
     address: 5
-    references: [4, 2]

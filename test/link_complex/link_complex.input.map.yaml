@@ -1,11 +1,10 @@
 0:
   circular_symbol:
     address: 23
-    references: [31, 29, 27, 25]
+  external_symbol:
+    address: 17
 32:
   external_symbol:
     address: 49
-    references: [25, 23, 21, 19]
   reloc_symbol:
     address: 58
-    references: [34, 32, 30, 28]

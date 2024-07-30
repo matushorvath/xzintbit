@@ -1,8 +1,6 @@
 0:
   function:
     address: 9
-    references: [8]
 22:
   function:
     address: 31
-    references: [8]

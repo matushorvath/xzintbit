@@ -1,10 +1,7 @@
 0:
   message:
     address: 15
-    references: [1]
   loop:
     address: 2
-    references: [11]
   done:
     address: 12
-    references: [4]

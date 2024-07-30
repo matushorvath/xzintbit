@@ -37,5 +37,4 @@
   - https://github.com/lahmatiy/cpupro
   - https://profilerpedia.markhansen.co.nz/formats/chrome-javascript-profiler-cpuprofile/
 
-- Section .S in bin2obj.
 - Support new map format in javascript IC VM.

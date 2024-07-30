@@ -1,17 +1,12 @@
 0:
   stack:
     address: 53
-    references: [1]
   message:
     address: 20
-    references: [3]
 53:
   print:
     address: 53
-    references: []
   print_loop:
     address: 59
-    references: [25]
   print_done:
     address: 79
-    references: [16]

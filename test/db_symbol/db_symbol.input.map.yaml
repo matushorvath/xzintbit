@@ -1,4 +1,3 @@
 0:
   global:
     address: 2
-    references: [1]
