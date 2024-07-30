@@ -19,20 +19,18 @@
 .IMPORT mem_tail
 .IMPORT mem_index
 
+# TODO add a module level to the map, to avoid duplicate map keys
+
 ##########
 output_object:
-.FRAME debug;
+.FRAME
     call print_code
     call print_reloc
     call print_imports
     call print_exports
-
-    jz  [rb + debug], .done
-
     call print_symbols
 
-.done:
-    ret 1
+    ret 0
 .ENDFRAME
 
 ##########

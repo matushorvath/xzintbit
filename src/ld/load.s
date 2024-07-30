@@ -154,7 +154,7 @@ expect_symbols_or_next_file:
     call read_directive
     add [rb - 3], 0, [rb + char]
 
-    # debug symbols begin with a .S, object files begin with a .C,
+    # symbols begin with a .S, object files begin with a .C,
     # libraries begin with a .L, after the last file we expect a .$
     eq  [rb + char], 'S', [rb + tmp]
     jnz [rb + tmp], .done

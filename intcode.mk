@@ -1,5 +1,4 @@
 ICVM_TYPE ?= c
-DEBUG ?=
 
 ICDIR ?= $(abspath xzintbit)
 
@@ -10,10 +9,8 @@ endif
 ICBINDIR ?= $(abspath $(ICDIR)/bin)
 ICVMSDIR ?= $(abspath $(ICDIR)/vms)
 
-ICAS_NAME = $(if $(DEBUG),asd,as)
-
 ICVM ?= $(abspath $(ICVMSDIR)/$(ICVM_TYPE)/ic)
-ICAS ?= $(abspath $(ICBINDIR)/$(ICAS_NAME).input)
+ICAS ?= $(abspath $(ICBINDIR)/as.input)
 ICBIN2OBJ ?= $(abspath $(ICBINDIR)/bin2obj.input)
 ICLD ?= $(abspath $(ICBINDIR)/ld.input)
 ICLDMAP ?= $(abspath $(ICBINDIR)/ldmap.input)

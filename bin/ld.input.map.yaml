@@ -1,0 +1,1220 @@
+stack:
+  module: 0
+  address: 1035
+  references: [1]
+main:
+  module: 0
+  address: 12
+  references: [10]
+process:
+  module: 1035
+  address: 1035
+  references: []
+create_module.is_first:
+  module: 1085
+  address: 1151
+  references: [50]
+create_module.done:
+  module: 1085
+  address: 1159
+  references: [65]
+create_module:
+  module: 1085
+  address: 1085
+  references: []
+create_import:
+  module: 1085
+  address: 1166
+  references: []
+create_export:
+  module: 1085
+  address: 1253
+  references: []
+create_symbol:
+  module: 1085
+  address: 1348
+  references: []
+module_head:
+  module: 1085
+  address: 1443
+  references: [69]
+module_tail:
+  module: 1085
+  address: 1444
+  references: [73, 62, 52, 49]
+resolved_head:
+  module: 1085
+  address: 1445
+  references: []
+resolved_tail:
+  module: 1085
+  address: 1446
+  references: []
+report_error:
+  module: 1447
+  address: 1447
+  references: []
+report_libxib_error:
+  module: 1447
+  address: 1447
+  references: []
+link_imports.symbols_loop:
+  module: 1468
+  address: 1474
+  references: [60]
+link_imports.symbols_done:
+  module: 1468
+  address: 1529
+  references: [8]
+link_imports.imports_loop:
+  module: 1468
+  address: 1485
+  references: [49]
+link_imports.imports_done:
+  module: 1468
+  address: 1518
+  references: [19]
+link_imports:
+  module: 1468
+  address: 1468
+  references: []
+link_one_import.block:
+  module: 1468
+  address: 1574
+  references: [207]
+link_one_import.done:
+  module: 1468
+  address: 1676
+  references: [108]
+link_one_import.byte:
+  module: 1468
+  address: 1604
+  references: [196, 127]
+link_one_import.block_done:
+  module: 1468
+  address: 1665
+  references: [142]
+link_one_import:
+  module: 1468
+  address: 1536
+  references: [38]
+load_objects.done:
+  module: 1683
+  address: 1903
+  references: [212, 17]
+load_objects.loop:
+  module: 1683
+  address: 1705
+  references: [219]
+load_objects.no_symbols:
+  module: 1683
+  address: 1889
+  references: [177]
+load_objects:
+  module: 1683
+  address: 1683
+  references: []
+expect_next_file.done:
+  module: 1683
+  address: 1974
+  references: [277, 270, 263]
+expect_next_file:
+  module: 1683
+  address: 1919
+  references: [201, 10]
+load_code.done:
+  module: 1683
+  address: 2307
+  references: [610, 507]
+load_code.loop:
+  module: 1683
+  address: 2191
+  references: [603]
+load_code.have_number:
+  module: 1683
+  address: 2220
+  references: [523]
+load_code.decimal:
+  module: 1683
+  address: 2240
+  references: [543]
+load_code:
+  module: 1683
+  address: 2169
+  references: [55]
+err_expect_dot_r:
+  module: 1683
+  address: 3420
+  references: [61]
+expect_directive.error:
+  module: 1683
+  address: 2081
+  references: [390]
+expect_directive:
+  module: 1683
+  address: 2050
+  references: [142, 108, 74]
+load_relocated.done:
+  module: 1683
+  address: 2452
+  references: [755, 656]
+load_relocated.loop:
+  module: 1683
+  address: 2340
+  references: [748]
+load_relocated.have_number:
+  module: 1683
+  address: 2369
+  references: [672]
+load_relocated.decimal:
+  module: 1683
+  address: 2389
+  references: [692]
+load_relocated:
+  module: 1683
+  address: 2322
+  references: [89]
+err_expect_dot_i:
+  module: 1683
+  address: 3390
+  references: [95]
+load_imported.loop:
+  module: 1683
+  address: 2461
+  references: [952]
+load_imported.done:
+  module: 1683
+  address: 2649
+  references: [797]
+load_imported.save_identifier:
+  module: 1683
+  address: 2510
+  references: [813]
+load_imported.fixup_loop:
+  module: 1683
+  address: 2537
+  references: [945]
+load_imported.fixup_have_number:
+  module: 1683
+  address: 2566
+  references: [869]
+load_imported.decimal:
+  module: 1683
+  address: 2586
+  references: [889]
+load_imported:
+  module: 1683
+  address: 2459
+  references: [123]
+err_expect_dot_e:
+  module: 1683
+  address: 3405
+  references: [129]
+load_exported.loop:
+  module: 1683
+  address: 2673
+  references: [1138]
+load_exported.done:
+  module: 1683
+  address: 2835
+  references: [1009]
+load_exported.save_identifier:
+  module: 1683
+  address: 2722
+  references: [1025]
+load_exported.have_number:
+  module: 1683
+  address: 2778
+  references: [1081]
+load_exported.decimal:
+  module: 1683
+  address: 2798
+  references: [1101]
+load_exported:
+  module: 1683
+  address: 2671
+  references: [157]
+expect_symbols_or_next_file.done:
+  module: 1683
+  address: 2043
+  references: [346, 339, 332, 325]
+expect_symbols_or_next_file:
+  module: 1683
+  address: 1981
+  references: [166]
+load_symbols.loop:
+  module: 1683
+  address: 2859
+  references: [1541, 1442]
+load_symbols.done:
+  module: 1683
+  address: 3238
+  references: [1195]
+load_symbols.read_child:
+  module: 1683
+  address: 2942
+  references: [1238]
+load_symbols.after_child:
+  module: 1683
+  address: 3012
+  references: [1315, 1245]
+load_symbols.save_child:
+  module: 1683
+  address: 2975
+  references: [1278]
+load_symbols.have_number:
+  module: 1683
+  address: 3041
+  references: [1344]
+load_symbols.decimal:
+  module: 1683
+  address: 3061
+  references: [1364]
+load_symbols.read_fixups:
+  module: 1683
+  address: 3098
+  references: [1401]
+load_symbols.fixup_loop:
+  module: 1683
+  address: 3126
+  references: [1534, 1430]
+load_symbols.fixup_have_number:
+  module: 1683
+  address: 3155
+  references: [1458]
+load_symbols.fixup_decimal:
+  module: 1683
+  address: 3175
+  references: [1478]
+load_symbols:
+  module: 1683
+  address: 2857
+  references: [192]
+add_linker_symbols:
+  module: 1683
+  address: 3260
+  references: [228]
+err_expect_dot_c_l_at:
+  module: 1683
+  address: 3336
+  references: [279, 239]
+read_directive.error:
+  module: 1683
+  address: 2156
+  references: [465, 432]
+read_directive:
+  module: 1683
+  address: 2094
+  references: [383, 314, 252]
+err_expect_dot_s_c_l_at:
+  module: 1683
+  address: 3361
+  references: [348, 301]
+err_expect_number:
+  module: 1683
+  address: 3577
+  references: [1460, 1346, 1083, 871, 674, 525]
+err_expect_decimal:
+  module: 1683
+  address: 3596
+  references: [1480, 1366, 1103, 891, 694, 545]
+err_expect_comma_eol:
+  module: 1683
+  address: 3435
+  references: [1543, 954, 757, 612]
+err_expect_colon:
+  module: 1683
+  address: 3486
+  references: [1317, 1027, 815]
+err_expect_eol:
+  module: 1683
+  address: 3465
+  references: [1140]
+err_expect_colon_or_dot:
+  module: 1683
+  address: 3504
+  references: [1247]
+err_expect_identifier:
+  module: 1683
+  address: 3553
+  references: [1280]
+err_expect_semicolon:
+  module: 1683
+  address: 3531
+  references: [1403]
+add_linker_symbols_heap_start:
+  module: 1683
+  address: 3323
+  references: [1622]
+print_modules.loop:
+  module: 3623
+  address: 3633
+  references: [81]
+print_modules.done:
+  module: 3623
+  address: 3705
+  references: [12]
+print_modules.next:
+  module: 3623
+  address: 3694
+  references: [26, 19]
+print_modules.skip_comma:
+  module: 3623
+  address: 3655
+  references: [29]
+print_modules:
+  module: 3623
+  address: 3623
+  references: []
+print_map.loop:
+  module: 3623
+  address: 3720
+  references: [132]
+print_map.done:
+  module: 3623
+  address: 3756
+  references: [99]
+print_map.next:
+  module: 3623
+  address: 3745
+  references: [106]
+print_map:
+  module: 3623
+  address: 3714
+  references: []
+print_map_symbols.loop:
+  module: 3623
+  address: 3773
+  references: [346]
+print_map_symbols.done:
+  module: 3623
+  address: 3970
+  references: [152]
+print_map_symbols.after_child:
+  module: 3623
+  address: 3823
+  references: [178]
+print_map_symbols.str_module:
+  module: 3623
+  address: 3977
+  references: [205]
+print_map_symbols.str_address:
+  module: 3623
+  address: 3988
+  references: [241]
+print_map_symbols.str_references:
+  module: 3623
+  address: 4000
+  references: [281]
+print_map_symbols:
+  module: 3623
+  address: 3763
+  references: [121]
+relocate.loop:
+  module: 4015
+  address: 4025
+  references: [61]
+relocate.done:
+  module: 4015
+  address: 4077
+  references: [12]
+relocate.next:
+  module: 4015
+  address: 4066
+  references: [19]
+relocate:
+  module: 4015
+  address: 4015
+  references: []
+relocate_module.block:
+  module: 4015
+  address: 4094
+  references: [184]
+relocate_module.done:
+  module: 4015
+  address: 4200
+  references: [81]
+relocate_module.byte:
+  module: 4015
+  address: 4124
+  references: [173, 100]
+relocate_module.block_done:
+  module: 4015
+  address: 4189
+  references: [115]
+relocate_module:
+  module: 4015
+  address: 4084
+  references: [42]
+include_objects.loop:
+  module: 4207
+  address: 4213
+  references: [48]
+include_objects.done:
+  module: 4207
+  address: 4256
+  references: [8]
+include_objects.next:
+  module: 4207
+  address: 4245
+  references: [22, 15]
+include_objects:
+  module: 4207
+  address: 4207
+  references: []
+resolve_symbols.loop:
+  module: 4207
+  address: 4269
+  references: [97]
+resolve_symbols.done:
+  module: 4207
+  address: 4305
+  references: [64]
+resolve_symbols.next:
+  module: 4207
+  address: 4294
+  references: [71]
+resolve_symbols:
+  module: 4207
+  address: 4263
+  references: []
+include_module:
+  module: 4207
+  address: 4411
+  references: [168, 37]
+resolve_one_symbol.have_module:
+  module: 4207
+  address: 4361
+  references: [132]
+resolve_one_symbol.done:
+  module: 4207
+  address: 4404
+  references: [175]
+resolve_one_symbol:
+  module: 4207
+  address: 4312
+  references: [86]
+find_exporting_module.loop:
+  module: 4207
+  address: 4796
+  references: [635]
+find_exporting_module.done:
+  module: 4207
+  address: 4843
+  references: [624, 591]
+find_exporting_module.next:
+  module: 4207
+  address: 4832
+  references: [598]
+find_exporting_module:
+  module: 4207
+  address: 4790
+  references: [125]
+err_export_not_found:
+  module: 4207
+  address: 4992
+  references: [134]
+err_included_not_resolved:
+  module: 4207
+  address: 5018
+  references: [177]
+include_exported.loop:
+  module: 4207
+  address: 4468
+  references: [398, 363]
+include_exported.done:
+  module: 4207
+  address: 4606
+  references: [263]
+include_exported.is_new:
+  module: 4207
+  address: 4541
+  references: [305]
+include_exported.have_symbol:
+  module: 4207
+  address: 4571
+  references: [312]
+include_exported:
+  module: 4207
+  address: 4466
+  references: [224]
+include_imported.loop:
+  module: 4207
+  address: 4619
+  references: [575]
+include_imported.done:
+  module: 4207
+  address: 4783
+  references: [414]
+include_imported.have_symbol:
+  module: 4207
+  address: 4745
+  references: [444]
+include_imported:
+  module: 4207
+  address: 4613
+  references: [243]
+find_symbol.loop:
+  module: 4207
+  address: 4856
+  references: [688]
+find_symbol.done:
+  module: 4207
+  address: 4896
+  references: [677, 651]
+find_symbol:
+  module: 4207
+  address: 4850
+  references: [621, 437, 298]
+err_duplicate_export:
+  module: 4207
+  address: 4966
+  references: [314]
+append_double_linked.have_head:
+  module: 4207
+  address: 4923
+  references: [704]
+append_double_linked.common:
+  module: 4207
+  address: 4935
+  references: [715]
+append_double_linked:
+  module: 4207
+  address: 4903
+  references: [572, 537, 360]
+brk:
+  module: 5062
+  address: 5062
+  references: []
+sbrk:
+  module: 5062
+  address: 5071
+  references: []
+brk_addr:
+  module: 5062
+  address: 5088
+  references: [18, 16, 12, 3]
+report_error_at_location.msg_start:
+  module: 5089
+  address: 5205
+  references: [1]
+report_error_at_location.msg_line:
+  module: 5089
+  address: 5213
+  references: [31]
+report_error_at_location.msg_column:
+  module: 5089
+  address: 5221
+  references: [61]
+report_error_at_location.msg_end:
+  module: 5089
+  address: 5231
+  references: [91]
+report_error_at_location:
+  module: 5089
+  address: 5089
+  references: []
+report_error_with_symbol.msg_start:
+  module: 5089
+  address: 5304
+  references: [145]
+report_error_with_symbol.msg_symbol:
+  module: 5089
+  address: 5312
+  references: [175]
+report_error_with_symbol:
+  module: 5089
+  address: 5233
+  references: []
+halt_and_catch_fire.loop:
+  module: 5089
+  address: 5315
+  references: [230]
+halt_and_catch_fire:
+  module: 5089
+  address: 5315
+  references: [214, 115]
+alloc_blocks.large:
+  module: 5320
+  address: 5416
+  references: [10]
+alloc_blocks.small_table:
+  module: 5320
+  address: 5338
+  references: [12]
+alloc_blocks.small_0_blocks:
+  module: 5320
+  address: 5347
+  references: [18]
+alloc_blocks.small_1_blocks:
+  module: 5320
+  address: 5360
+  references: [19]
+alloc_blocks.small_2_blocks:
+  module: 5320
+  address: 5367
+  references: [20]
+alloc_blocks.small_3_blocks:
+  module: 5320
+  address: 5374
+  references: [21]
+alloc_blocks.small_4_blocks:
+  module: 5320
+  address: 5381
+  references: [22]
+alloc_blocks.small_5_blocks:
+  module: 5320
+  address: 5388
+  references: [23]
+alloc_blocks.small_6_blocks:
+  module: 5320
+  address: 5395
+  references: [24]
+alloc_blocks.small_7_blocks:
+  module: 5320
+  address: 5402
+  references: [25]
+alloc_blocks.small_8_blocks:
+  module: 5320
+  address: 5409
+  references: [26]
+alloc_blocks.alloc_from_small:
+  module: 5320
+  address: 5535
+  references: [95, 88, 81, 74, 67, 60, 53, 46]
+alloc_blocks.large_loop:
+  module: 5320
+  address: 5420
+  references: [124]
+alloc_blocks.sbrk:
+  module: 5320
+  address: 5445
+  references: [102]
+alloc_blocks.alloc_from_large:
+  module: 5320
+  address: 5475
+  references: [113]
+alloc_blocks.return_ptr:
+  module: 5320
+  address: 5632
+  references: [264, 154]
+alloc_blocks.alloc_from_large_after_next_prev:
+  module: 5320
+  address: 5498
+  references: [161]
+alloc_blocks.alloc_from_large_replace_head:
+  module: 5320
+  address: 5524
+  references: [184]
+alloc_blocks.alloc_cut_chunk:
+  module: 5320
+  address: 5574
+  references: [241, 214, 203]
+alloc_blocks:
+  module: 5320
+  address: 5322
+  references: [370]
+realloc_more_blocks.sbrk:
+  module: 5320
+  address: 5736
+  references: [355]
+realloc_more_blocks.copy_loop:
+  module: 5320
+  address: 5699
+  references: [397]
+realloc_more_blocks.done:
+  module: 5320
+  address: 5771
+  references: [415]
+realloc_more_blocks:
+  module: 5320
+  address: 5651
+  references: []
+free.done:
+  module: 5320
+  address: 5891
+  references: [523, 462]
+free.small:
+  module: 5320
+  address: 5844
+  references: [489]
+free.large_after_prev:
+  module: 5320
+  address: 5821
+  references: [492]
+free.small_after_prev:
+  module: 5320
+  address: 5863
+  references: [530]
+free:
+  module: 5320
+  address: 5778
+  references: [412, 311]
+zeromem_blocks.loop:
+  module: 5320
+  address: 5908
+  references: [609]
+zeromem_blocks.done:
+  module: 5320
+  address: 5930
+  references: [598]
+zeromem_blocks:
+  module: 5320
+  address: 5898
+  references: []
+neg_chunk_header_size:
+  module: 5320
+  address: 5320
+  references: [586, 465, 377, 335]
+block_size:
+  module: 5320
+  address: 5321
+  references: []
+dump_heap.brk_msg:
+  module: 5320
+  address: 6212
+  references: [620]
+dump_heap.small_bin_loop:
+  module: 5320
+  address: 5990
+  references: [794]
+dump_heap.large:
+  module: 5320
+  address: 6115
+  references: [676]
+dump_heap.small_next_bin:
+  module: 5320
+  address: 6108
+  references: [687]
+dump_heap.small_bin_msg:
+  module: 5320
+  address: 6218
+  references: [689]
+dump_heap.small_chunk_loop:
+  module: 5320
+  address: 6040
+  references: [785]
+dump_heap.small_chunk_done:
+  module: 5320
+  address: 6106
+  references: [722]
+dump_heap.done:
+  module: 5320
+  address: 6205
+  references: [797]
+dump_heap.large_bin_msg:
+  module: 5320
+  address: 6229
+  references: [799]
+dump_heap.large_chunk_loop:
+  module: 5320
+  address: 6137
+  references: [882]
+dump_heap.large_chunk_done:
+  module: 5320
+  address: 6203
+  references: [819]
+dump_heap:
+  module: 5320
+  address: 5937
+  references: []
+err_zero_allocation:
+  module: 5320
+  address: 6250
+  references: [28]
+small:
+  module: 5320
+  address: 6240
+  references: [678, 564, 544, 532, 525, 243, 236, 228, 216, 94, 87, 80, 73, 66, 59, 52, 45]
+large:
+  module: 5320
+  address: 6249
+  references: [814, 796, 520, 506, 494, 491, 211, 97]
+get_input.have_char:
+  module: 6294
+  address: 6309
+  references: [12]
+get_input.same_line:
+  module: 6294
+  address: 6331
+  references: [21]
+get_input.done:
+  module: 6294
+  address: 6335
+  references: [36]
+get_input:
+  module: 6294
+  address: 6294
+  references: []
+unget_input.same_line:
+  module: 6294
+  address: 6366
+  references: [60]
+unget_input.done:
+  module: 6294
+  address: 6370
+  references: [71]
+unget_input:
+  module: 6294
+  address: 6342
+  references: []
+peek_input.done:
+  module: 6294
+  address: 6392
+  references: [91]
+peek_input:
+  module: 6294
+  address: 6377
+  references: []
+reset_input_location:
+  module: 6294
+  address: 6399
+  references: []
+input_line_num:
+  module: 6294
+  address: 6412
+  references: [108, 64, 62, 25, 23]
+input_column_num:
+  module: 6294
+  address: 6413
+  references: [112, 75, 73, 68, 40, 38, 33, 27]
+input_buffer:
+  module: 6294
+  address: 6415
+  references: [97, 86, 53, 9, 3]
+input_prev_column_num:
+  module: 6294
+  address: 6414
+  references: [66, 29]
+read_identifier.loop:
+  module: 6416
+  address: 6457
+  references: [124]
+read_identifier.have_space:
+  module: 6416
+  address: 6491
+  references: [43]
+read_identifier.done:
+  module: 6416
+  address: 6541
+  references: [105]
+read_identifier:
+  module: 6416
+  address: 6416
+  references: []
+read_string.loop:
+  module: 6416
+  address: 6612
+  references: [288]
+read_string.have_space:
+  module: 6416
+  address: 6646
+  references: [198]
+read_string.done:
+  module: 6416
+  address: 6705
+  references: [249]
+read_string.after_escape:
+  module: 6416
+  address: 6686
+  references: [256]
+read_string:
+  module: 6416
+  address: 6571
+  references: []
+read_number.prefix:
+  module: 6416
+  address: 6775
+  references: [341]
+read_number.loop:
+  module: 6416
+  address: 6880
+  references: [521, 459, 432, 405, 365]
+read_number.not_binary:
+  module: 6416
+  address: 6822
+  references: [385]
+read_number.not_octal:
+  module: 6416
+  address: 6849
+  references: [412]
+read_number.not_hexadecimal:
+  module: 6416
+  address: 6876
+  references: [439]
+read_number.end:
+  module: 6416
+  address: 6938
+  references: [493]
+read_number:
+  module: 6416
+  address: 6720
+  references: []
+set_mem.have_buffer:
+  module: 6964
+  address: 7032
+  references: [13]
+set_mem.have_space:
+  module: 6964
+  address: 7098
+  references: [78, 67]
+set_mem:
+  module: 6964
+  address: 6965
+  references: []
+inc_mem:
+  module: 6964
+  address: 7141
+  references: []
+print_mem:
+  module: 6964
+  address: 7314
+  references: []
+pretty_print_mem:
+  module: 6964
+  address: 7346
+  references: []
+mem_block_size:
+  module: 6964
+  address: 6964
+  references: []
+calc_mem.loop:
+  module: 6964
+  address: 7218
+  references: [275]
+calc_mem.done:
+  module: 6964
+  address: 7240
+  references: [260]
+calc_mem:
+  module: 6964
+  address: 7208
+  references: [193]
+inc_mem_internal.loop:
+  module: 6964
+  address: 7257
+  references: [326]
+inc_mem_internal.have_block:
+  module: 6964
+  address: 7273
+  references: [295]
+inc_mem_internal.this_block:
+  module: 6964
+  address: 7291
+  references: [311]
+inc_mem_internal:
+  module: 6964
+  address: 7251
+  references: [236]
+err_invalid_address:
+  module: 6964
+  address: 7479
+  references: [297]
+print_mem_internal.done:
+  module: 6964
+  address: 7472
+  references: [426]
+print_mem_internal.block:
+  module: 6964
+  address: 7391
+  references: [507]
+print_mem_internal.byte:
+  module: 6964
+  address: 7410
+  references: [496, 441]
+print_mem_internal.block_done:
+  module: 6964
+  address: 7461
+  references: [452]
+print_mem_internal.skip_comma:
+  module: 6964
+  address: 7427
+  references: [460, 455]
+print_mem_internal:
+  module: 6964
+  address: 7378
+  references: [408, 376]
+print_num:
+  module: 7502
+  address: 7502
+  references: []
+print_num_2:
+  module: 7502
+  address: 7530
+  references: []
+print_num_2_b:
+  module: 7502
+  address: 7558
+  references: []
+print_num_2_w:
+  module: 7502
+  address: 7586
+  references: []
+print_num_16:
+  module: 7502
+  address: 7614
+  references: []
+print_num_16_b:
+  module: 7502
+  address: 7642
+  references: []
+print_num_16_w:
+  module: 7502
+  address: 7670
+  references: []
+print_num_radix.next_order:
+  module: 7502
+  address: 7717
+  references: [233, 208]
+print_num_radix.digit_ptr_1:
+  module: 7502
+  address: 7720
+  references: [324, 243, 235, 222, 220]
+print_num_radix.finish_order:
+  module: 7502
+  address: 7736
+  references: []
+print_num_radix.digit_ptr_2:
+  module: 7502
+  address: 7769
+  references: [320, 313, 311, 237]
+print_num_radix.padding_loop:
+  module: 7502
+  address: 7752
+  references: [265]
+print_num_radix.next_digit:
+  module: 7502
+  address: 7768
+  references: [316, 256]
+print_num_radix.increase:
+  module: 7502
+  address: 7776
+  references: [292]
+print_num_radix.digits:
+  module: 7502
+  address: 7834
+  references: [298]
+print_num_radix.finish:
+  module: 7502
+  address: 7819
+  references: [309]
+print_num_radix:
+  module: 7502
+  address: 7698
+  references: [425, 190, 162, 134, 106, 78, 50, 22]
+print_str.start:
+  module: 7502
+  address: 7865
+  references: [356]
+print_str.loop:
+  module: 7502
+  address: 7859
+  references: [373]
+print_str:
+  module: 7502
+  address: 7850
+  references: []
+print_str_as_mem.loop:
+  module: 7502
+  address: 7889
+  references: [432]
+print_str_as_mem.done:
+  module: 7502
+  address: 7935
+  references: [397]
+print_str_as_mem.skip_comma:
+  module: 7502
+  address: 7905
+  references: [400]
+print_str_as_mem:
+  module: 7502
+  address: 7883
+  references: []
+is_digit.end:
+  module: 7942
+  address: 7955
+  references: [8]
+is_digit:
+  module: 7942
+  address: 7942
+  references: [183]
+char_to_digit.invalid:
+  module: 7942
+  address: 8038
+  references: [70, 60, 46, 32]
+char_to_digit.number:
+  module: 7942
+  address: 8027
+  references: [39]
+char_to_digit.upper_case:
+  module: 7942
+  address: 8013
+  references: [53]
+char_to_digit.lower_case:
+  module: 7942
+  address: 8020
+  references: [67]
+char_to_digit.check_radix:
+  module: 7942
+  address: 8031
+  references: [84, 77]
+char_to_digit.end:
+  module: 7942
+  address: 8042
+  references: [95]
+char_to_digit:
+  module: 7942
+  address: 7966
+  references: []
+is_alpha.end:
+  module: 7942
+  address: 8076
+  references: [129, 122, 115]
+is_alpha:
+  module: 7942
+  address: 8049
+  references: [161]
+is_alphanum.end:
+  module: 7942
+  address: 8137
+  references: [190, 168]
+is_alphanum:
+  module: 7942
+  address: 8087
+  references: []
+strcmp.loop:
+  module: 7942
+  address: 8150
+  references: [240]
+strcmp.done:
+  module: 7942
+  address: 8183
+  references: [233, 230]
+strcmp:
+  module: 7942
+  address: 8144
+  references: []
+strcpy.loop:
+  module: 7942
+  address: 8204
+  references: [287]
+strcpy.done:
+  module: 7942
+  address: 8230
+  references: [280]
+strcpy:
+  module: 7942
+  address: 8198
+  references: []
+zeromem.loop:
+  module: 7942
+  address: 8239
+  references: [318]
+zeromem.done:
+  module: 7942
+  address: 8261
+  references: [307]
+zeromem:
+  module: 7942
+  address: 8237
+  references: []

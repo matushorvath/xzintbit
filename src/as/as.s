@@ -19,9 +19,6 @@ main:
 .FRAME
     call parse
     call process_fixups
-
-    add 0, 0, [rb - 1]                  # exclude debug information
-    arb -1
     call output_object
 
     ret 0
