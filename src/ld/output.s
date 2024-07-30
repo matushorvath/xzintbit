@@ -72,6 +72,15 @@ print_map:
     add [rb + module], MODULE_INCLUDED, [ip + 1]
     jz  [0], .next
 
+    # print the module address
+    add [rb + module], MODULE_ADDRESS, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ':'
+    out 10
+
     # dump all symbols within the module
     add [rb + module], 0, [rb - 1]
     arb -1
@@ -101,6 +110,9 @@ print_map_symbols:
     jz  [rb + symbol], .done
 
     # print the parent identifier
+    out ' '
+    out ' '
+
     add [rb + symbol], SYMBOL_PARENT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
     arb -1
@@ -119,18 +131,6 @@ print_map_symbols:
 
 .after_child:
     out ':'
-    out 10
-
-    # print the module
-    add .str_module, 0, [rb - 1]
-    arb -1
-    call print_str
-
-    add [rb + module], MODULE_ADDRESS, [ip + 1]
-    add [0], 0, [rb - 1]
-    arb -1
-    call print_num
-
     out 10
 
     # print the absolute address
@@ -153,6 +153,8 @@ print_map_symbols:
 
     out '['
 
+    # TODO the references need to be increased by MODULE_ADDRESS
+
     add [rb + symbol], SYMBOL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb - 1]
     add [rb + symbol], SYMBOL_FIXUPS_TAIL, [ip + 1]
@@ -162,7 +164,7 @@ print_map_symbols:
     arb -3
     call pretty_print_mem
 
-    # TODO include imported locations as well
+    # TODO include imported locations as well, increased by their respecitive MODULE_ADDRESS, only from included modules
 
     out ']'
     out 10
@@ -176,12 +178,10 @@ print_map_symbols:
     arb 1
     ret 1
 
-.str_module:
-    db  "  module: ", 0
 .str_address:
-    db  "  address: ", 0
+    db  "    address: ", 0
 .str_references:
-    db  "  references: ", 0
+    db  "    references: ", 0
 .ENDFRAME
 
 .EOF
