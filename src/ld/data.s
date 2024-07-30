@@ -1,6 +1,7 @@
 .EXPORT create_module
 .EXPORT create_import
 .EXPORT create_export
+.EXPORT create_symbol
 
 .EXPORT module_head
 .EXPORT module_tail
@@ -125,6 +126,48 @@ create_export:
 
     add [rb + module], MODULE_EXPORTS_HEAD, [ip + 3]
     add [rb + export], 0, [0]
+
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
+create_symbol:
+.FRAME module; symbol, tmp
+    arb -2
+
+    # allocate a block
+    add SYMBOL_ALLOC_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc_blocks
+    add [rb - 3], 0, [rb + symbol]
+
+    # initialize to zeros
+    add [rb + symbol], 0, [rb - 1]
+    add SYMBOL_ALLOC_SIZE, 0, [rb - 2]
+    arb -2
+    call zeromem_blocks
+
+    # save module pointer
+    add [rb + symbol], SYMBOL_MODULE, [ip + 3]
+    add [rb + module], 0, [0]
+
+    # default address is -1, not 0
+    add [rb + symbol], SYMBOL_ADDRESS, [ip + 3]
+    add -1, 0, [0]
+
+    # add to the head of doubly-linked list
+    add [rb + module], MODULE_SYMBOLS_HEAD, [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    add [rb + symbol], SYMBOL_NEXT_PTR, [ip + 3]
+    add [rb + tmp], 0, [0]
+
+    add [rb + symbol], SYMBOL_PREV_PTR, [ip + 3]
+    add 0, 0, [0]
+
+    add [rb + module], MODULE_SYMBOLS_HEAD, [ip + 3]
+    add [rb + symbol], 0, [0]
 
     arb 2
     ret 1

@@ -19,6 +19,7 @@
 .IMPORT create_module
 .IMPORT create_import
 .IMPORT create_export
+.IMPORT create_symbol
 .IMPORT module_head
 .IMPORT module_tail
 
@@ -27,16 +28,16 @@
 
 ##########
 load_objects:
-.FRAME module, is_library, tmp
-    arb -3
+.FRAME module, directive, is_library, tmp
+    arb -4
 
-load_objects_loop:
     # check for more files
     call expect_next_file
     eq  [rb - 2], '$', [rb + tmp]
     jnz [rb + tmp], .done
     eq  [rb - 2], 'L', [rb + is_library]
 
+.loop:
     # create a module
     add [rb + is_library], 0, [rb - 1]
     arb -1
@@ -81,12 +82,35 @@ load_objects_loop:
     arb -1
     call load_exported
 
-    jz  0, load_objects_loop
+    # check for either the symbols or more files
+    call expect_symbols_or_next_file
+    add [rb - 2], 0, [rb + directive]
+
+    # do we have symbols for current file?
+    eq  [rb + directive], 'S', [rb + tmp]
+    jz  [rb + tmp], .no_symbols
+
+    # we have .S, load symbols
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call load_symbols
+
+    # check for more files
+    call expect_next_file
+    add [rb - 2], 0, [rb + directive]
+
+.no_symbols:
+    # is this the last file?
+    eq  [rb + directive], '$', [rb + tmp]
+    jnz [rb + tmp], .done
+    eq  [rb + directive], 'L', [rb + is_library]
+
+    jz  0, .loop
 
 .done:
     call add_linker_symbols
 
-    arb 3
+    arb 4
     ret 0
 .ENDFRAME
 
@@ -109,6 +133,37 @@ expect_next_file:
     jnz [rb + tmp], .done
 
     add err_expect_dot_c_l_at, 0, [rb]
+    call report_error
+
+.done:
+    # return [rb + char]
+
+    arb 2
+    ret 0
+.ENDFRAME
+
+##########
+expect_symbols_or_next_file:
+.FRAME char, tmp
+    arb -2
+
+    add err_expect_dot_s_c_l_at, 0, [rb - 1]
+    arb -1
+    call read_directive
+    add [rb - 3], 0, [rb + char]
+
+    # debug symbols begin with a .S, object files begin with a .C,
+    # libraries begin with a .L, after the last file we expect a .$
+    eq  [rb + char], 'S', [rb + tmp]
+    jnz [rb + tmp], .done
+    eq  [rb + char], 'C', [rb + tmp]
+    jnz [rb + tmp], .done
+    eq  [rb + char], 'L', [rb + tmp]
+    jnz [rb + tmp], .done
+    eq  [rb + char], '$', [rb + tmp]
+    jnz [rb + tmp], .done
+
+    add err_expect_dot_s_c_l_at, 0, [rb]
     call report_error
 
 .done:
@@ -433,6 +488,113 @@ load_exported:
 .ENDFRAME
 
 ##########
+load_symbols:
+.FRAME module; symbol, identifier, byte, tmp
+    arb -4
+
+.loop:
+    # read the identifier
+    call read_identifier
+    add [rb - 2], 0, [rb + identifier]
+
+    # if there is no identifier, finish
+    add [rb + identifier], 0, [ip + 1]
+    jz  [0], .done
+
+    call get_input
+    eq  [rb - 2], ':', [rb + tmp]
+    jnz [rb + tmp], .save_identifier
+
+    add err_expect_colon, 0, [rb]
+    call report_error
+
+.save_identifier:
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call create_import
+    add [rb - 3], 0, [rb + symbol]
+
+    add [rb + symbol], SYMBOL_IDENTIFIER, [ip + 3]
+    add [rb + identifier], 0, [0]
+
+    call read_number
+    add [rb - 2], 0, [rb + byte]
+
+    # was there actually a number?
+    jnz [rb - 3], .have_number
+
+    add err_expect_number, 0, [rb]
+    call report_error
+
+.have_number:
+    # was the number base 10?
+    eq  [rb - 4], 10, [rb + tmp]
+    jnz [rb + tmp], .decimal
+
+    add err_expect_decimal, 0, [rb]
+    call report_error
+
+.decimal:
+    # store the byte
+    add [rb + symbol], SYMBOL_ADDRESS, [ip + 3]
+    add [rb + byte], 0, [0]
+
+    call get_input
+    eq  [rb - 2], ';', [rb + tmp]
+    jnz [rb + tmp], .fixup_loop
+
+    add err_expect_semicolon, 0, [rb]
+    call report_error
+
+.fixup_loop:
+    call read_number
+    add [rb - 2], 0, [rb + byte]
+
+    # was there actually a number?
+    jnz [rb - 3], .fixup_have_number
+
+    add err_expect_number, 0, [rb]
+    call report_error
+
+.fixup_have_number:
+    # was the number base 10?
+    eq  [rb - 4], 10, [rb + tmp]
+    jnz [rb + tmp], .fixup_decimal
+
+    add err_expect_decimal, 0, [rb]
+    call report_error
+
+.fixup_decimal:
+    # store the byte
+    add [rb + symbol], SYMBOL_FIXUPS_HEAD, [rb - 1]
+    add [rb + symbol], SYMBOL_FIXUPS_TAIL, [rb - 2]
+    add [rb + symbol], SYMBOL_FIXUPS_INDEX, [rb - 3]
+    add [rb + byte], 0, [rb - 4]
+    arb -4
+    call set_mem
+
+    # next character should be comma or line end
+    call get_input
+
+    eq  [rb - 2], ',', [rb + tmp]
+    jnz [rb + tmp], .fixup_loop
+    eq  [rb - 2], 10, [rb + tmp]
+    jnz [rb + tmp], .loop
+
+    add err_expect_comma_eol, 0, [rb]
+    call report_error
+
+.done:
+    # free the empty identifier
+    add [rb + identifier], 0, [rb - 1]
+    arb -1
+    call free
+
+    arb 4
+    ret 1
+.ENDFRAME
+
+##########
 add_linker_symbols:
 .FRAME module, export
     arb -2
@@ -470,6 +632,8 @@ add_linker_symbols_heap_start:
 
 err_expect_dot_c_l_at:
     db  "Expecting a .C, .L or .$", 0
+err_expect_dot_s_c_l_at:
+    db  "Expecting a .S, .C, .L or .$", 0
 err_expect_dot_i:
     db  "Expecting a .I", 0
 err_expect_dot_e:
@@ -482,6 +646,8 @@ err_expect_eol:
     db  "Expecting a line end", 0
 err_expect_colon:
     db  "Expecting a colon", 0
+err_expect_semicolon:
+    db  "Expecting a semicolon", 0
 err_expect_number:
     db  "Expecting a number", 0
 err_expect_decimal:

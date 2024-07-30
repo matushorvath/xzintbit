@@ -11,9 +11,10 @@
 .SYMBOL MODULE_RELOC_INDEX          7
 .SYMBOL MODULE_IMPORTS_HEAD         8
 .SYMBOL MODULE_EXPORTS_HEAD         9
-.SYMBOL MODULE_NEEDED               10          # 0 = not needed, 1 = needed
-.SYMBOL MODULE_INCLUDED             11          # 0 = not included, 1 = included
-.SYMBOL MODULE_ADDRESS              12
+.SYMBOL MODULE_SYMBOLS_HEAD         10
+.SYMBOL MODULE_NEEDED               11          # 0 = not needed, 1 = needed
+.SYMBOL MODULE_INCLUDED             12          # 0 = not included, 1 = included
+.SYMBOL MODULE_ADDRESS              13
 .SYMBOL MODULE_ALLOC_SIZE           2           # record size in memory blocks, for alloc_blocks (2 * 8 - 2 = 14 bytes)
 
 # export record layout:
@@ -35,5 +36,16 @@
 .SYMBOL IMPORT_FIXUPS_TAIL          5
 .SYMBOL IMPORT_FIXUPS_INDEX         6
 .SYMBOL IMPORT_ALLOC_SIZE           2           # record size in memory blocks, for alloc_blocks (2 * 8 - 2 = 14 bytes)
+
+# symbol record layout:
+.SYMBOL SYMBOL_NEXT_PTR             0
+.SYMBOL SYMBOL_PREV_PTR             1
+.SYMBOL SYMBOL_IDENTIFIER           2
+.SYMBOL SYMBOL_MODULE               3
+.SYMBOL SYMBOL_ADDRESS              4
+.SYMBOL SYMBOL_FIXUPS_HEAD          5
+.SYMBOL SYMBOL_FIXUPS_TAIL          6
+.SYMBOL SYMBOL_FIXUPS_INDEX         7
+.SYMBOL SYMBOL_ALLOC_SIZE           2           # record size in memory blocks, for alloc_blocks (2 * 8 - 2 = 14 bytes)
 
 .EOI
