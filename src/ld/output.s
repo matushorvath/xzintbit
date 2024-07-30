@@ -11,7 +11,7 @@
 
 # from data.s
 .IMPORT module_head
-.IMPORT symbol_head
+.IMPORT resolved_head
 
 ##########
 print_modules:
@@ -62,7 +62,7 @@ print_modules:
 print_map:
 .FRAME
     call dump_modules
-    call dump_symbols
+    call dump_resolved
 
     ret 0
 .ENDFRAME
@@ -146,7 +146,7 @@ dump_modules:
 .ENDFRAME
 
 ##########
-dump_symbols:
+dump_resolved:
 .FRAME symbol, import, module
     arb -3
 
@@ -154,7 +154,7 @@ dump_symbols:
     arb -1
     call print_str
 
-    add [symbol_head], 0, [rb + symbol]
+    add [resolved_head], 0, [rb + symbol]
 
 .loop:
     jz  [rb + symbol], .done

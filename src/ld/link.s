@@ -5,14 +5,14 @@
 .IMPORT mem_block_size
 
 # from data.s
-.IMPORT symbol_head
+.IMPORT resolved_head
 
 ##########
 link_imports:
 .FRAME symbol, import, tmp
     arb -3
 
-    add [symbol_head], 0, [rb + symbol]
+    add [resolved_head], 0, [rb + symbol]
 
 .symbols_loop:
     jz  [rb + symbol], .symbols_done

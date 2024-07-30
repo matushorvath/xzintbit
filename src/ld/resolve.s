@@ -13,8 +13,8 @@
 
 # from data.s
 .IMPORT module_head
-.IMPORT symbol_head
-.IMPORT symbol_tail
+.IMPORT resolved_head
+.IMPORT resolved_tail
 
 ##########
 include_objects:
@@ -55,7 +55,7 @@ resolve_symbols:
     arb -2
 
     # process all symbols that don't yet have an exporting module
-    add [symbol_head], 0, [rb + symbol]
+    add [resolved_head], 0, [rb + symbol]
 
 .loop:
     jz  [rb + symbol], .done
@@ -158,7 +158,7 @@ include_exported:
     # do we have this symbol already included?
     add [rb + export], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
-    add [symbol_head], 0, [rb - 2]
+    add [resolved_head], 0, [rb - 2]
     arb -2
     call find_symbol
 
@@ -180,8 +180,8 @@ include_exported:
 
     # append this export to list of included symbols
     add [rb + symbol], 0, [rb - 1]
-    add symbol_head, 0, [rb - 2]
-    add symbol_tail, 0, [rb - 3]
+    add resolved_head, 0, [rb - 2]
+    add resolved_tail, 0, [rb - 3]
     arb -3
     call append_double_linked
 
@@ -219,7 +219,7 @@ include_imported:
     # do we have this symbol already included?
     add [rb + import], IMPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
-    add [symbol_head], 0, [rb - 2]
+    add [resolved_head], 0, [rb - 2]
     arb -2
     call find_symbol
 
@@ -252,8 +252,8 @@ include_imported:
 
     # append this symbol to list of symbols
     add [rb + symbol], 0, [rb - 1]
-    add symbol_head, 0, [rb - 2]
-    add symbol_tail, 0, [rb - 3]
+    add resolved_head, 0, [rb - 2]
+    add resolved_tail, 0, [rb - 3]
     arb -3
     call append_double_linked
 

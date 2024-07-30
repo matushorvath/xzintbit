@@ -96,7 +96,7 @@ symbols:
       module: 1085
       offset: 359
     imports:
-  symbol_head:
+  resolved_head:
     export:
       module: 1085
       offset: 360
@@ -107,7 +107,7 @@ symbols:
         offsets: [309]
       - module: 4561
         offsets: [520, 424, 343, 285, 59]
-  symbol_tail:
+  resolved_tail:
     export:
       module: 1085
       offset: 361

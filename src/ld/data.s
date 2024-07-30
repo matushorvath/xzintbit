@@ -5,8 +5,8 @@
 
 .EXPORT module_head
 .EXPORT module_tail
-.EXPORT symbol_head
-.EXPORT symbol_tail
+.EXPORT resolved_head
+.EXPORT resolved_tail
 
 # from libxib/heap.s
 .IMPORT alloc_blocks
@@ -182,10 +182,10 @@ module_head:
 module_tail:
     db  0
 
-# included symbols
-symbol_head:
+# resolved exports and imports
+resolved_head:
     db  0
-symbol_tail:
+resolved_tail:
     db  0
 
 .EOF
