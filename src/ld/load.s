@@ -173,13 +173,13 @@ load_code:
 .FRAME module; byte, length, tmp
     arb -3
 
+    add 0, 0, [rb + length]
+
     # peek one character to see if we have code at all
     call peek_input
 
     eq  [rb - 2], '.', [rb + tmp]
     jnz [rb + tmp], .done
-
-    add 0, 0, [rb + length]
 
 .loop:
     call read_number
