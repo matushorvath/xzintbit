@@ -12,10 +12,10 @@
 1085:
   create_module.is_first:
     address: 1151
-    references: [50]
+    references: [1135]
   create_module.done:
     address: 1159
-    references: [65]
+    references: [1150]
   create_module:
     address: 1085
     references: []
@@ -30,10 +30,10 @@
     references: []
   module_head:
     address: 1443
-    references: [69]
+    references: [1154]
   module_tail:
     address: 1444
-    references: [73, 62, 52, 49]
+    references: [1158, 1147, 1137, 1134]
   resolved_head:
     address: 1445
     references: []
@@ -50,881 +50,896 @@
 1468:
   link_imports.symbols_loop:
     address: 1474
-    references: [60]
+    references: [1528]
   link_imports.symbols_done:
     address: 1529
-    references: [8]
+    references: [1476]
   link_imports.imports_loop:
     address: 1485
-    references: [49]
+    references: [1517]
   link_imports.imports_done:
     address: 1518
-    references: [19]
+    references: [1487]
   link_imports:
     address: 1468
     references: []
   link_one_import.block:
     address: 1574
-    references: [207]
+    references: [1675]
   link_one_import.done:
     address: 1676
-    references: [108]
+    references: [1576]
   link_one_import.byte:
     address: 1604
-    references: [196, 127]
+    references: [1664, 1595]
   link_one_import.block_done:
     address: 1665
-    references: [142]
+    references: [1610]
   link_one_import:
     address: 1536
-    references: [38]
+    references: [1506]
 1683:
   load_objects.done:
     address: 1903
-    references: [212, 17]
+    references: [1895, 1700]
   load_objects.loop:
     address: 1705
-    references: [219]
+    references: [1902]
   load_objects.no_symbols:
     address: 1889
-    references: [177]
+    references: [1860]
   load_objects:
     address: 1683
     references: []
   expect_next_file.done:
     address: 1974
-    references: [277, 270, 263]
+    references: [1960, 1953, 1946]
   expect_next_file:
     address: 1919
-    references: [201, 10]
+    references: [1884, 1693]
   load_code.done:
     address: 2307
-    references: [610, 507]
+    references: [2293, 2190]
   load_code.loop:
     address: 2191
-    references: [603]
+    references: [2286]
   load_code.have_number:
     address: 2220
-    references: [523]
+    references: [2206]
   load_code.decimal:
     address: 2240
-    references: [543]
+    references: [2226]
   load_code:
     address: 2169
-    references: [55]
+    references: [1738]
   err_expect_dot_r:
     address: 3420
-    references: [61]
+    references: [1744]
   expect_directive.error:
     address: 2081
-    references: [390]
+    references: [2073]
   expect_directive:
     address: 2050
-    references: [142, 108, 74]
+    references: [1825, 1791, 1757]
   load_relocated.done:
     address: 2452
-    references: [755, 656]
+    references: [2438, 2339]
   load_relocated.loop:
     address: 2340
-    references: [748]
+    references: [2431]
   load_relocated.have_number:
     address: 2369
-    references: [672]
+    references: [2355]
   load_relocated.decimal:
     address: 2389
-    references: [692]
+    references: [2375]
   load_relocated:
     address: 2322
-    references: [89]
+    references: [1772]
   err_expect_dot_i:
     address: 3390
-    references: [95]
+    references: [1778]
   load_imported.loop:
     address: 2461
-    references: [952]
+    references: [2635]
   load_imported.done:
     address: 2649
-    references: [797]
+    references: [2480]
   load_imported.save_identifier:
     address: 2510
-    references: [813]
+    references: [2496]
   load_imported.fixup_loop:
     address: 2537
-    references: [945]
+    references: [2628]
   load_imported.fixup_have_number:
     address: 2566
-    references: [869]
+    references: [2552]
   load_imported.decimal:
     address: 2586
-    references: [889]
+    references: [2572]
   load_imported:
     address: 2459
-    references: [123]
+    references: [1806]
   err_expect_dot_e:
     address: 3405
-    references: [129]
+    references: [1812]
   load_exported.loop:
     address: 2673
-    references: [1138]
+    references: [2821]
   load_exported.done:
     address: 2835
-    references: [1009]
+    references: [2692]
   load_exported.save_identifier:
     address: 2722
-    references: [1025]
+    references: [2708]
   load_exported.have_number:
     address: 2778
-    references: [1081]
+    references: [2764]
   load_exported.decimal:
     address: 2798
-    references: [1101]
+    references: [2784]
   load_exported:
     address: 2671
-    references: [157]
+    references: [1840]
   expect_symbols_or_next_file.done:
     address: 2043
-    references: [346, 339, 332, 325]
+    references: [2029, 2022, 2015, 2008]
   expect_symbols_or_next_file:
     address: 1981
-    references: [166]
+    references: [1849]
   load_symbols.loop:
     address: 2859
-    references: [1541, 1442]
+    references: [3224, 3125]
   load_symbols.done:
     address: 3238
-    references: [1195]
+    references: [2878]
   load_symbols.read_child:
     address: 2942
-    references: [1238]
+    references: [2921]
   load_symbols.after_child:
     address: 3012
-    references: [1315, 1245]
+    references: [2998, 2928]
   load_symbols.save_child:
     address: 2975
-    references: [1278]
+    references: [2961]
   load_symbols.have_number:
     address: 3041
-    references: [1344]
+    references: [3027]
   load_symbols.decimal:
     address: 3061
-    references: [1364]
+    references: [3047]
   load_symbols.read_fixups:
     address: 3098
-    references: [1401]
+    references: [3084]
   load_symbols.fixup_loop:
     address: 3126
-    references: [1534, 1430]
+    references: [3217, 3113]
   load_symbols.fixup_have_number:
     address: 3155
-    references: [1458]
+    references: [3141]
   load_symbols.fixup_decimal:
     address: 3175
-    references: [1478]
+    references: [3161]
   load_symbols:
     address: 2857
-    references: [192]
+    references: [1875]
   add_linker_symbols:
     address: 3260
-    references: [228]
+    references: [1911]
   err_expect_dot_c_l_at:
     address: 3336
-    references: [279, 239]
+    references: [1962, 1922]
   read_directive.error:
     address: 2156
-    references: [465, 432]
+    references: [2148, 2115]
   read_directive:
     address: 2094
-    references: [383, 314, 252]
+    references: [2066, 1997, 1935]
   err_expect_dot_s_c_l_at:
     address: 3361
-    references: [348, 301]
+    references: [2031, 1984]
   err_expect_number:
     address: 3577
-    references: [1460, 1346, 1083, 871, 674, 525]
+    references: [3143, 3029, 2766, 2554, 2357, 2208]
   err_expect_decimal:
     address: 3596
-    references: [1480, 1366, 1103, 891, 694, 545]
+    references: [3163, 3049, 2786, 2574, 2377, 2228]
   err_expect_comma_eol:
     address: 3435
-    references: [1543, 954, 757, 612]
+    references: [3226, 2637, 2440, 2295]
   err_expect_colon:
     address: 3486
-    references: [1317, 1027, 815]
+    references: [3000, 2710, 2498]
   err_expect_eol:
     address: 3465
-    references: [1140]
+    references: [2823]
   err_expect_colon_or_dot:
     address: 3504
-    references: [1247]
+    references: [2930]
   err_expect_identifier:
     address: 3553
-    references: [1280]
+    references: [2963]
   err_expect_semicolon:
     address: 3531
-    references: [1403]
+    references: [3086]
   add_linker_symbols_heap_start:
     address: 3323
-    references: [1622]
+    references: [3305]
 3623:
   print_modules.loop:
     address: 3633
-    references: [81]
+    references: [3704]
   print_modules.done:
     address: 3705
-    references: [12]
+    references: [3635]
   print_modules.next:
     address: 3694
-    references: [26, 19]
+    references: [3649, 3642]
   print_modules.skip_comma:
     address: 3655
-    references: [29]
+    references: [3652]
   print_modules:
     address: 3623
     references: []
   print_map.loop:
     address: 3720
-    references: [155]
+    references: [3778]
   print_map.done:
     address: 3779
-    references: [99]
+    references: [3722]
   print_map.next:
     address: 3768
-    references: [106]
+    references: [3729]
   print_map:
     address: 3714
     references: []
   print_map_symbols.loop:
     address: 3796
-    references: [337]
+    references: [4003]
   print_map_symbols.done:
-    address: 3961
-    references: [175]
+    address: 4004
+    references: [3798]
   print_map_symbols.after_child:
     address: 3850
-    references: [205]
+    references: [3828]
   print_map_symbols.str_address:
-    address: 3968
-    references: [232]
+    address: 4011
+    references: [3855]
   print_map_symbols.str_references:
-    address: 3982
-    references: [272]
+    address: 4025
+    references: [3938]
   print_map_symbols:
     address: 3786
-    references: [144]
-3999:
+    references: [3767]
+4042:
   relocate.loop:
-    address: 4009
-    references: [61]
+    address: 4052
+    references: [4103]
   relocate.done:
-    address: 4061
-    references: [12]
+    address: 4104
+    references: [4054]
   relocate.next:
-    address: 4050
-    references: [19]
+    address: 4093
+    references: [4061]
   relocate:
-    address: 3999
+    address: 4042
     references: []
   relocate_module.block:
-    address: 4078
-    references: [184]
+    address: 4121
+    references: [4226]
   relocate_module.done:
-    address: 4184
-    references: [81]
+    address: 4227
+    references: [4123]
   relocate_module.byte:
-    address: 4108
-    references: [173, 100]
+    address: 4151
+    references: [4215, 4142]
   relocate_module.block_done:
-    address: 4173
-    references: [115]
+    address: 4216
+    references: [4157]
   relocate_module:
-    address: 4068
-    references: [42]
-4191:
+    address: 4111
+    references: [4084]
+4234:
   include_objects.loop:
-    address: 4197
-    references: [48]
-  include_objects.done:
     address: 4240
-    references: [8]
+    references: [4282]
+  include_objects.done:
+    address: 4283
+    references: [4242]
   include_objects.next:
-    address: 4229
-    references: [22, 15]
+    address: 4272
+    references: [4256, 4249]
   include_objects:
-    address: 4191
+    address: 4234
     references: []
   resolve_symbols.loop:
-    address: 4253
-    references: [97]
+    address: 4296
+    references: [4331]
   resolve_symbols.done:
-    address: 4289
-    references: [64]
+    address: 4332
+    references: [4298]
   resolve_symbols.next:
-    address: 4278
-    references: [71]
+    address: 4321
+    references: [4305]
   resolve_symbols:
-    address: 4247
+    address: 4290
     references: []
   include_module:
-    address: 4395
-    references: [168, 37]
+    address: 4438
+    references: [4402, 4271]
   resolve_one_symbol.have_module:
-    address: 4345
-    references: [132]
-  resolve_one_symbol.done:
     address: 4388
-    references: [175]
+    references: [4366]
+  resolve_one_symbol.done:
+    address: 4431
+    references: [4409]
   resolve_one_symbol:
-    address: 4296
-    references: [86]
+    address: 4339
+    references: [4320]
   find_exporting_module.loop:
-    address: 4780
-    references: [635]
+    address: 4823
+    references: [4869]
   find_exporting_module.done:
-    address: 4827
-    references: [624, 591]
+    address: 4870
+    references: [4858, 4825]
   find_exporting_module.next:
-    address: 4816
-    references: [598]
+    address: 4859
+    references: [4832]
   find_exporting_module:
-    address: 4774
-    references: [125]
+    address: 4817
+    references: [4359]
   err_export_not_found:
-    address: 4976
-    references: [134]
+    address: 5019
+    references: [4368]
   err_included_not_resolved:
-    address: 5002
-    references: [177]
+    address: 5045
+    references: [4411]
   include_exported.loop:
-    address: 4452
-    references: [398, 363]
+    address: 4495
+    references: [4632, 4597]
   include_exported.done:
-    address: 4590
-    references: [263]
+    address: 4633
+    references: [4497]
   include_exported.is_new:
-    address: 4525
-    references: [305]
+    address: 4568
+    references: [4539]
   include_exported.have_symbol:
-    address: 4555
-    references: [312]
+    address: 4598
+    references: [4546]
   include_exported:
-    address: 4450
-    references: [224]
+    address: 4493
+    references: [4458]
   include_imported.loop:
-    address: 4603
-    references: [575]
+    address: 4646
+    references: [4809]
   include_imported.done:
-    address: 4767
-    references: [414]
+    address: 4810
+    references: [4648]
   include_imported.have_symbol:
-    address: 4729
-    references: [444]
+    address: 4772
+    references: [4678]
   include_imported:
-    address: 4597
-    references: [243]
+    address: 4640
+    references: [4477]
   find_symbol.loop:
-    address: 4840
-    references: [688]
+    address: 4883
+    references: [4922]
   find_symbol.done:
-    address: 4880
-    references: [677, 651]
+    address: 4923
+    references: [4911, 4885]
   find_symbol:
-    address: 4834
-    references: [621, 437, 298]
+    address: 4877
+    references: [4855, 4671, 4532]
   err_duplicate_export:
-    address: 4950
-    references: [314]
+    address: 4993
+    references: [4548]
   append_double_linked.have_head:
-    address: 4907
-    references: [704]
+    address: 4950
+    references: [4938]
   append_double_linked.common:
-    address: 4919
-    references: [715]
+    address: 4962
+    references: [4949]
   append_double_linked:
-    address: 4887
-    references: [572, 537, 360]
-5046:
+    address: 4930
+    references: [4806, 4771, 4594]
+5089:
   brk:
-    address: 5046
+    address: 5089
     references: []
   sbrk:
-    address: 5055
+    address: 5098
     references: []
   brk_addr:
-    address: 5072
-    references: [18, 16, 12, 3]
-5073:
+    address: 5115
+    references: [5107, 5105, 5101, 5092]
+5116:
   report_error_at_location.msg_start:
-    address: 5189
-    references: [1]
+    address: 5232
+    references: [5117]
   report_error_at_location.msg_line:
-    address: 5197
-    references: [31]
+    address: 5240
+    references: [5147]
   report_error_at_location.msg_column:
-    address: 5205
-    references: [61]
+    address: 5248
+    references: [5177]
   report_error_at_location.msg_end:
-    address: 5215
-    references: [91]
+    address: 5258
+    references: [5207]
   report_error_at_location:
-    address: 5073
+    address: 5116
     references: []
   report_error_with_symbol.msg_start:
-    address: 5288
-    references: [145]
+    address: 5331
+    references: [5261]
   report_error_with_symbol.msg_symbol:
-    address: 5296
-    references: [175]
+    address: 5339
+    references: [5291]
   report_error_with_symbol:
-    address: 5217
+    address: 5260
     references: []
   halt_and_catch_fire.loop:
-    address: 5299
-    references: [230]
+    address: 5342
+    references: [5346]
   halt_and_catch_fire:
-    address: 5299
-    references: [214, 115]
-5304:
+    address: 5342
+    references: [5330, 5231]
+5347:
   alloc_blocks.large:
-    address: 5400
-    references: [10]
+    address: 5443
+    references: [5357]
   alloc_blocks.small_table:
-    address: 5322
-    references: [12]
-  alloc_blocks.small_0_blocks:
-    address: 5331
-    references: [18]
-  alloc_blocks.small_1_blocks:
-    address: 5344
-    references: [19]
-  alloc_blocks.small_2_blocks:
-    address: 5351
-    references: [20]
-  alloc_blocks.small_3_blocks:
-    address: 5358
-    references: [21]
-  alloc_blocks.small_4_blocks:
     address: 5365
-    references: [22]
+    references: [5359]
+  alloc_blocks.small_0_blocks:
+    address: 5374
+    references: [5365]
+  alloc_blocks.small_1_blocks:
+    address: 5387
+    references: [5366]
+  alloc_blocks.small_2_blocks:
+    address: 5394
+    references: [5367]
+  alloc_blocks.small_3_blocks:
+    address: 5401
+    references: [5368]
+  alloc_blocks.small_4_blocks:
+    address: 5408
+    references: [5369]
   alloc_blocks.small_5_blocks:
-    address: 5372
-    references: [23]
+    address: 5415
+    references: [5370]
   alloc_blocks.small_6_blocks:
-    address: 5379
-    references: [24]
+    address: 5422
+    references: [5371]
   alloc_blocks.small_7_blocks:
-    address: 5386
-    references: [25]
-  alloc_blocks.small_8_blocks:
-    address: 5393
-    references: [26]
-  alloc_blocks.alloc_from_small:
-    address: 5519
-    references: [95, 88, 81, 74, 67, 60, 53, 46]
-  alloc_blocks.large_loop:
-    address: 5404
-    references: [124]
-  alloc_blocks.sbrk:
     address: 5429
-    references: [102]
+    references: [5372]
+  alloc_blocks.small_8_blocks:
+    address: 5436
+    references: [5373]
+  alloc_blocks.alloc_from_small:
+    address: 5562
+    references: [5442, 5435, 5428, 5421, 5414, 5407, 5400, 5393]
+  alloc_blocks.large_loop:
+    address: 5447
+    references: [5471]
+  alloc_blocks.sbrk:
+    address: 5472
+    references: [5449]
   alloc_blocks.alloc_from_large:
-    address: 5459
-    references: [113]
+    address: 5502
+    references: [5460]
   alloc_blocks.return_ptr:
-    address: 5616
-    references: [264, 154]
+    address: 5659
+    references: [5611, 5501]
   alloc_blocks.alloc_from_large_after_next_prev:
-    address: 5482
-    references: [161]
+    address: 5525
+    references: [5508]
   alloc_blocks.alloc_from_large_replace_head:
-    address: 5508
-    references: [184]
+    address: 5551
+    references: [5531]
   alloc_blocks.alloc_cut_chunk:
-    address: 5558
-    references: [241, 214, 203]
+    address: 5601
+    references: [5588, 5561, 5550]
   alloc_blocks:
-    address: 5306
-    references: [370]
+    address: 5349
+    references: [5717]
   realloc_more_blocks.sbrk:
-    address: 5720
-    references: [355]
+    address: 5763
+    references: [5702]
   realloc_more_blocks.copy_loop:
-    address: 5683
-    references: [397]
+    address: 5726
+    references: [5744]
   realloc_more_blocks.done:
-    address: 5755
-    references: [415]
+    address: 5798
+    references: [5762]
   realloc_more_blocks:
-    address: 5635
+    address: 5678
     references: []
   free.done:
-    address: 5875
-    references: [523, 462]
+    address: 5918
+    references: [5870, 5809]
   free.small:
-    address: 5828
-    references: [489]
+    address: 5871
+    references: [5836]
   free.large_after_prev:
-    address: 5805
-    references: [492]
+    address: 5848
+    references: [5839]
   free.small_after_prev:
-    address: 5847
-    references: [530]
+    address: 5890
+    references: [5877]
   free:
-    address: 5762
-    references: [412, 311]
+    address: 5805
+    references: [5759, 5658]
   zeromem_blocks.loop:
-    address: 5892
-    references: [609]
+    address: 5935
+    references: [5956]
   zeromem_blocks.done:
-    address: 5914
-    references: [598]
+    address: 5957
+    references: [5945]
   zeromem_blocks:
-    address: 5882
+    address: 5925
     references: []
   neg_chunk_header_size:
-    address: 5304
-    references: [586, 465, 377, 335]
+    address: 5347
+    references: [5933, 5812, 5724, 5682]
   block_size:
-    address: 5305
+    address: 5348
     references: []
   dump_heap.brk_msg:
-    address: 6196
-    references: [620]
+    address: 6239
+    references: [5967]
   dump_heap.small_bin_loop:
-    address: 5974
-    references: [794]
+    address: 6017
+    references: [6141]
   dump_heap.large:
-    address: 6099
-    references: [676]
+    address: 6142
+    references: [6023]
   dump_heap.small_next_bin:
-    address: 6092
-    references: [687]
+    address: 6135
+    references: [6034]
   dump_heap.small_bin_msg:
-    address: 6202
-    references: [689]
+    address: 6245
+    references: [6036]
   dump_heap.small_chunk_loop:
-    address: 6024
-    references: [785]
+    address: 6067
+    references: [6132]
   dump_heap.small_chunk_done:
-    address: 6090
-    references: [722]
+    address: 6133
+    references: [6069]
   dump_heap.done:
-    address: 6189
-    references: [797]
+    address: 6232
+    references: [6144]
   dump_heap.large_bin_msg:
-    address: 6213
-    references: [799]
+    address: 6256
+    references: [6146]
   dump_heap.large_chunk_loop:
-    address: 6121
-    references: [882]
+    address: 6164
+    references: [6229]
   dump_heap.large_chunk_done:
-    address: 6187
-    references: [819]
+    address: 6230
+    references: [6166]
   dump_heap:
-    address: 5921
+    address: 5964
     references: []
   err_zero_allocation:
-    address: 6234
-    references: [28]
+    address: 6277
+    references: [5375]
   small:
-    address: 6224
-    references: [678, 564, 544, 532, 525, 243, 236, 228, 216, 94, 87, 80, 73, 66, 59, 52, 45]
+    address: 6267
+    references: [6025, 5911, 5891, 5879, 5872, 5590, 5583, 5575, 5563, 5441, 5434, 5427, 5420, 5413, 5406, 5399, 5392]
   large:
-    address: 6233
-    references: [814, 796, 520, 506, 494, 491, 211, 97]
-6278:
+    address: 6276
+    references: [6161, 6143, 5867, 5853, 5841, 5838, 5558, 5444]
+6321:
   get_input.have_char:
-    address: 6293
-    references: [12]
+    address: 6336
+    references: [6333]
   get_input.same_line:
-    address: 6315
-    references: [21]
+    address: 6358
+    references: [6342]
   get_input.done:
-    address: 6319
-    references: [36]
+    address: 6362
+    references: [6357]
   get_input:
-    address: 6278
+    address: 6321
     references: []
   unget_input.same_line:
-    address: 6350
-    references: [60]
+    address: 6393
+    references: [6381]
   unget_input.done:
-    address: 6354
-    references: [71]
+    address: 6397
+    references: [6392]
   unget_input:
-    address: 6326
+    address: 6369
     references: []
   peek_input.done:
-    address: 6376
-    references: [91]
+    address: 6419
+    references: [6412]
   peek_input:
-    address: 6361
+    address: 6404
     references: []
   reset_input_location:
-    address: 6383
+    address: 6426
     references: []
   input_line_num:
-    address: 6396
-    references: [108, 64, 62, 25, 23]
+    address: 6439
+    references: [6429, 6385, 6383, 6346, 6344]
   input_column_num:
-    address: 6397
-    references: [112, 75, 73, 68, 40, 38, 33, 27]
+    address: 6440
+    references: [6433, 6396, 6394, 6389, 6361, 6359, 6354, 6348]
   input_buffer:
-    address: 6399
-    references: [97, 86, 53, 9, 3]
+    address: 6442
+    references: [6418, 6407, 6374, 6330, 6324]
   input_prev_column_num:
-    address: 6398
-    references: [66, 29]
-6400:
-  read_identifier.loop:
     address: 6441
-    references: [124]
+    references: [6387, 6350]
+6443:
+  read_identifier.loop:
+    address: 6484
+    references: [6567]
   read_identifier.have_space:
-    address: 6475
-    references: [43]
+    address: 6518
+    references: [6486]
   read_identifier.done:
-    address: 6525
-    references: [105]
+    address: 6568
+    references: [6548]
   read_identifier:
-    address: 6400
+    address: 6443
     references: []
   read_string.loop:
-    address: 6596
-    references: [288]
+    address: 6639
+    references: [6731]
   read_string.have_space:
-    address: 6630
-    references: [198]
+    address: 6673
+    references: [6641]
   read_string.done:
-    address: 6689
-    references: [249]
+    address: 6732
+    references: [6692]
   read_string.after_escape:
-    address: 6670
-    references: [256]
+    address: 6713
+    references: [6699]
   read_string:
-    address: 6555
+    address: 6598
     references: []
   read_number.prefix:
-    address: 6759
-    references: [341]
+    address: 6802
+    references: [6784]
   read_number.loop:
-    address: 6864
-    references: [521, 459, 432, 405, 365]
+    address: 6907
+    references: [6964, 6902, 6875, 6848, 6808]
   read_number.not_binary:
-    address: 6806
-    references: [385]
+    address: 6849
+    references: [6828]
   read_number.not_octal:
-    address: 6833
-    references: [412]
+    address: 6876
+    references: [6855]
   read_number.not_hexadecimal:
-    address: 6860
-    references: [439]
+    address: 6903
+    references: [6882]
   read_number.end:
-    address: 6922
-    references: [493]
+    address: 6965
+    references: [6936]
   read_number:
-    address: 6704
+    address: 6747
     references: []
-6948:
+6991:
   set_mem.have_buffer:
-    address: 7016
-    references: [13]
+    address: 7059
+    references: [7004]
   set_mem.have_space:
-    address: 7082
-    references: [78, 67]
+    address: 7125
+    references: [7069, 7058]
   set_mem:
-    address: 6949
+    address: 6992
     references: []
   inc_mem:
-    address: 7125
+    address: 7168
+    references: []
+  inc_all_mem.done:
+    address: 7406
+    references: [7349]
+  inc_all_mem.block:
+    address: 7350
+    references: [7405]
+  inc_all_mem.byte:
+    address: 7369
+    references: [7394, 7364]
+  inc_all_mem.block_done:
+    address: 7395
+    references: [7375]
+  inc_all_mem:
+    address: 7341
     references: []
   print_mem:
-    address: 7298
+    address: 7413
     references: []
   pretty_print_mem:
-    address: 7330
+    address: 7445
     references: []
   mem_block_size:
-    address: 6948
+    address: 6991
     references: []
   calc_mem.loop:
-    address: 7202
-    references: [275]
+    address: 7245
+    references: [7266]
   calc_mem.done:
-    address: 7224
-    references: [260]
+    address: 7267
+    references: [7251]
   calc_mem:
-    address: 7192
-    references: [193]
-  inc_mem_internal.loop:
-    address: 7241
-    references: [326]
-  inc_mem_internal.have_block:
-    address: 7257
-    references: [295]
-  inc_mem_internal.this_block:
-    address: 7275
-    references: [311]
-  inc_mem_internal:
     address: 7235
-    references: [236]
+    references: [7184]
+  inc_mem_internal.loop:
+    address: 7284
+    references: [7317]
+  inc_mem_internal.have_block:
+    address: 7300
+    references: [7286]
+  inc_mem_internal.this_block:
+    address: 7318
+    references: [7302]
+  inc_mem_internal:
+    address: 7278
+    references: [7227]
   err_invalid_address:
-    address: 7463
-    references: [297]
+    address: 7578
+    references: [7288]
   print_mem_internal.done:
-    address: 7456
-    references: [426]
+    address: 7571
+    references: [7489]
   print_mem_internal.block:
-    address: 7375
-    references: [507]
+    address: 7490
+    references: [7570]
   print_mem_internal.byte:
-    address: 7394
-    references: [496, 441]
+    address: 7509
+    references: [7559, 7504]
   print_mem_internal.block_done:
-    address: 7445
-    references: [452]
+    address: 7560
+    references: [7515]
   print_mem_internal.skip_comma:
-    address: 7411
-    references: [460, 455]
+    address: 7526
+    references: [7523, 7518]
   print_mem_internal:
-    address: 7362
-    references: [408, 376]
-7486:
+    address: 7477
+    references: [7471, 7439]
+7601:
   print_num:
-    address: 7486
+    address: 7601
     references: []
   print_num_2:
-    address: 7514
+    address: 7629
     references: []
   print_num_2_b:
-    address: 7542
+    address: 7657
     references: []
   print_num_2_w:
-    address: 7570
+    address: 7685
     references: []
   print_num_16:
-    address: 7598
+    address: 7713
     references: []
   print_num_16_b:
-    address: 7626
+    address: 7741
     references: []
   print_num_16_w:
-    address: 7654
+    address: 7769
     references: []
   print_num_radix.next_order:
-    address: 7701
-    references: [233, 208]
+    address: 7816
+    references: [7834, 7809]
   print_num_radix.digit_ptr_1:
-    address: 7704
-    references: [324, 243, 235, 222, 220]
+    address: 7819
+    references: [7925, 7844, 7836, 7823, 7821]
   print_num_radix.finish_order:
-    address: 7720
+    address: 7835
     references: []
   print_num_radix.digit_ptr_2:
-    address: 7753
-    references: [320, 313, 311, 237]
+    address: 7868
+    references: [7921, 7914, 7912, 7838]
   print_num_radix.padding_loop:
-    address: 7736
-    references: [265]
+    address: 7851
+    references: [7866]
   print_num_radix.next_digit:
-    address: 7752
-    references: [316, 256]
+    address: 7867
+    references: [7917, 7857]
   print_num_radix.increase:
-    address: 7760
-    references: [292]
+    address: 7875
+    references: [7893]
   print_num_radix.digits:
-    address: 7818
-    references: [298]
+    address: 7933
+    references: [7899]
   print_num_radix.finish:
-    address: 7803
-    references: [309]
+    address: 7918
+    references: [7910]
   print_num_radix:
-    address: 7682
-    references: [425, 190, 162, 134, 106, 78, 50, 22]
+    address: 7797
+    references: [8026, 7791, 7763, 7735, 7707, 7679, 7651, 7623]
   print_str.start:
-    address: 7849
-    references: [356]
+    address: 7964
+    references: [7957]
   print_str.loop:
-    address: 7843
-    references: [373]
+    address: 7958
+    references: [7974]
   print_str:
-    address: 7834
+    address: 7949
     references: []
   print_str_as_mem.loop:
-    address: 7873
-    references: [432]
+    address: 7988
+    references: [8033]
   print_str_as_mem.done:
-    address: 7919
-    references: [397]
+    address: 8034
+    references: [7998]
   print_str_as_mem.skip_comma:
-    address: 7889
-    references: [400]
-  print_str_as_mem:
-    address: 7867
-    references: []
-7926:
-  is_digit.end:
-    address: 7939
-    references: [8]
-  is_digit:
-    address: 7926
-    references: [183]
-  char_to_digit.invalid:
-    address: 8022
-    references: [70, 60, 46, 32]
-  char_to_digit.number:
-    address: 8011
-    references: [39]
-  char_to_digit.upper_case:
-    address: 7997
-    references: [53]
-  char_to_digit.lower_case:
     address: 8004
-    references: [67]
+    references: [8001]
+  print_str_as_mem:
+    address: 7982
+    references: []
+8041:
+  is_digit.end:
+    address: 8054
+    references: [8049]
+  is_digit:
+    address: 8041
+    references: [8224]
+  char_to_digit.invalid:
+    address: 8137
+    references: [8111, 8101, 8087, 8073]
+  char_to_digit.number:
+    address: 8126
+    references: [8080]
+  char_to_digit.upper_case:
+    address: 8112
+    references: [8094]
+  char_to_digit.lower_case:
+    address: 8119
+    references: [8108]
   char_to_digit.check_radix:
-    address: 8015
-    references: [84, 77]
+    address: 8130
+    references: [8125, 8118]
   char_to_digit.end:
-    address: 8026
-    references: [95]
+    address: 8141
+    references: [8136]
   char_to_digit:
-    address: 7950
+    address: 8065
     references: []
   is_alpha.end:
-    address: 8060
-    references: [129, 122, 115]
+    address: 8175
+    references: [8170, 8163, 8156]
   is_alpha:
-    address: 8033
-    references: [161]
+    address: 8148
+    references: [8202]
   is_alphanum.end:
-    address: 8121
-    references: [190, 168]
+    address: 8236
+    references: [8231, 8209]
   is_alphanum:
-    address: 8071
+    address: 8186
     references: []
   strcmp.loop:
-    address: 8134
-    references: [240]
+    address: 8249
+    references: [8281]
   strcmp.done:
-    address: 8167
-    references: [233, 230]
+    address: 8282
+    references: [8274, 8271]
   strcmp:
-    address: 8128
+    address: 8243
     references: []
   strcpy.loop:
-    address: 8188
-    references: [287]
+    address: 8303
+    references: [8328]
   strcpy.done:
-    address: 8214
-    references: [280]
+    address: 8329
+    references: [8321]
   strcpy:
-    address: 8182
+    address: 8297
     references: []
   zeromem.loop:
-    address: 8223
-    references: [318]
+    address: 8338
+    references: [8359]
   zeromem.done:
-    address: 8245
-    references: [307]
+    address: 8360
+    references: [8348]
   zeromem:
-    address: 8221
+    address: 8336
     references: []
-8252:
+8367:

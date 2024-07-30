@@ -197,119 +197,119 @@
     references: []
   print_num_radix.next_order:
     address: 2347
-    references: [233, 208]
+    references: [2365, 2340]
   print_num_radix.digit_ptr_1:
     address: 2350
-    references: [324, 243, 235, 222, 220]
+    references: [2456, 2375, 2367, 2354, 2352]
   print_num_radix.finish_order:
     address: 2366
     references: []
   print_num_radix.digit_ptr_2:
     address: 2399
-    references: [320, 313, 311, 237]
+    references: [2452, 2445, 2443, 2369]
   print_num_radix.padding_loop:
     address: 2382
-    references: [265]
+    references: [2397]
   print_num_radix.next_digit:
     address: 2398
-    references: [316, 256]
+    references: [2448, 2388]
   print_num_radix.increase:
     address: 2406
-    references: [292]
+    references: [2424]
   print_num_radix.digits:
     address: 2464
-    references: [298]
+    references: [2430]
   print_num_radix.finish:
     address: 2449
-    references: [309]
+    references: [2441]
   print_num_radix:
     address: 2328
-    references: [425, 190, 162, 134, 106, 78, 50, 22]
+    references: [2557, 2322, 2294, 2266, 2238, 2210, 2182, 2154]
   print_str.start:
     address: 2495
-    references: [356]
+    references: [2488]
   print_str.loop:
     address: 2489
-    references: [373]
+    references: [2505]
   print_str:
     address: 2480
     references: []
   print_str_as_mem.loop:
     address: 2519
-    references: [432]
+    references: [2564]
   print_str_as_mem.done:
     address: 2565
-    references: [397]
+    references: [2529]
   print_str_as_mem.skip_comma:
     address: 2535
-    references: [400]
+    references: [2532]
   print_str_as_mem:
     address: 2513
     references: []
 2572:
   is_digit.end:
     address: 2585
-    references: [8]
+    references: [2580]
   is_digit:
     address: 2572
-    references: [183]
+    references: [2755]
   char_to_digit.invalid:
     address: 2668
-    references: [70, 60, 46, 32]
+    references: [2642, 2632, 2618, 2604]
   char_to_digit.number:
     address: 2657
-    references: [39]
+    references: [2611]
   char_to_digit.upper_case:
     address: 2643
-    references: [53]
+    references: [2625]
   char_to_digit.lower_case:
     address: 2650
-    references: [67]
+    references: [2639]
   char_to_digit.check_radix:
     address: 2661
-    references: [84, 77]
+    references: [2656, 2649]
   char_to_digit.end:
     address: 2672
-    references: [95]
+    references: [2667]
   char_to_digit:
     address: 2596
     references: []
   is_alpha.end:
     address: 2706
-    references: [129, 122, 115]
+    references: [2701, 2694, 2687]
   is_alpha:
     address: 2679
-    references: [161]
+    references: [2733]
   is_alphanum.end:
     address: 2767
-    references: [190, 168]
+    references: [2762, 2740]
   is_alphanum:
     address: 2717
     references: []
   strcmp.loop:
     address: 2780
-    references: [240]
+    references: [2812]
   strcmp.done:
     address: 2813
-    references: [233, 230]
+    references: [2805, 2802]
   strcmp:
     address: 2774
     references: []
   strcpy.loop:
     address: 2834
-    references: [287]
+    references: [2859]
   strcpy.done:
     address: 2860
-    references: [280]
+    references: [2852]
   strcpy:
     address: 2828
     references: []
   zeromem.loop:
     address: 2869
-    references: [318]
+    references: [2890]
   zeromem.done:
     address: 2891
-    references: [307]
+    references: [2879]
   zeromem:
     address: 2867
     references: []
