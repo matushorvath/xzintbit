@@ -5,3 +5,5 @@
 .I
 external_symbol:12
 .E
+.S
+code:11;2

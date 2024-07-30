@@ -6,3 +6,6 @@
 circular_symbol:42,40,38,36
 .E
 external_symbol:17
+.S
+reloc_symbol:26;34,32,30,28
+external_symbol:17;25,23,21,19

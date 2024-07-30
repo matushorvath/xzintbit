@@ -1,11 +1,2 @@
-modules: [
-  0, 9
-]
-symbols:
-  __heap_start:
-    export:
-      module: 9
-      offset: 0
-    imports:
-      - module: 0
-        offsets: [1]
+0:
+9:

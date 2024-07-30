@@ -1,4 +1,13 @@
-modules: [
-  0
-]
-symbols:
+0:
+  bas:
+    address: 17
+    references: [20, 1]
+  inc:
+    address: 18
+    references: [12, 2]
+  res:
+    address: 19
+    references: [15, 13, 5, 3]
+  pbas:
+    address: 20
+    references: [7]

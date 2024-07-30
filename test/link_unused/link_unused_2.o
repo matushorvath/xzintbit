@@ -4,3 +4,5 @@
 .I
 .E
 external_symbol:0
+.S
+external_symbol:0;

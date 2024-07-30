@@ -1,11 +1,5 @@
-modules: [
-  0, 4
-]
-symbols:
+0:
+4:
   symbol:
-    export:
-      module: 4
-      offset: 0
-    imports:
-      - module: 0
-        offsets: [3]
+    address: 4
+    references: []

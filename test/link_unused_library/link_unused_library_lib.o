@@ -4,3 +4,5 @@
 .I
 .E
 symbol1:0
+.S
+symbol1:0;

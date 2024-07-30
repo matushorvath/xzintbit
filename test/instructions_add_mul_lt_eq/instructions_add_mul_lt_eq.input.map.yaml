@@ -1,4 +1,7 @@
-modules: [
-  0
-]
-symbols:
+0:
+  global0:
+    address: 32
+    references: [42, 34]
+  global1:
+    address: 33
+    references: [51, 45, 37]

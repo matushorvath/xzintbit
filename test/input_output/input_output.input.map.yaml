@@ -1,4 +1,4 @@
-modules: [
-  0
-]
-symbols:
+0:
+  data:
+    address: 27
+    references: [1]

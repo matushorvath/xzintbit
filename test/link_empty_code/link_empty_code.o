@@ -3,3 +3,5 @@
 .I
 .E
 end_of_file:0
+.S
+end_of_file:0;

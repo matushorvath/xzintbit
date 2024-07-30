@@ -4,9 +4,13 @@
 .I
 .E
 symbol1:0
+.S
+symbol1:0;
 .L
 21,22,23
 .R
 .I
 .E
 symbol2:0
+.S
+symbol2:0;

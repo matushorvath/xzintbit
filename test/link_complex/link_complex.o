@@ -6,3 +6,5 @@
 external_symbol:22,20,18,16,12
 .E
 circular_symbol:23
+.S
+circular_symbol:23;31,29,27,25

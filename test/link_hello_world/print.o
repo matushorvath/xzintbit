@@ -5,3 +5,7 @@
 .I
 .E
 print:0
+.S
+print_done:26;16
+print_loop:6;25
+print:0;

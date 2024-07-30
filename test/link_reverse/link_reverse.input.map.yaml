@@ -1,11 +1,5 @@
-modules: [
-  0, 25
-]
-symbols:
+0:
   external_symbol:
-    export:
-      module: 0
-      offset: 17
-    imports:
-      - module: 25
-        offsets: [12]
+    address: 17
+    references: [24]
+25:
