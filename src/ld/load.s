@@ -26,6 +26,8 @@
 # from error.s
 .IMPORT report_error
 
+# TODO test: symbol that is not referenced (.E symbol:123;)
+
 ##########
 load_objects:
 .FRAME module, directive, is_library, tmp
@@ -255,7 +257,7 @@ load_code:
     call report_error
 
 .decimal:
-    # store the byte
+    # store the address
     add [rb + module], MODULE_CODE_HEAD, [rb - 1]
     add [rb + module], MODULE_CODE_TAIL, [rb - 2]
     add [rb + module], MODULE_CODE_INDEX, [rb - 3]
@@ -314,7 +316,7 @@ load_relocated:
     call report_error
 
 .decimal:
-    # store the byte
+    # store the address
     add [rb + module], MODULE_RELOC_HEAD, [rb - 1]
     add [rb + module], MODULE_RELOC_TAIL, [rb - 2]
     add [rb + module], MODULE_RELOC_INDEX, [rb - 3]
@@ -387,7 +389,7 @@ load_imported:
     call report_error
 
 .decimal:
-    # store the byte
+    # store the address
     add [rb + import], IMPORT_FIXUPS_HEAD, [rb - 1]
     add [rb + import], IMPORT_FIXUPS_TAIL, [rb - 2]
     add [rb + import], IMPORT_FIXUPS_INDEX, [rb - 3]
@@ -464,7 +466,7 @@ load_exported:
     call report_error
 
 .decimal:
-    # store the byte
+    # store the address
     add [rb + export], EXPORT_ADDRESS, [ip + 3]
     add [rb + byte], 0, [0]
 
@@ -493,7 +495,7 @@ load_symbols:
     arb -4
 
 .loop:
-    # read the identifier
+    # read the parent identifier
     call read_identifier
     add [rb - 2], 0, [rb + identifier]
 
@@ -501,22 +503,50 @@ load_symbols:
     add [rb + identifier], 0, [ip + 1]
     jz  [0], .done
 
+    # save the parent identifier
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call create_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+    add [rb + symbol], SYMBOL_PARENT_IDENTIFIER, [ip + 3]
+    add [rb + identifier], 0, [0]
+
+    # is there a child identifier?
+    call get_input
+    eq  [rb - 2], '.', [rb + tmp]
+    jnz [rb + tmp], .read_child
+    eq  [rb - 2], ':', [rb + tmp]
+    jnz [rb + tmp], .after_child
+
+    add err_expect_colon_or_dot, 0, [rb]
+    call report_error
+
+.read_child:
+    # read the child identifier
+    call read_identifier
+    add [rb - 2], 0, [rb + identifier]
+
+    # if there is no identifier, report an error
+    add [rb + identifier], 0, [ip + 1]
+    jnz [0], .save_child
+
+    add err_expect_identifier, 0, [rb]
+    call report_error
+
+.save_child:
+    # save the child identifier
+    add [rb + symbol], SYMBOL_CHILD_IDENTIFIER, [ip + 3]
+    add [rb + identifier], 0, [0]
+
     call get_input
     eq  [rb - 2], ':', [rb + tmp]
-    jnz [rb + tmp], .save_identifier
+    jnz [rb + tmp], .after_child
 
     add err_expect_colon, 0, [rb]
     call report_error
 
-.save_identifier:
-    add [rb + module], 0, [rb - 1]
-    arb -1
-    call create_import
-    add [rb - 3], 0, [rb + symbol]
-
-    add [rb + symbol], SYMBOL_IDENTIFIER, [ip + 3]
-    add [rb + identifier], 0, [0]
-
+.after_child:
     call read_number
     add [rb - 2], 0, [rb + byte]
 
@@ -535,16 +565,27 @@ load_symbols:
     call report_error
 
 .decimal:
-    # store the byte
+    # store the address
     add [rb + symbol], SYMBOL_ADDRESS, [ip + 3]
     add [rb + byte], 0, [0]
 
     call get_input
     eq  [rb - 2], ';', [rb + tmp]
-    jnz [rb + tmp], .fixup_loop
+    jnz [rb + tmp], .read_fixups
 
     add err_expect_semicolon, 0, [rb]
     call report_error
+
+.read_fixups:
+    # it's valid to have no fixups at all
+    call peek_input
+
+    eq  [rb - 2], 10, [rb + tmp]
+    jz  [rb + tmp], .fixup_loop
+
+    # read the line end and move to next symbol
+    call get_input
+    jz  0, .loop
 
 .fixup_loop:
     call read_number
@@ -565,7 +606,7 @@ load_symbols:
     call report_error
 
 .fixup_decimal:
-    # store the byte
+    # store the address
     add [rb + symbol], SYMBOL_FIXUPS_HEAD, [rb - 1]
     add [rb + symbol], SYMBOL_FIXUPS_TAIL, [rb - 2]
     add [rb + symbol], SYMBOL_FIXUPS_INDEX, [rb - 3]
@@ -646,8 +687,12 @@ err_expect_eol:
     db  "Expecting a line end", 0
 err_expect_colon:
     db  "Expecting a colon", 0
+err_expect_colon_or_dot:
+    db  "Expecting a colon or a dot", 0
 err_expect_semicolon:
     db  "Expecting a semicolon", 0
+err_expect_identifier:
+    db  "Expecting an identifier", 0
 err_expect_number:
     db  "Expecting a number", 0
 err_expect_decimal:

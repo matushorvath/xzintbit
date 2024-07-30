@@ -166,7 +166,7 @@ read_string:
 
 ##########
 read_number:
-.FRAME byte, is_number, radix, char, digit, sign, tmp             # returns byte, is_number, radix
+.FRAME byte, is_number, radix, char, digit, sign, tmp       # returns byte, is_number, radix
     arb -7
 
     add 0, 0, [rb + byte]
