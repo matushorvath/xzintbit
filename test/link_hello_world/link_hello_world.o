@@ -6,5 +6,5 @@
 print:16
 .E
 .S
-message:20;3
-stack:53;1
+message:20
+stack:53

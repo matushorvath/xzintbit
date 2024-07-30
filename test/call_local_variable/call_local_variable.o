@@ -5,6 +5,6 @@
 .I
 .E
 .S
-callee:44;25
-caller:22;10
-stack:22;1
+callee:44
+caller:22
+stack:22

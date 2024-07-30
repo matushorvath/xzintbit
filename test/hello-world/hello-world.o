@@ -5,6 +5,6 @@
 .I
 .E
 .S
-done:12;4
-loop:2;11
-message:15;1
+done:12
+loop:2
+message:15

@@ -26,8 +26,6 @@
 # from error.s
 .IMPORT report_error
 
-# TODO test: symbol that is not referenced (.E symbol:123;)
-
 ##########
 load_objects:
 .FRAME module, directive, is_library, tmp

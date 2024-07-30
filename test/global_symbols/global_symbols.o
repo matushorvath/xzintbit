@@ -5,7 +5,7 @@
 .I
 .E
 .S
-sym3:5;4,2
-sym2:1;0
-sym1:0;1
-sym0:0;3
+sym3:5
+sym2:1
+sym1:0
+sym0:0

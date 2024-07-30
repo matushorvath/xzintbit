@@ -5,7 +5,7 @@
 .I
 .E
 .S
-data1:72;
-test:38;36
-stack:125;17
-data:71;126,15,13,11,10,7,5
+data1:72
+test:38
+stack:125
+data:71

@@ -4,7 +4,6 @@
 # from libxib/memory.s
 .IMPORT print_mem
 .IMPORT pretty_print_mem
-.IMPORT inc_all_mem
 
 # from libxib/print.s
 .IMPORT print_num
