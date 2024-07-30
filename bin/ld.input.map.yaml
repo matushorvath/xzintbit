@@ -86,7 +86,7 @@ symbols:
       offset: 358
     imports:
       - module: 3623
-        offsets: [132, 3]
+        offsets: [157, 3]
       - module: 4369
         offsets: [3]
       - module: 4561
@@ -104,7 +104,7 @@ symbols:
       - module: 1468
         offsets: [3]
       - module: 3623
-        offsets: [309]
+        offsets: [319]
       - module: 4561
         offsets: [520, 424, 343, 285, 59]
   resolved_tail:
@@ -253,14 +253,14 @@ symbols:
       offset: 382
     imports:
       - module: 3623
-        offsets: [586]
+        offsets: [596]
   print_num:
     export:
       module: 7856
       offset: 0
     imports:
       - module: 3623
-        offsets: [536, 446, 412, 175]
+        offsets: [546, 456, 422, 200]
       - module: 5674
         offsets: [869, 842, 772, 745, 717, 663]
       - module: 5443
@@ -273,7 +273,7 @@ symbols:
       offset: 348
     imports:
       - module: 3623
-        offsets: [601, 551, 517, 484, 461, 427, 393, 378, 363, 344, 307, 255, 233, 215, 152, 130]
+        offsets: [611, 561, 527, 494, 471, 437, 403, 388, 373, 354, 280, 258, 240, 177, 155, 114]
       - module: 5674
         offsets: [812, 702, 633]
       - module: 5443

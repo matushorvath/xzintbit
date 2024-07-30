@@ -62,9 +62,17 @@ print_modules:
 print_map:
 .FRAME
     call dump_modules
+
+    add .symbols_str, 0, [rb - 1]
+    arb -1
+    call print_str
+
     call dump_resolved
 
     ret 0
+
+.symbols_str:
+    db  "symbols:", 10, 0
 .ENDFRAME
 
 ##########
@@ -142,17 +150,12 @@ dump_modules:
     db  ",", 10, "  ", 0
 .str_end:
     db  10, "]", 10, 0
-
 .ENDFRAME
 
 ##########
 dump_resolved:
 .FRAME symbol, import, module
     arb -3
-
-    add .str_start, 0, [rb - 1]
-    arb -1
-    call print_str
 
     add [resolved_head], 0, [rb + symbol]
 
@@ -267,8 +270,6 @@ dump_resolved:
     arb 3
     ret 0
 
-.str_start:
-    db  "symbols:", 10, 0
 .str_symbol_start:
     db  "  ", 0
 .str_symbol_end:
