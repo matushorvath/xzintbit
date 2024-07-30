@@ -13,6 +13,8 @@
 .IMPORT module_head
 .IMPORT resolved_head
 
+# TODO if an exported symbol is also referenced in the same file, will that be in the map?
+
 ##########
 print_modules:
 .FRAME module, first, tmp
@@ -68,6 +70,7 @@ print_map:
     call print_str
 
     call dump_resolved
+    call dump_symbols
 
     ret 0
 
@@ -102,7 +105,7 @@ dump_modules:
     call print_num
 
 .next:
-    # advance to next module
+    # advance to next included module
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
@@ -171,7 +174,7 @@ dump_resolved:
     jz  [0], .next_export
 
     # print symbol identifier
-    add .str_symbol_start, 0, [rb - 1]
+    add .str_identifier_start, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -180,7 +183,7 @@ dump_resolved:
     arb -1
     call print_str
 
-    add .str_symbol_end, 0, [rb - 1]
+    add .str_identifier_end, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -247,7 +250,6 @@ dump_resolved:
     add [rb + import], IMPORT_FIXUPS_INDEX, [ip + 1]
     add [0], 0, [rb - 3]
     arb -3
-
     call pretty_print_mem
 
     add .str_import_end, 0, [rb - 1]
@@ -270,9 +272,9 @@ dump_resolved:
     arb 3
     ret 0
 
-.str_symbol_start:
+.str_identifier_start:
     db  "  ", 0
-.str_symbol_end:
+.str_identifier_end:
     db  ":", 10, 0
 
 .str_export_module_start:
@@ -290,7 +292,146 @@ dump_resolved:
     db  10, "        offsets: [", 0
 .str_import_end:
     db  "]", 10, 0
+.ENDFRAME
 
+##########
+dump_symbols:
+.FRAME module
+    arb -1
+
+    add [module_head], 0, [rb + module]
+
+.loop:
+    jz  [rb + module], .done
+
+    # dump all symbols within the module
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call dump_module_symbols
+
+.next:
+    # advance to next included module
+    add [rb + module], MODULE_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + module]
+
+    add [rb + module], MODULE_INCLUDED, [ip + 1]
+    jz  [0], .next
+
+    jz  0, .loop
+
+.done:
+    arb 1
+    ret 0
+.ENDFRAME
+
+##########
+dump_module_symbols:
+.FRAME module; symbol, reference
+    arb -2
+
+    add [rb + module], MODULE_SYMBOLS_HEAD, [ip + 1]
+    add [0], 0, [rb + symbol]
+
+.loop:
+    jz  [rb + symbol], .done
+
+    # print the parent identifier
+    add .str_identifier_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + symbol], SYMBOL_PARENT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # print the child identifier, if present
+    add [rb + symbol], SYMBOL_CHILD_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
+
+    jz  [rb - 1], .after_child
+
+    out '.'
+
+    add [rb + symbol], SYMBOL_CHILD_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_str
+
+.after_child:
+    add .str_identifier_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # print symbol
+    add .str_symbol_module_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + module], MODULE_ADDRESS, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add .str_symbol_offset_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + symbol], SYMBOL_ADDRESS, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    add .str_symbol_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # print array of references header
+    add .str_references_offsets_start, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # print array of references
+    add [rb + symbol], SYMBOL_FIXUPS_HEAD, [ip + 1]
+    add [0], 0, [rb - 1]
+    add [rb + symbol], SYMBOL_FIXUPS_TAIL, [ip + 1]
+    add [0], 0, [rb - 2]
+    add [rb + symbol], SYMBOL_FIXUPS_INDEX, [ip + 1]
+    add [0], 0, [rb - 3]
+    arb -3
+    call pretty_print_mem
+
+    add .str_references_end, 0, [rb - 1]
+    arb -1
+    call print_str
+
+.next_symbol:
+    add [rb + symbol], SYMBOL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + symbol]
+
+    jz  0, .loop
+
+.done:
+    arb 2
+    ret 1
+
+.str_identifier_start:
+    db  "  ", 0
+.str_identifier_end:
+    db  ":", 10, 0
+
+.str_symbol_module_start:
+    db  "    symbol:", 10, "      module: ", 0
+.str_symbol_offset_start:
+    db  10, "      offset: ", 0
+.str_symbol_end:
+    db  10, 0
+
+.str_references_offsets_start:
+    db  "    references:", 10
+    db  "      - offsets: [", 0
+.str_references_end:
+    db  "]", 10, 0
 .ENDFRAME
 
 .EOF

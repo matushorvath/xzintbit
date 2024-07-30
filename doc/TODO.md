@@ -1,5 +1,3 @@
-- Linker should then store .S symbols in the map, if present.
-
 - Support exportable .SYMBOL that will not be relocated?
 
 - Optimize ret: Usually this generates two 'arb' at the end of each function.
