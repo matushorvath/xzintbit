@@ -264,10 +264,17 @@ print_symbols:
     # do we have more symbols?
     jz  [rb + global], .done
 
-    # check symbol type, print only local symbols
+    # check symbol type, print local and exported symbols
     add [rb + global], GLOBAL_TYPE, [ip + 1]
-    jnz [0], .global_next
+    eq  [0], 0, [rb + tmp]
+    jnz [rb + tmp], .include
+    add [rb + global], GLOBAL_TYPE, [ip + 1]
+    eq  [0], 2, [rb + tmp]
+    jnz [rb + tmp], .include
 
+    jz  0, .global_next
+
+.include:
     # print the identifier and the address
     add [rb + global], 0, [rb - 1]
     arb -1
