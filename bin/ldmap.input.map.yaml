@@ -206,7 +206,7 @@ symbols:
       offset: 83
     imports:
       - module: 1588
-        offsets: [521, 368]
+        offsets: [521, 372]
   read_identifier:
     export:
       module: 6042
