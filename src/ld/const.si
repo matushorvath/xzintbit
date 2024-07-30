@@ -44,9 +44,6 @@
 .SYMBOL SYMBOL_CHILD_IDENTIFIER     3
 .SYMBOL SYMBOL_MODULE               4
 .SYMBOL SYMBOL_ADDRESS              5
-.SYMBOL SYMBOL_FIXUPS_HEAD          6
-.SYMBOL SYMBOL_FIXUPS_TAIL          7
-.SYMBOL SYMBOL_FIXUPS_INDEX         8
-.SYMBOL SYMBOL_ALLOC_SIZE           2           # record size in memory blocks, for alloc_blocks (2 * 8 - 2 = 14 bytes)
+.SYMBOL SYMBOL_ALLOC_SIZE           1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
 
 .EOI

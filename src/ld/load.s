@@ -569,60 +569,13 @@ load_symbols:
     add [rb + symbol], SYMBOL_ADDRESS, [ip + 3]
     add [rb + byte], 0, [0]
 
-    call get_input
-    eq  [rb - 2], ';', [rb + tmp]
-    jnz [rb + tmp], .read_fixups
-
-    add err_expect_semicolon, 0, [rb]
-    call report_error
-
-.read_fixups:
-    # it's valid to have no fixups at all
-    call peek_input
-
-    eq  [rb - 2], 10, [rb + tmp]
-    jz  [rb + tmp], .fixup_loop
-
-    # read the line end and move to next symbol
-    call get_input
-    jz  0, .loop
-
-.fixup_loop:
-    call read_number
-    add [rb - 2], 0, [rb + byte]
-
-    # was there actually a number?
-    jnz [rb - 3], .fixup_have_number
-
-    add err_expect_number, 0, [rb]
-    call report_error
-
-.fixup_have_number:
-    # was the number base 10?
-    eq  [rb - 4], 10, [rb + tmp]
-    jnz [rb + tmp], .fixup_decimal
-
-    add err_expect_decimal, 0, [rb]
-    call report_error
-
-.fixup_decimal:
-    # store the address
-    add [rb + symbol], SYMBOL_FIXUPS_HEAD, [rb - 1]
-    add [rb + symbol], SYMBOL_FIXUPS_TAIL, [rb - 2]
-    add [rb + symbol], SYMBOL_FIXUPS_INDEX, [rb - 3]
-    add [rb + byte], 0, [rb - 4]
-    arb -4
-    call set_mem
-
-    # next character should be comma or line end
+    # next character should be line end
     call get_input
 
-    eq  [rb - 2], ',', [rb + tmp]
-    jnz [rb + tmp], .fixup_loop
     eq  [rb - 2], 10, [rb + tmp]
     jnz [rb + tmp], .loop
 
-    add err_expect_comma_eol, 0, [rb]
+    add err_expect_eol, 0, [rb]
     call report_error
 
 .done:
@@ -689,8 +642,6 @@ err_expect_colon:
     db  "Expecting a colon", 0
 err_expect_colon_or_dot:
     db  "Expecting a colon or a dot", 0
-err_expect_semicolon:
-    db  "Expecting a semicolon", 0
 err_expect_identifier:
     db  "Expecting an identifier", 0
 err_expect_number:

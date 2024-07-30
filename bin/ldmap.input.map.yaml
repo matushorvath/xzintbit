@@ -243,7 +243,7 @@
   load_code:
     address: 2169
   err_expect_dot_r:
-    address: 3420
+    address: 3280
   expect_directive.error:
     address: 2081
   expect_directive:
@@ -259,7 +259,7 @@
   load_relocated:
     address: 2322
   err_expect_dot_i:
-    address: 3390
+    address: 3250
   load_imported.loop:
     address: 2461
   load_imported.done:
@@ -275,7 +275,7 @@
   load_imported:
     address: 2459
   err_expect_dot_e:
-    address: 3405
+    address: 3265
   load_exported.loop:
     address: 2673
   load_exported.done:
@@ -295,7 +295,7 @@
   load_symbols.loop:
     address: 2859
   load_symbols.done:
-    address: 3238
+    address: 3098
   load_symbols.read_child:
     address: 2942
   load_symbols.after_child:
@@ -306,511 +306,501 @@
     address: 3041
   load_symbols.decimal:
     address: 3061
-  load_symbols.read_fixups:
-    address: 3098
-  load_symbols.fixup_loop:
-    address: 3126
-  load_symbols.fixup_have_number:
-    address: 3155
-  load_symbols.fixup_decimal:
-    address: 3175
   load_symbols:
     address: 2857
   add_linker_symbols:
-    address: 3260
+    address: 3120
   err_expect_dot_c_l_at:
-    address: 3336
+    address: 3196
   read_directive.error:
     address: 2156
   read_directive:
     address: 2094
   err_expect_dot_s_c_l_at:
-    address: 3361
+    address: 3221
   err_expect_number:
-    address: 3577
+    address: 3415
   err_expect_decimal:
-    address: 3596
+    address: 3434
   err_expect_comma_eol:
-    address: 3435
+    address: 3295
   err_expect_colon:
-    address: 3486
+    address: 3346
   err_expect_eol:
-    address: 3465
+    address: 3325
   err_expect_colon_or_dot:
-    address: 3504
+    address: 3364
   err_expect_identifier:
-    address: 3553
-  err_expect_semicolon:
-    address: 3531
+    address: 3391
   add_linker_symbols_heap_start:
-    address: 3323
-3623:
+    address: 3183
+3461:
   print_modules:
-    address: 3623
+    address: 3461
   print_mem:
-    address: 3973
-  print_num:
-    address: 3623
-  print_str:
-    address: 3971
-  report_error_with_symbol:
-    address: 3767
-  strcmp:
-    address: 3825
-  realloc_more_blocks:
-    address: 3954
-  neg_chunk_header_size:
-    address: 3623
-  block_size:
-    address: 3624
-  dump_heap:
-    address: 4240
-  sbrk:
-    address: 3632
-  brk_addr:
-    address: 3649
-  halt_and_catch_fire:
-    address: 3849
-  unget_input:
-    address: 3671
-  reset_input_location:
-    address: 3728
-  pretty_print_mem:
-    address: 4005
-  read_string:
-    address: 3778
-  char_to_digit:
-    address: 3647
-  is_alphanum:
-    address: 3768
-  print_num_2:
-    address: 3651
-  print_num_2_b:
-    address: 3679
-  print_num_2_w:
-    address: 3707
-  print_num_16:
-    address: 3735
-  print_num_16_b:
-    address: 3763
-  print_num_16_w:
-    address: 3791
-  print_num_radix:
-    address: 3819
-  print_str_as_mem:
-    address: 4004
-  is_digit:
-    address: 3623
-  is_alpha:
-    address: 3730
-  strcpy:
-    address: 3879
-  zeromem:
-    address: 3918
-  brk:
-    address: 3623
-  __heap_start:
-    address: 3623
-  print_map_exports.loop:
     address: 3811
-  print_map_exports.done:
-    address: 3896
-  print_map_exports:
-    address: 3801
-  print_map_symbols.loop:
-    address: 3913
-  print_map_symbols.done:
-    address: 4026
-  print_map_symbols.after_child:
-    address: 3967
-  print_map_symbols:
-    address: 3903
-  map_address_str:
-    address: 4033
-4047:
-  relocate:
-    address: 4047
-  relocate_module.block:
-    address: 4126
-  relocate_module.done:
-    address: 4232
-  relocate_module.byte:
-    address: 4156
-  relocate_module.block_done:
-    address: 4221
-  relocate_module:
-    address: 4116
-4239:
-  include_objects:
-    address: 4239
-  resolve_symbols:
-    address: 4295
-  include_module:
-    address: 4443
-  resolve_one_symbol.have_module:
-    address: 4393
-  resolve_one_symbol.done:
-    address: 4436
-  resolve_one_symbol:
-    address: 4344
-  find_exporting_module.loop:
-    address: 4828
-  find_exporting_module.done:
-    address: 4875
-  find_exporting_module.next:
-    address: 4864
-  find_exporting_module:
-    address: 4822
-  err_export_not_found:
-    address: 5024
-  err_included_not_resolved:
-    address: 5050
-  include_exported.loop:
-    address: 4500
-  include_exported.done:
-    address: 4638
-  include_exported.is_new:
-    address: 4573
-  include_exported.have_symbol:
-    address: 4603
-  include_exported:
-    address: 4498
-  include_imported.loop:
-    address: 4651
-  include_imported.done:
-    address: 4815
-  include_imported.have_symbol:
-    address: 4777
-  include_imported:
-    address: 4645
-  find_symbol.loop:
-    address: 4888
-  find_symbol.done:
-    address: 4928
-  find_symbol:
-    address: 4882
-  err_duplicate_export:
-    address: 4998
-  append_double_linked.have_head:
-    address: 4955
-  append_double_linked.common:
-    address: 4967
-  append_double_linked:
-    address: 4935
-5094:
-  brk:
-    address: 5094
-  __heap_start:
-    address: 5094
-5121:
-  report_error_at_location:
-    address: 5121
-  report_error_with_symbol:
-    address: 5265
-  halt_and_catch_fire:
-    address: 5347
-  unget_input:
-    address: 5169
-  reset_input_location:
-    address: 5226
-  pretty_print_mem:
-    address: 5503
-  read_string:
-    address: 5276
-  char_to_digit:
-    address: 5145
-  is_alphanum:
-    address: 5266
-  print_num_2:
-    address: 5149
-  print_num_2_b:
-    address: 5177
-  print_num_2_w:
-    address: 5205
-  print_num_16:
-    address: 5233
-  print_num_16_b:
-    address: 5261
-  print_num_16_w:
-    address: 5289
-  print_num_radix:
-    address: 5317
-  print_str_as_mem:
-    address: 5502
-  is_digit:
-    address: 5121
-  is_alpha:
-    address: 5228
-  strcpy:
-    address: 5377
-  zeromem:
-    address: 5416
-  brk:
-    address: 5121
-  __heap_start:
-    address: 5121
-5352:
-  alloc_blocks:
-    address: 5354
-  realloc_more_blocks:
-    address: 5683
-  neg_chunk_header_size:
-    address: 5352
-  block_size:
-    address: 5353
-  dump_heap:
-    address: 5969
-  sbrk:
-    address: 5361
-  brk_addr:
-    address: 5378
-  halt_and_catch_fire:
-    address: 5578
-  unget_input:
-    address: 5400
-  reset_input_location:
-    address: 5457
-  pretty_print_mem:
-    address: 5734
-  read_string:
-    address: 5507
-  char_to_digit:
-    address: 5376
-  is_alphanum:
-    address: 5497
-  print_num_2:
-    address: 5380
-  print_num_2_b:
-    address: 5408
-  print_num_2_w:
-    address: 5436
-  print_num_16:
-    address: 5464
-  print_num_16_b:
-    address: 5492
-  print_num_16_w:
-    address: 5520
-  print_num_radix:
-    address: 5548
-  print_str_as_mem:
-    address: 5733
-  is_digit:
-    address: 5352
-  is_alpha:
-    address: 5459
-  strcpy:
-    address: 5608
-  zeromem:
-    address: 5647
-  brk:
-    address: 5352
-  __heap_start:
-    address: 5352
-  err_zero_allocation:
-    address: 6282
-  small:
-    address: 6272
-  large:
-    address: 6281
-6326:
-  get_input:
-    address: 6326
-  unget_input:
-    address: 6374
-  reset_input_location:
-    address: 6431
-  pretty_print_mem:
-    address: 6708
-  read_string:
-    address: 6481
-  char_to_digit:
-    address: 6350
-  is_alphanum:
-    address: 6471
-  print_num_2:
-    address: 6354
-  print_num_2_b:
-    address: 6382
-  print_num_2_w:
-    address: 6410
-  print_num_16:
-    address: 6438
-  print_num_16_b:
-    address: 6466
-  print_num_16_w:
-    address: 6494
-  print_num_radix:
-    address: 6522
-  print_str_as_mem:
-    address: 6707
-  is_digit:
-    address: 6326
-  is_alpha:
-    address: 6433
-  strcpy:
-    address: 6582
-  zeromem:
-    address: 6621
-  brk:
-    address: 6326
-  __heap_start:
-    address: 6326
-  input_buffer:
-    address: 6447
-  input_prev_column_num:
-    address: 6446
-6448:
-  read_identifier:
-    address: 6448
-  read_string:
-    address: 6603
-  char_to_digit:
-    address: 6472
-  is_alphanum:
-    address: 6593
-  print_num_2:
-    address: 6476
-  print_num_2_b:
-    address: 6504
-  print_num_2_w:
-    address: 6532
-  print_num_16:
-    address: 6560
-  print_num_16_b:
-    address: 6588
-  print_num_16_w:
-    address: 6616
-  print_num_radix:
-    address: 6644
-  print_str_as_mem:
-    address: 6829
-  is_digit:
-    address: 6448
-  is_alpha:
-    address: 6555
-  strcpy:
-    address: 6704
-  zeromem:
-    address: 6743
-  brk:
-    address: 6448
-  __heap_start:
-    address: 6448
-6996:
-  set_mem:
-    address: 6997
-  inc_mem:
-    address: 7173
-  print_mem:
-    address: 7346
-  pretty_print_mem:
-    address: 7378
-  read_string:
-    address: 7151
-  char_to_digit:
-    address: 7020
-  is_alphanum:
-    address: 7141
-  print_num_2:
-    address: 7024
-  print_num_2_b:
-    address: 7052
-  print_num_2_w:
-    address: 7080
-  print_num_16:
-    address: 7108
-  print_num_16_b:
-    address: 7136
-  print_num_16_w:
-    address: 7164
-  print_num_radix:
-    address: 7192
-  print_str_as_mem:
-    address: 7377
-  is_digit:
-    address: 6996
-  is_alpha:
-    address: 7103
-  strcpy:
-    address: 7252
-  zeromem:
-    address: 7291
-  brk:
-    address: 6996
-  __heap_start:
-    address: 6996
-  calc_mem.loop:
-    address: 7250
-  calc_mem.done:
-    address: 7272
-  calc_mem:
-    address: 7240
-  inc_mem_internal.loop:
-    address: 7289
-  inc_mem_internal.have_block:
-    address: 7305
-  inc_mem_internal.this_block:
-    address: 7323
-  inc_mem_internal:
-    address: 7283
-  err_invalid_address:
-    address: 7511
-  print_mem_internal.done:
-    address: 7504
-  print_mem_internal.block:
-    address: 7423
-  print_mem_internal.byte:
-    address: 7442
-  print_mem_internal.block_done:
-    address: 7493
-  print_mem_internal.skip_comma:
-    address: 7459
-  print_mem_internal:
-    address: 7410
-7534:
   print_num:
-    address: 7534
+    address: 3461
+  print_str:
+    address: 3809
+  report_error_with_symbol:
+    address: 3605
+  strcmp:
+    address: 3663
+  realloc_more_blocks:
+    address: 3792
+  neg_chunk_header_size:
+    address: 3461
+  block_size:
+    address: 3462
+  dump_heap:
+    address: 4078
+  sbrk:
+    address: 3470
+  brk_addr:
+    address: 3487
+  halt_and_catch_fire:
+    address: 3687
+  unget_input:
+    address: 3509
+  reset_input_location:
+    address: 3566
+  pretty_print_mem:
+    address: 3843
+  read_string:
+    address: 3616
+  char_to_digit:
+    address: 3485
+  is_alphanum:
+    address: 3606
   print_num_2:
-    address: 7562
+    address: 3489
   print_num_2_b:
-    address: 7590
+    address: 3517
   print_num_2_w:
-    address: 7618
+    address: 3545
   print_num_16:
-    address: 7646
+    address: 3573
   print_num_16_b:
-    address: 7674
+    address: 3601
   print_num_16_w:
-    address: 7702
+    address: 3629
   print_num_radix:
-    address: 7730
+    address: 3657
   print_str_as_mem:
-    address: 7915
+    address: 3842
   is_digit:
-    address: 7534
+    address: 3461
   is_alpha:
-    address: 7641
+    address: 3568
   strcpy:
-    address: 7790
+    address: 3717
   zeromem:
-    address: 7829
+    address: 3756
   brk:
-    address: 7534
+    address: 3461
   __heap_start:
-    address: 7534
-7974:
+    address: 3461
+  print_map_exports.loop:
+    address: 3649
+  print_map_exports.done:
+    address: 3734
+  print_map_exports:
+    address: 3639
+  print_map_symbols.loop:
+    address: 3751
+  print_map_symbols.done:
+    address: 3864
+  print_map_symbols.after_child:
+    address: 3805
+  print_map_symbols:
+    address: 3741
+  map_address_str:
+    address: 3871
+3885:
+  relocate:
+    address: 3885
+  relocate_module.block:
+    address: 3964
+  relocate_module.done:
+    address: 4070
+  relocate_module.byte:
+    address: 3994
+  relocate_module.block_done:
+    address: 4059
+  relocate_module:
+    address: 3954
+4077:
+  include_objects:
+    address: 4077
+  resolve_symbols:
+    address: 4133
+  include_module:
+    address: 4281
+  resolve_one_symbol.have_module:
+    address: 4231
+  resolve_one_symbol.done:
+    address: 4274
+  resolve_one_symbol:
+    address: 4182
+  find_exporting_module.loop:
+    address: 4666
+  find_exporting_module.done:
+    address: 4713
+  find_exporting_module.next:
+    address: 4702
+  find_exporting_module:
+    address: 4660
+  err_export_not_found:
+    address: 4862
+  err_included_not_resolved:
+    address: 4888
+  include_exported.loop:
+    address: 4338
+  include_exported.done:
+    address: 4476
+  include_exported.is_new:
+    address: 4411
+  include_exported.have_symbol:
+    address: 4441
+  include_exported:
+    address: 4336
+  include_imported.loop:
+    address: 4489
+  include_imported.done:
+    address: 4653
+  include_imported.have_symbol:
+    address: 4615
+  include_imported:
+    address: 4483
+  find_symbol.loop:
+    address: 4726
+  find_symbol.done:
+    address: 4766
+  find_symbol:
+    address: 4720
+  err_duplicate_export:
+    address: 4836
+  append_double_linked.have_head:
+    address: 4793
+  append_double_linked.common:
+    address: 4805
+  append_double_linked:
+    address: 4773
+4932:
+  brk:
+    address: 4932
+  __heap_start:
+    address: 4932
+4959:
+  report_error_at_location:
+    address: 4959
+  report_error_with_symbol:
+    address: 5103
+  halt_and_catch_fire:
+    address: 5185
+  unget_input:
+    address: 5007
+  reset_input_location:
+    address: 5064
+  pretty_print_mem:
+    address: 5341
+  read_string:
+    address: 5114
+  char_to_digit:
+    address: 4983
+  is_alphanum:
+    address: 5104
+  print_num_2:
+    address: 4987
+  print_num_2_b:
+    address: 5015
+  print_num_2_w:
+    address: 5043
+  print_num_16:
+    address: 5071
+  print_num_16_b:
+    address: 5099
+  print_num_16_w:
+    address: 5127
+  print_num_radix:
+    address: 5155
+  print_str_as_mem:
+    address: 5340
   is_digit:
-    address: 7974
+    address: 4959
   is_alpha:
-    address: 8081
+    address: 5066
   strcpy:
-    address: 8230
+    address: 5215
   zeromem:
-    address: 8269
+    address: 5254
   brk:
-    address: 7974
+    address: 4959
   __heap_start:
-    address: 7974
-8300:
+    address: 4959
+5190:
+  alloc_blocks:
+    address: 5192
+  realloc_more_blocks:
+    address: 5521
+  neg_chunk_header_size:
+    address: 5190
+  block_size:
+    address: 5191
+  dump_heap:
+    address: 5807
+  sbrk:
+    address: 5199
+  brk_addr:
+    address: 5216
+  halt_and_catch_fire:
+    address: 5416
+  unget_input:
+    address: 5238
+  reset_input_location:
+    address: 5295
+  pretty_print_mem:
+    address: 5572
+  read_string:
+    address: 5345
+  char_to_digit:
+    address: 5214
+  is_alphanum:
+    address: 5335
+  print_num_2:
+    address: 5218
+  print_num_2_b:
+    address: 5246
+  print_num_2_w:
+    address: 5274
+  print_num_16:
+    address: 5302
+  print_num_16_b:
+    address: 5330
+  print_num_16_w:
+    address: 5358
+  print_num_radix:
+    address: 5386
+  print_str_as_mem:
+    address: 5571
+  is_digit:
+    address: 5190
+  is_alpha:
+    address: 5297
+  strcpy:
+    address: 5446
+  zeromem:
+    address: 5485
+  brk:
+    address: 5190
   __heap_start:
-    address: 8300
+    address: 5190
+  err_zero_allocation:
+    address: 6120
+  small:
+    address: 6110
+  large:
+    address: 6119
+6164:
+  get_input:
+    address: 6164
+  unget_input:
+    address: 6212
+  reset_input_location:
+    address: 6269
+  pretty_print_mem:
+    address: 6546
+  read_string:
+    address: 6319
+  char_to_digit:
+    address: 6188
+  is_alphanum:
+    address: 6309
+  print_num_2:
+    address: 6192
+  print_num_2_b:
+    address: 6220
+  print_num_2_w:
+    address: 6248
+  print_num_16:
+    address: 6276
+  print_num_16_b:
+    address: 6304
+  print_num_16_w:
+    address: 6332
+  print_num_radix:
+    address: 6360
+  print_str_as_mem:
+    address: 6545
+  is_digit:
+    address: 6164
+  is_alpha:
+    address: 6271
+  strcpy:
+    address: 6420
+  zeromem:
+    address: 6459
+  brk:
+    address: 6164
+  __heap_start:
+    address: 6164
+  input_buffer:
+    address: 6285
+  input_prev_column_num:
+    address: 6284
+6286:
+  read_identifier:
+    address: 6286
+  read_string:
+    address: 6441
+  char_to_digit:
+    address: 6310
+  is_alphanum:
+    address: 6431
+  print_num_2:
+    address: 6314
+  print_num_2_b:
+    address: 6342
+  print_num_2_w:
+    address: 6370
+  print_num_16:
+    address: 6398
+  print_num_16_b:
+    address: 6426
+  print_num_16_w:
+    address: 6454
+  print_num_radix:
+    address: 6482
+  print_str_as_mem:
+    address: 6667
+  is_digit:
+    address: 6286
+  is_alpha:
+    address: 6393
+  strcpy:
+    address: 6542
+  zeromem:
+    address: 6581
+  brk:
+    address: 6286
+  __heap_start:
+    address: 6286
+6834:
+  set_mem:
+    address: 6835
+  inc_mem:
+    address: 7011
+  print_mem:
+    address: 7184
+  pretty_print_mem:
+    address: 7216
+  read_string:
+    address: 6989
+  char_to_digit:
+    address: 6858
+  is_alphanum:
+    address: 6979
+  print_num_2:
+    address: 6862
+  print_num_2_b:
+    address: 6890
+  print_num_2_w:
+    address: 6918
+  print_num_16:
+    address: 6946
+  print_num_16_b:
+    address: 6974
+  print_num_16_w:
+    address: 7002
+  print_num_radix:
+    address: 7030
+  print_str_as_mem:
+    address: 7215
+  is_digit:
+    address: 6834
+  is_alpha:
+    address: 6941
+  strcpy:
+    address: 7090
+  zeromem:
+    address: 7129
+  brk:
+    address: 6834
+  __heap_start:
+    address: 6834
+  calc_mem.loop:
+    address: 7088
+  calc_mem.done:
+    address: 7110
+  calc_mem:
+    address: 7078
+  inc_mem_internal.loop:
+    address: 7127
+  inc_mem_internal.have_block:
+    address: 7143
+  inc_mem_internal.this_block:
+    address: 7161
+  inc_mem_internal:
+    address: 7121
+  err_invalid_address:
+    address: 7349
+  print_mem_internal.done:
+    address: 7342
+  print_mem_internal.block:
+    address: 7261
+  print_mem_internal.byte:
+    address: 7280
+  print_mem_internal.block_done:
+    address: 7331
+  print_mem_internal.skip_comma:
+    address: 7297
+  print_mem_internal:
+    address: 7248
+7372:
+  print_num:
+    address: 7372
+  print_num_2:
+    address: 7400
+  print_num_2_b:
+    address: 7428
+  print_num_2_w:
+    address: 7456
+  print_num_16:
+    address: 7484
+  print_num_16_b:
+    address: 7512
+  print_num_16_w:
+    address: 7540
+  print_num_radix:
+    address: 7568
+  print_str_as_mem:
+    address: 7753
+  is_digit:
+    address: 7372
+  is_alpha:
+    address: 7479
+  strcpy:
+    address: 7628
+  zeromem:
+    address: 7667
+  brk:
+    address: 7372
+  __heap_start:
+    address: 7372
+7812:
+  is_digit:
+    address: 7812
+  is_alpha:
+    address: 7919
+  strcpy:
+    address: 8068
+  zeromem:
+    address: 8107
+  brk:
+    address: 7812
+  __heap_start:
+    address: 7812
+8138:
+  __heap_start:
+    address: 8138

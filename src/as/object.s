@@ -19,8 +19,6 @@
 .IMPORT mem_tail
 .IMPORT mem_index
 
-# TODO add a module level to the map, to avoid duplicate map keys
-
 ##########
 output_object:
 .FRAME
@@ -271,15 +269,6 @@ print_symbols:
     arb -1
     call print_identifier_and_address
 
-    out ';'
-
-    # print relocations for the symbol
-    add [rb + global], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb - 1]
-    add 0, 0, [rb - 2]
-    arb -2
-    call print_fixups_list
-
     out 10
 
     # process child symbols as well, if any
@@ -294,15 +283,6 @@ print_symbols:
     add [rb + child], 0, [rb - 1]
     arb -1
     call print_identifier_and_address
-
-    out ';'
-
-    # print relocations for this child symbol
-    add [rb + child], GLOBAL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb - 1]
-    add 0, 0, [rb - 2]
-    arb -2
-    call print_fixups_list
 
     out 10
 
