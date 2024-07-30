@@ -82,7 +82,11 @@ print_map:
     out ':'
     out 10
 
-    # dump all symbols within the module
+    # dump all exports and local symbols within the module
+    add [rb + module], 0, [rb - 1]
+    arb -1
+    call print_map_exports
+
     add [rb + module], 0, [rb - 1]
     arb -1
     call print_map_symbols
@@ -100,8 +104,56 @@ print_map:
 .ENDFRAME
 
 ##########
+print_map_exports:
+.FRAME module; export, module_address
+    arb -2
+
+    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 1]
+    add [0], 0, [rb + export]
+
+.loop:
+    jz  [rb + export], .done
+
+    # print the identifier
+    out ' '
+    out ' '
+
+    add [rb + export], EXPORT_IDENTIFIER, [ip + 1]
+    add [0], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    out ':'
+    out 10
+
+    # print the absolute address
+    add map_address_str, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add [rb + module], MODULE_ADDRESS, [ip + 1]
+    add [0], 0, [rb + module_address]
+
+    add [rb + export], EXPORT_ADDRESS, [ip + 1]
+    add [0], [rb + module_address], [rb - 1]
+    arb -1
+    call print_num
+
+    out 10
+
+    add [rb + export], EXPORT_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + export]
+
+    jz  0, .loop
+
+.done:
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
 print_map_symbols:
-.FRAME module; module_address, symbol
+.FRAME module; symbol, module_address
     arb -2
 
     add [rb + module], MODULE_SYMBOLS_HEAD, [ip + 1]
@@ -135,7 +187,7 @@ print_map_symbols:
     out 10
 
     # print the absolute address
-    add .str_address, 0, [rb - 1]
+    add map_address_str, 0, [rb - 1]
     arb -1
     call print_str
 
@@ -149,36 +201,6 @@ print_map_symbols:
 
     out 10
 
-    # convert addresses in the fixup list to absolute
-    add [rb + symbol], SYMBOL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb - 1]
-    add [rb + symbol], SYMBOL_FIXUPS_TAIL, [ip + 1]
-    add [0], 0, [rb - 2]
-    add [rb + symbol], SYMBOL_FIXUPS_INDEX, [ip + 1]
-    add [0], 0, [rb - 3]
-    add [rb + module_address], 0, [rb - 4]
-    arb -4
-    call inc_all_mem
-
-    # print the references
-    add .str_references, 0, [rb - 1]
-    arb -1
-    call print_str
-
-    out '['
-
-    add [rb + symbol], SYMBOL_FIXUPS_HEAD, [ip + 1]
-    add [0], 0, [rb - 1]
-    add [rb + symbol], SYMBOL_FIXUPS_TAIL, [ip + 1]
-    add [0], 0, [rb - 2]
-    add [rb + symbol], SYMBOL_FIXUPS_INDEX, [ip + 1]
-    add [0], 0, [rb - 3]
-    arb -3
-    call pretty_print_mem
-
-    out ']'
-    out 10
-
     add [rb + symbol], SYMBOL_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
@@ -187,14 +209,10 @@ print_map_symbols:
 .done:
     arb 2
     ret 1
-
-.str_address:
-    db  "    address: ", 0
-.str_references:
-    db  "    references: ", 0
 .ENDFRAME
 
-# TODO add the imported locations to fixups
-# increased by their respecitive MODULE_ADDRESS, only from included modules
+##########
+map_address_str:
+    db  "    address: ", 0
 
 .EOF

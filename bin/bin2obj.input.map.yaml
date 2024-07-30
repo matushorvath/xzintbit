@@ -1,316 +1,256 @@
 0:
   stack:
     address: 1012
-    references: [1]
   main:
     address: 1012
-    references: [10]
   parse_wc:
     address: 1053
-    references: [1020]
   load_data.loop:
     address: 1416
-    references: [1439]
   load_data.done:
     address: 1440
-    references: [1422]
   load_data:
     address: 1406
-    references: [1029]
   detect_sections.loop:
     address: 1477
-    references: [1599]
   detect_sections.finish_last_section:
     address: 1600
-    references: [1483]
   detect_sections.nonzero:
     address: 1502
-    references: [1494]
   detect_sections.loop_end:
     address: 1593
-    references: [1501]
   detect_sections.finish_section:
     address: 1515
-    references: [1508]
   detect_sections.start_section:
     address: 1542
-    references: [1517, 1511]
   detect_sections.continue_section:
     address: 1578
-    references: [1514]
   detect_sections.after_zeros:
     address: 1589
-    references: [1580]
   detect_sections.done:
     address: 1623
-    references: [1602]
   detect_sections:
     address: 1451
-    references: [1038]
   output_object.start:
     address: 1700
-    references: [1639]
   output_object.middle:
     address: 1704
-    references: [1672]
   output_object:
     address: 1638
-    references: [1047]
   char:
     address: 2124
-    references: [1294, 1286, 1239, 1232, 1225, 1218, 1157, 1154, 1147, 1145, 1139, 1131, 1124, 1106, 1099, 1054]
   read_spaces.loop:
     address: 1098
-    references: [1109]
   read_spaces.done:
     address: 1110
-    references: [1104]
   read_spaces:
     address: 1096
-    references: [1081, 1063]
   read_size.loop:
     address: 1123
-    references: [1160]
   read_size.done:
     address: 1161
-    references: [1129]
   read_size.invalid:
     address: 1168
-    references: [1143, 1136]
   read_size.invalid_message:
     address: 1184
-    references: [1169]
   read_size:
     address: 1117
-    references: [1072]
   read_name.loop:
     address: 1217
-    references: [1297]
   read_name.done:
     address: 1298
-    references: [1223]
   read_name.loop_end:
     address: 1293
-    references: [1280, 1277, 1270, 1230]
   read_name.ext:
     address: 1271
-    references: [1237]
   read_name.alnum:
     address: 1278
-    references: [1255]
   read_name.invalid:
     address: 1331
-    references: [1300]
   read_name.too_long:
     address: 1347
-    references: [1307]
   read_name.invalid_message:
     address: 1363
-    references: [1332]
   read_name.too_long_message:
     address: 1384
-    references: [1348]
   read_name:
     address: 1203
-    references: [1090]
   data_size:
     address: 2129
-    references: [1479, 1442, 1418, 1155, 1153, 1151, 1149, 1122]
   free_memory:
     address: 2125
-    references: [1630, 1628, 1454, 1443, 1441, 1409, 1323, 1321, 1319, 1317, 1257, 1206]
   name_addr:
     address: 2126
-    references: [2037, 2003, 1969, 1935, 1309, 1282, 1259, 1208]
   name_length:
     address: 2127
-    references: [1318, 1310, 1303, 1299, 1292, 1290, 1283, 1263, 1212]
   data_addr:
     address: 2128
-    references: [1895, 1485, 1426, 1411]
   section_addr:
     address: 2130
-    references: [1859, 1749, 1613, 1548, 1528, 1456]
   section_count:
     address: 2131
-    references: [2067, 1848, 1738, 1718, 1624, 1604, 1601, 1569, 1567, 1543, 1519, 1516, 1510, 1460]
   output_header.sections_loop:
     address: 1736
-    references: [1832]
   output_header.sections_done:
     address: 1833
-    references: [1742]
   output_header:
     address: 1715
-    references: [1661]
   output_data.sections_loop:
     address: 1846
-    references: [1926]
   output_data.sections_done:
     address: 1927
-    references: [1852]
   output_data.bytes_loop:
     address: 1885
-    references: [1919]
   output_data.bytes_done:
     address: 1920
-    references: [1891]
   output_data:
     address: 1840
-    references: [1670]
   output_exports.image:
     address: 2092
-    references: [1950]
   output_exports.count:
     address: 2100
-    references: [1984]
   output_exports.header:
     address: 2108
-    references: [2018]
   output_exports.data:
     address: 2117
-    references: [2052]
   output_exports:
     address: 1934
-    references: [1694]
 2132:
   print_num:
     address: 2132
-    references: []
   print_num_2:
     address: 2160
-    references: []
   print_num_2_b:
     address: 2188
-    references: []
   print_num_2_w:
     address: 2216
-    references: []
   print_num_16:
     address: 2244
-    references: []
   print_num_16_b:
     address: 2272
-    references: []
   print_num_16_w:
     address: 2300
-    references: []
-  print_num_radix.next_order:
-    address: 2347
-    references: [2365, 2340]
-  print_num_radix.digit_ptr_1:
-    address: 2350
-    references: [2456, 2375, 2367, 2354, 2352]
-  print_num_radix.finish_order:
-    address: 2366
-    references: []
-  print_num_radix.digit_ptr_2:
-    address: 2399
-    references: [2452, 2445, 2443, 2369]
-  print_num_radix.padding_loop:
-    address: 2382
-    references: [2397]
-  print_num_radix.next_digit:
-    address: 2398
-    references: [2448, 2388]
-  print_num_radix.increase:
-    address: 2406
-    references: [2424]
-  print_num_radix.digits:
-    address: 2464
-    references: [2430]
-  print_num_radix.finish:
-    address: 2449
-    references: [2441]
   print_num_radix:
     address: 2328
-    references: [2557, 2322, 2294, 2266, 2238, 2210, 2182, 2154]
-  print_str.start:
-    address: 2495
-    references: [2488]
-  print_str.loop:
-    address: 2489
-    references: [2505]
-  print_str:
-    address: 2480
-    references: []
-  print_str_as_mem.loop:
-    address: 2519
-    references: [2564]
-  print_str_as_mem.done:
-    address: 2565
-    references: [2529]
-  print_str_as_mem.skip_comma:
-    address: 2535
-    references: [2532]
   print_str_as_mem:
     address: 2513
-    references: []
+  is_digit:
+    address: 2132
+  char_to_digit:
+    address: 2156
+  is_alpha:
+    address: 2239
+  strcmp:
+    address: 2334
+  strcpy:
+    address: 2388
+  zeromem:
+    address: 2427
+  print_num:
+    address: 2132
+  print_num_2:
+    address: 2160
+  print_num_2_b:
+    address: 2188
+  print_num_2_w:
+    address: 2216
+  print_num_16:
+    address: 2244
+  print_num_16_b:
+    address: 2272
+  print_num_16_w:
+    address: 2300
+  print_num_radix.next_order:
+    address: 2347
+  print_num_radix.digit_ptr_1:
+    address: 2350
+  print_num_radix.finish_order:
+    address: 2366
+  print_num_radix.digit_ptr_2:
+    address: 2399
+  print_num_radix.padding_loop:
+    address: 2382
+  print_num_radix.next_digit:
+    address: 2398
+  print_num_radix.increase:
+    address: 2406
+  print_num_radix.digits:
+    address: 2464
+  print_num_radix.finish:
+    address: 2449
+  print_num_radix:
+    address: 2328
+  print_str.start:
+    address: 2495
+  print_str.loop:
+    address: 2489
+  print_str:
+    address: 2480
+  print_str_as_mem.loop:
+    address: 2519
+  print_str_as_mem.done:
+    address: 2565
+  print_str_as_mem.skip_comma:
+    address: 2535
+  print_str_as_mem:
+    address: 2513
 2572:
-  is_digit.end:
-    address: 2585
-    references: [2580]
   is_digit:
     address: 2572
-    references: [2755]
-  char_to_digit.invalid:
-    address: 2668
-    references: [2642, 2632, 2618, 2604]
-  char_to_digit.number:
-    address: 2657
-    references: [2611]
-  char_to_digit.upper_case:
-    address: 2643
-    references: [2625]
-  char_to_digit.lower_case:
-    address: 2650
-    references: [2639]
-  char_to_digit.check_radix:
-    address: 2661
-    references: [2656, 2649]
-  char_to_digit.end:
-    address: 2672
-    references: [2667]
   char_to_digit:
     address: 2596
-    references: []
-  is_alpha.end:
-    address: 2706
-    references: [2701, 2694, 2687]
   is_alpha:
     address: 2679
-    references: [2733]
-  is_alphanum.end:
-    address: 2767
-    references: [2762, 2740]
-  is_alphanum:
-    address: 2717
-    references: []
-  strcmp.loop:
-    address: 2780
-    references: [2812]
-  strcmp.done:
-    address: 2813
-    references: [2805, 2802]
   strcmp:
     address: 2774
-    references: []
-  strcpy.loop:
-    address: 2834
-    references: [2859]
-  strcpy.done:
-    address: 2860
-    references: [2852]
   strcpy:
     address: 2828
-    references: []
-  zeromem.loop:
-    address: 2869
-    references: [2890]
-  zeromem.done:
-    address: 2891
-    references: [2879]
   zeromem:
     address: 2867
-    references: []
+  is_digit.end:
+    address: 2585
+  is_digit:
+    address: 2572
+  char_to_digit.invalid:
+    address: 2668
+  char_to_digit.number:
+    address: 2657
+  char_to_digit.upper_case:
+    address: 2643
+  char_to_digit.lower_case:
+    address: 2650
+  char_to_digit.check_radix:
+    address: 2661
+  char_to_digit.end:
+    address: 2672
+  char_to_digit:
+    address: 2596
+  is_alpha.end:
+    address: 2706
+  is_alpha:
+    address: 2679
+  is_alphanum.end:
+    address: 2767
+  is_alphanum:
+    address: 2717
+  strcmp.loop:
+    address: 2780
+  strcmp.done:
+    address: 2813
+  strcmp:
+    address: 2774
+  strcpy.loop:
+    address: 2834
+  strcpy.done:
+    address: 2860
+  strcpy:
+    address: 2828
+  zeromem.loop:
+    address: 2869
+  zeromem.done:
+    address: 2891
+  zeromem:
+    address: 2867
 2898:
+  __heap_start:
+    address: 2898

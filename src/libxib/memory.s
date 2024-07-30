@@ -1,6 +1,5 @@
 .EXPORT set_mem
 .EXPORT inc_mem
-.EXPORT inc_all_mem
 .EXPORT print_mem
 .EXPORT pretty_print_mem
 .EXPORT mem_block_size
@@ -189,46 +188,6 @@ inc_mem_internal:
 
     arb 2
     ret 6
-.ENDFRAME
-
-##########
-inc_all_mem:
-.FRAME head, tail, tail_index, increment; tmp, buffer, limit, index
-    arb -4
-
-    add [rb + head], 0, [rb + buffer]
-    jz  [rb + buffer], .done
-
-.block:
-    add 1, 0, [rb + index]
-
-    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
-    add MEM_BLOCK_SIZE, 0, [rb + limit]
-    eq  [rb + buffer], [rb + tail], [rb + tmp]
-    jz  [rb + tmp], .byte
-    add [rb + tail_index], 0, [rb + limit]
-
-.byte:
-    lt  [rb + index], [rb + limit], [rb + tmp]
-    jz  [rb + tmp], .block_done
-
-    add [rb + buffer], [rb + index], [ip + 5]
-    add [rb + buffer], [rb + index], [ip + 3]
-    add [0], [rb + increment], [0]
-
-    add [rb + index], 1, [rb + index]
-    jz  0, .byte
-
-.block_done:
-    # next block in linked list
-    add [rb + buffer], 0, [ip + 1]
-    add [0], 0, [rb + buffer]
-
-    jnz [rb + buffer], .block
-
-.done:
-    arb 4
-    ret 4
 .ENDFRAME
 
 ##########
