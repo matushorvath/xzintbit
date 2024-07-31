@@ -3,12 +3,10 @@
 *.tmp
 local.*
 /vms/*/ic
-/vms/*/icp
 !/vms/apl/ic
 !/vms/js/ic
 !/vms/js-fn/ic
 /vms/*/ic.exe
-/vms/*/icp.exe
 /vms/c/*.o
 /vms/cs/bin
 /vms/cs/obj

@@ -14,12 +14,32 @@ int mem_size = 0;
 int ip = 0;
 int rb = 0;
 
+int *profile = NULL;
+
+void parse_command_line(int argc, char **argv, char **program_name, bool *option_profile) {
+    *option_profile = false;
+    *program_name = NULL;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-p") == 0) {
+            *option_profile = true;
+        } else {
+            *program_name = argv[i];
+        }
+    }
+}
+
 void resize_mem(int addr) {
     if (addr >= mem_size) {
         int old_mem_size = mem_size;
         while (addr >= mem_size) mem_size <<= 1;
         mem = (int *)realloc(mem, mem_size * sizeof(int));
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
+
+        if (profile != NULL) {
+            profile = (int *)realloc(profile, mem_size * sizeof(int));
+            memset(profile + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
+        }
     }
 }
 
@@ -126,6 +146,10 @@ void run(int (*get_input)(), void (*set_output)(int)) {
                 fprintf(stderr, "opcode error: ip %d oc %d\n", ip, oc);
                 exit(1);
         }
+
+        if (profile != NULL) {
+            profile[ip]++;
+        }
     }
 }
 
@@ -138,6 +162,21 @@ void set_output(int val) {
     fflush(stdout);
 }
 
+void save_profile(char *program_name) {
+    char profile_name[256];
+    sprintf(profile_name, "%s.profile.yaml", program_name);
+
+    FILE *fprofile = fopen(profile_name, "wt");
+
+    for (int i = 0; i < mem_size; i++) {
+        if (profile[i] != 0) {
+            fprintf(fprofile, "%i: %i\n", i, profile[i]);
+        }
+    }
+
+    fclose(fprofile);
+}
+
 int main(int argc, char **argv) {
 #ifdef _WIN32
     _setmode(_fileno(stdin), _O_BINARY);
@@ -148,7 +187,16 @@ int main(int argc, char **argv) {
     mem = (int*)malloc(mem_size * sizeof(int));
     memset(mem, 0, mem_size * sizeof(int));
 
-    FILE *input = fopen(argv[1], "rt");
+    char *program_name;
+    bool option_profile;
+    parse_command_line(argc, argv, &program_name, &option_profile);
+
+    if (option_profile) {
+        profile = (int *)malloc(mem_size * sizeof(int));
+        memset(profile, 0, mem_size * sizeof(int));
+    }
+
+    FILE *input = fopen(program_name, "rt");
 
     int idx = 0;
     char ch = ',';
@@ -163,6 +211,10 @@ int main(int argc, char **argv) {
     }
 
     run(get_input, set_output);
+
+    if (profile != NULL) {
+        save_profile(program_name);
+    }
 
     return 0;
 }
