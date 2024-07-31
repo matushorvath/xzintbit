@@ -31,11 +31,11 @@ set_as_mem_str:
 
     add 0, 0, [rb + index]
 
-set_mem_str_loop:
+.loop:
     add [rb + string], [rb + index], [ip + 1]
     add [0], 0, [rb + char]
 
-    jz  [rb + char], set_mem_str_done
+    jz  [rb + char], .done
 
     add mem_head, 0, [rb - 1]
     add mem_tail, 0, [rb - 2]
@@ -45,9 +45,9 @@ set_mem_str_loop:
     call set_mem
 
     add [rb + index], 1, [rb + index]
-    jz  0, set_mem_str_loop
+    jz  0, .loop
 
-set_mem_str_done:
+.done:
     arb 2
     ret 1
 .ENDFRAME
@@ -57,12 +57,12 @@ set_mem_str_done:
 
 # output memory buffer
 mem_head:
-    db 0
+    db  0
 mem_tail:
-    db 0
+    db  0
 
 # index of next unused byte in last memory buffer
 mem_index:
-    db 0
+    db  0
 
 .EOF

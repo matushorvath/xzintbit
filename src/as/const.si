@@ -1,28 +1,27 @@
 # common constants that will be available in each 'as' source file
 
-# allocation block size
-.SYMBOL MEM_BLOCK_SIZE              50
-
 # global symbol record layout:
 .SYMBOL GLOBAL_NEXT_PTR             0
-.SYMBOL GLOBAL_IDENTIFIER           1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL GLOBAL_TYPE                 47          # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - relocation
-.SYMBOL GLOBAL_ADDRESS              48
-.SYMBOL GLOBAL_FIXUPS_HEAD          49
-.SYMBOL GLOBAL_SIZE                 50
+.SYMBOL GLOBAL_IDENTIFIER_PTR       1           # pointer to identifier
+.SYMBOL GLOBAL_TYPE                 2           # 0 - local, 1 - imported, 2 - exported, 3 - constant, 4 - child
+.SYMBOL GLOBAL_ADDRESS              3
+.SYMBOL GLOBAL_FIXUPS_HEAD          4
+.SYMBOL GLOBAL_PARENT               5
+.SYMBOL GLOBAL_CHILDREN_HEAD        6
+.SYMBOL GLOBAL_ALLOC_SIZE           2           # record size in memory blocks, for alloc_blocks (2 * 8 - 2 = 14 bytes)
 
 # fixup record layout:
 .SYMBOL FIXUP_NEXT_PTR              0
 .SYMBOL FIXUP_ADDRESS               1
 .SYMBOL FIXUP_LINE_NUM              2
 .SYMBOL FIXUP_COLUMN_NUM            3
-.SYMBOL FIXUP_SIZE                  4
+.SYMBOL FIXUP_ALLOC_SIZE            1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
 
 # frame symbol record layout:
 .SYMBOL FRAME_NEXT_PTR              0
-.SYMBOL FRAME_IDENTIFIER            1           # 1-IDENTIFIER_LENGTH; zero-terminated
-.SYMBOL FRAME_OFFSET                48          # symbol value
-.SYMBOL FRAME_BLOCK                 49          # block index (.FRAME block0; block1; block2)
-.SYMBOL FRAME_SIZE                  50
+.SYMBOL FRAME_IDENTIFIER_PTR        1           # pointer to identifier
+.SYMBOL FRAME_OFFSET                2           # symbol value
+.SYMBOL FRAME_BLOCK                 3           # block index (.FRAME block0; block1; block2)
+.SYMBOL FRAME_ALLOC_SIZE            1           # record size in memory blocks, for alloc_blocks (1 * 8 - 2 = 6 bytes)
 
 .EOI

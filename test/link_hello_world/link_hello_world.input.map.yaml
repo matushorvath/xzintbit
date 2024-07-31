@@ -1,0 +1,12 @@
+0:
+  stack:
+    address: 53
+  message:
+    address: 20
+53:
+  print:
+    address: 53
+  print_loop:
+    address: 59
+  print_done:
+    address: 79

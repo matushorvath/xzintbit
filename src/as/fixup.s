@@ -1,14 +1,15 @@
 .EXPORT add_fixup
-.EXPORT do_fixups
+.EXPORT process_fixups
 
 # from libxib/heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
+.IMPORT free
 
 # from libxib/memory.s
 .IMPORT inc_mem
 
 # from error.s
-.IMPORT report_symbol_error
+.IMPORT report_symbol_fixup_error
 
 # from global.s
 .IMPORT find_global_symbol
@@ -22,27 +23,13 @@
 
 ##########
 add_fixup:
-.FRAME identifier, address, line_num, column_num; symbol, fixup, tmp
-    arb -3
+.FRAME fixups_head_ptr, address, line_num, column_num; fixup, tmp
+    arb -2
 
-    # find or create the symbol record
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    call find_global_symbol
-    add [rb - 3], 0, [rb + symbol]
-
-    jnz [rb + symbol], add_fixup_have_symbol
-
-    add [rb + identifier], 0, [rb - 1]
-    arb -1
-    call add_global_symbol
-    add [rb - 3], 0, [rb + symbol]
-
-add_fixup_have_symbol:
     # allocate a block
-    add FIXUP_SIZE, 0, [rb - 1]
+    add FIXUP_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + fixup]
 
     # store the address of the fixup
@@ -58,7 +45,7 @@ add_fixup_have_symbol:
     add [rb + column_num], 0, [0]
 
     # read current fixup list head
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
+    add [rb + fixups_head_ptr], 0, [ip + 1]
     add [0], 0, [rb + tmp]
 
     # set pointer to next fixup
@@ -66,51 +53,89 @@ add_fixup_have_symbol:
     add [rb + tmp], 0, [0]
 
     # set new fixup list head
-    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 3]
+    add [rb + fixups_head_ptr], 0, [ip + 3]
     add [rb + fixup], 0, [0]
 
-    arb 3
+    arb 2
     ret 4
 .ENDFRAME
 
 ##########
-do_fixups:
-.FRAME tmp, symbol, fixup, symbol_address, fixup_address
-    arb -5
+process_fixups:
+.FRAME tmp, global, child
+    arb -3
 
-    add [global_head], 0, [rb + symbol]
+    add [global_head], 0, [rb + global]
 
-do_fixups_symbol:
-    # do we have more symbols?
-    jz  [rb + symbol], do_fixups_done
+.global_loop:
+    # do we have more global symbols?
+    jz  [rb + global], .done
 
-    # special handling of imported symbols and relocations, they don't require fixups
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
+    # special handling of imported symbols, they don't require fixups
+    add [rb + global], GLOBAL_TYPE, [ip + 1]
     eq  [0], 1, [rb + tmp]
-    jnz [rb + tmp], do_fixups_symbol_done
-    add [rb + symbol], GLOBAL_TYPE, [ip + 1]
-    eq  [0], 4, [rb + tmp]
-    jnz [rb + tmp], do_fixups_symbol_done
+    jnz [rb + tmp], .global_next
 
-    # each non-imported symbol needs to have an address
+    # process all fixups for this global symbol
+    add [rb + global], 0, [rb - 1]
+    arb -1
+    call process_symbol_fixups
+
+    # process child symbols as well, if any
+    add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
+    add [0], 0, [rb + child]
+
+.child_loop:
+    # do we have more child symbols?
+    jz  [rb + child], .global_next
+
+    # process all fixups for this child symbol
+    add [rb + child], 0, [rb - 1]
+    arb -1
+    call process_symbol_fixups
+
+    # move to next child symbol
+    add [rb + child], GLOBAL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + child]
+
+    jz  0, .child_loop
+
+.global_next:
+    # move to next global symbol
+    add [rb + global], GLOBAL_NEXT_PTR, [ip + 1]
+    add [0], 0, [rb + global]
+
+    jz  0, .global_loop
+
+.done:
+    arb 3
+    ret 0
+.ENDFRAME
+
+##########
+process_symbol_fixups:
+.FRAME symbol; tmp, fixup, symbol_address, fixup_address
+    arb -4
+
+    # the symbol needs to have an address
     add [rb + symbol], GLOBAL_ADDRESS, [ip + 1]
     add [0], 0, [rb + symbol_address]
 
     eq  [rb + symbol_address], -1, [rb + tmp]
-    jz  [rb + tmp], do_fixups_have_address
+    jz  [rb + tmp], .have_address
 
     add [rb + symbol], 0, [rb + 1]
     add err_unknown_symbol, 0, [rb]
-    call report_symbol_error
+    call report_symbol_fixup_error
 
-do_fixups_have_address:
+.have_address:
     # iterate through all fixups for this symbol
     add [rb + symbol], GLOBAL_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + fixup]
 
-do_fixups_fixup:
+.loop:
     # do we have more fixups for this symbol?
-    jz  [rb + fixup], do_fixups_symbol_done
+    jz  [rb + fixup], .done
 
     # read fixup address
     add [rb + fixup], FIXUP_ADDRESS, [ip + 1]
@@ -129,18 +154,11 @@ do_fixups_fixup:
     add [rb + fixup], FIXUP_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + fixup]
 
-    jz  0, do_fixups_fixup
+    jz  0, .loop
 
-do_fixups_symbol_done:
-    # move to next symbol
-    add [rb + symbol], GLOBAL_NEXT_PTR, [ip + 1]
-    add [0], 0, [rb + symbol]
-
-    jz  0, do_fixups_symbol
-
-do_fixups_done:
-    arb 5
-    ret 0
+.done:
+    arb 4
+    ret 1
 .ENDFRAME
 
 ##########

@@ -13,31 +13,22 @@ env:
 
 jobs:
   build:
-    name: OS=${{ matrix.os }} VM=${{ matrix.icvm }} P=${{ matrix.profile }}
+    name: OS=${{ matrix.os }} VM=${{ matrix.icvm }}
     runs-on: ${{ matrix.os }}
     env:
-      ICVM_PROFILE: ${{ matrix.profile }}
       ICVM_TYPE: ${{ matrix.icvm }}
 
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         icvm: [c, cs, go, js, rust]
-        profile: [n, y]
-        exclude:
-          - icvm: cs
-            profile: y
-          - icvm: js
-            profile: y
-          - icvm: rust
-            profile: y
         include:
           - os: ubuntu-latest
             icvm: cl
-            profile: n
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout xzintbit
+        uses: actions/checkout@v4
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -45,11 +36,17 @@ jobs:
           dotnet-version: 6.0.x
         if: matrix.icvm == 'cs'
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
         if: matrix.icvm == 'js'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.19
+        if: matrix.icvm == 'go'
 
       - name: Setup Steel Bank Common Lisp
         run: |

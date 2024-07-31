@@ -8,8 +8,7 @@
 .IMPORT add_fixup
 
 # from global.s
-.IMPORT set_global_symbol_type
-.IMPORT relocation_symbol
+.IMPORT current_address_fixups_head
 
 # from lexer.s
 .IMPORT get_token
@@ -47,7 +46,7 @@ parse_call:
     call set_as_mem
 
     # add a fixup (actually a relocation) for the use of current_address
-    add relocation_symbol, 0, [rb - 1]
+    add current_address_fixups_head, 0, [rb - 1]
     add [current_address], 1, [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
@@ -92,17 +91,26 @@ parse_call:
     arb -1
     call set_as_mem
 
+    # if mode is 2 (relative), we need to adjust param by +1, to compensate
+    # for the 'arb -1' that we just performed one instruction before this one
+    # see also test/call_local_variable
+    eq  [rb + mode], 2, [rb + tmp]
+    jz  [rb + tmp], .not_mode_3
+
+    add [rb + param], 1, [rb + param]
+
+.not_mode_3:
     add [rb + param], 0, [rb - 1]
     arb -1
     call set_as_mem
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_call_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_call_done:
+.done:
     add [current_address], 9, [current_address]
 
     arb 3
@@ -147,12 +155,12 @@ parse_ret:
     call set_as_mem
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_ret_done
+    jnz [rb + tmp], .done
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_ret_done:
+.done:
     add [current_address], 5, [current_address]
 
     arb 2

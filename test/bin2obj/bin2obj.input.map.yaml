@@ -1,0 +1,9 @@
+0:
+  bin2obj_data:
+    address: 4
+  bin2obj_header:
+    address: 1
+  bin2obj_count:
+    address: 0
+  bin2obj_image:
+    address: 0

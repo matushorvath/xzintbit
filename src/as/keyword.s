@@ -13,74 +13,74 @@ detect_keyword:
 
     # check string length against MAX_WORD_LENGTH and MIN_WORD_LENGTH
     lt  4, [rb + length], [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jnz [rb + tmp], .not_keyword
     lt  [rb + length], 2, [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jnz [rb + tmp], .not_keyword
 
     # read first character, check that it is a lowercase letter
     add [rb + string], 0, [ip + 1]
     add [0], 0, [rb + char0]
 
     lt  [rb + char0], 'a', [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jnz [rb + tmp], .not_keyword
     lt  'z', [rb + char0], [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jnz [rb + tmp], .not_keyword
 
     # read second character, check that it is a lowercase letter
     add [rb + string], 1, [ip + 1]
     add [0], 0, [rb + char1]
 
     lt  [rb + char1], 'a', [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jnz [rb + tmp], .not_keyword
     lt  'z', [rb + char1], [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jnz [rb + tmp], .not_keyword
 
     # calculate indexes into the asso_values table
     add [rb + char0], -'a', [rb + char0]
     add [rb + char1], -'a', [rb + char1]
 
     # look up the hash value (store to char0)
-    add detect_keyword_asso_values, [rb + char0], [ip + 1]
+    add .asso_values, [rb + char0], [ip + 1]
     add [0], [rb + length], [rb + char0]
 
-    add detect_keyword_asso_values, [rb + char1], [ip + 1]
+    add .asso_values, [rb + char1], [ip + 1]
     add [0], [rb + char0], [rb + char0]
 
     # check hash limit MAX_HASH_VALUE
     lt  37, [rb + char0], [rb + tmp]
-    jnz [rb + tmp], detect_keyword_is_not
+    jnz [rb + tmp], .not_keyword
 
     # find candidate keyword, compare input string with the candidate
     mul [rb + char0], 5, [rb + tmp]
-    add detect_keyword_wordlist, [rb + tmp], [rb - 1]
+    add .wordlist, [rb + tmp], [rb - 1]
     add [rb + string], 0, [rb - 2]
     arb -2
     call strcmp
 
-    jnz [rb - 4], detect_keyword_is_not
+    jnz [rb - 4], .not_keyword
 
     # find token id, return it
-    add detect_keyword_tokens, [rb + char0], [ip + 1]
+    add .tokens, [rb + char0], [ip + 1]
     add [0], 0, [rb + tmp]
 
     arb 3
     ret 2
 
-detect_keyword_is_not:
+.not_keyword:
     # not a keyword, so it is an identifier
     add 'i', 0, [rb + tmp]
 
     arb 3
     ret 2
 
-detect_keyword_asso_values:
+.asso_values:
     # copied from gperf-keyword.c
     db                               0,  0,  0
     db   5, 10, 38, 38, 10, 20, 10, 38, 20, 15
     db   5, 10, 10,  5,  0,  5, 15, 10, 38, 38
     db  38, 38, 10
 
-detect_keyword_wordlist:
+.wordlist:
     # copied from gperf-keyword.c
     ds  10, 0
     db  "rb", 0, 0, 0
@@ -107,7 +107,7 @@ detect_keyword_wordlist:
     ds  15, 0
     db  "lt", 0, 0, 0
 
-detect_keyword_tokens:
+.tokens:
     ds  2, 0
     db  'P'
     db  9

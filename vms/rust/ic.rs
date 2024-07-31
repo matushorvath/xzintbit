@@ -27,7 +27,6 @@ impl Vm {
     }
 
     fn set_mem(self: &mut Vm, addr: usize, val: i32) {
-        // profile_value(val)
         if addr >= self.mem.len() {
             let mut new_size = self.mem.len();
             while addr >= new_size {
@@ -59,7 +58,6 @@ impl Vm {
 
     pub fn run(self: &mut Vm, get_input: fn() -> i32, set_output: fn(i32)) -> Result<(), String> {
         loop {
-            // profile_inst();
             let oc = self.get_mem(self.ip) % 100;
 
             match oc {
@@ -142,6 +140,4 @@ fn main() {
     }
 
     vm.run(get_input, set_output).unwrap();
-
-    // profile_done();
 }

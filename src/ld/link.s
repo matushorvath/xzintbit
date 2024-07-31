@@ -2,25 +2,26 @@
 
 # from libxib/memory.s
 .IMPORT inc_mem
+.IMPORT mem_block_size
 
 # from data.s
-.IMPORT symbol_head
+.IMPORT resolved_head
 
 ##########
 link_imports:
 .FRAME symbol, import, tmp
     arb -3
 
-    add [symbol_head], 0, [rb + symbol]
+    add [resolved_head], 0, [rb + symbol]
 
-link_imports_symbols_loop:
-    jz  [rb + symbol], link_imports_symbols_done
+.symbols_loop:
+    jz  [rb + symbol], .symbols_done
 
     add [rb + symbol], EXPORT_IMPORTS_HEAD, [ip + 1]
     add [0], 0, [rb + import]
 
-link_imports_imports_loop:
-    jz  [rb + import], link_imports_imports_done
+.imports_loop:
+    jz  [rb + import], .imports_done
 
     add [rb + symbol], 0, [rb - 1]
     add [rb + import], 0, [rb - 2]
@@ -30,15 +31,15 @@ link_imports_imports_loop:
     add [rb + import], IMPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + import]
 
-    jz  0, link_imports_imports_loop
+    jz  0, .imports_loop
 
-link_imports_imports_done:
+.imports_done:
     add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
-    jz  0, link_imports_symbols_loop
+    jz  0, .symbols_loop
 
-link_imports_symbols_done:
+.symbols_done:
     arb 3
     ret 0
 .ENDFRAME
@@ -61,22 +62,22 @@ link_one_import:
     add [rb + import], IMPORT_FIXUPS_HEAD, [ip + 1]
     add [0], 0, [rb + buffer]
 
-link_one_import_block:
-    jz  [rb + buffer], link_one_import_done
+.block:
+    jz  [rb + buffer], .done
     add 1, 0, [rb + index]
 
-    # maximum index within a block is MEM_BLOCK_SIZE, except for last block
-    add MEM_BLOCK_SIZE, 0, [rb + limit]
+    # maximum index within a block is mem_block_size, except for last block
+    add [mem_block_size], 0, [rb + limit]
     add [rb + import], IMPORT_FIXUPS_TAIL, [ip + 1]
     eq  [0], [rb + buffer], [rb + tmp]
-    jz  [rb + tmp], link_one_import_byte
+    jz  [rb + tmp], .byte
 
     add [rb + import], IMPORT_FIXUPS_INDEX, [ip + 1]
     add [0], 0, [rb + limit]
 
-link_one_import_byte:
+.byte:
     lt  [rb + index], [rb + limit], [rb + tmp]
-    jz  [rb + tmp], link_one_import_block_done
+    jz  [rb + tmp], .block_done
 
     # increment memory at in import module at import fixup address
     # by export module address + export symbol address
@@ -98,16 +99,16 @@ link_one_import_byte:
     call inc_mem
 
     add [rb + index], 1, [rb + index]
-    jz  0, link_one_import_byte
+    jz  0, .byte
 
-link_one_import_block_done:
+.block_done:
     # next block in linked list
     add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
-    jz  0, link_one_import_block
+    jz  0, .block
 
-link_one_import_done:
+.done:
     arb 6
     ret 2
 .ENDFRAME

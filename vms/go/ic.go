@@ -15,8 +15,6 @@ var ip = 0
 var rb = 0
 
 func resizeMem(addr int) {
-	profileAddr(addr)
-
 	if addr >= len(mem) {
 		newSize := len(mem)
 		for addr >= newSize {
@@ -34,7 +32,6 @@ func getMem(addr int) int {
 }
 
 func setMem(addr, val int) {
-	profileValue(val)
 	resizeMem(addr)
 	mem[addr] = val
 }
@@ -104,7 +101,6 @@ func jmpInst(cond func(int) bool) error {
 
 func run(getInput func() (int, error), setOutput func(int) error) error {
 	for {
-		profileInst()
 		oc := getMem(ip) % 100
 
 		switch oc {
@@ -213,11 +209,6 @@ func main() {
 	}
 
 	err = run(getInput, setOutput)
-	if err != nil {
-		log.Fatalf("%v\n", err)
-	}
-
-	err = profileDone()
 	if err != nil {
 		log.Fatalf("%v\n", err)
 	}

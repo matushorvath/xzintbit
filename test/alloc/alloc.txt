@@ -1,0 +1,152 @@
+==========
+PHASE 0
+----------
+alloc 1: ptr 1000002, blocks 1
+brk: 1000008
+----------
+alloc 1: ptr 1000010, blocks 1
+brk: 1000016
+----------
+alloc 1: ptr 1000018, blocks 1
+brk: 1000024
+----------
+alloc 3: ptr 1000026, blocks 3
+brk: 1000048
+----------
+alloc 1: ptr 1000050, blocks 1
+brk: 1000056
+----------
+alloc 12: ptr 1000058, blocks 12
+brk: 1000152
+----------
+alloc 3: ptr 1000154, blocks 3
+brk: 1000176
+----------
+free 0
+brk: 1000176
+----------
+free 1000002: blocks 1
+brk: 1000176
+small bin 1: [p 1000000, b 1]
+----------
+free 1000010: blocks 1
+brk: 1000176
+small bin 1: [p 1000008, b 1] [p 1000000, b 1]
+----------
+free 1000018: blocks 1
+brk: 1000176
+small bin 1: [p 1000016, b 1] [p 1000008, b 1] [p 1000000, b 1]
+----------
+free 1000026: blocks 3
+brk: 1000176
+small bin 1: [p 1000016, b 1] [p 1000008, b 1] [p 1000000, b 1]
+small bin 3: [p 1000024, b 3]
+----------
+free 1000050: blocks 1
+brk: 1000176
+small bin 1: [p 1000048, b 1] [p 1000016, b 1] [p 1000008, b 1] [p 1000000, b 1]
+small bin 3: [p 1000024, b 3]
+----------
+free 1000058: blocks 12
+brk: 1000176
+small bin 1: [p 1000048, b 1] [p 1000016, b 1] [p 1000008, b 1] [p 1000000, b 1]
+small bin 3: [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+free 1000154: blocks 3
+brk: 1000176
+small bin 1: [p 1000048, b 1] [p 1000016, b 1] [p 1000008, b 1] [p 1000000, b 1]
+small bin 3: [p 1000152, b 3] [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+==========
+PHASE 1
+----------
+alloc 1: ptr 1000050, blocks 1
+brk: 1000176
+small bin 1: [p 1000016, b 1] [p 1000008, b 1] [p 1000000, b 1]
+small bin 3: [p 1000152, b 3] [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+alloc 1: ptr 1000018, blocks 1
+brk: 1000176
+small bin 1: [p 1000008, b 1] [p 1000000, b 1]
+small bin 3: [p 1000152, b 3] [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+alloc 1: ptr 1000010, blocks 1
+brk: 1000176
+small bin 1: [p 1000000, b 1]
+small bin 3: [p 1000152, b 3] [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+alloc 1: ptr 1000002, blocks 1
+brk: 1000176
+small bin 3: [p 1000152, b 3] [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+alloc 1: ptr 1000154, blocks 1
+brk: 1000176
+small bin 2: [p 1000160, b 2]
+small bin 3: [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+alloc 2: ptr 1000162, blocks 2
+brk: 1000176
+small bin 3: [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+alloc 13: ptr 1000178, blocks 13
+brk: 1000280
+small bin 3: [p 1000024, b 3]
+large bin: [p 1000056, b 12]
+----------
+alloc 12: ptr 1000058, blocks 12
+brk: 1000280
+small bin 3: [p 1000024, b 3]
+----------
+alloc 12: ptr 1000282, blocks 12
+brk: 1000376
+small bin 3: [p 1000024, b 3]
+==========
+PHASE 2
+----------
+alloc 5: ptr 1000378, blocks 5
+brk: 1000416
+small bin 3: [p 1000024, b 3]
+----------
+free 1000378: blocks 5
+brk: 1000416
+small bin 3: [p 1000024, b 3]
+small bin 5: [p 1000376, b 5]
+----------
+alloc 4: ptr 1000378, blocks 4
+brk: 1000416
+small bin 1: [p 1000408, b 1]
+small bin 3: [p 1000024, b 3]
+----------
+alloc 3: ptr 1000026, blocks 3
+brk: 1000416
+small bin 1: [p 1000408, b 1]
+----------
+alloc 1: ptr 1000410, blocks 1
+brk: 1000416
+==========
+PHASE 3
+----------
+free 1000282: blocks 12
+brk: 1000416
+large bin: [p 1000280, b 12]
+----------
+alloc 1: ptr 1000282, blocks 1
+brk: 1000416
+large bin: [p 1000288, b 11]
+----------
+alloc 4: ptr 1000290, blocks 4
+brk: 1000416
+small bin 7: [p 1000320, b 7]
+----------
+alloc 7: ptr 1000322, blocks 7
+brk: 1000416
+----------
+alloc 200: ptr 1000418, blocks 200
+brk: 1002016

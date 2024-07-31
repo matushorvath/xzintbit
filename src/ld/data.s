@@ -1,17 +1,16 @@
 .EXPORT create_module
 .EXPORT create_import
 .EXPORT create_export
+.EXPORT create_symbol
 
 .EXPORT module_head
 .EXPORT module_tail
-.EXPORT symbol_head
-.EXPORT symbol_tail
+.EXPORT resolved_head
+.EXPORT resolved_tail
 
 # from libxib/heap.s
-.IMPORT alloc
-
-# from libxib/string.s
-.IMPORT zeromem
+.IMPORT alloc_blocks
+.IMPORT zeromem_blocks
 
 ##########
 create_module:
@@ -19,35 +18,35 @@ create_module:
     arb -1
 
     # allocate a block
-    add MODULE_SIZE, 0, [rb - 1]
+    add MODULE_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + module]
 
     # initialize to zeros
     add [rb + module], 0, [rb - 1]
-    add MODULE_SIZE, 0, [rb - 2]
+    add MODULE_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # object files are mandatory, libraries are optional
     add [rb + module], MODULE_NEEDED, [ip + 3]
     eq  [rb + is_library], 0, [0]
 
     # append to the tail if any
-    jz  [module_tail], create_module_is_first
+    jz  [module_tail], .is_first
 
     add [module_tail], MODULE_NEXT_PTR, [ip + 3]
     add [rb + module], 0, [0]
     add [rb + module], 0, [module_tail]
 
-    jz  0, create_module_done
+    jz  0, .done
 
-create_module_is_first:
+.is_first:
     add [rb + module], 0, [module_head]
     add [rb + module], 0, [module_tail]
 
-create_module_done:
+.done:
     arb 1
     ret 1
 .ENDFRAME
@@ -58,16 +57,16 @@ create_import:
     arb -2
 
     # allocate a block
-    add IMPORT_SIZE, 0, [rb - 1]
+    add IMPORT_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + import]
 
     # initialize to zeros
     add [rb + import], 0, [rb - 1]
-    add IMPORT_SIZE, 0, [rb - 2]
+    add IMPORT_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # save module pointer
     add [rb + import], IMPORT_MODULE, [ip + 3]
@@ -96,16 +95,16 @@ create_export:
     arb -2
 
     # allocate a block
-    add EXPORT_SIZE, 0, [rb - 1]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + export]
 
     # initialize to zeros
     add [rb + export], 0, [rb - 1]
-    add EXPORT_SIZE, 0, [rb - 2]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # save module pointer
     add [rb + export], EXPORT_MODULE, [ip + 3]
@@ -133,18 +132,60 @@ create_export:
 .ENDFRAME
 
 ##########
+create_symbol:
+.FRAME module; symbol, tmp
+    arb -2
+
+    # allocate a block
+    add SYMBOL_ALLOC_SIZE, 0, [rb - 1]
+    arb -1
+    call alloc_blocks
+    add [rb - 3], 0, [rb + symbol]
+
+    # initialize to zeros
+    add [rb + symbol], 0, [rb - 1]
+    add SYMBOL_ALLOC_SIZE, 0, [rb - 2]
+    arb -2
+    call zeromem_blocks
+
+    # save module pointer
+    add [rb + symbol], SYMBOL_MODULE, [ip + 3]
+    add [rb + module], 0, [0]
+
+    # default address is -1, not 0
+    add [rb + symbol], SYMBOL_ADDRESS, [ip + 3]
+    add -1, 0, [0]
+
+    # add to the head of doubly-linked list
+    add [rb + module], MODULE_SYMBOLS_HEAD, [ip + 1]
+    add [0], 0, [rb + tmp]
+
+    add [rb + symbol], SYMBOL_NEXT_PTR, [ip + 3]
+    add [rb + tmp], 0, [0]
+
+    add [rb + symbol], SYMBOL_PREV_PTR, [ip + 3]
+    add 0, 0, [0]
+
+    add [rb + module], MODULE_SYMBOLS_HEAD, [ip + 3]
+    add [rb + symbol], 0, [0]
+
+    arb 2
+    ret 1
+.ENDFRAME
+
+##########
 # globals
 
 # loaded modules
 module_head:
-    db 0
+    db  0
 module_tail:
-    db 0
+    db  0
 
-# included symbols
-symbol_head:
-    db 0
-symbol_tail:
-    db 0
+# resolved exports and imports
+resolved_head:
+    db  0
+resolved_tail:
+    db  0
 
 .EOF

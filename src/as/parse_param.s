@@ -3,8 +3,9 @@
 .EXPORT parse_value
 .EXPORT parse_number_or_char
 
-# from libxib/heap.s
-.IMPORT free
+# from child.s
+.IMPORT add_or_find_current_child_symbol
+.IMPORT add_or_find_child_symbol
 
 # from error.s
 .IMPORT report_error
@@ -16,7 +17,8 @@
 .IMPORT find_frame_symbol
 
 # from global.s
-.IMPORT relocation_symbol
+.IMPORT add_or_find_global_symbol
+.IMPORT current_address_fixups_head
 
 # from lexer.s
 .IMPORT get_token
@@ -27,6 +29,9 @@
 
 # from parser.s
 .IMPORT current_address
+
+# from libxib/heap.s
+.IMPORT free
 
 ##########
 parse_out_param:
@@ -39,35 +44,35 @@ parse_out_param:
     add 1, 0, [rb + sign]
 
     eq  [token_type], '[', [rb + tmp]
-    jnz [rb + tmp], parse_out_param_try_rb
+    jnz [rb + tmp], .try_rb
 
     add err_expect_open_brace, 0, [rb]
     call report_error
 
-parse_out_param_try_rb:
+.try_rb:
     call get_token
     eq  [token_type], 'P', [rb + tmp]
-    jz  [rb + tmp], parse_out_param_after_rb
+    jz  [rb + tmp], .after_rb
 
     # rb means relative mode
     add 2, 0, [rb + mode]
 
     call get_token
     eq  [token_type], '+', [rb + tmp]
-    jnz [rb + tmp], parse_out_param_rb_plus
+    jnz [rb + tmp], .rb_plus
     eq  [token_type], '-', [rb + tmp]
-    jnz [rb + tmp], parse_out_param_rb_minus
+    jnz [rb + tmp], .rb_minus
 
     # if there is no +/i, this is just a plain [rb]
-    jz  0, parse_out_param_after_value
+    jz  0, .after_value
 
-parse_out_param_rb_minus:
+.rb_minus:
     add -1, 0, [rb + sign]
 
-parse_out_param_rb_plus:
+.rb_plus:
     call get_token
 
-parse_out_param_after_rb:
+.after_rb:
     add [rb + param_offset], 0, [rb - 1]
     add [rb + instruction_length], 0, [rb - 2]
     eq  [rb + mode], 0, [rb - 3]  # global symbols
@@ -78,22 +83,22 @@ parse_out_param_after_rb:
 
     # we don't support 'rb - symbol', the fixup is always positive
     eq  [rb - 7], 1, [rb + tmp]
-    jz  [rb + tmp], parse_out_param_after_value
+    jz  [rb + tmp], .after_value
 
     eq  [rb + sign], -1, [rb + tmp]
-    jz  [rb + tmp], parse_out_param_after_value
+    jz  [rb + tmp], .after_value
 
     add err_subtract_symbol, 0, [rb]
     call report_error
 
-parse_out_param_after_value:
+.after_value:
     eq  [token_type], ']', [rb + tmp]
-    jnz [rb + tmp], parse_out_param_done
+    jnz [rb + tmp], .done
 
     add err_expect_close_brace, 0, [rb]
     call report_error
 
-parse_out_param_done:
+.done:
     call get_token
 
     arb 4
@@ -107,7 +112,7 @@ parse_in_param:
 
     # position and relative are handled same as out_param
     eq  [token_type], '[', [rb + tmp]
-    jz  [rb + tmp], parse_in_param_immediate
+    jz  [rb + tmp], .immediate
 
     add [rb + param_offset], 0, [rb - 1]
     add [rb + instruction_length], 0, [rb - 2]
@@ -116,9 +121,9 @@ parse_in_param:
 
     add [rb - 4], 0, [rb + result]
     add [rb - 5], 0, [rb + mode]
-    jz  0, parse_in_param_done
+    jz  0, .done
 
-parse_in_param_immediate:
+.immediate:
     add [rb + param_offset], 0, [rb - 1]
     add [rb + instruction_length], 0, [rb - 2]
     add 1, 0, [rb - 3]  # global symbols
@@ -130,43 +135,45 @@ parse_in_param_immediate:
     add [rb - 6], 0, [rb + result]
     add 1, 0, [rb + mode]
 
-parse_in_param_done:
+.done:
     arb 3
     ret 2
 .ENDFRAME
 
 ##########
 parse_value:
-.FRAME param_offset, instruction_length, allow_global_symbol, allow_frame_symbol; result, has_symbol, sign, tmp
+.FRAME param_offset, instruction_length, allow_global_symbol, allow_frame_symbol; result, has_symbol, sign, symbol, line_num, column_num, tmp
     # param_offset: offset of the current parameter from current_address
     # instruction_length: current instruction length
-    arb -4
+    arb -7
 
     add 0, 0, [rb + result]
     add 0, 0, [rb + has_symbol]
 
     eq  [token_type], '+', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_1
+    jnz [rb + tmp], .number_or_char_1
     eq  [token_type], '-', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_1
+    jnz [rb + tmp], .number_or_char_1
     eq  [token_type], 'n', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_1
+    jnz [rb + tmp], .number_or_char_1
     eq  [token_type], 'c', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_1
+    jnz [rb + tmp], .number_or_char_1
     eq  [token_type], 'i', [rb + tmp]
-    jnz [rb + tmp], parse_value_identifier
+    jnz [rb + tmp], .identifier
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], .dot_identifier
     eq  [token_type], 'I', [rb + tmp]
-    jnz [rb + tmp], parse_value_ip
+    jnz [rb + tmp], .ip
 
     add err_expect_number_char_identifier, 0, [rb]
     call report_error
 
-parse_value_number_or_char_1:
+.number_or_char_1:
     call parse_number_or_char
     add [rb - 2], 0, [rb + result]
-    jz  0, parse_value_done
+    jz  0, .done
 
-parse_value_identifier:
+.identifier:
     add 1, 0, [rb + has_symbol]
 
     # check if this is a frame symbol, we can resolve those immediately
@@ -174,100 +181,172 @@ parse_value_identifier:
     arb -1
     call find_frame_symbol
 
-    jz  [rb - 3], parse_value_is_global
+    jz  [rb - 3], .is_global
 
     # it is a frame symbol
-    jnz [rb + allow_frame_symbol], parse_value_frame_symbol_allowed
+    jnz [rb + allow_frame_symbol], .frame_symbol_allowed
 
     add err_frame_symbol_not_allowed, 0, [rb]
     call report_error
 
-parse_value_frame_symbol_allowed:
+.frame_symbol_allowed:
     # read its offset
     add [rb - 3], FRAME_OFFSET, [ip + 1]
     add [0], 0, [rb + result]
 
-    jz  0, parse_value_after_global
-
-parse_value_is_global:
-    # it is a global symbol
-    jnz [rb + allow_global_symbol], parse_value_global_symbol_allowed
-
-    add err_global_symbol_not_allowed, 0, [rb]
-    call report_error
-
-parse_value_global_symbol_allowed:
-    # add a fixup for this identifier
-    add [token_value], 0, [rb - 1]
-    add [current_address], [rb + param_offset], [rb - 2]
-    add [token_line_num], 0, [rb - 3]
-    add [token_column_num], 0, [rb - 4]
-    arb -4
-    call add_fixup
-
-parse_value_after_global:
-    # free the symbol value
+    # free the identifier, it is no longer needed
     add [token_value], 0, [rb - 1]
     arb -1
     call free
     add 0, 0, [token_value]
 
-    jz  0, parse_value_after_symbol
+    call get_token
 
-parse_value_ip:
-    # [ip + 123] behaves similarly to [symbol + 123]
+    jz  0, .after_symbol
+
+.is_global:
+    # it is a global symbol
+    jnz [rb + allow_global_symbol], .global_symbol_allowed
+
+    add err_global_symbol_not_allowed, 0, [rb]
+    call report_error
+
+.global_symbol_allowed:
+    # add or retrieve symbol from the symbol table
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_global_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # save line and column, then get next token
+    add [token_line_num], 0, [rb + line_num]
+    add [token_column_num], 0, [rb + column_num]
+
+    call get_token
+
+    # is this global symbol followed by dot and a child symbol?
+    eq  [token_type], 'd', [rb + tmp]
+    jnz [rb + tmp], .is_parent_dot_child
+
+    # no child symbol, add a fixup for this identifier
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [rb - 1]
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [rb + line_num], 0, [rb - 3]
+    add [rb + column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
+
+    jz  0, .after_symbol
+
+.is_parent_dot_child:
+    # parent.child symbol reference, find the child symbol
+    add [rb + symbol], 0, [rb - 1]
+    add [token_value], 0, [rb - 2]
+    arb -2
+    call add_or_find_child_symbol
+    add [rb - 4], 0, [rb + symbol]
+
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_child_symbol
+
+    # add a fixup for this identifier
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [rb - 1]
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [rb + line_num], 0, [rb - 3]
+    add [rb + column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
+
+    call get_token
+
+    jz  0, .after_symbol
+
+.dot_identifier:
     add 1, 0, [rb + has_symbol]
-    add [current_address], [rb + instruction_length], [rb + result]
 
-    # add a fixup (actually a relocation) for the use of current_address
-    add relocation_symbol, 0, [rb - 1]
+    # child symbols are global symbols
+    jnz [rb + allow_global_symbol], .dot_global_symbol_allowed
+
+    add err_global_symbol_not_allowed, 0, [rb]
+    call report_error
+
+.dot_global_symbol_allowed:
+    # add or retrieve symbol from the child table for the current global symbol
+    add [token_value], 0, [rb - 1]
+    arb -1
+    call add_or_find_current_child_symbol
+    add [rb - 3], 0, [rb + symbol]
+
+    add 0, 0, [token_value]             # token_value is now owned by add_or_find_global_symbol
+
+    # add a fixup for this identifier
+    add [rb + symbol], GLOBAL_FIXUPS_HEAD, [rb - 1]
     add [current_address], [rb + param_offset], [rb - 2]
     add [token_line_num], 0, [rb - 3]
     add [token_column_num], 0, [rb - 4]
     arb -4
     call add_fixup
 
-parse_value_after_symbol:
-    # optionally followed by + or - and a number or char
     call get_token
+
+    jz  0, .after_symbol
+
+.ip:
+    # [ip + 123] behaves similarly to [symbol + 123]
+    add 1, 0, [rb + has_symbol]
+    add [current_address], [rb + instruction_length], [rb + result]
+
+    # add a fixup (actually a relocation) for the use of current_address
+    add current_address_fixups_head, 0, [rb - 1]
+    add [current_address], [rb + param_offset], [rb - 2]
+    add [token_line_num], 0, [rb - 3]
+    add [token_column_num], 0, [rb - 4]
+    arb -4
+    call add_fixup
+
+    call get_token
+
+.after_symbol:
+    # optionally followed by + or - and a number or char
     eq  [token_type], '+', [rb + tmp]
-    jnz [rb + tmp], parse_value_identifier_plus
+    jnz [rb + tmp], .identifier_plus
     eq  [token_type], '-', [rb + tmp]
-    jnz [rb + tmp], parse_value_identifier_minus
-    jz  0, parse_value_done
+    jnz [rb + tmp], .identifier_minus
+    jz  0, .done
 
-parse_value_identifier_plus:
+.identifier_plus:
     add 1, 0, [rb + sign]
-    jz  0, parse_value_identifier_after_sign
+    jz  0, .identifier_after_sign
 
-parse_value_identifier_minus:
+.identifier_minus:
     add -1, 0, [rb + sign]
-    jz  0, parse_value_identifier_after_sign
+    jz  0, .identifier_after_sign
 
-parse_value_identifier_after_sign:
+.identifier_after_sign:
     call get_token
 
     # technically this is also valid: [abcd + -2] or even [abcd + +2]
     eq  [token_type], '+', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_2
+    jnz [rb + tmp], .number_or_char_2
     eq  [token_type], '-', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_2
+    jnz [rb + tmp], .number_or_char_2
     eq  [token_type], 'n', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_2
+    jnz [rb + tmp], .number_or_char_2
     eq  [token_type], 'c', [rb + tmp]
-    jnz [rb + tmp], parse_value_number_or_char_2
+    jnz [rb + tmp], .number_or_char_2
 
     add err_expect_number_char, 0, [rb]
     call report_error
 
-parse_value_number_or_char_2:
+.number_or_char_2:
     call parse_number_or_char
     mul [rb - 2], [rb + sign], [rb + tmp]
     add [rb + result], [rb + tmp], [rb + result]
-    jz  0, parse_value_done
+    jz  0, .done
 
-parse_value_done:
-    arb 4
+.done:
+    arb 7
     ret 4
 .ENDFRAME
 
@@ -280,27 +359,27 @@ parse_number_or_char:
 
     # is there a sign?
     eq  [token_type], '+', [rb + tmp]
-    jnz [rb + tmp], parse_number_or_char_plus
+    jnz [rb + tmp], .plus
     eq  [token_type], '-', [rb + tmp]
-    jnz [rb + tmp], parse_number_or_char_minus
-    jz  0, parse_number_or_char_after_sign
+    jnz [rb + tmp], .minus
+    jz  0, .after_sign
 
-parse_number_or_char_minus:
+.minus:
     add -1, 0, [rb + sign]
 
-parse_number_or_char_plus:
+.plus:
     call get_token
 
-parse_number_or_char_after_sign:
+.after_sign:
     eq  [token_type], 'n', [rb + tmp]
-    jnz [rb + tmp], parse_number_or_char_have_value
+    jnz [rb + tmp], .have_value
     eq  [token_type], 'c', [rb + tmp]
-    jnz [rb + tmp], parse_number_or_char_have_value
+    jnz [rb + tmp], .have_value
 
     add err_expect_number_char, 0, [rb]
     call report_error
 
-parse_number_or_char_have_value:
+.have_value:
     # return the number/char value
     mul [token_value], [rb + sign], [rb + result]
     call get_token

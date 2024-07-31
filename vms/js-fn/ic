@@ -1,8 +1,4 @@
 #!/bin/sh
 
-# Node requires names of ES6 modules to end in '.mjs', and there is no parameter
-# to force it to handle a file with no extension as an ES6 module.
-# Making a symbolic link to a .mjs file works on Linux and macOS, but not on Windows.
-
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)";
 node $SCRIPT_DIR/ic.mjs $@

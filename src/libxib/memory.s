@@ -2,15 +2,23 @@
 .EXPORT inc_mem
 .EXPORT print_mem
 .EXPORT pretty_print_mem
+.EXPORT mem_block_size
 
 # from heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
 
 # from print.s
 .IMPORT print_num
 
 # from outside of this library
 .IMPORT report_libxib_error
+
+.SYMBOL MEM_BLOCK_ALLOC_SIZE            126         # size in 8-byte memory blocks, for alloc_blocks (126 * 8 - 2 = 1006 bytes)
+.SYMBOL MEM_BLOCK_SIZE                  1006
+
+# MEM_BLOCK_SIZE exported for users of this library
+mem_block_size:
+    db  MEM_BLOCK_SIZE
 
 ##########
 set_mem:
@@ -21,12 +29,12 @@ set_mem:
     add [0], 0, [rb + buffer]
 
     # do we have a buffer at all?
-    jnz [rb + buffer], set_mem_have_buffer
+    jnz [rb + buffer], .have_buffer
 
     # no, create one
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add MEM_BLOCK_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer
@@ -42,18 +50,18 @@ set_mem:
     add [rb + tail_index_ptr], 0, [ip + 3]
     add 1, 0, [0]
 
-    jz  0, set_mem_have_space
+    jz  0, .have_space
 
-set_mem_have_buffer:
+.have_buffer:
     # is there enough space for one more byte?
     add [rb + tail_index_ptr], 0, [ip + 1]
     lt  [0], MEM_BLOCK_SIZE, [rb + tmp]
-    jnz [rb + tmp], set_mem_have_space
+    jnz [rb + tmp], .have_space
 
     # no, create a new buffer
-    add MEM_BLOCK_SIZE, 0, [rb - 1]
+    add MEM_BLOCK_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + buffer]
 
     # reset next buffer pointer
@@ -71,7 +79,7 @@ set_mem_have_buffer:
     add [rb + tail_index_ptr], 0, [ip + 3]
     add 1, 0, [0]
 
-set_mem_have_space:
+.have_space:
     add [rb + tail_index_ptr], 0, [ip + 1]
     add [0], 0, [rb + tmp]
 
@@ -124,17 +132,17 @@ calc_mem:
     add 0, 0, [rb + index]
     add [rb + address], 0, [rb + offset]
 
-calc_mem_loop:
+.loop:
     lt  [rb + offset], MEM_BLOCK_SIZE - 1, [rb + tmp]
-    jnz [rb + tmp], calc_mem_done
+    jnz [rb + tmp], .done
 
     mul MEM_BLOCK_SIZE - 1, -1, [rb + tmp]
     add [rb + offset], [rb + tmp], [rb + offset]
     add [rb + index], 1, [rb + index]
 
-    jz  0, calc_mem_loop
+    jz  0, .loop
 
-calc_mem_done:
+.done:
     # data in memory blocks starts at offset 1
     add [rb + offset], 1, [rb + offset]
 
@@ -153,25 +161,25 @@ inc_mem_internal:
 
     add [rb + head], 0, [rb + buffer]
 
-inc_mem_internal_loop:
+.loop:
     # any more blocks?
-    jnz [rb + buffer], inc_mem_internal_have_block
+    jnz [rb + buffer], .have_block
 
     add err_invalid_address, 0, [rb]
     call report_libxib_error
 
-inc_mem_internal_have_block:
+.have_block:
     # is this the block we need?
-    jz  [rb + index], inc_mem_internal_this_block
+    jz  [rb + index], .this_block
     add [rb + index], -1, [rb + index]
 
     # next block in linked list
     add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
-    jz  0, inc_mem_internal_loop
+    jz  0, .loop
 
-inc_mem_internal_this_block:
+.this_block:
     # set the value
     add [rb + buffer], [rb + offset], [ip + 1]
     add [0], 0, [rb + tmp]
@@ -185,8 +193,6 @@ inc_mem_internal_this_block:
 ##########
 print_mem:
 .FRAME head, tail, tail_index;
-    arb -0
-
     add [rb + head], 0, [rb - 1]
     add [rb + tail], 0, [rb - 2]
     add [rb + tail_index], 0, [rb - 3]
@@ -194,15 +200,12 @@ print_mem:
     arb -4
     call print_mem_internal
 
-    arb 0
     ret 3
 .ENDFRAME
 
 ##########
 pretty_print_mem:
 .FRAME head, tail, tail_index;
-    arb -0
-
     add [rb + head], 0, [rb - 1]
     add [rb + tail], 0, [rb - 2]
     add [rb + tail_index], 0, [rb - 3]
@@ -210,7 +213,6 @@ pretty_print_mem:
     arb -4
     call print_mem_internal
 
-    arb 0
     ret 3
 .ENDFRAME
 
@@ -222,30 +224,30 @@ print_mem_internal:
     add 1, 0, [rb + first]
 
     add [rb + head], 0, [rb + buffer]
-    jz  [rb + head], print_mem_done
+    jz  [rb + buffer], .done
 
-print_mem_block:
+.block:
     add 1, 0, [rb + index]
 
     # maximum index within a block is MEM_BLOCK_SIZE, except for last block
     add MEM_BLOCK_SIZE, 0, [rb + limit]
     eq  [rb + buffer], [rb + tail], [rb + tmp]
-    jz  [rb + tmp], print_mem_byte
+    jz  [rb + tmp], .byte
     add [rb + tail_index], 0, [rb + limit]
 
-print_mem_byte:
+.byte:
     lt  [rb + index], [rb + limit], [rb + tmp]
-    jz  [rb + tmp], print_mem_block_done
+    jz  [rb + tmp], .block_done
 
     # skip comma when printing first byte
-    jnz [rb + first], print_mem_skip_comma
+    jnz [rb + first], .skip_comma
     out ','
 
     # if pretty printing, add a space after comma
-    jz  [rb + with_space], print_mem_skip_comma
+    jz  [rb + with_space], .skip_comma
     out ' '
 
-print_mem_skip_comma:
+.skip_comma:
     add 0, 0, [rb + first]
 
     add [rb + buffer], [rb + index], [ip + 1]
@@ -256,16 +258,16 @@ print_mem_skip_comma:
     call print_num
 
     add [rb + index], 1, [rb + index]
-    jz  0, print_mem_byte
+    jz  0, .byte
 
-print_mem_block_done:
+.block_done:
     # next block in linked list
     add [rb + buffer], 0, [ip + 1]
     add [0], 0, [rb + buffer]
 
-    jnz [rb + buffer], print_mem_block
+    jnz [rb + buffer], .block
 
-print_mem_done:
+.done:
     arb 5
     ret 4
 .ENDFRAME

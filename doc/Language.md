@@ -6,7 +6,6 @@ Basics
 
 Programs are case sensitive. The assembler expects Unix-like line ends (character 10).
 Comments start with `#` and continue to the end of the line. Numbers are decimal.
-Maximum identifier length is 45 characters. Maximum string length is 49 characters.
 
 Since there is no way to detect end of input file from Intcode, each program must end with a line like this:
 ```asm
@@ -92,6 +91,44 @@ data:
 Or:
 ```json
 104,7,4,4,204,9,42
+```
+
+# Child Symbols
+
+Child symbols are symbols that begin with a dot. Their scope is controlled by the last global symbol, which makes them useful as local labels within a function.
+
+```asm
+function_a:
+    add 100, 0, [index]
+
+.loop
+    jz  [index], .done
+    add [index], -1, [index]
+
+    jz  0, .loop
+
+.done
+
+function_b:
+    jnz [index], .done
+    add [index], 42, [index]
+
+.done
+```
+
+The two `.done` labels don't conflict with each other, since each of them is only valid up to the next (non-dotted) global symbol. The first `.done` is only valid between `function_a` and `function_b`, the second `.done` is only valid between `function_b` and the end of the file.
+
+You can refer to child symbols from a different scope using a `parent.child` syntax:
+
+```asm
+function_a:
+
+.child1
+    db  42
+
+function_b:
+    out [function_a.child1]     # this works
+    #out [.child1]              # this doesn't work, .child1 is out of function_b scope
 ```
 
 # Offset Symbols
@@ -308,8 +345,8 @@ Pseudo-instructions look like instructions in the code, but do not directly corr
 Define memory contents directly. Supports one or more arguments. Each argument can be a number, character, symbol or a string.
 
 ```asm
-    db 42
-    db 'x', "a string", 0, data
+    db  42
+    db  'x', "a string", 0, data
 data:
 ```
 Compiles to:
@@ -323,7 +360,7 @@ In the compiled Intcode, notice that the string was not zero-terminated on its o
 Define memory contents directly. Has two arguments, *count* and *value*, and it causes *count* copies of *value* to be stored in memory. The value can be a number of a character only (no symbols or strings).
 
 ```asm
-    ds 7, 42
+    ds  7, 42
 ```
 Compiles to:
 ```json

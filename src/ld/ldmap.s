@@ -14,17 +14,14 @@
 ##########
 main:
 .FRAME
-    arb -0
-
     call process
     call print_map
 
-    arb 0
     ret 0
 .ENDFRAME
 
 ##########
-    ds  50, 0
+    ds  1000, 0
 stack:
 
 .EOF

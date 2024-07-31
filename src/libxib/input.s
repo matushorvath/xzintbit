@@ -14,25 +14,25 @@ get_input:
     add [input_buffer], 0, [rb + char]
     add 0, 0, [input_buffer]
 
-    jnz [rb + char], get_input_have_char
+    jnz [rb + char], .have_char
     in  [rb + char]
 
-get_input_have_char:
+.have_char:
     # track line and column number
     eq  [rb + char], 10, [rb + tmp]
-    jz  [rb + tmp], get_input_same_line
+    jz  [rb + tmp], .same_line
 
     # we have a new line
     add [input_line_num], 1, [input_line_num]
     add [input_column_num], 0, [input_prev_column_num]
     add 1, 0, [input_column_num]
-    jz  0, get_input_done
+    jz  0, .done
 
-get_input_same_line:
+.same_line:
     # we are on the same line
     add [input_column_num], 1, [input_column_num]
 
-get_input_done:
+.done:
     arb 2
     ret 0
 .ENDFRAME
@@ -47,17 +47,17 @@ unget_input:
 
     # track line and column number
     eq  [rb + char], 10, [rb + tmp]
-    jz  [rb + tmp], unget_input_same_line
+    jz  [rb + tmp], .same_line
 
     # we moved back to previous line, use [input_prev_column_num] as column num
     add [input_line_num], -1, [input_line_num]
     add [input_prev_column_num], 0, [input_column_num]
-    jz  0, unget_input_done
+    jz  0, .done
 
-unget_input_same_line:
+.same_line:
     add [input_column_num], -1, [input_column_num]
 
-unget_input_done:
+.done:
     arb 1
     ret 1
 .ENDFRAME
@@ -69,13 +69,13 @@ peek_input:
 
     # get input from the buffer if we have it
     add [input_buffer], 0, [rb + char]
-    jnz [rb + char], get_input_done
+    jnz [rb + char], .done
 
     # get real input and store it in input buffer
     in  [rb + char]
     add [rb + char], 0, [input_buffer]
 
-peek_input_done:
+.done:
     arb 1
     ret 0
 .ENDFRAME
@@ -83,13 +83,10 @@ peek_input_done:
 ##########
 reset_input_location:
 .FRAME
-    arb -0
-
     # TODO maintain current file index, increment it here
     add 0, 0, [input_line_num]
     add 1, 0, [input_column_num]
 
-    arb 0
     ret 0
 .ENDFRAME
 

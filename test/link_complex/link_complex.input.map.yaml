@@ -1,0 +1,8 @@
+0:
+  circular_symbol:
+    address: 23
+32:
+  external_symbol:
+    address: 49
+  reloc_symbol:
+    address: 58

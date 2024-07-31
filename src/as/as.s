@@ -1,8 +1,5 @@
 # from fixup.s
-.IMPORT do_fixups
-
-# from global.s
-.IMPORT init_relocations
+.IMPORT process_fixups
 
 # from object.s
 .IMPORT output_object
@@ -20,19 +17,15 @@
 ##########
 main:
 .FRAME
-    arb -0
-
-    call init_relocations
     call parse
-    call do_fixups
+    call process_fixups
     call output_object
 
-    arb 0
     ret 0
 .ENDFRAME
 
 ##########
-    ds  50, 0
+    ds  1000, 0
 stack:
 
 .EOF

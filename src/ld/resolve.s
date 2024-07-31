@@ -5,16 +5,16 @@
 .IMPORT report_error_with_symbol
 
 # from libxib/heap.s
-.IMPORT alloc
+.IMPORT alloc_blocks
+.IMPORT zeromem_blocks
 
 # from libxib/string.s
 .IMPORT strcmp
-.IMPORT zeromem
 
 # from data.s
 .IMPORT module_head
-.IMPORT symbol_head
-.IMPORT symbol_tail
+.IMPORT resolved_head
+.IMPORT resolved_tail
 
 ##########
 include_objects:
@@ -24,27 +24,27 @@ include_objects:
     # process all modules
     add [module_head], 0, [rb + module]
 
-include_objects_loop:
-    jz  [rb + module], include_objects_done
+.loop:
+    jz  [rb + module], .done
 
     add [rb + module], MODULE_NEEDED, [ip + 1]
-    jz  [0], include_objects_next
+    jz  [0], .next
 
     add [rb + module], MODULE_INCLUDED, [ip + 1]
-    jnz [0], include_objects_next
+    jnz [0], .next
 
     # module is needed, but not yet included
     add [rb + module], 0, [rb - 1]
     arb -1
     call include_module
 
-include_objects_next:
+.next:
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
-    jz  0, include_objects_loop
+    jz  0, .loop
 
-include_objects_done:
+.done:
     arb 2
     ret 0
 .ENDFRAME
@@ -55,25 +55,25 @@ resolve_symbols:
     arb -2
 
     # process all symbols that don't yet have an exporting module
-    add [symbol_head], 0, [rb + symbol]
+    add [resolved_head], 0, [rb + symbol]
 
-resolve_symbols_loop:
-    jz  [rb + symbol], resolve_symbols_done
+.loop:
+    jz  [rb + symbol], .done
 
     add [rb + symbol], EXPORT_MODULE, [ip + 1]
-    jnz [0], resolve_symbols_next
+    jnz [0], .next
 
     add [rb + symbol], 0, [rb - 1]
     arb -1
     call resolve_one_symbol
 
-resolve_symbols_next:
+.next:
     add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
-    jnz [rb + symbol], resolve_symbols_loop
+    jnz [rb + symbol], .loop
 
-resolve_symbols_done:
+.done:
     arb 2
     ret 0
 .ENDFRAME
@@ -90,14 +90,14 @@ resolve_one_symbol:
     call find_exporting_module
 
     add [rb - 3], 0, [rb + module]
-    jnz [rb + module], resolve_one_symbol_have_module
+    jnz [rb + module], .have_module
 
     add err_export_not_found, 0, [rb + 1]
     add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb]
     call report_error_with_symbol
 
-resolve_one_symbol_have_module:
+.have_module:
     # include that module
     add [rb + module], 0, [rb - 1]
     arb -1
@@ -105,14 +105,14 @@ resolve_one_symbol_have_module:
 
     # sanity check, including that module should have resolved this symbol
     add [rb + symbol], EXPORT_MODULE, [ip + 1]
-    jnz [0], resolve_one_symbol_done
+    jnz [0], .done
 
     add err_included_not_resolved, 0, [rb + 1]
     add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb]
     call report_error_with_symbol
 
-resolve_one_symbol_done:
+.done:
     arb 2
     ret 1
 .ENDFRAME
@@ -147,8 +147,8 @@ include_exported:
 .FRAME exported_head; export, symbol, tmp
     arb -3
 
-include_exported_loop:
-    jz  [rb + exported_head], include_exported_done
+.loop:
+    jz  [rb + exported_head], .done
 
     # move to next exported symbol
     add [rb + exported_head], 0, [rb + export]
@@ -158,36 +158,36 @@ include_exported_loop:
     # do we have this symbol already included?
     add [rb + export], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
-    add [symbol_head], 0, [rb - 2]
+    add [resolved_head], 0, [rb - 2]
     arb -2
     call find_symbol
 
     add [rb - 4], 0, [rb + symbol]
-    jz  [rb + symbol], include_exported_is_new
+    jz  [rb + symbol], .is_new
 
     # yes, but it should not be exported from any module
     add [rb + symbol], EXPORT_MODULE, [ip + 1]
-    jz  [0], include_exported_have_symbol
+    jz  [0], .have_symbol
 
     add err_duplicate_export, 0, [rb + 1]
     add [rb + export], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb]
     call report_error_with_symbol
 
-include_exported_is_new:
+.is_new:
     # reuse the export as an included symbol
     add [rb + export], 0, [rb + symbol]
 
     # append this export to list of included symbols
     add [rb + symbol], 0, [rb - 1]
-    add symbol_head, 0, [rb - 2]
-    add symbol_tail, 0, [rb - 3]
+    add resolved_head, 0, [rb - 2]
+    add resolved_tail, 0, [rb - 3]
     arb -3
     call append_double_linked
 
-    jz  0, include_exported_loop
+    jz  0, .loop
 
-include_exported_have_symbol:
+.have_symbol:
     # update existing symbol with information from the export
     add [rb + export], EXPORT_MODULE, [ip + 1]
     add [0], 0, [rb + tmp]
@@ -199,9 +199,9 @@ include_exported_have_symbol:
     add [rb + symbol], EXPORT_ADDRESS, [ip + 3]
     add [rb + tmp], 0, [0]
 
-    jz  0, include_exported_loop
+    jz  0, .loop
 
-include_exported_done:
+.done:
     arb 3
     ret 1
 .ENDFRAME
@@ -213,30 +213,30 @@ include_imported:
 
     add [rb + imported_head], 0, [rb + import]
 
-include_imported_loop:
-    jz  [rb + import], include_imported_done
+.loop:
+    jz  [rb + import], .done
 
     # do we have this symbol already included?
     add [rb + import], IMPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
-    add [symbol_head], 0, [rb - 2]
+    add [resolved_head], 0, [rb - 2]
     arb -2
     call find_symbol
 
     add [rb - 4], 0, [rb + symbol]
-    jnz [rb + symbol], include_imported_have_symbol
+    jnz [rb + symbol], .have_symbol
 
     # no, create a new included symbol
-    add EXPORT_SIZE, 0, [rb - 1]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 1]
     arb -1
-    call alloc
+    call alloc_blocks
     add [rb - 3], 0, [rb + symbol]
 
     # initialize to zeros
     add [rb + symbol], 0, [rb - 1]
-    add EXPORT_SIZE, 0, [rb - 2]
+    add EXPORT_ALLOC_SIZE, 0, [rb - 2]
     arb -2
-    call zeromem
+    call zeromem_blocks
 
     # default symbol address is -1, not 0
     add [rb + symbol], EXPORT_ADDRESS, [ip + 3]
@@ -252,12 +252,12 @@ include_imported_loop:
 
     # append this symbol to list of symbols
     add [rb + symbol], 0, [rb - 1]
-    add symbol_head, 0, [rb - 2]
-    add symbol_tail, 0, [rb - 3]
+    add resolved_head, 0, [rb - 2]
+    add resolved_tail, 0, [rb - 3]
     arb -3
     call append_double_linked
 
-include_imported_have_symbol:
+.have_symbol:
     # move to next imported symbol, saving the current one in [rb + tmp]
     add [rb + import], 0, [rb + tmp]
     add [rb + import], IMPORT_NEXT_PTR, [ip + 1]
@@ -270,9 +270,9 @@ include_imported_have_symbol:
     arb -3
     call append_double_linked
 
-    jz  0, include_imported_loop
+    jz  0, .loop
 
-include_imported_done:
+.done:
     arb 3
     ret 1
 .ENDFRAME
@@ -285,11 +285,11 @@ find_exporting_module:
     # process all modules not yet included
     add [module_head], 0, [rb + module]
 
-find_exporting_module_loop:
-    jz  [rb + module], find_exporting_module_done
+.loop:
+    jz  [rb + module], .done
 
     add [rb + module], MODULE_INCLUDED, [ip + 1]
-    jnz [0], find_exporting_module_next
+    jnz [0], .next
 
     # is the symbol exported from this module
     add [rb + identifier], 0, [rb - 1]
@@ -298,15 +298,15 @@ find_exporting_module_loop:
     arb -2
     call find_symbol
 
-    jnz [rb - 4], find_exporting_module_done
+    jnz [rb - 4], .done
 
-find_exporting_module_next:
+.next:
     add [rb + module], MODULE_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + module]
 
-    jz  0, find_exporting_module_loop
+    jz  0, .loop
 
-find_exporting_module_done:
+.done:
     # result is in [rb + module]
     arb 2
     ret 1
@@ -319,8 +319,8 @@ find_symbol:
 
     add [rb + head], 0, [rb + symbol]
 
-find_resolved_loop:
-    jz  [rb + symbol], find_resolved_done
+.loop:
+    jz  [rb + symbol], .done
 
     add [rb + symbol], EXPORT_IDENTIFIER, [ip + 1]
     add [0], 0, [rb - 1]
@@ -328,14 +328,14 @@ find_resolved_loop:
     arb -2
     call strcmp
 
-    jz  [rb - 4], find_resolved_done
+    jz  [rb - 4], .done
 
     add [rb + symbol], EXPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + symbol]
 
-    jnz [rb + symbol], find_resolved_loop
+    jnz [rb + symbol], .loop
 
-find_resolved_done:
+.done:
     # result is in [rb + symbol]
     arb 1
     ret 2
@@ -350,21 +350,21 @@ append_double_linked:
     arb -1
 
     add [rb + head_ptr], 0, [ip + 1]
-    jnz [0], append_double_linked_have_head
+    jnz [0], .have_head
 
     # empty list, set head
     add [rb + head_ptr], 0, [ip + 3]
     add [rb + item], 0, [0]
 
-    jz  0, append_double_linked_common
+    jz  0, .common
 
-append_double_linked_have_head:
+.have_head:
     # non-empty list, set next item in tail
     add [rb + tail_ptr], 0, [ip + 1]
     add [0], DOUBLE_LINKED_NEXT_PTR, [ip + 3]
     add [rb + item], 0, [0]
 
-append_double_linked_common:
+.common:
     # set our prev item to old tail
     add [rb + item], DOUBLE_LINKED_PREV_PTR, [ip + 3]
     add [rb + tail_ptr], 0, [0]

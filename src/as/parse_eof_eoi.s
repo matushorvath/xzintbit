@@ -13,35 +13,29 @@
 ##########
 parse_dir_eof:
 .FRAME
-    arb -0
-
     # detect missing .ENDFRAME
-    jz  [is_frame], parse_dir_eof_done
+    jz  [is_frame], .done
 
     add err_expect_endframe, 0, [rb + 0]
     call report_error
 
-parse_dir_eof_done:
-    arb 0
+.done:
     ret 0
 .ENDFRAME
 
 ##########
 parse_dir_eoi:
 .FRAME
-    arb -0
-
     # detect missing .ENDFRAME
-    jz  [is_frame], parse_dir_eoi_done
+    jz  [is_frame], .done
 
     add err_expect_endframe, 0, [rb + 0]
     call report_error
 
-parse_dir_eoi_done:
+.done:
     # end of included file, reset lexer position
     call reset_input_location
 
-    arb 0
     ret 0
 .ENDFRAME
 

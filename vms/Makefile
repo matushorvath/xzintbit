@@ -2,15 +2,13 @@ CFLAGS = -O3 -Wall -Werror -std=c11
 
 DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
 
-ifeq ($(ICVM_PROFILE),y)
-	CFLAGS += -DICVM_PROFILE
-	GOFLAGS += --tags=profile
-endif
-
 export GOFLAGS
 
 .PHONY: build
 build: build-apl build-c build-cs build-cl build-go build-js build-js-fn build-js-gui build-rust
+
+.PHONY: build-fast
+build-fast: build-c build-cs build-cl build-go build-js build-rust
 
 .PHONY: clean
 clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-js-gui clean-rust
@@ -18,18 +16,17 @@ clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-j
 # Intcode VM in C
 .PHONY: build-c
 build-c: c/ic
-c/ic: c/ic.o c/profile.o
+c/ic: c/ic.o
 
 .PHONY: clean-c
 clean-c:
 	rm -rf c/ic c/ic.exe c/*.o
 
 # Intcode VM in Go
-# TODO remove GO111MODULE=auto
 .PHONY: build-go
 build-go: go/ic
 go/ic: go/ic.go
-	GO111MODULE=auto go build -o $@ ./go
+	( cd go; go build -o ic )
 
 .PHONY: clean-go
 clean-go:
@@ -51,7 +48,7 @@ clean-cs:
 .PHONY: build-rust
 build-rust: rust/ic
 rust/ic: rust/Cargo.toml rust/*.rs
-	cargo build --release --manifest-path=$<
+	( cd rust ; cargo build --release )
 	if [ "$$OS" = "Windows_NT" ] ; then cp rust/target/release/ic.exe rust/ ; fi
 	if [ "$$OS" != "Windows_NT" ] ; then cp rust/target/release/ic rust/ ; fi
 
@@ -80,7 +77,7 @@ clean-js:
 
 # Intcode VM in Javascript, implemented as a single function
 .PHONY: build-js-fn
-build-js-fn: js-fn/ic js-fn/ic.mjs
+build-js-fn: js-fn/ic js-fn/ic.js
 
 .PHONY: clean-js-fn
 clean-js-fn:

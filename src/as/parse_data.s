@@ -33,12 +33,12 @@ parse_db:
 
     add 0, 0, [rb + offset]
 
-parse_db_loop:
+.loop:
     # eat the 'db' token (first parameter) or the comma (subsequent parameters)
     call get_token
 
     eq  [token_type], 's', [rb + tmp]
-    jnz [rb + tmp], parse_db_string
+    jnz [rb + tmp], .string
 
     # not a string, so it must be a value
     add [rb + offset], 0, [rb - 1]
@@ -55,9 +55,9 @@ parse_db_loop:
     call set_as_mem
 
     add [rb + offset], 1, [rb + offset]
-    jz  0, parse_db_after_param
+    jz  0, .after_param
 
-parse_db_string:
+.string:
     # store the string, don't store zero termination
     add [token_value], 0, [rb - 1]
     arb -1
@@ -74,16 +74,16 @@ parse_db_string:
 
     call get_token
 
-parse_db_after_param:
+.after_param:
     eq  [token_type], ',', [rb + tmp]
-    jnz [rb + tmp], parse_db_loop
+    jnz [rb + tmp], .loop
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_db_done
+    jnz [rb + tmp], .done
 
     add err_expect_comma_eol, 0, [rb]
     call report_error
 
-parse_db_done:
+.done:
     add [current_address], [rb + offset], [current_address]
 
     arb 3
@@ -99,22 +99,22 @@ parse_ds:
     call get_token
 
     eq  [token_type], 'n', [rb + tmp]
-    jnz [rb + tmp], parse_ds_have_count
+    jnz [rb + tmp], .have_count
 
     add err_expect_number, 0, [rb]
     call report_error
 
-parse_ds_have_count:
+.have_count:
     add [token_value], 0, [rb + count]
     call get_token
 
     eq  [token_type], ',', [rb + tmp]
-    jnz [rb + tmp], parse_ds_have_comma
+    jnz [rb + tmp], .have_comma
 
     add err_expect_comma, 0, [rb]
     call report_error
 
-parse_ds_have_comma:
+.have_comma:
     call get_token
     call parse_number_or_char
     add [rb - 2], 0, [rb + data]
@@ -122,19 +122,19 @@ parse_ds_have_comma:
     add [current_address], [rb + count], [current_address]
 
     eq  [token_type], '$', [rb + tmp]
-    jnz [rb + tmp], parse_ds_loop
+    jnz [rb + tmp], .loop
 
     add err_expect_eol, 0, [rb]
     call report_error
 
-parse_ds_loop:
+.loop:
     add [rb + data], 0, [rb - 1]
     arb -1
     call set_as_mem
 
     add [rb + count], -1, [rb + count]
     lt  0, [rb + count], [rb + tmp]
-    jnz [rb + tmp], parse_ds_loop
+    jnz [rb + tmp], .loop
 
     arb 3
     ret 0
