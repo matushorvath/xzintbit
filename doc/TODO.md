@@ -36,5 +36,3 @@
   - https://kcachegrind.github.io/html/Home.html
   - https://github.com/lahmatiy/cpupro
   - https://profilerpedia.markhansen.co.nz/formats/chrome-javascript-profiler-cpuprofile/
-
-- Support new map format in javascript IC VM.
