@@ -5,13 +5,13 @@ DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
 export GOFLAGS
 
 .PHONY: build
-build: build-apl build-c build-cs build-cl build-go build-js build-js-fn build-rust
+build: build-apl build-c build-cs build-cl build-go build-js build-js-fn build-js-gui build-rust
 
 .PHONY: build-fast
 build-fast: build-c build-cs build-cl build-go build-js build-rust
 
 .PHONY: clean
-clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-rust
+clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-js-gui clean-rust
 
 # Intcode VM in C
 .PHONY: build-c
@@ -81,6 +81,23 @@ build-js-fn: js-fn/ic js-fn/ic.js
 
 .PHONY: clean-js-fn
 clean-js-fn:
+
+# Intcode VM in Javascript, implemented as a single function
+.PHONY: build-js-fn
+build-js-fn: js-fn/ic js-fn/ic.mjs
+
+.PHONY: clean-js-fn
+clean-js-fn:
+
+# Intcode VM in Javascript with a monitoring GUI
+.PHONY: build-js-gui
+build-js-gui:
+	npm install --prefix js-gui
+	npm test --prefix js-gui
+
+.PHONY: clean-js-gui
+clean-js-gui:
+	rm -rf js-gui/node_modules
 
 # Intcode VM in APL
 .PHONY: build-apl
