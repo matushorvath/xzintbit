@@ -1,8 +1,6 @@
 0:
   circular_symbol:
     address: 23
-  external_symbol:
-    address: 17
 32:
   external_symbol:
     address: 49

@@ -253,17 +253,24 @@ print_symbols:
     out 'S'
     out 10
 
-    # print the regular symbols
+    # print the non-exporteds symbols
     add [global_head], 0, [rb + global]
 
 .global_loop:
     # do we have more symbols?
     jz  [rb + global], .done
 
-    # check symbol type, print local symbols only
+    # check symbol type, print local symbols and children
     add [rb + global], GLOBAL_TYPE, [ip + 1]
-    jnz [0], .global_next
+    jz  [0], .print_parent
+    # also print children of exported symbols
+    add [rb + global], GLOBAL_TYPE, [ip + 1]
+    eq  [0], 2, [rb + tmp]
+    jnz [rb + tmp], .print_children
 
+    jz  0, .global_next
+
+.print_parent:
     # print the identifier and the address
     add [rb + global], 0, [rb - 1]
     arb -1
@@ -271,6 +278,7 @@ print_symbols:
 
     out 10
 
+.print_children:
     # process child symbols as well, if any
     add [rb + global], GLOBAL_CHILDREN_HEAD, [ip + 1]
     add [0], 0, [rb + child]

@@ -104,14 +104,18 @@ print_map:
 
 ##########
 print_map_exports:
-.FRAME module; export, module_address
-    arb -2
+.FRAME module; tmp, export, module_address
+    arb -3
 
-    add [rb + module], MODULE_EXPORTS_HEAD, [ip + 1]
-    add [0], 0, [rb + export]
+    add [resolved_head], 0, [rb + export]
 
 .loop:
     jz  [rb + export], .done
+
+    # only print exports from the current module
+    add [rb + export], EXPORT_MODULE, [ip + 1]
+    eq  [0], [rb + module], [rb + tmp]
+    jz  [rb + tmp], .next_export
 
     # print the identifier
     out ' '
@@ -140,13 +144,14 @@ print_map_exports:
 
     out 10
 
+.next_export:
     add [rb + export], EXPORT_NEXT_PTR, [ip + 1]
     add [0], 0, [rb + export]
 
     jz  0, .loop
 
 .done:
-    arb 2
+    arb 3
     ret 1
 .ENDFRAME
 
