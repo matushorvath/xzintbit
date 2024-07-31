@@ -40,16 +40,16 @@ const parseCommandLine = () => {
 const loadMap = async (imagePath) => {
     const mapPath = `${imagePath}.map.yaml`;
 
-    let mapData;
+    let modules;
     try {
-        mapData = yaml.parse(await fs.readFile(mapPath, 'utf8'));
+        modules = yaml.parse(await fs.readFile(mapPath, 'utf8'));
     } catch {
         // No symbols found
         return;
     }
 
-    return Object.fromEntries(Object.entries(mapData.symbols).map(([symbol, sdata]) =>
-        [sdata.export.module + sdata.export.offset, symbol]));
+    return Object.fromEntries(Object.values(modules).flatMap(symbols =>
+        Object.entries(symbols).map(([identifier, { address }]) => [address, identifier])));
 };
 
 async function* getIns() {

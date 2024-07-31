@@ -116,10 +116,4 @@ detect_directive:
     db  'D'   # ENDFRAME
 .ENDFRAME
 
-##########
-# error messages
-
-err_invalid_directive:
-    db  "Invalid directive", 0
-
 .EOF

@@ -5,3 +5,6 @@
 .I
 .E
 print:0
+.S
+print_done:26
+print_loop:6

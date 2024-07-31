@@ -1,851 +1,918 @@
-modules: [
-  0, 1050, 1375, 1781, 2008, 2291, 2470, 3013, 3410, 4212,
-  4309, 4930, 5310, 5645, 5716, 6433, 7147, 8285, 8827, 9336,
-  9363, 9594, 10568, 10690, 11238, 11776, 12216, 12542
-]
-symbols:
-  process_fixups:
-    export:
-      module: 2008
-      offset: 76
-    imports:
-      - module: 0
-        offsets: [29]
-  output_object:
-    export:
-      module: 4309
-      offset: 0
-    imports:
-      - module: 0
-        offsets: [44]
-  parse:
-    export:
-      module: 8827
-      offset: 0
-    imports:
-      - module: 0
-        offsets: [20]
+0:
+  stack:
+    address: 1044
+  main:
+    address: 12
+1044:
   add_or_find_current_child_symbol:
-    export:
-      module: 1050
-      offset: 153
-    imports:
-      - module: 7147
-        offsets: [626]
-      - module: 8285
-        offsets: [174]
+    address: 1197
   add_or_find_child_symbol:
-    export:
-      module: 1050
-      offset: 201
-    imports:
-      - module: 7147
-        offsets: [544]
+    address: 1245
   last_global_symbol:
-    export:
-      module: 1050
-      offset: 277
-    imports:
-      - module: 8285
-        offsets: [156]
-  alloc_blocks:
-    export:
-      module: 9594
-      offset: 2
-    imports:
-      - module: 1050
-        offsets: [73]
-      - module: 2008
-        offsets: [16]
-      - module: 2291
-        offsets: [69]
-      - module: 2470
-        offsets: [73]
-      - module: 11238
-        offsets: [93, 28]
-      - module: 10690
-        offsets: [175, 20]
-  free:
-    export:
-      module: 9594
-      offset: 458
-    imports:
-      - module: 1050
-        offsets: [269]
-      - module: 2291
-        offsets: [163, 148]
-      - module: 2470
-        offsets: [205]
-      - module: 3410
-        offsets: [595, 530]
-      - module: 5310
-        offsets: [108]
-      - module: 7147
-        offsets: [416]
-  strcmp:
-    export:
-      module: 12216
-      offset: 202
-    imports:
-      - module: 1050
-        offsets: [35]
-      - module: 1375
-        offsets: [113]
-      - module: 2291
-        offsets: [31]
-      - module: 2470
-        offsets: [35]
-      - module: 3013
-        offsets: [113]
-  report_error:
-    export:
-      module: 1781
-      offset: 0
-    imports:
-      - module: 1050
-        offsets: [170]
-      - module: 3410
-        offsets: [400, 349, 218, 152]
-      - module: 4930
-        offsets: [368, 234]
-      - module: 5310
-        offsets: [269, 223, 190, 148]
-      - module: 5645
-        offsets: [36, 15]
-      - module: 5716
-        offsets: [490, 461, 271, 201, 170, 100, 76, 21]
-      - module: 6433
-        offsets: [687, 611, 504, 382, 322, 185, 125, 65]
-      - module: 7147
-        offsets: [888, 798, 611, 448, 393, 339, 170, 150, 33]
-      - module: 8285
-        offsets: [491, 424, 371, 264, 226, 110, 74, 41]
-      - module: 8827
-        offsets: [198]
+    address: 1321
+  add_or_find_current_child_symbol.have_parent:
+    address: 1215
+  add_or_find_child_symbol.found:
+    address: 1299
+  add_or_find_child_symbol.done:
+    address: 1314
+  find_child_symbol.loop:
+    address: 1054
+  find_child_symbol.done:
+    address: 1094
+  find_child_symbol:
+    address: 1044
+  add_child_symbol:
+    address: 1101
+  err_no_parent_symbol:
+    address: 1322
+1369:
   detect_directive:
-    export:
-      module: 1375
-      offset: 0
-    imports:
-      - module: 3410
-        offsets: [567]
+    address: 1369
+  detect_directive.not_directive:
+    address: 1501
+  detect_directive.asso_values:
+    address: 1512
+  detect_directive.wordlist:
+    address: 1548
+  detect_directive.tokens:
+    address: 1738
+1757:
+  report_error:
+    address: 1757
   report_libxib_error:
-    export:
-      module: 1781
-      offset: 0
-    imports:
-      - module: 9594
-        offsets: [39]
-      - module: 11238
-        offsets: [308]
+    address: 1757
   report_symbol_error:
-    export:
-      module: 1781
-      offset: 21
-    imports:
-      - module: 2470
-        offsets: [363, 346, 329, 298, 246]
+    address: 1778
   report_symbol_fixup_error:
-    export:
-      module: 1781
-      offset: 57
-    imports:
-      - module: 2008
-        offsets: [199]
-      - module: 4309
-        offsets: [433, 311]
-  report_error_at_location:
-    export:
-      module: 9363
-      offset: 0
-    imports:
-      - module: 1781
-        offsets: [129, 56, 20]
-  token_line_num:
-    export:
-      module: 3410
-      offset: 698
-    imports:
-      - module: 1781
-        offsets: [41, 5]
-      - module: 4930
-        offsets: [50]
-      - module: 7147
-        offsets: [691, 644, 473]
-  token_column_num:
-    export:
-      module: 3410
-      offset: 699
-    imports:
-      - module: 1781
-        offsets: [45, 9]
-      - module: 4930
-        offsets: [54]
-      - module: 7147
-        offsets: [695, 648, 477]
-  print_str:
-    export:
-      module: 11776
-      offset: 348
-    imports:
-      - module: 1781
-        offsets: [199, 167]
-      - module: 3410
-        offsets: [685]
-      - module: 4309
-        offsets: [452, 330]
-      - module: 9594
-        offsets: [812, 702, 633]
-      - module: 9363
-        offsets: [203, 188, 173, 158, 104, 74, 44, 29, 14]
+    address: 1814
+  report_symbol_fixup_error.after_location:
+    address: 1866
+  print_symbol_identifier.after_parent:
+    address: 1927
+  print_symbol_identifier:
+    address: 1887
+1961:
+  process_fixups:
+    address: 2037
   add_fixup:
-    export:
-      module: 2008
-      offset: 0
-    imports:
-      - module: 4930
-        offsets: [67]
-      - module: 7147
-        offsets: [708, 661, 579, 522]
-  inc_mem:
-    export:
-      module: 11238
-      offset: 177
-    imports:
-      - module: 2008
-        offsets: [249]
-  global_head:
-    export:
-      module: 2470
-      offset: 379
-    imports:
-      - module: 2008
-        offsets: [79]
-      - module: 4309
-        offsets: [385, 256, 120]
-  mem_head:
-    export:
-      module: 4212
-      offset: 94
-    imports:
-      - module: 2008
-        offsets: [220]
-      - module: 4309
-        offsets: [51, 48]
-  mem_tail:
-    export:
-      module: 4212
-      offset: 95
-    imports:
-      - module: 2008
-        offsets: [224]
-      - module: 4309
-        offsets: [55]
-  mem_index:
-    export:
-      module: 4212
-      offset: 96
-    imports:
-      - module: 2008
-        offsets: [228]
-      - module: 4309
-        offsets: [59]
+    address: 1961
+  process_fixups.global_loop:
+    address: 2043
+  process_fixups.done:
+    address: 2120
+  process_fixups.global_next:
+    address: 2109
+  process_fixups.child_loop:
+    address: 2080
+  process_symbol_fixups.have_address:
+    address: 2161
+  process_symbol_fixups.loop:
+    address: 2169
+  process_symbol_fixups.done:
+    address: 2222
+  process_symbol_fixups:
+    address: 2127
+  err_unknown_symbol:
+    address: 2229
+2244:
   find_frame_symbol:
-    export:
-      module: 2291
-      offset: 0
-    imports:
-      - module: 5716
-        offsets: [185]
-      - module: 7147
-        offsets: [374]
+    address: 2244
   add_frame_symbol:
-    export:
-      module: 2291
-      offset: 53
-    imports:
-      - module: 5716
-        offsets: [220]
+    address: 2297
   reset_frame:
-    export:
-      module: 2291
-      offset: 109
-    imports:
-      - module: 5716
-        offsets: [499]
+    address: 2353
   frame_head:
-    export:
-      module: 2291
-      offset: 178
-    imports:
-      - module: 5716
-        offsets: [389]
+    address: 2422
+  find_frame_symbol.loop:
+    address: 2250
+  find_frame_symbol.done:
+    address: 2290
+  reset_frame.loop:
+    address: 2359
+  reset_frame.done:
+    address: 2411
+2423:
+  global_head:
+    address: 2802
   add_or_find_global_symbol:
-    export:
-      module: 2470
-      offset: 145
-    imports:
-      - module: 7147
-        offsets: [463]
-      - module: 8285
-        offsets: [439, 305, 125]
+    address: 2568
   set_global_symbol_address:
-    export:
-      module: 2470
-      offset: 213
-    imports:
-      - module: 8285
-        offsets: [332, 197, 152]
+    address: 2636
   set_global_symbol_type:
-    export:
-      module: 2470
-      offset: 262
-    imports:
-      - module: 8285
-        offsets: [462, 351]
+    address: 2685
   current_address_fixups_head:
-    export:
-      module: 2470
-      offset: 380
-    imports:
-      - module: 4309
-        offsets: [93]
-      - module: 4930
-        offsets: [42]
-      - module: 7147
-        offsets: [683]
+    address: 2803
+  add_or_find_global_symbol.found:
+    address: 2614
+  add_or_find_global_symbol.done:
+    address: 2629
+  set_global_symbol_address.store:
+    address: 2670
+  set_global_symbol_type.store:
+    address: 2787
+  set_global_symbol_type.check_same:
+    address: 2722
+  set_global_symbol_type.error_imported:
+    address: 2753
+  set_global_symbol_type.error_exported:
+    address: 2770
+  find_global_symbol.loop:
+    address: 2429
+  find_global_symbol.done:
+    address: 2473
+  find_global_symbol:
+    address: 2423
+  add_global_symbol:
+    address: 2480
+  err_duplicate_global_symbol:
+    address: 2804
+  err_symbol_symbol_type_mix:
+    address: 2839
+  err_constant_already_defined:
+    address: 2931
+  err_symbol_already_imported:
+    address: 2877
+  err_symbol_already_exported:
+    address: 2904
+2966:
   detect_keyword:
-    export:
-      module: 3013
-      offset: 0
-    imports:
-      - module: 3410
-        offsets: [502]
+    address: 2966
+  detect_keyword.not_keyword:
+    address: 3098
+  detect_keyword.asso_values:
+    address: 3109
+  detect_keyword.wordlist:
+    address: 3135
+  detect_keyword.tokens:
+    address: 3325
+3363:
+  token_line_num:
+    address: 4061
+  token_column_num:
+    address: 4062
   get_token:
-    export:
-      module: 3410
-      offset: 0
-    imports:
-      - module: 4930
-        offsets: [256, 10]
-      - module: 5310
-        offsets: [232, 203, 170, 121, 14]
-      - module: 5716
-        offsets: [470, 280, 237, 30]
-      - module: 6433
-        offsets: [667, 560, 453, 331, 271, 134, 74, 14]
-      - module: 7147
-        offsets: [901, 861, 757, 717, 670, 588, 488, 429, 179, 92, 62, 42]
-      - module: 8285
-        offsets: [471, 404, 277, 244, 206, 83, 54, 21]
-      - module: 8827
-        offsets: [10]
+    address: 3363
   token_type:
-    export:
-      module: 3410
-      offset: 700
-    imports:
-      - module: 4930
-        offsets: [350, 216]
-      - module: 5310
-        offsets: [251, 205, 172, 130, 123, 16]
-      - module: 5716
-        offsets: [472, 253, 246, 239, 152, 145, 138, 58, 51]
-      - module: 6433
-        offsets: [669, 656, 593, 549, 486, 442, 364, 304, 260, 167, 107, 47, 3]
-      - module: 7147
-        offsets: [870, 863, 840, 833, 780, 773, 766, 759, 726, 719, 490, 321, 314, 307, 300, 293, 286, 279, 190, 152, 71, 64, 44, 15]
-      - module: 8285
-        offsets: [473, 406, 386, 353, 246, 208, 92, 85, 56, 23, 7]
-      - module: 8827
-        offsets: [180, 173, 166, 159, 152, 145, 138, 131, 124, 117, 110, 103, 96, 89, 82, 75, 68, 61, 54, 47, 40, 33, 26, 19, 12]
+    address: 4063
   token_value:
-    export:
-      module: 3410
-      offset: 701
-    imports:
-      - module: 5310
-        offsets: [192, 112, 95, 76]
-      - module: 5716
-        offsets: [224, 203, 172]
-      - module: 7147
-        offsets: [890, 634, 613, 552, 531, 471, 450, 420, 403, 361]
-      - module: 8285
-        offsets: [447, 426, 266, 182, 161, 133, 112, 44]
-  get_input:
-    export:
-      module: 10568
-      offset: 0
-    imports:
-      - module: 3410
-        offsets: [329, 316, 198, 161, 18]
-      - module: 10690
-        offsets: [514, 452, 425, 398, 374, 354, 330, 265, 238, 83]
-  unget_input:
-    export:
-      module: 10568
-      offset: 48
-    imports:
-      - module: 3410
-        offsets: [371, 240]
-      - module: 10690
-        offsets: [540, 147]
-  input_line_num:
-    export:
-      module: 10568
-      offset: 118
-    imports:
-      - module: 3410
-        offsets: [3]
-  input_column_num:
-    export:
-      module: 10568
-      offset: 119
-    imports:
-      - module: 3410
-        offsets: [7]
-  read_identifier:
-    export:
-      module: 10690
-      offset: 0
-    imports:
-      - module: 3410
-        offsets: [552, 487]
-  read_string:
-    export:
-      module: 10690
-      offset: 155
-    imports:
-      - module: 3410
-        offsets: [296]
-  read_number:
-    export:
-      module: 10690
-      offset: 304
-    imports:
-      - module: 3410
-        offsets: [380]
-  print_num:
-    export:
-      module: 11776
-      offset: 0
-    imports:
-      - module: 3410
-        offsets: [658]
-      - module: 4309
-        offsets: [534, 473]
-      - module: 9594
-        offsets: [869, 842, 772, 745, 717, 663]
-      - module: 9363
-        offsets: [89, 59]
-      - module: 11238
-        offsets: [489]
-  is_digit:
-    export:
-      module: 12216
-      offset: 0
-    imports:
-      - module: 3410
-        offsets: [136]
-  is_alpha:
-    export:
-      module: 12216
-      offset: 107
-    imports:
-      - module: 3410
-        offsets: [79]
-  set_as_mem:
-    export:
-      module: 4212
-      offset: 0
-    imports:
-      - module: 4930
-        offsets: [348, 329, 314, 299, 284, 214, 188, 173, 127, 112, 97, 82, 40, 25]
-      - module: 5310
-        offsets: [284, 67]
-      - module: 6433
-        offsets: [706, 645, 630, 538, 523, 431, 416, 401, 249, 234, 219, 204]
-  set_as_mem_str:
-    export:
-      module: 4212
-      offset: 36
-    imports:
-      - module: 5310
-        offsets: [89]
-  set_mem:
-    export:
-      module: 11238
-      offset: 1
-    imports:
-      - module: 4212
-        offsets: [79, 28]
-  print_mem:
-    export:
-      module: 11238
-      offset: 350
-    imports:
-      - module: 4309
-        offsets: [72]
-  parse_call:
-    export:
-      module: 4930
-      offset: 0
-    imports:
-      - module: 8827
-        offsets: [267]
-  parse_ret:
-    export:
-      module: 4930
-      offset: 246
-    imports:
-      - module: 8827
-        offsets: [279]
-  parse_in_param:
-    export:
-      module: 7147
-      offset: 187
-    imports:
-      - module: 4930
-        offsets: [146]
-      - module: 6433
-        offsets: [472, 350, 290, 93, 33]
-  parse_number_or_char:
-    export:
-      module: 7147
-      offset: 826
-    imports:
-      - module: 4930
-        offsets: [265]
-      - module: 5310
-        offsets: [241]
-      - module: 8285
-        offsets: [286]
-  current_address:
-    export:
-      module: 8827
-      offset: 398
-    imports:
-      - module: 4930
-        offsets: [372, 370, 238, 236, 46, 27]
-      - module: 5310
-        offsets: [249, 247, 152, 150]
-      - module: 6433
-        offsets: [691, 689, 615, 613, 508, 506, 386, 384, 189, 187]
-      - module: 7147
-        offsets: [687, 679, 640, 558, 501]
-      - module: 8285
-        offsets: [3]
-  err_expect_eol:
-    export:
-      module: 8827
-      offset: 434
-    imports:
-      - module: 4930
-        offsets: [357, 223]
-      - module: 5310
-        offsets: [258]
-      - module: 5716
-        offsets: [479]
-      - module: 6433
-        offsets: [676, 600, 493, 371, 174]
-      - module: 8285
-        offsets: [480, 360]
-  parse_db:
-    export:
-      module: 5310
-      offset: 0
-    imports:
-      - module: 8827
-        offsets: [291]
-  parse_ds:
-    export:
-      module: 5310
-      offset: 160
-    imports:
-      - module: 8827
-        offsets: [303]
-  parse_value:
-    export:
-      module: 7147
-      offset: 268
-    imports:
-      - module: 5310
-        offsets: [48]
-  err_expect_comma:
-    export:
-      module: 8827
-      offset: 416
-    imports:
-      - module: 5310
-        offsets: [212]
-      - module: 6433
-        offsets: [311, 114, 54]
+    address: 4064
+  get_token.loop:
+    address: 3365
+  get_token.eat_comment:
+    address: 3516
+  get_token.eol:
+    address: 3546
+  get_token.identifier:
+    address: 3589
+  get_token.directive:
+    address: 3624
+  get_token.symbol:
+    address: 3644
+  get_token.string:
+    address: 3651
+  get_token.char:
+    address: 3671
+  get_token.number:
+    address: 3720
+  get_token.eat_comment_loop:
+    address: 3516
+  get_token.eol_unix:
+    address: 3582
+  get_token.done:
+    address: 3771
+  get_token.char_done:
+    address: 3713
+  get_token.number_done:
+    address: 3764
+  is_symbol.done:
+    address: 3833
+  is_symbol:
+    address: 3778
+  err_invalid_token:
+    address: 4065
+  err_expect_10_after_13:
+    address: 4104
+  read_identifier_or_keyword.skip_free:
+    address: 3898
+  read_identifier_or_keyword:
+    address: 3840
+  read_dot_identifier_or_directive.skip_free:
+    address: 3963
+  read_dot_identifier_or_directive:
+    address: 3905
+  err_expect_single_quote:
+    address: 4079
   err_expect_number:
-    export:
-      module: 8827
-      offset: 466
-    imports:
-      - module: 5310
-        offsets: [179]
-      - module: 8285
-        offsets: [30]
+    address: 4146
+  dump_token.print_number:
+    address: 4005
+  dump_token.print_char:
+    address: 4025
+  dump_token.print_string:
+    address: 4032
+  dump_token.done:
+    address: 4052
+  dump_token:
+    address: 3970
+4165:
+  mem_head:
+    address: 4259
+  mem_tail:
+    address: 4260
+  mem_index:
+    address: 4261
+  set_as_mem:
+    address: 4165
+  set_as_mem_str:
+    address: 4201
+  set_as_mem_str.loop:
+    address: 4207
+  set_as_mem_str.done:
+    address: 4252
+4262:
+  output_object:
+    address: 4262
+  print_code.done:
+    address: 4346
+  print_code:
+    address: 4312
+  print_reloc.global_loop:
+    address: 4394
+  print_reloc.done:
+    address: 4506
+  print_reloc.global_next:
+    address: 4495
+  print_reloc.child_loop:
+    address: 4454
+  print_reloc.after_eol:
+    address: 4511
+  print_reloc:
+    address: 4351
+  print_imports.symbol_loop:
+    address: 4530
+  print_imports.symbol_done:
+    address: 4629
+  print_imports.no_address:
+    address: 4583
+  print_imports:
+    address: 4518
+  print_exports.symbol_loop:
+    address: 4659
+  print_exports.done:
+    address: 4701
+  print_exports.symbol_done:
+    address: 4690
+  print_exports:
+    address: 4647
+  print_symbols.global_loop:
+    address: 4720
+  print_symbols.done:
+    address: 4811
+  print_symbols.print_parent:
+    address: 4744
+  print_symbols.print_children:
+    address: 4761
+  print_symbols.global_next:
+    address: 4800
+  print_symbols.child_loop:
+    address: 4769
+  print_symbols:
+    address: 4708
+  print_fixups_list.loop:
+    address: 4933
+  print_fixups_list.done:
+    address: 4979
+  print_fixups_list.skip_comma:
+    address: 4941
+  print_fixups_list:
+    address: 4927
+  print_imports_done:
+    address: 4640
+  err_imported_symbol_defined:
+    address: 5005
+  print_identifier_and_address.have_address:
+    address: 4852
+  print_identifier_and_address.after_parent:
+    address: 4884
+  print_identifier_and_address:
+    address: 4818
+  err_unknown_symbol:
+    address: 4990
+5054:
+  parse_call:
+    address: 5054
+  parse_ret:
+    address: 5300
+  parse_call.not_mode_3:
+    address: 5254
+  parse_call.done:
+    address: 5289
+  parse_ret.done:
+    address: 5423
+5434:
+  parse_db:
+    address: 5434
+  parse_ds:
+    address: 5594
+  parse_db.loop:
+    address: 5440
+  parse_db.string:
+    address: 5509
+  parse_db.after_param:
+    address: 5556
+  parse_db.done:
+    address: 5583
+  parse_ds.have_count:
+    address: 5625
+  parse_ds.have_comma:
+    address: 5658
+  parse_ds.loop:
+    address: 5704
+  err_expect_comma_eol:
+    address: 5737
+5769:
   parse_dir_eof:
-    export:
-      module: 5645
-      offset: 0
-    imports:
-      - module: 8827
-        offsets: [375]
+    address: 5769
   parse_dir_eoi:
-    export:
-      module: 5645
-      offset: 21
-    imports:
-      - module: 8827
-        offsets: [387]
-  reset_input_location:
-    export:
-      module: 10568
-      offset: 105
-    imports:
-      - module: 5645
-        offsets: [45]
+    address: 5790
+  parse_dir_eof.done:
+    address: 5785
+  parse_dir_eoi.done:
+    address: 5806
+  err_expect_endframe:
+    address: 5820
+5840:
   is_frame:
-    export:
-      module: 5716
-      offset: 511
-    imports:
-      - module: 5645
-        offsets: [22, 1]
+    address: 6351
   parse_dir_frame:
-    export:
-      module: 5716
-      offset: 0
-    imports:
-      - module: 8827
-        offsets: [327]
+    address: 5840
   parse_dir_endframe:
-    export:
-      module: 5716
-      offset: 440
-    imports:
-      - module: 8827
-        offsets: [339]
-  err_expect_identifier:
-    export:
-      module: 8827
-      offset: 485
-    imports:
-      - module: 5716
-        offsets: [159]
-      - module: 8285
-        offsets: [413, 253, 99]
+    address: 6280
+  parse_dir_frame.loop:
+    address: 5862
+  parse_dir_frame.check_count:
+    address: 5917
+  parse_dir_frame.eol:
+    address: 5941
+  parse_dir_endframe.check_params:
+    address: 6302
+  parse_dir_endframe.done:
+    address: 6331
+  err_already_in_frame:
+    address: 6433
+  parse_dir_frame_block.done:
+    address: 6124
+  parse_dir_frame_block.loop:
+    address: 5991
+  parse_dir_frame_block.identifier:
+    address: 6011
+  parse_dir_frame_block.is_unique:
+    address: 6042
+  parse_dir_frame_block.comma:
+    address: 6112
+  parse_dir_frame_block:
+    address: 5971
+  err_expect_semicolon_eol:
+    address: 6352
+  err_too_many_lists:
+    address: 6459
+  parse_dir_frame_offset_blocks.after_negative:
+    address: 6159
+  parse_dir_frame_offset_blocks.done:
+    address: 6215
+  parse_dir_frame_offset_blocks:
+    address: 6131
+  err_duplicate_frame_symbol:
+    address: 6498
+  err_expect_comma_semicolon_eol:
+    address: 6388
+  parse_dir_frame_offset.loop:
+    address: 6232
+  parse_dir_frame_offset.done:
+    address: 6273
+  parse_dir_frame_offset.after_update:
+    address: 6262
+  parse_dir_frame_offset:
+    address: 6222
+  err_not_in_frame:
+    address: 6532
+6557:
   parse_add_mul_lt_eq:
-    export:
-      module: 6433
-      offset: 0
-    imports:
-      - module: 8827
-        offsets: [207]
+    address: 6557
   parse_jnz_jz:
-    export:
-      module: 6433
-      offset: 257
-    imports:
-      - module: 8827
-        offsets: [219]
+    address: 6814
   parse_arb_out:
-    export:
-      module: 6433
-      offset: 439
-    imports:
-      - module: 8827
-        offsets: [231]
+    address: 6996
   parse_in:
-    export:
-      module: 6433
-      offset: 546
-    imports:
-      - module: 8827
-        offsets: [243]
+    address: 7103
   parse_hlt:
-    export:
-      module: 6433
-      offset: 653
-    imports:
-      - module: 8827
-        offsets: [255]
+    address: 7210
+  parse_add_mul_lt_eq.param1:
+    address: 6623
+  parse_add_mul_lt_eq.param2:
+    address: 6683
+  parse_add_mul_lt_eq.done:
+    address: 6743
+  parse_jnz_jz.param1:
+    address: 6880
+  parse_jnz_jz.done:
+    address: 6940
+  parse_arb_out.done:
+    address: 7062
+  parse_in.done:
+    address: 7169
+  parse_hlt.done:
+    address: 7245
+7271:
+  parse_in_param:
+    address: 7458
+  parse_number_or_char:
+    address: 8097
+  parse_value:
+    address: 7539
   parse_out_param:
-    export:
-      module: 7147
-      offset: 0
-    imports:
-      - module: 6433
-        offsets: [579, 153]
+    address: 7271
+  parse_out_param.try_rb:
+    address: 7305
+  parse_out_param.after_rb:
+    address: 7364
+  parse_out_param.rb_plus:
+    address: 7355
+  parse_out_param.rb_minus:
+    address: 7351
+  parse_out_param.after_value:
+    address: 7422
+  parse_out_param.done:
+    address: 7442
+  parse_in_param.immediate:
+    address: 7497
+  parse_in_param.done:
+    address: 7532
+  parse_value.number_or_char_1:
+    address: 7611
+  parse_value.identifier:
+    address: 7627
+  parse_value.dot_identifier:
+    address: 7863
+  parse_value.ip:
+    address: 7945
+  parse_value.done:
+    address: 8090
+  parse_value.is_global:
+    address: 7704
+  parse_value.frame_symbol_allowed:
+    address: 7665
+  parse_value.after_symbol:
+    address: 7989
+  parse_value.global_symbol_allowed:
+    address: 7720
+  parse_value.is_parent_dot_child:
+    address: 7797
+  parse_value.dot_global_symbol_allowed:
+    address: 7883
+  parse_value.identifier_plus:
+    address: 8006
+  parse_value.identifier_minus:
+    address: 8013
+  parse_value.identifier_after_sign:
+    address: 8020
+  parse_value.number_or_char_2:
+    address: 8070
+  parse_number_or_char.plus:
+    address: 8124
+  parse_number_or_char.minus:
+    address: 8120
+  parse_number_or_char.after_sign:
+    address: 8133
+  parse_number_or_char.have_value:
+    address: 8160
+  err_expect_open_brace:
+    address: 8180
+  err_subtract_symbol:
+    address: 8233
+  err_expect_close_brace:
+    address: 8207
+  err_expect_number_char_identifier:
+    address: 8266
+  err_frame_symbol_not_allowed:
+    address: 8376
+  err_global_symbol_not_allowed:
+    address: 8342
+  err_expect_number_char:
+    address: 8310
+8409:
   parse_symbol:
-    export:
-      module: 8285
-      offset: 0
-    imports:
-      - module: 8827
-        offsets: [315]
+    address: 8409
   parse_dir_symbol:
-    export:
-      module: 8285
-      offset: 234
-    imports:
-      - module: 8827
-        offsets: [351]
+    address: 8643
   parse_dir_import_export:
-    export:
-      module: 8285
-      offset: 379
-    imports:
-      - module: 8827
-        offsets: [363]
-  realloc_more_blocks:
-    export:
-      module: 9594
-      offset: 331
-    imports:
-      - module: 10690
-        offsets: [221, 66]
-  zeromem_blocks:
-    export:
-      module: 9594
-      offset: 578
-    imports:
-  neg_chunk_header_size:
-    export:
-      module: 9594
-      offset: 0
-    imports:
-      - module: 10690
-        offsets: [186, 31]
-  block_size:
-    export:
-      module: 9594
-      offset: 1
-    imports:
-      - module: 10690
-        offsets: [228, 182, 73, 27]
-  dump_heap:
-    export:
-      module: 9594
-      offset: 617
-    imports:
+    address: 8788
+  parse_symbol.after_offset:
+    address: 8493
+  parse_symbol.have_offset:
+    address: 8451
+  parse_symbol.after_equals:
+    address: 8484
+  parse_symbol.have_identifier:
+    address: 8520
+  parse_symbol.have_dot_identifier:
+    address: 8569
+  parse_symbol.colon:
+    address: 8607
+  parse_symbol.done:
+    address: 8636
+  parse_dir_symbol.have_identifier:
+    address: 8674
+  parse_dir_symbol.done:
+    address: 8781
+  parse_dir_import_export.have_type:
+    address: 8805
+  parse_dir_import_export.have_identifier:
+    address: 8834
+  parse_dir_import_export.done:
+    address: 8901
+  err_expect_equals:
+    address: 8908
+  err_expect_colon:
+    address: 8933
+8951:
+  parse:
+    address: 8951
+  current_address:
+    address: 9349
+  err_expect_eol:
+    address: 9385
+  err_expect_comma:
+    address: 9367
+  err_expect_number:
+    address: 9417
+  err_expect_identifier:
+    address: 9436
+  parse.loop:
+    address: 8953
+  parse.call_add_mul_lt_eq:
+    address: 9150
+  parse.call_jnz_jz:
+    address: 9162
+  parse.call_arb_out:
+    address: 9174
+  parse.call_in:
+    address: 9186
+  parse.call_hlt:
+    address: 9198
+  parse.call_call:
+    address: 9210
+  parse.call_ret:
+    address: 9222
+  parse.call_db:
+    address: 9234
+  parse.call_ds:
+    address: 9246
+  parse.call_symbol:
+    address: 9258
+  parse.call_directive_frame:
+    address: 9270
+  parse.call_directive_endframe:
+    address: 9282
+  parse.call_directive_symbol:
+    address: 9294
+  parse.call_directive_import_export:
+    address: 9306
+  parse.call_directive_eof:
+    address: 9318
+  parse.call_directive_eoi:
+    address: 9330
+  parse.done:
+    address: 9342
+  err_unexpected_token:
+    address: 9350
+9460:
   sbrk:
-    export:
-      module: 9336
-      offset: 9
-    imports:
-      - module: 9594
-        offsets: [648, 438, 139]
+    address: 9469
   brk_addr:
-    export:
-      module: 9336
-      offset: 26
-    imports:
-      - module: 9594
-        offsets: [351]
-  char_to_digit:
-    export:
-      module: 12216
-      offset: 24
-    imports:
-      - module: 10690
-        offsets: [482]
-  is_alphanum:
-    export:
-      module: 12216
-      offset: 145
-    imports:
-      - module: 10690
-        offsets: [102]
-  strcpy:
-    export:
-      module: 12216
-      offset: 256
-    imports:
-  zeromem:
-    export:
-      module: 12216
-      offset: 295
-    imports:
-  report_error_with_symbol:
-    export:
-      module: 9363
-      offset: 144
-    imports:
-  halt_and_catch_fire:
-    export:
-      module: 9363
-      offset: 226
-    imports:
-  print_num_2:
-    export:
-      module: 11776
-      offset: 28
-    imports:
-  print_num_2_b:
-    export:
-      module: 11776
-      offset: 56
-    imports:
-  print_num_2_w:
-    export:
-      module: 11776
-      offset: 84
-    imports:
-  print_num_16:
-    export:
-      module: 11776
-      offset: 112
-    imports:
-  print_num_16_b:
-    export:
-      module: 11776
-      offset: 140
-    imports:
-  print_num_16_w:
-    export:
-      module: 11776
-      offset: 168
-    imports:
-  print_num_radix:
-    export:
-      module: 11776
-      offset: 196
-    imports:
-  print_str_as_mem:
-    export:
-      module: 11776
-      offset: 381
-    imports:
-  pretty_print_mem:
-    export:
-      module: 11238
-      offset: 382
-    imports:
-  mem_block_size:
-    export:
-      module: 11238
-      offset: 0
-    imports:
-  peek_input:
-    export:
-      module: 10568
-      offset: 83
-    imports:
+    address: 9486
   brk:
-    export:
-      module: 9336
-      offset: 0
-    imports:
+    address: 9460
+9487:
+  report_error_at_location:
+    address: 9487
+  report_error_with_symbol:
+    address: 9631
+  halt_and_catch_fire:
+    address: 9713
+  report_error_at_location.msg_start:
+    address: 9603
+  report_error_at_location.msg_line:
+    address: 9611
+  report_error_at_location.msg_column:
+    address: 9619
+  report_error_at_location.msg_end:
+    address: 9629
+  report_error_with_symbol.msg_start:
+    address: 9702
+  report_error_with_symbol.msg_symbol:
+    address: 9710
+  halt_and_catch_fire.loop:
+    address: 9713
+9718:
+  alloc_blocks:
+    address: 9720
+  free:
+    address: 10176
+  realloc_more_blocks:
+    address: 10049
+  zeromem_blocks:
+    address: 10296
+  neg_chunk_header_size:
+    address: 9718
+  block_size:
+    address: 9719
+  dump_heap:
+    address: 10335
+  alloc_blocks.large:
+    address: 9814
+  alloc_blocks.small_table:
+    address: 9736
+  alloc_blocks.small_0_blocks:
+    address: 9745
+  alloc_blocks.small_1_blocks:
+    address: 9758
+  alloc_blocks.small_2_blocks:
+    address: 9765
+  alloc_blocks.small_3_blocks:
+    address: 9772
+  alloc_blocks.small_4_blocks:
+    address: 9779
+  alloc_blocks.small_5_blocks:
+    address: 9786
+  alloc_blocks.small_6_blocks:
+    address: 9793
+  alloc_blocks.small_7_blocks:
+    address: 9800
+  alloc_blocks.small_8_blocks:
+    address: 9807
+  alloc_blocks.alloc_from_small:
+    address: 9933
+  alloc_blocks.large_loop:
+    address: 9818
+  alloc_blocks.sbrk:
+    address: 9843
+  alloc_blocks.alloc_from_large:
+    address: 9873
+  alloc_blocks.return_ptr:
+    address: 10030
+  alloc_blocks.alloc_from_large_after_next_prev:
+    address: 9896
+  alloc_blocks.alloc_from_large_replace_head:
+    address: 9922
+  alloc_blocks.alloc_cut_chunk:
+    address: 9972
+  realloc_more_blocks.sbrk:
+    address: 10134
+  realloc_more_blocks.copy_loop:
+    address: 10097
+  realloc_more_blocks.done:
+    address: 10169
+  free.done:
+    address: 10289
+  free.small:
+    address: 10242
+  free.large_after_prev:
+    address: 10219
+  free.small_after_prev:
+    address: 10261
+  zeromem_blocks.loop:
+    address: 10306
+  zeromem_blocks.done:
+    address: 10328
+  dump_heap.brk_msg:
+    address: 10610
+  dump_heap.small_bin_loop:
+    address: 10388
+  dump_heap.large:
+    address: 10513
+  dump_heap.small_next_bin:
+    address: 10506
+  dump_heap.small_bin_msg:
+    address: 10616
+  dump_heap.small_chunk_loop:
+    address: 10438
+  dump_heap.small_chunk_done:
+    address: 10504
+  dump_heap.done:
+    address: 10603
+  dump_heap.large_bin_msg:
+    address: 10627
+  dump_heap.large_chunk_loop:
+    address: 10535
+  dump_heap.large_chunk_done:
+    address: 10601
+  err_zero_allocation:
+    address: 10648
+  small:
+    address: 10638
+  large:
+    address: 10647
+10692:
+  get_input:
+    address: 10692
+  unget_input:
+    address: 10740
+  input_line_num:
+    address: 10810
+  input_column_num:
+    address: 10811
+  reset_input_location:
+    address: 10797
+  peek_input:
+    address: 10775
+  get_input.have_char:
+    address: 10707
+  get_input.same_line:
+    address: 10729
+  get_input.done:
+    address: 10733
+  unget_input.same_line:
+    address: 10764
+  unget_input.done:
+    address: 10768
+  peek_input.done:
+    address: 10790
+  input_buffer:
+    address: 10813
+  input_prev_column_num:
+    address: 10812
+10814:
+  read_identifier:
+    address: 10814
+  read_string:
+    address: 10969
+  read_number:
+    address: 11118
+  read_identifier.loop:
+    address: 10855
+  read_identifier.have_space:
+    address: 10889
+  read_identifier.done:
+    address: 10939
+  read_string.loop:
+    address: 11010
+  read_string.have_space:
+    address: 11044
+  read_string.done:
+    address: 11103
+  read_string.after_escape:
+    address: 11084
+  read_number.prefix:
+    address: 11173
+  read_number.loop:
+    address: 11278
+  read_number.not_binary:
+    address: 11220
+  read_number.not_octal:
+    address: 11247
+  read_number.not_hexadecimal:
+    address: 11274
+  read_number.end:
+    address: 11336
+11362:
+  inc_mem:
+    address: 11539
+  set_mem:
+    address: 11363
+  print_mem:
+    address: 11712
+  pretty_print_mem:
+    address: 11744
+  mem_block_size:
+    address: 11362
+  set_mem.have_buffer:
+    address: 11430
+  set_mem.have_space:
+    address: 11496
+  calc_mem.loop:
+    address: 11616
+  calc_mem.done:
+    address: 11638
+  calc_mem:
+    address: 11606
+  inc_mem_internal.loop:
+    address: 11655
+  inc_mem_internal.have_block:
+    address: 11671
+  inc_mem_internal.this_block:
+    address: 11689
+  inc_mem_internal:
+    address: 11649
+  err_invalid_address:
+    address: 11877
+  print_mem_internal.done:
+    address: 11870
+  print_mem_internal.block:
+    address: 11789
+  print_mem_internal.byte:
+    address: 11808
+  print_mem_internal.block_done:
+    address: 11859
+  print_mem_internal.skip_comma:
+    address: 11825
+  print_mem_internal:
+    address: 11776
+11900:
+  print_str:
+    address: 12248
+  print_num:
+    address: 11900
+  print_num_2:
+    address: 11928
+  print_num_2_b:
+    address: 11956
+  print_num_2_w:
+    address: 11984
+  print_num_16:
+    address: 12012
+  print_num_16_b:
+    address: 12040
+  print_num_16_w:
+    address: 12068
+  print_num_radix:
+    address: 12096
+  print_str_as_mem:
+    address: 12281
+  print_num_radix.next_order:
+    address: 12115
+  print_num_radix.digit_ptr_1:
+    address: 12118
+  print_num_radix.finish_order:
+    address: 12134
+  print_num_radix.digit_ptr_2:
+    address: 12167
+  print_num_radix.padding_loop:
+    address: 12150
+  print_num_radix.next_digit:
+    address: 12166
+  print_num_radix.increase:
+    address: 12174
+  print_num_radix.digits:
+    address: 12232
+  print_num_radix.finish:
+    address: 12217
+  print_str.start:
+    address: 12263
+  print_str.loop:
+    address: 12257
+  print_str_as_mem.loop:
+    address: 12287
+  print_str_as_mem.done:
+    address: 12333
+  print_str_as_mem.skip_comma:
+    address: 12303
+12340:
+  strcmp:
+    address: 12542
+  is_digit:
+    address: 12340
+  is_alpha:
+    address: 12447
+  char_to_digit:
+    address: 12364
+  is_alphanum:
+    address: 12485
+  strcpy:
+    address: 12596
+  zeromem:
+    address: 12635
+  is_digit.end:
+    address: 12353
+  char_to_digit.invalid:
+    address: 12436
+  char_to_digit.number:
+    address: 12425
+  char_to_digit.upper_case:
+    address: 12411
+  char_to_digit.lower_case:
+    address: 12418
+  char_to_digit.check_radix:
+    address: 12429
+  char_to_digit.end:
+    address: 12440
+  is_alpha.end:
+    address: 12474
+  is_alphanum.end:
+    address: 12535
+  strcmp.loop:
+    address: 12548
+  strcmp.done:
+    address: 12581
+  strcpy.loop:
+    address: 12602
+  strcpy.done:
+    address: 12628
+  zeromem.loop:
+    address: 12637
+  zeromem.done:
+    address: 12659
+12666:
   __heap_start:
-    export:
-      module: 12542
-      offset: 0
-    imports:
-      - module: 9336
-        offsets: [26]
+    address: 12666

@@ -1,4 +1,9 @@
-modules: [
-  0
-]
-symbols:
+0:
+  data:
+    address: 71
+  stack:
+    address: 125
+  test:
+    address: 38
+  data1:
+    address: 72

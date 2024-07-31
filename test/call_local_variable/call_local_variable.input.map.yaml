@@ -1,4 +1,7 @@
-modules: [
-  0
-]
-symbols:
+0:
+  stack:
+    address: 22
+  caller:
+    address: 22
+  callee:
+    address: 44

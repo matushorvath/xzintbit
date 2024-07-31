@@ -5,3 +5,6 @@
 .I
 print:16
 .E
+.S
+message:20
+stack:53

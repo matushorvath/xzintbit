@@ -1,4 +1,7 @@
-modules: [
-  0
-]
-symbols:
+0:
+  message:
+    address: 15
+  loop:
+    address: 2
+  done:
+    address: 12

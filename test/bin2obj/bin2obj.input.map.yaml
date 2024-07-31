@@ -1,24 +1,9 @@
-modules: [
-  0
-]
-symbols:
+0:
   bin2obj_data:
-    export:
-      module: 0
-      offset: 4
-    imports:
+    address: 4
   bin2obj_header:
-    export:
-      module: 0
-      offset: 1
-    imports:
+    address: 1
   bin2obj_count:
-    export:
-      module: 0
-      offset: 0
-    imports:
+    address: 0
   bin2obj_image:
-    export:
-      module: 0
-      offset: 0
-    imports:
+    address: 0

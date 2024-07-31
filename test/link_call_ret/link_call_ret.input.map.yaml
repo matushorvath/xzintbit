@@ -1,4 +1,6 @@
-modules: [
-  0, 22
-]
-symbols:
+0:
+  function:
+    address: 9
+22:
+  function:
+    address: 31

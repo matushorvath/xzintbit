@@ -1,9 +1,4 @@
-modules: [
-  0, 1
-]
-symbols:
+0:
+1:
   external_symbol:
-    export:
-      module: 1
-      offset: 0
-    imports:
+    address: 1

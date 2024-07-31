@@ -1,4 +1,9 @@
-modules: [
-  0
-]
-symbols:
+0:
+  bas:
+    address: 17
+  inc:
+    address: 18
+  res:
+    address: 19
+  pbas:
+    address: 20

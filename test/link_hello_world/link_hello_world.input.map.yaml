@@ -1,11 +1,12 @@
-modules: [
-  0, 53
-]
-symbols:
+0:
+  stack:
+    address: 53
+  message:
+    address: 20
+53:
   print:
-    export:
-      module: 53
-      offset: 0
-    imports:
-      - module: 0
-        offsets: [16]
+    address: 53
+  print_loop:
+    address: 59
+  print_done:
+    address: 79

@@ -1,4 +1,6 @@
-ICVM_TYPE ?= c
+ICDIR ?= $(abspath .)
+include $(ICDIR)/intcode.mk
+
 export ICVM_TYPE
 
 TESTDIRS = $(sort $(dir $(wildcard test/*/*)))
@@ -25,7 +27,7 @@ build-fast-vms:
 # Build stage 1
 .PHONY: build-stage1
 build-stage1:
-	ICAS=$(abspath bin/as.input) ICBIN2OBJ=$(abspath bin/as.input) \
+	ICAS=$(abspath bin/as.input) ICBIN2OBJ=$(abspath bin/bin2obj.input) \
 	ICLD=$(abspath bin/ld.input) ICLDMAP=$(abspath bin/ldmap.input) \
 	BINDIR=$(abspath stage1) OBJDIR=$(abspath stage1) \
 	make -C src build
@@ -33,7 +35,7 @@ build-stage1:
 # Build stage 2
 .PHONY: build-stage2
 build-stage2:
-	ICAS=$(abspath stage1/as.input) ICBIN2OBJ=$(abspath stage1/as.input) \
+	ICAS=$(abspath stage1/as.input) ICBIN2OBJ=$(abspath stage1/bin2obj.input) \
 	ICLD=$(abspath stage1/ld.input) ICLDMAP=$(abspath stage1/ldmap.input) \
 	BINDIR=$(abspath stage2) OBJDIR=$(abspath stage2) \
 	make -C src build

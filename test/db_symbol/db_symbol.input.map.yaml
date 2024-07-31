@@ -1,4 +1,3 @@
-modules: [
-  0
-]
-symbols:
+0:
+  global:
+    address: 2

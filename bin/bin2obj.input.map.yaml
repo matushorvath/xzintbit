@@ -1,102 +1,214 @@
-modules: [
-  0, 2132, 2572, 2898
-]
-symbols:
+0:
+  stack:
+    address: 1012
+  main:
+    address: 1012
+  parse_wc:
+    address: 1053
+  load_data.loop:
+    address: 1416
+  load_data.done:
+    address: 1440
+  load_data:
+    address: 1406
+  detect_sections.loop:
+    address: 1477
+  detect_sections.finish_last_section:
+    address: 1600
+  detect_sections.nonzero:
+    address: 1502
+  detect_sections.loop_end:
+    address: 1593
+  detect_sections.finish_section:
+    address: 1515
+  detect_sections.start_section:
+    address: 1542
+  detect_sections.continue_section:
+    address: 1578
+  detect_sections.after_zeros:
+    address: 1589
+  detect_sections.done:
+    address: 1623
+  detect_sections:
+    address: 1451
+  output_object.start:
+    address: 1700
+  output_object.middle:
+    address: 1704
+  output_object:
+    address: 1638
+  char:
+    address: 2124
+  read_spaces.loop:
+    address: 1098
+  read_spaces.done:
+    address: 1110
+  read_spaces:
+    address: 1096
+  read_size.loop:
+    address: 1123
+  read_size.done:
+    address: 1161
+  read_size.invalid:
+    address: 1168
+  read_size.invalid_message:
+    address: 1184
+  read_size:
+    address: 1117
+  read_name.loop:
+    address: 1217
+  read_name.done:
+    address: 1298
+  read_name.loop_end:
+    address: 1293
+  read_name.ext:
+    address: 1271
+  read_name.alnum:
+    address: 1278
+  read_name.invalid:
+    address: 1331
+  read_name.too_long:
+    address: 1347
+  read_name.invalid_message:
+    address: 1363
+  read_name.too_long_message:
+    address: 1384
+  read_name:
+    address: 1203
+  data_size:
+    address: 2129
+  free_memory:
+    address: 2125
+  name_addr:
+    address: 2126
+  name_length:
+    address: 2127
+  data_addr:
+    address: 2128
+  section_addr:
+    address: 2130
+  section_count:
+    address: 2131
+  output_header.sections_loop:
+    address: 1736
+  output_header.sections_done:
+    address: 1833
+  output_header:
+    address: 1715
+  output_data.sections_loop:
+    address: 1846
+  output_data.sections_done:
+    address: 1927
+  output_data.bytes_loop:
+    address: 1885
+  output_data.bytes_done:
+    address: 1920
+  output_data:
+    address: 1840
+  output_exports.image:
+    address: 2092
+  output_exports.count:
+    address: 2100
+  output_exports.header:
+    address: 2108
+  output_exports.data:
+    address: 2117
+  output_exports:
+    address: 1934
+2132:
   print_num:
-    export:
-      module: 2132
-      offset: 0
-    imports:
-      - module: 0
-        offsets: [2084, 1912, 1825, 1808, 1791, 1731]
+    address: 2132
   print_str:
-    export:
-      module: 2132
-      offset: 348
-    imports:
-      - module: 0
-        offsets: [2065, 2050, 2031, 2016, 1997, 1982, 1963, 1948, 1685, 1652, 1361, 1345, 1182]
-  is_alphanum:
-    export:
-      module: 2572
-      offset: 145
-    imports:
-      - module: 0
-        offsets: [1252]
-  __heap_start:
-    export:
-      module: 2898
-      offset: 0
-    imports:
-      - module: 0
-        offsets: [2125]
+    address: 2480
   print_num_2:
-    export:
-      module: 2132
-      offset: 28
-    imports:
+    address: 2160
   print_num_2_b:
-    export:
-      module: 2132
-      offset: 56
-    imports:
+    address: 2188
   print_num_2_w:
-    export:
-      module: 2132
-      offset: 84
-    imports:
+    address: 2216
   print_num_16:
-    export:
-      module: 2132
-      offset: 112
-    imports:
+    address: 2244
   print_num_16_b:
-    export:
-      module: 2132
-      offset: 140
-    imports:
+    address: 2272
   print_num_16_w:
-    export:
-      module: 2132
-      offset: 168
-    imports:
+    address: 2300
   print_num_radix:
-    export:
-      module: 2132
-      offset: 196
-    imports:
+    address: 2328
   print_str_as_mem:
-    export:
-      module: 2132
-      offset: 381
-    imports:
+    address: 2513
+  print_num_radix.next_order:
+    address: 2347
+  print_num_radix.digit_ptr_1:
+    address: 2350
+  print_num_radix.finish_order:
+    address: 2366
+  print_num_radix.digit_ptr_2:
+    address: 2399
+  print_num_radix.padding_loop:
+    address: 2382
+  print_num_radix.next_digit:
+    address: 2398
+  print_num_radix.increase:
+    address: 2406
+  print_num_radix.digits:
+    address: 2464
+  print_num_radix.finish:
+    address: 2449
+  print_str.start:
+    address: 2495
+  print_str.loop:
+    address: 2489
+  print_str_as_mem.loop:
+    address: 2519
+  print_str_as_mem.done:
+    address: 2565
+  print_str_as_mem.skip_comma:
+    address: 2535
+2572:
+  is_alphanum:
+    address: 2717
   is_digit:
-    export:
-      module: 2572
-      offset: 0
-    imports:
+    address: 2572
   char_to_digit:
-    export:
-      module: 2572
-      offset: 24
-    imports:
+    address: 2596
   is_alpha:
-    export:
-      module: 2572
-      offset: 107
-    imports:
+    address: 2679
   strcmp:
-    export:
-      module: 2572
-      offset: 202
-    imports:
+    address: 2774
   strcpy:
-    export:
-      module: 2572
-      offset: 256
-    imports:
+    address: 2828
   zeromem:
-    export:
-      module: 2572
-      offset: 295
-    imports:
+    address: 2867
+  is_digit.end:
+    address: 2585
+  char_to_digit.invalid:
+    address: 2668
+  char_to_digit.number:
+    address: 2657
+  char_to_digit.upper_case:
+    address: 2643
+  char_to_digit.lower_case:
+    address: 2650
+  char_to_digit.check_radix:
+    address: 2661
+  char_to_digit.end:
+    address: 2672
+  is_alpha.end:
+    address: 2706
+  is_alphanum.end:
+    address: 2767
+  strcmp.loop:
+    address: 2780
+  strcmp.done:
+    address: 2813
+  strcpy.loop:
+    address: 2834
+  strcpy.done:
+    address: 2860
+  zeromem.loop:
+    address: 2869
+  zeromem.done:
+    address: 2891
+2898:
+  __heap_start:
+    address: 2898

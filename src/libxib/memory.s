@@ -224,7 +224,7 @@ print_mem_internal:
     add 1, 0, [rb + first]
 
     add [rb + head], 0, [rb + buffer]
-    jz  [rb + head], .done
+    jz  [rb + buffer], .done
 
 .block:
     add 1, 0, [rb + index]

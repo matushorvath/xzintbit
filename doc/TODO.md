@@ -1,7 +1,3 @@
-- Compiler should optionally store all symbols in the .o file, not just exported/imported.
-  This would be used for debugging purposes. Linker should then store those symbols in the map.
-- Handle frame symbols somehow, pass them through the .o file into the map, for debugging.
-
 - Support exportable .SYMBOL that will not be relocated?
 
 - Optimize ret: Usually this generates two 'arb' at the end of each function.
