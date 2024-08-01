@@ -1,5 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -8,11 +6,9 @@
 #ifdef _WIN32
 #   include <fcntl.h>
 #   include <io.h>
-#endif
+#endif // _WIN32
 
-#ifndef WIN32
-#   include <signal.h>
-#endif
+#include "profile.h"
 
 int *mem = NULL;
 int mem_size = 0;
@@ -20,57 +16,17 @@ int mem_size = 0;
 int ip = 0;
 int rb = 0;
 
-int *profile = NULL;
-int profile_size = 0;
-
-bool trigger_save_profile = false;
-bool trigger_interrupt = false;
-
-void parse_command_line(int argc, char **argv, char **program_name, bool *option_profile) {
-    *option_profile = false;
+void parse_command_line(int argc, char **argv, char **program_name, bool *enable_profile) {
+    *enable_profile = false;
     *program_name = NULL;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-p") == 0) {
-            *option_profile = true;
+            *enable_profile = true;
         } else {
             *program_name = argv[i];
         }
     }
-}
-
-#ifndef _WIN32
-
-void handle_sigusr1(int signal) {
-    trigger_save_profile = true;
-}
-
-void handle_sigint(int signal) {
-    trigger_save_profile = true;
-    trigger_interrupt = true;
-}
-
-#endif
-
-void save_profile(char *program_name) {
-    char profile_name[256];
-    sprintf(profile_name, "%s.profile.yaml", program_name);
-
-    FILE *fprofile = fopen(profile_name, "wt");
-
-    for (int i = 0; i < mem_size; i++) {
-        if (profile[i] != 0) {
-            fprintf(fprofile, "%i: %i\n", i, profile[i]);
-        }
-    }
-
-    fclose(fprofile);
-
-    free(profile);
-
-    profile_size = 64;
-    profile = (int *)malloc(profile_size * sizeof(int));
-    memset(profile, 0, profile_size * sizeof(int));
 }
 
 void resize_mem(int addr) {
@@ -81,12 +37,7 @@ void resize_mem(int addr) {
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
     }
 
-    if (profile != NULL && addr >= profile_size) {
-        int old_profile_size = profile_size;
-        while (addr >= profile_size) profile_size <<= 1;
-        profile = (int *)realloc(profile, profile_size * sizeof(int));
-        memset(profile + old_profile_size, 0, (profile_size - old_profile_size) * sizeof(int));
-    }
+    resize_profile(addr);
 }
 
 int get_mem(int addr) {
@@ -193,24 +144,7 @@ void run(char *program_name, int (*get_input)(), void (*set_output)(int)) {
                 exit(1);
         }
 
-        if (profile != NULL) {
-            profile[ip]++;
-
-            if (trigger_save_profile) {
-                trigger_save_profile = false;
-                save_profile(program_name);
-            }
-
-            if (trigger_interrupt) {
-                trigger_interrupt = false;
-
-                struct sigaction act = {};
-                act.sa_handler = SIG_DFL;
-                sigaction(SIGINT, &act, NULL);
-
-                raise(SIGINT);
-            }
-        }
+        update_profile(ip, program_name);
     }
 }
 
@@ -227,28 +161,18 @@ int main(int argc, char **argv) {
 #ifdef _WIN32
     _setmode(_fileno(stdin), _O_BINARY);
     _setmode(_fileno(stdout), _O_BINARY);
-#endif
+#endif // _WIN32
 
-#ifndef _WIN32
-    struct sigaction act = {};
-    act.sa_handler = &handle_sigusr1;
-    sigaction(SIGUSR1, &act, NULL);
-    act.sa_handler = &handle_sigint;
-    sigaction(SIGINT, &act, NULL);
-#endif
+    char *program_name;
+    bool enable_profile;
+    parse_command_line(argc, argv, &program_name, &enable_profile);
 
     mem_size = 64;
     mem = (int*)malloc(mem_size * sizeof(int));
     memset(mem, 0, mem_size * sizeof(int));
 
-    char *program_name;
-    bool option_profile;
-    parse_command_line(argc, argv, &program_name, &option_profile);
-
-    if (option_profile) {
-        profile_size = 64;
-        profile = (int *)malloc(profile_size * sizeof(int));
-        memset(profile, 0, profile_size * sizeof(int));
+    if (enable_profile) {
+        init_profile();
     }
 
     FILE *input = fopen(program_name, "rt");
@@ -267,9 +191,7 @@ int main(int argc, char **argv) {
 
     run(program_name, get_input, set_output);
 
-    if (profile != NULL) {
-        save_profile(program_name);
-    }
+    save_profile(program_name);
 
     return 0;
 }
