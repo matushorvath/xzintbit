@@ -39,8 +39,8 @@ struct termios orig_attr;
 
 void restore_terminal(void) {
     if (isatty(STDOUT_FILENO)) {
-        write(STDOUT_FILENO, TERM_SHOW_CURSOR, STRLEN(TERM_SHOW_CURSOR));
-        write(STDOUT_FILENO, TERM_RESET_ATTR, STRLEN(TERM_RESET_ATTR));
+        (void)!write(STDOUT_FILENO, TERM_SHOW_CURSOR, STRLEN(TERM_SHOW_CURSOR));
+        (void)!write(STDOUT_FILENO, TERM_RESET_ATTR, STRLEN(TERM_RESET_ATTR));
     }
 
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_attr);
