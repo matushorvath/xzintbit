@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -8,6 +10,11 @@
 #   include <io.h>
 #endif
 
+#if __has_include(<signal.h>)
+#   include <signal.h>
+#   define USE_SIGNALS
+#endif
+
 int *mem = NULL;
 int mem_size = 0;
 
@@ -15,6 +22,8 @@ int ip = 0;
 int rb = 0;
 
 int *profile = NULL;
+int profile_size = 0;
+bool trigger_save_profile = false;
 
 void parse_command_line(int argc, char **argv, char **program_name, bool *option_profile) {
     *option_profile = false;
@@ -29,17 +38,44 @@ void parse_command_line(int argc, char **argv, char **program_name, bool *option
     }
 }
 
+void handle_sigusr1(int) {
+    trigger_save_profile = true;
+}
+
+void save_profile(char *program_name) {
+    char profile_name[256];
+    sprintf(profile_name, "%s.profile.yaml", program_name);
+
+    FILE *fprofile = fopen(profile_name, "wt");
+
+    for (int i = 0; i < mem_size; i++) {
+        if (profile[i] != 0) {
+            fprintf(fprofile, "%i: %i\n", i, profile[i]);
+        }
+    }
+
+    fclose(fprofile);
+
+    free(profile);
+
+    profile_size = 64;
+    profile = (int *)malloc(profile_size * sizeof(int));
+    memset(profile, 0, profile_size * sizeof(int));
+}
+
 void resize_mem(int addr) {
     if (addr >= mem_size) {
         int old_mem_size = mem_size;
         while (addr >= mem_size) mem_size <<= 1;
         mem = (int *)realloc(mem, mem_size * sizeof(int));
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
+    }
 
-        if (profile != NULL) {
-            profile = (int *)realloc(profile, mem_size * sizeof(int));
-            memset(profile + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
-        }
+    if (profile != NULL && addr >= profile_size) {
+        int old_profile_size = profile_size;
+        while (addr >= profile_size) profile_size <<= 1;
+        profile = (int *)realloc(profile, profile_size * sizeof(int));
+        memset(profile + old_profile_size, 0, (profile_size - old_profile_size) * sizeof(int));
     }
 }
 
@@ -85,7 +121,7 @@ void set_param(int idx, int val) {
     }
 }
 
-void run(int (*get_input)(), void (*set_output)(int)) {
+void run(char *program_name, int (*get_input)(), void (*set_output)(int)) {
     while (true) {
         int oc = get_mem(ip) % 100;
 
@@ -149,6 +185,11 @@ void run(int (*get_input)(), void (*set_output)(int)) {
 
         if (profile != NULL) {
             profile[ip]++;
+
+            if (trigger_save_profile) {
+                trigger_save_profile = false;
+                save_profile(program_name);
+            }
         }
     }
 }
@@ -162,25 +203,16 @@ void set_output(int val) {
     fflush(stdout);
 }
 
-void save_profile(char *program_name) {
-    char profile_name[256];
-    sprintf(profile_name, "%s.profile.yaml", program_name);
-
-    FILE *fprofile = fopen(profile_name, "wt");
-
-    for (int i = 0; i < mem_size; i++) {
-        if (profile[i] != 0) {
-            fprintf(fprofile, "%i: %i\n", i, profile[i]);
-        }
-    }
-
-    fclose(fprofile);
-}
-
 int main(int argc, char **argv) {
 #ifdef _WIN32
     _setmode(_fileno(stdin), _O_BINARY);
     _setmode(_fileno(stdout), _O_BINARY);
+#endif
+
+#ifdef USE_SIGNALS
+    struct sigaction act = {};
+    act.sa_handler = &handle_sigusr1;
+    sigaction(SIGUSR1, &act, NULL);
 #endif
 
     mem_size = 64;
@@ -192,8 +224,9 @@ int main(int argc, char **argv) {
     parse_command_line(argc, argv, &program_name, &option_profile);
 
     if (option_profile) {
-        profile = (int *)malloc(mem_size * sizeof(int));
-        memset(profile, 0, mem_size * sizeof(int));
+        profile_size = 64;
+        profile = (int *)malloc(profile_size * sizeof(int));
+        memset(profile, 0, profile_size * sizeof(int));
     }
 
     FILE *input = fopen(program_name, "rt");
@@ -210,7 +243,7 @@ int main(int argc, char **argv) {
         set_mem(idx++, num);
     }
 
-    run(get_input, set_output);
+    run(program_name, get_input, set_output);
 
     if (profile != NULL) {
         save_profile(program_name);
