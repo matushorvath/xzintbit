@@ -17,9 +17,10 @@ clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-r
 .PHONY: build-c
 build-c: c/ic
 
-c/ic: c/ic.o c/profile.o
-c/ic.o: c/profile.h
+c/ic: c/ic.o c/profile.o c/terminal.o
+c/ic.o: c/profile.h c/terminal.h
 c/profile.o: c/profile.h
+c/terminal.o: c/terminal.h
 
 .PHONY: clean-c
 clean-c:

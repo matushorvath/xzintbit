@@ -15,10 +15,10 @@
 int *profile = NULL;
 int profile_size = 0;
 
+#ifndef _WIN32
+
 bool trigger_save_profile = false;
 bool trigger_interrupt = false;
-
-#ifndef _WIN32
 
 void handle_sigusr1(int signal) {
     trigger_save_profile = true;

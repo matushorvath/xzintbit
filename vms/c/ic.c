@@ -3,12 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#ifdef _WIN32
-#   include <fcntl.h>
-#   include <io.h>
-#endif // _WIN32
-
 #include "profile.h"
+#include "terminal.h"
 
 int *mem = NULL;
 int mem_size = 0;
@@ -158,11 +154,7 @@ void set_output(int val) {
 }
 
 int main(int argc, char **argv) {
-#ifdef _WIN32
-    _setmode(_fileno(stdin), _O_BINARY);
-    _setmode(_fileno(stdout), _O_BINARY);
-    _setmode(_fileno(stderr), _O_BINARY);
-#endif // _WIN32
+    init_terminal();
 
     char *program_name;
     bool enable_profile;
