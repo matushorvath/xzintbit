@@ -38,7 +38,7 @@ void parse_command_line(int argc, char **argv, char **program_name, bool *option
     }
 }
 
-void handle_sigusr1(int) {
+void handle_sigusr1(int signal) {
     trigger_save_profile = true;
 }
 
