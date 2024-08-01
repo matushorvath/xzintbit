@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 #ifndef WIN32
 #   include <signal.h>
@@ -44,12 +45,22 @@ void init_profile(void) {
 #endif // _WIN32
 }
 
+char *get_profile_name(char *program_name) {
+    static char profile_name[256];
+
+    time_t t = time(NULL);
+    struct tm tm = {};
+    localtime_r(&t, &tm);
+
+    sprintf(profile_name, "%s.%02i%02i%02i.%02i%02i%02i.profile.yaml",
+        program_name, tm.tm_year - 100, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+    return profile_name;
+}
+
 void save_profile(char *program_name) {
     if (profile != NULL) {
-        char profile_name[256];
-        sprintf(profile_name, "%s.profile.yaml", program_name);
-
-        FILE *fprofile = fopen(profile_name, "wt");
+        FILE *fprofile = fopen(get_profile_name(program_name), "wt");
 
         for (int i = 0; i < profile_size; i++) {
             if (profile[i] != 0) {
