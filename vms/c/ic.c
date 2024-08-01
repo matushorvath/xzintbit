@@ -22,7 +22,9 @@ int rb = 0;
 
 int *profile = NULL;
 int profile_size = 0;
+
 bool trigger_save_profile = false;
+bool trigger_interrupt = false;
 
 void parse_command_line(int argc, char **argv, char **program_name, bool *option_profile) {
     *option_profile = false;
@@ -37,9 +39,18 @@ void parse_command_line(int argc, char **argv, char **program_name, bool *option
     }
 }
 
+#ifndef _WIN32
+
 void handle_sigusr1(int signal) {
     trigger_save_profile = true;
 }
+
+void handle_sigint(int signal) {
+    trigger_save_profile = true;
+    trigger_interrupt = true;
+}
+
+#endif
 
 void save_profile(char *program_name) {
     char profile_name[256];
@@ -189,6 +200,16 @@ void run(char *program_name, int (*get_input)(), void (*set_output)(int)) {
                 trigger_save_profile = false;
                 save_profile(program_name);
             }
+
+            if (trigger_interrupt) {
+                trigger_interrupt = false;
+
+                struct sigaction act = {};
+                act.sa_handler = SIG_DFL;
+                sigaction(SIGINT, &act, NULL);
+
+                raise(SIGINT);
+            }
         }
     }
 }
@@ -212,6 +233,8 @@ int main(int argc, char **argv) {
     struct sigaction act = {};
     act.sa_handler = &handle_sigusr1;
     sigaction(SIGUSR1, &act, NULL);
+    act.sa_handler = &handle_sigint;
+    sigaction(SIGINT, &act, NULL);
 #endif
 
     mem_size = 64;
