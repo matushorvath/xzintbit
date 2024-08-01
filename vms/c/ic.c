@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "profile.h"
+#include "signals.h"
 #include "terminal.h"
 
 int *mem = NULL;
@@ -78,7 +79,7 @@ void set_param(int idx, int val) {
     }
 }
 
-void run(char *program_name, int (*get_input)(), void (*set_output)(int)) {
+void run(int (*get_input)(), void (*set_output)(int)) {
     while (true) {
         int oc = get_mem(ip) % 100;
 
@@ -140,7 +141,8 @@ void run(char *program_name, int (*get_input)(), void (*set_output)(int)) {
                 exit(1);
         }
 
-        update_profile(ip, program_name);
+        update_profile(ip);
+        handle_signals();
     }
 }
 
@@ -154,6 +156,7 @@ void set_output(int val) {
 }
 
 int main(int argc, char **argv) {
+    init_signals();
     init_terminal();
 
     char *program_name;
@@ -165,7 +168,7 @@ int main(int argc, char **argv) {
     memset(mem, 0, mem_size * sizeof(int));
 
     if (enable_profile) {
-        init_profile();
+        init_profile(program_name);
     }
 
     FILE *input = fopen(program_name, "rt");
@@ -182,9 +185,9 @@ int main(int argc, char **argv) {
         set_mem(idx++, num);
     }
 
-    run(program_name, get_input, set_output);
+    run(get_input, set_output);
 
-    save_profile(program_name);
+    save_profile();
 
     return 0;
 }
