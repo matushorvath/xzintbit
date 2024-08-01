@@ -10,9 +10,8 @@
 #   include <io.h>
 #endif
 
-#if __has_include(<signal.h>)
+#ifndef WIN32
 #   include <signal.h>
-#   define USE_SIGNALS
 #endif
 
 int *mem = NULL;
@@ -209,7 +208,7 @@ int main(int argc, char **argv) {
     _setmode(_fileno(stdout), _O_BINARY);
 #endif
 
-#ifdef USE_SIGNALS
+#ifndef _WIN32
     struct sigaction act = {};
     act.sa_handler = &handle_sigusr1;
     sigaction(SIGUSR1, &act, NULL);
