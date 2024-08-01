@@ -16,7 +16,10 @@ clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-r
 # Intcode VM in C
 .PHONY: build-c
 build-c: c/ic
-c/ic: c/ic.o
+
+c/ic: c/ic.o c/profile.o
+c/ic.o: c/profile.h
+c/profile.o: c/profile.h
 
 .PHONY: clean-c
 clean-c:
