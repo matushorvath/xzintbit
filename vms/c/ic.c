@@ -3,6 +3,11 @@
 #include <stdbool.h>
 #include <string.h>
 
+#ifdef _WIN32
+#   include <fcntl.h>
+#   include <io.h>
+#endif // _WIN32
+
 int *mem = NULL;
 int mem_size = 0;
 
