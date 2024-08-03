@@ -104,32 +104,19 @@ void set_param(int idx, int val) {
 }
 
 int is_feature(int id) {
-    switch (id) {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 99:
-        case 10:
-        case 13:
-            return 1;
-        default:
-            return 0;
-    }
+    return (id >= 1 && id <= 9) || id == 99 || id == 10 || id == 13;
 }
 
 int get_input() {
+    // TODO fix sync input under extended vm (currently it doesn't block, just returns -1 like async)
+    // TODO likely caused by attr.c_cc[VTIME] in terminal.c
+    // TODO also think how to automatically test that (perhaps with a pipe for stdin and a delay between inputs?)
     return getc(stdin);
 }
 
 int get_input_async() {
-    // TODO implement async input
-    return getc(stdin);
+    int ch = getc(stdin);
+    return ch == EOF ? -1 : ch;
 }
 
 void set_output(int val) {
