@@ -1,4 +1,4 @@
 #!/bin/sh
 
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)";
-$SCRIPT_DIR/ic -e $@
+$SCRIPT_DIR/ic -s $@

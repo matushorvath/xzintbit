@@ -18,13 +18,13 @@ int extended = false;
 void parse_command_line(int argc, char **argv, char **program_name, bool *enable_profile, bool *enable_extended) {
     *program_name = NULL;
     *enable_profile = false;
-    *enable_extended = false;
+    *enable_extended = true;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-p") == 0) {
             *enable_profile = true;
-        } else if (strcmp(argv[i], "-e") == 0) {
-            *enable_extended = true;
+        } else if (strcmp(argv[i], "-s") == 0) {
+            *enable_extended = false;
         } else {
             *program_name = argv[i];
         }

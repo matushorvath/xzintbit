@@ -49,6 +49,3 @@ extended_msg:
 stack:
 
 .EOF
-
-# TODO create a Makefile to test this with an extended VM
-# ~/intcode/xzintbit/vms/c/ic test/extended_vm/bin/extended_vm.input
