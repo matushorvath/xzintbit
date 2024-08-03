@@ -5,27 +5,35 @@ DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
 export GOFLAGS
 
 .PHONY: build
-build: build-apl build-c build-cs build-cl build-go build-js build-js-fn build-rust
+build: build-apl build-c build-c-ext build-cs build-cl build-go build-js build-js-fn build-rust
 
 .PHONY: build-fast
-build-fast: build-c build-cs build-cl build-go build-js build-rust
+build-fast: build-c build-c-ext build-cs build-cl build-go build-js build-rust
 
 .PHONY: clean
-clean: clean-apl clean-c clean-cs clean-cl clean-go clean-js clean-js-fn clean-rust
+clean: clean-apl clean-c clean-c-ext clean-cs clean-cl clean-go clean-js clean-js-fn clean-rust
 
 # Intcode VM in C
 .PHONY: build-c
 build-c: c/ic
 
-c/ic: c/ic.o c/profile.o c/signals.o c/terminal.o
-c/ic.o: c/profile.h c/signals.h c/terminal.h
-c/profile.o: c/profile.h
-c/signals.o: c/signals.h c/profile.h c/terminal.h
-c/terminal.o: c/terminal.h
-
 .PHONY: clean-c
 clean-c:
 	rm -rf c/ic c/ic.exe c/*.o
+
+# Extended intcode VM in C
+.PHONY: build-c-ext
+build-c-ext: c-ext/ic
+
+c-ext/ic: c-ext/ic.o c-ext/profile.o c-ext/signals.o c-ext/terminal.o
+c-ext/ic.o: c-ext/profile.h c-ext/signals.h c-ext/terminal.h
+c-ext/profile.o: c-ext/profile.h
+c-ext/signals.o: c-ext/signals.h c-ext/profile.h c-ext/terminal.h
+c-ext/terminal.o: c-ext/terminal.h
+
+.PHONY: clean-c-ext
+clean-c-ext:
+	rm -rf c-ext/ic c-ext/ic.exe c-ext/*.o
 
 # Intcode VM in Go
 .PHONY: build-go

@@ -8,6 +8,7 @@ local.*
 !/vms/js-fn/ic
 /vms/*/ic.exe
 /vms/c/*.o
+/vms/c-ext/*.o
 /vms/cs/bin
 /vms/cs/obj
 /vms/rust/target
