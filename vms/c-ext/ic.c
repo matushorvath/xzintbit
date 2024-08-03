@@ -105,6 +105,7 @@ void set_param(int idx, int val) {
 
 int is_feature(int id) {
     switch (id) {
+        case 10: return 1;
         case 13: return 1;
         default: return 0;
     }
