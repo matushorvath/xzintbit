@@ -15,14 +15,25 @@ extended_init:
 
 ftr0_ok:
     add -42, 0, [res]
-    # ftr 4, [res], should be 0
-    db  110, 4, res
-    jz  [res], ftr4_ok
+    # ftr 66, [res], should be 0
+    db  110, 66, res
+    jz  [res], ftr66_ok
 
-    out '4'
+    out '6'
+    out '6'
     hlt
 
-ftr4_ok:
+ftr66_ok:
+    add -42, 0, [res]
+    # ftr 7, [res], should be 1
+    db  110, 7, res
+    eq  [res], 1, [tmp]
+    jnz [tmp], ftr7_ok
+
+    out '7'
+    hlt
+
+ftr7_ok:
     add -42, 0, [res]
     # ftr 10, [res], should be 1
     db  110, 10, res
