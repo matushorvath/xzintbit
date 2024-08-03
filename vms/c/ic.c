@@ -13,17 +13,41 @@ int mem_size = 0;
 int ip = 0;
 int rb = 0;
 
-void parse_command_line(int argc, char **argv, char **program_name, bool *enable_profile) {
-    *enable_profile = false;
+int extended = false;
+
+void parse_command_line(int argc, char **argv, char **program_name, bool *enable_profile, bool *enable_extended) {
     *program_name = NULL;
+    *enable_profile = false;
+    *enable_extended = false;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-p") == 0) {
             *enable_profile = true;
+        } else if (strcmp(argv[i], "-e") == 0) {
+            *enable_extended = true;
         } else {
             *program_name = argv[i];
         }
     }
+}
+
+void init_extended_vm(void) {
+    extended = false;
+
+    // Check whether 'jnz 0, addr' is the first instruction
+    if (mem_size < 3 || mem[0] != 1105 || mem[1] != 0) {
+        return;
+    }
+
+    // Check if the extended starting address is valid
+    int address = mem[2];
+    if (address < 0 || address >= mem_size) {
+        return;
+    }
+
+    // Use the extended starting address instead of 0
+    extended = true;
+    ip = address;
 }
 
 void resize_mem(int addr) {
@@ -79,7 +103,28 @@ void set_param(int idx, int val) {
     }
 }
 
-void run(int (*get_input)(), void (*set_output)(int)) {
+int is_feature(int id) {
+    switch (id) {
+        case 13: return 1;
+        default: return 0;
+    }
+}
+
+int get_input() {
+    return getc(stdin);
+}
+
+int get_input_async() {
+    // TODO implement async input
+    return getc(stdin);
+}
+
+void set_output(int val) {
+    putc(val, stdout);
+    fflush(stdout);
+}
+
+void run() {
     while (true) {
         int oc = get_mem(ip) % 100;
 
@@ -136,6 +181,20 @@ void run(int (*get_input)(), void (*set_output)(int)) {
                 break;
             case 99: // hlt
                 return;
+            case 10: // ftr
+                if (extended) {
+                    // ftr ftrid, [dst]: set [dst] to 1 if feature ftrid is supported
+                    set_param(1, is_feature(get_param(0)) ? 1 : 0);
+                    ip += 3;
+                    break;
+                }
+            case 13: // ina
+                if (extended) {
+                    // ina [dst]: asynchronous input, read a character if available, otherwise set [dst] to -1
+                    set_param(0, get_input_async());
+                    ip += 2;
+                    break;
+                }
             default:
                 fprintf(stderr, "opcode error: ip %d oc %d\n", ip, oc);
                 exit(1);
@@ -146,30 +205,10 @@ void run(int (*get_input)(), void (*set_output)(int)) {
     }
 }
 
-int get_input() {
-    return getc(stdin);
-}
-
-void set_output(int val) {
-    putc(val, stdout);
-    fflush(stdout);
-}
-
-int main(int argc, char **argv) {
-    init_signals();
-    init_terminal();
-
-    char *program_name;
-    bool enable_profile;
-    parse_command_line(argc, argv, &program_name, &enable_profile);
-
+void load_binary(char *program_name) {
     mem_size = 64;
     mem = (int*)malloc(mem_size * sizeof(int));
     memset(mem, 0, mem_size * sizeof(int));
-
-    if (enable_profile) {
-        init_profile(program_name);
-    }
 
     FILE *input = fopen(program_name, "rt");
 
@@ -184,8 +223,27 @@ int main(int argc, char **argv) {
         }
         set_mem(idx++, num);
     }
+}
 
-    run(get_input, set_output);
+int main(int argc, char **argv) {
+    char *program_name;
+    bool enable_profile, enable_extended;
+    parse_command_line(argc, argv, &program_name, &enable_profile, &enable_extended);
+
+    load_binary(program_name);
+
+    if (enable_extended) {
+        init_extended_vm();
+    }
+
+    init_terminal(extended);
+    init_signals();
+
+    if (enable_profile) {
+        init_profile(program_name);
+    }
+
+    run();
 
     save_profile();
 
