@@ -1,4 +1,4 @@
-import { Vm } from './vm.js';
+import { NoMoreInputsError, Vm } from './vm.js';
 import { writeStreamAndWait } from './util.js';
 import yaml from 'yaml';
 import fs from 'node:fs/promises';
@@ -81,6 +81,10 @@ const main = async () => {
             await writeStreamAndWait(process.stdout, String.fromCharCode(char));
         }
     } catch (error) {
+        if (error instanceof NoMoreInputsError) {
+            process.stderr.write('no more inputs\n');
+            process.exit(1);
+        }
         process.stderr.write(error.toString());
     }
 };
