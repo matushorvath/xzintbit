@@ -29,7 +29,7 @@ test-prep:
 	rm -rf $(BINDIR) $(OBJDIR)
 	mkdir -p $(BINDIR) $(OBJDIR)
 
-$(BINDIR)/%.stdout: $(BINDIR)/%.input %.stdin
+$(BINDIR)/%.stdout: $(BINDIR)/%.input
 	printf '$(NAME): processing stdin ' >> $(TESTLOG)
 	$(run-intcode-vm) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
