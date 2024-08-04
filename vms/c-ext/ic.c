@@ -1,3 +1,23 @@
+// test standard behavior:
+// ICVM=~/intcode/xzintbit/vms/c-ext/ics make test
+
+// test extended behavior:
+// ICVM_TYPE=c-ext make test
+
+// test manually with a real console:
+//
+// ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_in/bin/extended_vm_in.input
+// (press A B C, it should wait forever for next character)
+//
+// echo -n ABC | ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_in/bin/extended_vm_in.input
+// (should print "no more inputs" to stderr and exit)
+//
+// ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_ina/bin/extended_vm_ina.input
+// (should immediately print "fail" and exit)
+//
+// echo -n ABC | ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_ina/bin/extended_vm_ina.input
+// (should print "OK" and exit)
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -108,13 +128,18 @@ int is_feature(int id) {
 }
 
 int get_input() {
-    // TODO fix sync input under extended vm (currently it doesn't block, just returns -1 like async)
-    // TODO likely caused by attr.c_cc[VTIME] in terminal.c
-    // TODO also think how to automatically test that (perhaps with a pipe for stdin and a delay between inputs?)
+    if (extended) {
+        set_read_sync();
+    }
+
     return getc(stdin);
 }
 
 int get_input_async() {
+    if (extended) {
+        set_read_async();
+    }
+
     int ch = getc(stdin);
     return ch == EOF ? -1 : ch;
 }

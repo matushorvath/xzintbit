@@ -35,6 +35,14 @@ void init_terminal(bool extended) {
     }
 }
 
+void set_read_sync(void) {
+    # TODO sync/async read on Windows
+}
+
+void set_read_async(void) {
+    # TODO sync/async read on Windows
+}
+
 #else // _WIN32
 
 struct termios orig_attr;
@@ -58,11 +66,31 @@ void init_terminal(bool extended) {
         attr.c_oflag &= ~(OPOST);
         attr.c_cflag |= (CS8);
         attr.c_lflag &= ~(ECHO | ICANON | IEXTEN); // keep ISIG for Ctrl+C, Ctrl+Z
-        attr.c_cc[VMIN] = 0;
-        attr.c_cc[VTIME] = 1;
 
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr);
     }
+}
+
+void set_read_sync(void) {
+    struct termios attr = {};
+
+    tcgetattr(STDIN_FILENO, &attr);
+
+    attr.c_cc[VMIN] = orig_attr.c_cc[VMIN];
+    attr.c_cc[VTIME] = orig_attr.c_cc[VTIME];
+
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr);
+}
+
+void set_read_async(void) {
+    struct termios attr = {};
+
+    tcgetattr(STDIN_FILENO, &attr);
+
+    attr.c_cc[VMIN] = 0;
+    attr.c_cc[VTIME] = 1;
+
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr);
 }
 
 #endif // _WIN32
