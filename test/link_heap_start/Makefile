@@ -1,3 +1,3 @@
 include ../test.mk
 
-test: test-prep $(BINDIR)/$(NAME).txt
+test: test-prep $(BINDIR)/$(NAME).stdout

@@ -30,11 +30,6 @@ test-prep:
 	mkdir -p $(BINDIR) $(OBJDIR)
 
 $(BINDIR)/%.stdout: $(BINDIR)/%.input
-	printf '$(NAME): processing stdin ' >> $(TESTLOG)
-	$(run-intcode-vm) ; true
-	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
-
-$(BINDIR)/%.txt: $(BINDIR)/%.input
 	printf '$(NAME): executing ' >> $(TESTLOG)
 	$(run-intcode-vm) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
