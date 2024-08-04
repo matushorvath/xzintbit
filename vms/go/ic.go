@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -118,6 +118,10 @@ func run(getInput func() (int, error), setOutput func(int) error) error {
 
 		case 3: // in
 			value, err := getInput()
+			if (err == io.EOF) {
+				os.Stderr.WriteString("no more inputs\n")
+				os.Exit(1)
+			}
 			if err != nil {
 				return err
 			}
@@ -134,6 +138,9 @@ func run(getInput func() (int, error), setOutput func(int) error) error {
 				return err
 			}
 			err = setOutput(p[0])
+			if err != nil {
+				return err
+			}
 			ip += 2
 
 		case 5: // jnz
@@ -194,7 +201,7 @@ func setOutput(value int) error {
 func main() {
 	mem = make([]int, 64)
 
-	f, err := ioutil.ReadFile(os.Args[1])
+	f, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		log.Fatalf("%v\n", err)
 	}
@@ -210,6 +217,6 @@ func main() {
 
 	err = run(getInput, setOutput)
 	if err != nil {
-		log.Fatalf("%v\n", err)
+		log.Fatalf("xxx %v\n", err)
 	}
 }
