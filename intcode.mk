@@ -36,5 +36,5 @@ define run-intcode-bin2obj
 endef
 
 define run-intcode-vm
-	$(ICVM) $< > $@ $(if $(word 2,$^),< $(word 2,$^)) || ( cat $@ ; $(IC_ERROR_RESULT) )
+	$(ICVM) $< > $@ $(if $(ICVM_STDERR),2> $(ICVM_STDERR)) $(if $(word 2,$^),< $(word 2,$^)) || ( cat $@ ; $(IC_ERROR_RESULT) )
 endef

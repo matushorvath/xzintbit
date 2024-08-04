@@ -33,6 +33,10 @@ $(BINDIR)/%.stdout: $(BINDIR)/%.input
 	printf '$(NAME): executing ' >> $(TESTLOG)
 	$(run-intcode-vm) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
+	if [ -n "$(ICVM_STDERR)" ] ; then \
+		printf '$(NAME): checking stderr ' >> $(TESTLOG) ; \
+		../diff-result.sh $(notdir $(ICVM_STDERR)) $(ICVM_STDERR) >> $(TESTLOG) ; \
+	fi
 
 $(BINDIR)/%.input: $(OBJDIR)/%.o
 	printf '$(NAME): linking ' >> $(TESTLOG)
