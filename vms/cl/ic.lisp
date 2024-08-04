@@ -155,4 +155,7 @@
     (princ (code-char val))
 )
 
-(run (car (uiop:command-line-arguments)))
+(handler-case (run (car (uiop:command-line-arguments)))
+    (end-of-file () (format *error-output* "no more inputs~%")
+    )
+)

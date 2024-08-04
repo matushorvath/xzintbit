@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::prelude::*;
+use std::process::exit;
 
 struct Vm {
     ip: usize,
@@ -114,7 +115,16 @@ impl Vm {
 
 fn get_input() -> i32 {
     let mut buf: [u8; 1] = [0];
-    io::stdin().read_exact(&mut buf).expect("no more inputs");
+    match io::stdin().read_exact(&mut buf) {
+        Ok(()) => (),
+        Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => {
+            eprint!("no more inputs\n");
+            exit(1);
+        },
+        Err(e) => {
+            panic!("{}", e);
+        }
+    }
     buf[0] as i32
 }
 

@@ -5,6 +5,11 @@ using System.Linq;
 
 namespace Ic
 {
+    class NoMoreInputsException : Exception
+    {
+        public NoMoreInputsException() {}
+    }
+
     class Vm
     {
         Vm()
@@ -148,7 +153,7 @@ namespace Ic
             var buffer = new char[1];
             if (Console.In.ReadBlock(buffer, 0, 1) == 0)
             {
-                throw new Exception("no more inputs");
+                throw new NoMoreInputsException();
             }
             return buffer[0];
         }
@@ -171,7 +176,14 @@ namespace Ic
                 vm.SetMem(idx++, Convert.ToInt32(item));
             }
 
-            vm.Run(GetInput, SetOutput);
+            try
+            {
+                vm.Run(GetInput, SetOutput);
+            }
+            catch (NoMoreInputsException) {
+                Console.Error.Write("no more inputs\n");
+                Environment.Exit(1);
+            }
         }
     }
 }

@@ -1,5 +1,8 @@
 import { writeStreamAndWait } from './util.js';
 
+export class NoMoreInputsError extends Error {
+};
+
 export class Vm {
     mem = [];
 
@@ -132,7 +135,7 @@ export class Vm {
             case 3: { // in
                 const { value, done } = await ins.next();
                 if (done) {
-                    throw new Error('no more inputs');
+                    throw new NoMoreInputsError();
                 }
                 this.setParam(0, value);
                 this.ip += 2;
