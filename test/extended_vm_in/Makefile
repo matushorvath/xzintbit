@@ -9,3 +9,4 @@ ifeq ($(ICVM_TYPE),c-ext)
 endif
 
 test: $(TARGETS)
+$(BINDIR)/$(NAME).stdout: $(NAME).stdin
