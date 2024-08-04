@@ -113,17 +113,12 @@ impl Vm {
     }
 }
 
-#[cfg(windows)]
-const ENDL: &'static str = "\r\n";
-#[cfg(not(windows))]
-const ENDL: &'static str = "\n";
-
 fn get_input() -> i32 {
     let mut buf: [u8; 1] = [0];
     match io::stdin().read_exact(&mut buf) {
         Ok(()) => (),
         Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => {
-            eprint!("no more inputs{}", ENDL);
+            eprint!("no more inputs\n");
             exit(1);
         },
         Err(e) => {

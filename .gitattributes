@@ -5,3 +5,4 @@
 *.o text eol=lf
 test/*/*.stdin text eol=lf
 test/*/*.stdout text eol=lf
+test/*/*.stderr text eol=lf

@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 )
@@ -120,11 +119,7 @@ func run(getInput func() (int, error), setOutput func(int) error) error {
 		case 3: // in
 			value, err := getInput()
 			if (err == io.EOF) {
-				endl := "\n"
-				if (runtime.GOOS == "windows") {
-					endl = "\r\n"
-				}
-				os.Stderr.WriteString("no more inputs" + endl)
+				os.Stderr.WriteString("no more inputs\n")
 				os.Exit(1)
 			}
 			if err != nil {

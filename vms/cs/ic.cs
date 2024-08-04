@@ -181,7 +181,7 @@ namespace Ic
                 vm.Run(GetInput, SetOutput);
             }
             catch (NoMoreInputsException) {
-                Console.Error.WriteLine("no more inputs");
+                Console.Error.Write("no more inputs\n");
                 Environment.Exit(1);
             }
         }
