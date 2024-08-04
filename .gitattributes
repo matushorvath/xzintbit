@@ -3,4 +3,5 @@
 *.input.map.yaml text eol=lf
 *.a text eol=lf
 *.o text eol=lf
-test/*/*.txt text eol=lf
+test/*/*.stdin text eol=lf
+test/*/*.stdout text eol=lf
