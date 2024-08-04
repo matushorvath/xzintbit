@@ -8,4 +8,4 @@ ifeq ($(ICVM_TYPE),c-ext)
 	ICVM += -s
 endif
 
-test: test-prep $(BINDIR)/$(NAME).txt
+test: test-prep $(BINDIR)/$(NAME).stdout

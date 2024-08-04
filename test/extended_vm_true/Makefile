@@ -5,7 +5,7 @@ TEST_DIFF_OPTIONAL = 1
 
 # Skip unless running under c-ext IC VM
 ifeq ($(ICVM_TYPE),c-ext)
-	TARGETS = test-prep $(BINDIR)/$(NAME).txt
+	TARGETS = test-prep $(BINDIR)/$(NAME).stdout
 endif
 
 test: $(TARGETS)
