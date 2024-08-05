@@ -31,7 +31,7 @@ test-prep:
 
 $(BINDIR)/%.stdout: $(BINDIR)/%.input
 	printf '$(NAME): executing ' >> $(TESTLOG)
-	$(run-intcode-vm) ; true
+	$(if $(ICVM_GEN_STDIN),$(ICVM_GEN_STDIN) | )$(run-intcode-vm) ; true
 	TEST_DIFF_OPTIONAL=$(TEST_DIFF_OPTIONAL) ../diff-result.sh $(notdir $@) $@ >> $(TESTLOG)
 	if [ -n "$(ICVM_STDERR)" ] ; then \
 		printf '$(NAME): checking stderr ' >> $(TESTLOG) ; \
