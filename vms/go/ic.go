@@ -78,7 +78,11 @@ func binInst(op func(int, int) int) error {
 		return err
 	}
 
-	setParam(2, op(p[0], p[1]))
+	err = setParam(2, op(p[0], p[1]))
+	if err != nil {
+		return err
+	}
+
 	ip += 4
 
 	return nil
