@@ -88,7 +88,7 @@ void set_read_async(void) {
     tcgetattr(STDIN_FILENO, &attr);
 
     attr.c_cc[VMIN] = 0;
-    attr.c_cc[VTIME] = 1;
+    attr.c_cc[VTIME] = 0;
 
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr);
 }
