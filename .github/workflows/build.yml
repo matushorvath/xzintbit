@@ -24,6 +24,10 @@ jobs:
         icvm: [c, cs, go, js, rust]
         include:
           - os: ubuntu-latest
+            icvm: c-ext
+          - os: macOS-latest
+            icvm: c-ext
+          - os: ubuntu-latest
             icvm: cl
 
     steps:
