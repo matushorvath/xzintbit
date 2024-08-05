@@ -11,5 +11,7 @@ ifeq ($(ICVM_TYPE),c-ext)
 	TARGETS = test-prep $(BINDIR)/$(NAME).stdout
 endif
 
+# Use a generator to provide stdin
+ICVM_GEN_STDIN = $(abspath $(NAME).gen-stdin)
+
 test: $(TARGETS)
-$(BINDIR)/$(NAME).stdout: $(NAME).stdin
