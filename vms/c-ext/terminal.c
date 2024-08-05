@@ -91,8 +91,13 @@ int read_async(void) {
     }
 
     if (res == 0 || (fd.revents & POLLIN) == 0 ) {
-        // no data to read
-        return READ_NO_DATA;
+        if ((fd.revents & POLLHUP) != 0) {
+            // end of input
+            return READ_EOF;
+        } else {
+            // no data to read
+            return READ_NO_DATA;
+        }
     }
 
     // read the data

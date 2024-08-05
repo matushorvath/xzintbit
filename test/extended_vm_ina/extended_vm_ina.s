@@ -53,9 +53,12 @@ extended_init:
     eq  [char], 'C', [tmp]
     jz  [tmp], .fail
 
-    out 'O'
-    out 'K'
-    hlt
+.loop_eof:
+    db  13, char                        # ina [char]
+    eq  [char], -1, [tmp]
+    jnz [tmp], .loop_eof
+
+    # expecting the VM to exit in the loop above, with "no more inputs" on stderr
 
 .fail:
     out 'f'
