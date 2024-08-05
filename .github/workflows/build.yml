@@ -21,8 +21,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        icvm: [c, c-ext, cs, go, js, rust]
+        icvm: [c, cs, go, js, rust]
         include:
+          - os: ubuntu-latest
+            icvm: c-ext
+          - os: macOS-latest
+            icvm: c-ext
           - os: ubuntu-latest
             icvm: cl
 
