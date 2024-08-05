@@ -8,35 +8,56 @@ extended_init:
     # read 5 characters using ina [char]
     # there is a delay between the characters, so we will receive some -1 in between
 
+    add 0, 0, [waited]
+
 .loop0:
     db  13, char                        # ina [char]
     eq  [char], -1, [tmp]
-    jnz [tmp], .loop0
+    jz  [tmp], .char0
 
+    add 1, 0, [waited]
+    jz  0, .loop0
+
+.char0:
+    jz  [waited], .fail                 # expect at least one -1 from ina [char]
     eq  [char], 'A', [tmp]
-    jz  [tmp], fail
+    jz  [tmp], .fail
+
+    add 0, 0, [waited]
 
 .loop1:
     db  13, char                        # ina [char]
     eq  [char], -1, [tmp]
-    jnz [tmp], .loop1
+    jz  [tmp], .char1
 
+    add 1, 0, [waited]
+    jz  0, .loop1
+
+.char1:
+    jz  [waited], .fail                 # expect at least one -1 from ina [char]
     eq  [char], 'B', [tmp]
-    jz  [tmp], fail
+    jz  [tmp], .fail
+
+    add 0, 0, [waited]
 
 .loop2:
     db  13, char                        # ina [char]
     eq  [char], -1, [tmp]
-    jnz [tmp], .loop2
+    jz  [tmp], .char2
 
+    add 1, 0, [waited]
+    jz  0, .loop2
+
+.char2:
+    jz  [waited], .fail                 # expect at least one -1 from ina [char]
     eq  [char], 'C', [tmp]
-    jz  [tmp], fail
+    jz  [tmp], .fail
 
     out 'O'
     out 'K'
     hlt
 
-fail:
+.fail:
     out 'f'
     out 'a'
     out 'i'
@@ -44,6 +65,8 @@ fail:
     hlt
 
 char:
+    db  0
+waited:
     db  0
 tmp:
     db  0
