@@ -9,14 +9,8 @@
 // ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_in/bin/extended_vm_in.input
 // (press A B C, it should wait forever for next character)
 //
-// echo -n ABC | ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_in/bin/extended_vm_in.input
-// (should print "no more inputs" to stderr and exit)
-//
 // ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_ina/bin/extended_vm_ina.input
-// (should immediately print "fail" and exit)
-//
-// echo -n ABC | ~/intcode/xzintbit/vms/c-ext/ic test/extended_vm_ina/bin/extended_vm_ina.input
-// (should print "OK" and exit)
+// (press A B C D, should print "fail" after D, not sooner, and exit)
 
 #include <stdlib.h>
 #include <stdio.h>
