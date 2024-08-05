@@ -1,8 +1,8 @@
 #!/bin/sh
 
-sleep 0
-echo -n A
-sleep 0
-echo -n B
-sleep 0
-echo -n C
+/bin/sleep 0
+/bin/echo -n A
+/bin/sleep 0
+/bin/echo -n B
+/bin/sleep 0
+/bin/echo -n C
