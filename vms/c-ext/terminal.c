@@ -7,6 +7,8 @@
 #else
 #   include <termios.h>
 #   include <unistd.h>
+#   include <poll.h>
+#   include <errno.h>
 #endif // _WIN32
 
 #include "terminal.h"
@@ -35,11 +37,11 @@ void init_terminal(bool extended) {
     }
 }
 
-void set_read_sync(void) {
+int read_sync(void) {
     # TODO sync/async read on Windows
 }
 
-void set_read_async(void) {
+int read_async(void) {
     # TODO sync/async read on Windows
 }
 
@@ -71,26 +73,41 @@ void init_terminal(bool extended) {
     }
 }
 
-void set_read_sync(void) {
-    struct termios attr = {};
-
-    tcgetattr(STDIN_FILENO, &attr);
-
-    attr.c_cc[VMIN] = orig_attr.c_cc[VMIN];
-    attr.c_cc[VTIME] = orig_attr.c_cc[VTIME];
-
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr);
+int read_sync(void) {
+    int ch = getc(stdin);
+    return ch == EOF ? READ_EOF : ch;
 }
 
-void set_read_async(void) {
-    struct termios attr = {};
+int read_async(void) {
+    // is there data to read?
+    struct pollfd fd = {};
+    fd.fd = STDIN_FILENO;
+    fd.events = POLLIN;
 
-    tcgetattr(STDIN_FILENO, &attr);
+    int res = poll(&fd, 1, 0);
+    if (res < 0) {
+        fprintf(stderr, "error while waiting for input: %i", errno);
+        exit(1);
+    }
 
-    attr.c_cc[VMIN] = 0;
-    attr.c_cc[VTIME] = 0;
+    if (res == 0 || (fd.revents & POLLIN) == 0 ) {
+        // no data to read
+        return READ_NO_DATA;
+    }
 
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr);
+    // read the data
+    char ch = -1;
+    ssize_t size = read(STDIN_FILENO, &ch, 1);
+    if (size < 0) {
+        fprintf(stderr, "error while reading input: %i", errno);
+        exit(1);
+    }
+
+    if (size == 0) {
+        return READ_EOF;
+    }
+
+    return ch;
 }
 
 #endif // _WIN32

@@ -6,26 +6,30 @@
 
 extended_init:
     # read 5 characters using ina [char]
-    # only 3 characters are available, so last two instructions should return -1
+    # there is a delay between the characters, so we will receive some -1 in between
 
+.loop0:
     db  13, char                        # ina [char]
+    eq  [char], -1, [tmp]
+    jnz [tmp], .loop0
+
     eq  [char], 'A', [tmp]
     jz  [tmp], fail
 
+.loop1:
     db  13, char                        # ina [char]
+    eq  [char], -1, [tmp]
+    jnz [tmp], .loop1
+
     eq  [char], 'B', [tmp]
     jz  [tmp], fail
 
+.loop2:
     db  13, char                        # ina [char]
+    eq  [char], -1, [tmp]
+    jnz [tmp], .loop2
+
     eq  [char], 'C', [tmp]
-    jz  [tmp], fail
-
-    db  13, char                        # ina [char]
-    eq  [char], -1, [tmp]
-    jz  [tmp], fail
-
-    db  13, char                        # ina [char]
-    eq  [char], -1, [tmp]
     jz  [tmp], fail
 
     out 'O'

@@ -128,20 +128,11 @@ int is_feature(int id) {
 }
 
 int get_input() {
-    if (extended) {
-        set_read_sync();
-    }
-
-    return getc(stdin);
+    return read_sync();
 }
 
 int get_input_async() {
-    if (extended) {
-        set_read_async();
-    }
-
-    int ch = getc(stdin);
-    return ch == EOF ? -1 : ch;
+    return read_async();
 }
 
 void set_output(int val) {
@@ -149,7 +140,7 @@ void set_output(int val) {
     fflush(stdout);
 }
 
-void run() {
+int run() {
     while (true) {
         int oc = get_mem(ip) % 100;
 
@@ -164,9 +155,9 @@ void run() {
                 break;
             case 3: { // in
                 int value = get_input();
-                if (value == EOF) {
+                if (value == READ_EOF) {
                     fprintf(stderr, "no more inputs\n");
-                    exit(1);
+                    return 1;
                 }
                 set_param(0, value);
                 ip += 2;
@@ -205,7 +196,7 @@ void run() {
                 ip += 2;
                 break;
             case 99: // hlt
-                return;
+                return 0;
             case 10: // ftr
                 if (extended) {
                     // ftr ftrid, [dst]: set [dst] to 1 if feature ftrid is supported
@@ -216,13 +207,18 @@ void run() {
             case 13: // ina
                 if (extended) {
                     // ina [dst]: asynchronous input, read a character if available, otherwise set [dst] to -1
-                    set_param(0, get_input_async());
+                    int value = get_input_async();
+                    if (value == READ_EOF) {
+                        fprintf(stderr, "no more inputs\n");
+                        return 1;
+                    }
+                    set_param(0, value == READ_NO_DATA ? -1 : value);
                     ip += 2;
                     break;
                 }
             default:
                 fprintf(stderr, "opcode error: ip %d oc %d\n", ip, oc);
-                exit(1);
+                return 1;
         }
 
         update_profile(ip);
@@ -268,9 +264,9 @@ int main(int argc, char **argv) {
         init_profile(program_name);
     }
 
-    run();
+    int result = run();
 
     save_profile();
 
-    return 0;
+    return result;
 }

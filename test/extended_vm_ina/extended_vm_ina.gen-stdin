@@ -1,0 +1,8 @@
+#!/bin/sh
+
+sleep 0
+echo -n A
+sleep 0
+echo -n B
+sleep 0
+echo -n C
