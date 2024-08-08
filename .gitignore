@@ -19,4 +19,6 @@ local.*
 /test/*/bin
 /test/*/obj
 /test/test.log
+/tools/get_key/bin
+/tools/get_key/obj
 node_modules
