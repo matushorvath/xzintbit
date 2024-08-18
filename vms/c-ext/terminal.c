@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <fcntl.h>
 
 #ifdef _WIN32
+#   include <fcntl.h>
 #   include <io.h>
 #else
 #   include <termios.h>
 #   include <unistd.h>
+#   include <poll.h>
 #   include <errno.h>
 #endif // _WIN32
 
@@ -59,8 +60,6 @@ void restore_terminal(void) {
 
 void init_terminal(bool extended) {
     if (extended) {
-        fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK);
-
         tcgetattr(STDIN_FILENO, &orig_attr);
         atexit(&restore_terminal);
 
@@ -80,14 +79,31 @@ int read_sync(void) {
 }
 
 int read_async(void) {
-    char ch = -1;
-    ssize_t size = read(STDIN_FILENO, &ch, 1);
+    // is there data to read?
+    struct pollfd fd = {};
+    fd.fd = STDIN_FILENO;
+    fd.events = POLLIN;
 
-    if (size < 0) {
-        if (errno == EAGAIN) {
+    int res = poll(&fd, 1, 0);
+    if (res < 0) {
+        fprintf(stderr, "error while waiting for input: %i", errno);
+        exit(1);
+    }
+
+    if (res == 0 || (fd.revents & POLLIN) == 0 ) {
+        if ((fd.revents & POLLHUP) != 0) {
+            // end of input
+            return READ_EOF;
+        } else {
+            // no data to read
             return READ_NO_DATA;
         }
+    }
 
+    // read the data
+    char ch = -1;
+    ssize_t size = read(STDIN_FILENO, &ch, 1);
+    if (size < 0) {
         fprintf(stderr, "error while reading input: %i", errno);
         exit(1);
     }
