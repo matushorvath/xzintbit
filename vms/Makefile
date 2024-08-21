@@ -1,4 +1,7 @@
-CFLAGS = -O3 -Wall -Werror -std=c11
+CFLAGS ?= -O3
+CFLAGS += -Wall -Werror -std=c11
+
+LDFLAGS ?= -O3
 
 DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
 

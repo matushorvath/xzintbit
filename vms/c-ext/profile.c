@@ -57,17 +57,15 @@ void save_profile(void) {
     }
 }
 
-void resize_profile(int addr) {
-    if (profile != NULL && addr >= profile_size) {
-        int old_profile_size = profile_size;
-        while (addr >= profile_size) profile_size <<= 1;
-        profile = (int *)realloc(profile, profile_size * sizeof(int));
-        memset(profile + old_profile_size, 0, (profile_size - old_profile_size) * sizeof(int));
-    }
-}
-
-void update_profile(int ip) {
+void update_profile(int addr) {
     if (profile != NULL) {
-        profile[ip]++;
+        if (addr >= profile_size) {
+            int old_profile_size = profile_size;
+            while (addr >= profile_size) profile_size <<= 1;
+            profile = (int *)realloc(profile, profile_size * sizeof(int));
+            memset(profile + old_profile_size, 0, (profile_size - old_profile_size) * sizeof(int));
+        }
+
+        profile[addr]++;
     }
 }
