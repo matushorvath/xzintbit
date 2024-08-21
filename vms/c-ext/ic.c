@@ -71,8 +71,6 @@ void resize_mem(int addr) {
         mem = (int *)realloc(mem, mem_size * sizeof(int));
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
     }
-
-    resize_profile(addr);
 }
 
 int get_mem(int addr) {
