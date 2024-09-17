@@ -8,13 +8,13 @@ DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
 export GOFLAGS
 
 .PHONY: build
-build: build-apl build-c build-c-ext build-cl build-cs build-go build-js build-js-fn build-rust
+build: build-apl build-c build-c-ext build-cl build-cobol build-cs build-go build-js build-js-fn build-rust
 
 .PHONY: build-fast
-build-fast: build-c build-c-ext build-cl build-cs build-go build-js build-rust
+build-fast: build-c build-c-ext build-cl build-cobol build-cs build-go build-js build-rust
 
 .PHONY: clean
-clean: clean-apl clean-c clean-c-ext clean-cl clean-cs clean-go clean-js clean-js-fn clean-rust
+clean: clean-apl clean-c clean-c-ext clean-cl clean-cobol clean-cs clean-go clean-js clean-js-fn clean-rust
 
 # Intcode VM in APL
 .PHONY: build-apl
@@ -54,6 +54,16 @@ cl/ic: cl/ic.lisp
 .PHONY: clean-cl
 clean-cl:
 	rm -rf cl/ic
+
+# Intcode VM in Cobol
+.PHONY: build-cobol
+build-cobol: cobol/ic
+cobol/ic: cobol/ic.cob
+	cobc -O3 -x $^ -o $@
+
+.PHONY: clean-cobol
+clean-cobol:
+	rm -rf cobol/ic
 
 # Intcode VM in C#
 .PHONY: build-cs
