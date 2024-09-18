@@ -1,6 +1,24 @@
-000100* HELLO.COB GnuCOBOL example
-000200 IDENTIFICATION DIVISION.
-000300 PROGRAM-ID. hello.
-000400 PROCEDURE DIVISION.
-000500     DISPLAY "Hello, world!".
-000600     STOP RUN.
+000001 IDENTIFICATION DIVISION.
+000002 PROGRAM-ID. Intcode-Virtual-Machine.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT input-file
+               ASSIGN TO KEYBOARD
+               ORGANIZATION IS BINARY SEQUENTIAL.
+      *    SELECT output-file
+      *        ASSIGN TO DISPLAY
+      *        ORGANIZATION IS BINARY SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD input-file.
+      *    RECORD IS 1 CHARACTERS.
+       01  val PICTURE X(1).
+      *FD output-file
+      *01  val.
+
+       PROCEDURE DIVISION.
+           DISPLAY "Hello, world!".
+           STOP RUN.
