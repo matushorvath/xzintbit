@@ -59,7 +59,7 @@ clean-cl:
 .PHONY: build-cobol
 build-cobol: cobol/ic
 cobol/ic: cobol/ic.cob
-	cobc -O3 -Wall -x $^ -o $@
+	cobc -O3 -std=cobol85 -Wall -x $^ -o $@
 
 .PHONY: clean-cobol
 clean-cobol:
