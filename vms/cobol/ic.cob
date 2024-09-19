@@ -5,9 +5,9 @@
 
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-      *     SELECT output-file
-      *         ASSIGN TO DISPLAY
-      *         ORGANIZATION IS BINARY SEQUENTIAL.
+           SELECT output-file
+               ASSIGN TO DISK "/dev/stdout"
+               ORGANIZATION IS BINARY SEQUENTIAL.
            SELECT input-file
                ASSIGN TO DISK "/dev/stdin"
                ORGANIZATION IS BINARY SEQUENTIAL.
@@ -15,41 +15,36 @@
        DATA DIVISION.
 
        FILE SECTION.
-      * FD output-file.
-      *     RECORD CONTAINS 1 CHARACTERS.
-      * 01  output-char
-      *     USAGE IS BINARY-CHAR.
+       FD output-file.
+       01  output-char
+           USAGE IS BINARY-CHAR.
        FD input-file.
        01  input-char
            USAGE IS BINARY-CHAR.
 
        WORKING-STORAGE SECTION.
-       01  input-1 PIC X.
+      *01  input-1 PIC X.
 
        PROCEDURE DIVISION.
            OPEN INPUT input-file.
+           OPEN OUTPUT output-file.
 
            DISPLAY "Hello, world!".
 
-           DISPLAY "A" WITH NO ADVANCING.
-      *     ACCEPT input-1 FROM STDIN.
+           WRITE output-char FROM 65.
            READ input-file.
-           DISPLAY "B" WITH NO ADVANCING.
-           DISPLAY "x" WITH NO ADVANCING.
+           WRITE output-char FROM 66.
+           WRITE output-char FROM 120.
            DISPLAY input-char.
 
            READ input-file.
            DISPLAY input-char.
 
-      *     OPEN OUTPUT output-file.
-      *     WRITE output-char FROM 65.
-      *     WRITE output-char FROM 66.
-      *     WRITE output-char FROM 120.
       * c2 a1 194 161 = inverted exclamation mark
       *     WRITE output-char FROM 194.
       *     WRITE output-char FROM 161.
 
-      *     CLOSE output-file.
+           CLOSE output-file.
            CLOSE input-file.
 
            STOP RUN.
