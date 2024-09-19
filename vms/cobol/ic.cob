@@ -1,3 +1,5 @@
+      * make clean-cobol ; make build-cobol && ./cobol/ic ../bin/as.input
+
        IDENTIFICATION DIVISION.
        PROGRAM-ID. Intcode-Virtual-Machine.
 
@@ -5,6 +7,9 @@
 
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+           SELECT program-file
+               ASSIGN TO DISK program-name
+               ORGANIZATION IS BINARY SEQUENTIAL.
            SELECT output-file
                ASSIGN TO DISK "/dev/stdout"
                ORGANIZATION IS BINARY SEQUENTIAL.
@@ -15,6 +20,9 @@
        DATA DIVISION.
 
        FILE SECTION.
+       FD program-file.
+       01  program-char
+           USAGE IS BINARY-CHAR.
        FD output-file.
        01  output-char
            USAGE IS BINARY-CHAR.
@@ -32,7 +40,16 @@
                    DISPLAY "Usage: ic program.input" UPON STDERR
                    GOBACK GIVING 1.
 
-           DISPLAY program-name.
+           OPEN INPUT program-file.
+
+           READ program-file.
+           DISPLAY program-char.
+           READ program-file.
+           DISPLAY program-char.
+           READ program-file.
+           DISPLAY program-char.
+
+           CLOSE program-file.
 
            OPEN INPUT input-file.
            OPEN OUTPUT output-file.
@@ -49,8 +66,8 @@
            DISPLAY input-char.
 
       * c2 a1 194 161 = inverted exclamation mark
-      *     WRITE output-char FROM 194.
-      *     WRITE output-char FROM 161.
+           WRITE output-char FROM 194.
+           WRITE output-char FROM 161.
 
            CLOSE output-file.
            CLOSE input-file.
