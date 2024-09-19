@@ -14,20 +14,21 @@
        DATA DIVISION.
        FILE SECTION.
        FD output-file.
-      *    RECORD IS 1 CHARACTERS.
+      *    RECORD CONTAINS 1 CHARACTERS.
        01  output-char
-           PICTURE IS 999
-           USAGE IS COMPUTATIONAL.
+           USAGE IS BINARY-CHAR.
       *FD input-file
       *01  input-char.
 
        PROCEDURE DIVISION.
            OPEN OUTPUT output-file.
            WRITE output-char FROM 65.
+           WRITE output-char FROM 66.
+           WRITE output-char FROM 120.
       * c2 a1 194 161 = inverted exclamation mark
-           WRITE output-char FROM 194.
-           WRITE output-char FROM 161.
+      *    WRITE output-char FROM 194.
+      *    WRITE output-char FROM 161.
            CLOSE output-file.
 
-           DISPLAY "Hello, world!".
+      *    DISPLAY "Hello, world!".
            STOP RUN.
