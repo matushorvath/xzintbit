@@ -1,5 +1,5 @@
-000001 IDENTIFICATION DIVISION.
-000002 PROGRAM-ID. Intcode-Virtual-Machine.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. Intcode-Virtual-Machine.
 
        ENVIRONMENT DIVISION.
 
@@ -23,9 +23,17 @@
            USAGE IS BINARY-CHAR.
 
        WORKING-STORAGE SECTION.
-      *01  input-1 PIC X.
+       01  program-name PIC X(256).
 
        PROCEDURE DIVISION.
+           DISPLAY 1 UPON ARGUMENT-NUMBER.
+           ACCEPT program-name FROM ARGUMENT-VALUE
+               ON EXCEPTION
+                   DISPLAY "Usage: ic program.input" UPON STDERR
+                   GOBACK GIVING 1.
+
+           DISPLAY program-name.
+
            OPEN INPUT input-file.
            OPEN OUTPUT output-file.
 
