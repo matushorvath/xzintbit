@@ -9,7 +9,7 @@
       *         ASSIGN TO DISPLAY
       *         ORGANIZATION IS BINARY SEQUENTIAL.
            SELECT input-file
-               ASSIGN TO KEYBOARD
+               ASSIGN TO DISK "/dev/stdin"
                ORGANIZATION IS BINARY SEQUENTIAL.
 
        DATA DIVISION.
@@ -29,14 +29,16 @@
        PROCEDURE DIVISION.
            OPEN INPUT input-file.
 
+           DISPLAY "Hello, world!".
+
            DISPLAY "A" WITH NO ADVANCING.
       *     ACCEPT input-1 FROM STDIN.
-           READ input-file RECORD.
+           READ input-file.
            DISPLAY "B" WITH NO ADVANCING.
            DISPLAY "x" WITH NO ADVANCING.
            DISPLAY input-char.
 
-           READ input-file RECORD.
+           READ input-file.
            DISPLAY input-char.
 
       *     OPEN OUTPUT output-file.
@@ -50,5 +52,4 @@
       *     CLOSE output-file.
            CLOSE input-file.
 
-      *     DISPLAY "Hello, world!".
            STOP RUN.
