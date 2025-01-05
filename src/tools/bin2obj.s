@@ -3,6 +3,9 @@
 # Output file format:
 #
 # <name>_image:
+#
+# <name>_size:
+#       db  <size>                                          # Image size
 # <name>_count:
 #       db  <count>                                         # Number of sections
 #
@@ -362,7 +365,7 @@ detect_sections:
     # Is there a section to finish?
     jz  [section_count], .done
 
-    # Finish last section if by writing section size
+    # Finish the last section by writing section size
     add [section_count], -1, [rb + tmp]
     mul [rb + tmp], SECTION_RECORD_SIZE, [rb + tmp]
     add [rb + tmp], [section_addr], [rb + tmp]
@@ -408,6 +411,13 @@ output_object:
 output_header:
 .FRAME section_index, section_address, section_start, section_size, tmp
     arb -5
+
+    # Output image size
+    add [data_size], 0, [rb - 1]
+    arb -1
+    call print_num
+
+    out ','
 
     # Output section count
     add [section_count], 0, [rb - 1]
@@ -522,6 +532,19 @@ output_exports:
     out '0'
     out 10
 
+    # Image size
+    add [name_addr], 0, [rb - 1]
+    arb -1
+    call print_str
+
+    add .size, 0, [rb - 1]
+    arb -1
+    call print_str
+
+    # Image size is always at index 0
+    out '0'
+    out 10
+
     # Section count
     add [name_addr], 0, [rb - 1]
     arb -1
@@ -531,8 +554,8 @@ output_exports:
     arb -1
     call print_str
 
-    # Section count is always at index 0
-    out '0'
+    # Section count is always at index 1
+    out '1'
     out 10
 
     # Section header
@@ -544,8 +567,8 @@ output_exports:
     arb -1
     call print_str
 
-    # Section header is always at index 1
-    out '1'
+    # Section header is always at index 2
+    out '2'
     out 10
 
     # Section data
@@ -559,7 +582,7 @@ output_exports:
 
     # Section data starts after the header
     mul [section_count], SECTION_RECORD_SIZE, [rb - 1]
-    add [rb - 1], 1, [rb - 1]
+    add [rb - 1], 2, [rb - 1]
     arb -1
     call print_num
 
@@ -569,6 +592,8 @@ output_exports:
 
 .image:
     db  "_image:", 0
+.size:
+    db  "_size:", 0
 .count:
     db  "_count:", 0
 .header:

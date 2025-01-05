@@ -38,7 +38,7 @@
   output_object:
     address: 1638
   char:
-    address: 2124
+    address: 2182
   read_spaces.loop:
     address: 1098
   read_spaces.done:
@@ -76,139 +76,141 @@
   read_name:
     address: 1203
   data_size:
-    address: 2129
+    address: 2187
   free_memory:
-    address: 2125
+    address: 2183
   name_addr:
-    address: 2126
+    address: 2184
   name_length:
-    address: 2127
+    address: 2185
   data_addr:
-    address: 2128
+    address: 2186
   section_addr:
-    address: 2130
+    address: 2188
   section_count:
-    address: 2131
+    address: 2189
   output_header.sections_loop:
-    address: 1736
+    address: 1753
   output_header.sections_done:
-    address: 1833
+    address: 1850
   output_header:
     address: 1715
   output_data.sections_loop:
-    address: 1846
+    address: 1863
   output_data.sections_done:
-    address: 1927
+    address: 1944
   output_data.bytes_loop:
-    address: 1885
+    address: 1902
   output_data.bytes_done:
-    address: 1920
+    address: 1937
   output_data:
-    address: 1840
+    address: 1857
   output_exports.image:
-    address: 2092
+    address: 2143
+  output_exports.size:
+    address: 2151
   output_exports.count:
-    address: 2100
+    address: 2158
   output_exports.header:
-    address: 2108
+    address: 2166
   output_exports.data:
-    address: 2117
+    address: 2175
   output_exports:
-    address: 1934
-2132:
+    address: 1951
+2190:
   print_num:
-    address: 2132
+    address: 2190
   print_str:
-    address: 2480
+    address: 2538
   print_num_2:
-    address: 2160
+    address: 2218
   print_num_2_b:
-    address: 2188
+    address: 2246
   print_num_2_w:
-    address: 2216
+    address: 2274
   print_num_16:
-    address: 2244
+    address: 2302
   print_num_16_b:
-    address: 2272
+    address: 2330
   print_num_16_w:
-    address: 2300
+    address: 2358
   print_num_radix:
-    address: 2328
+    address: 2386
   print_str_as_mem:
-    address: 2513
+    address: 2571
   print_num_radix.next_order:
-    address: 2347
+    address: 2405
   print_num_radix.digit_ptr_1:
-    address: 2350
+    address: 2408
   print_num_radix.finish_order:
-    address: 2366
+    address: 2424
   print_num_radix.digit_ptr_2:
-    address: 2399
+    address: 2457
   print_num_radix.padding_loop:
-    address: 2382
+    address: 2440
   print_num_radix.next_digit:
-    address: 2398
+    address: 2456
   print_num_radix.increase:
-    address: 2406
-  print_num_radix.digits:
     address: 2464
+  print_num_radix.digits:
+    address: 2522
   print_num_radix.finish:
-    address: 2449
+    address: 2507
   print_str.start:
-    address: 2495
+    address: 2553
   print_str.loop:
-    address: 2489
+    address: 2547
   print_str_as_mem.loop:
-    address: 2519
+    address: 2577
   print_str_as_mem.done:
-    address: 2565
+    address: 2623
   print_str_as_mem.skip_comma:
-    address: 2535
-2572:
+    address: 2593
+2630:
   is_alphanum:
-    address: 2717
+    address: 2775
   is_digit:
-    address: 2572
+    address: 2630
   char_to_digit:
-    address: 2596
+    address: 2654
   is_alpha:
-    address: 2679
+    address: 2737
   strcmp:
-    address: 2774
+    address: 2832
   strcpy:
-    address: 2828
+    address: 2886
   zeromem:
-    address: 2867
+    address: 2925
   is_digit.end:
-    address: 2585
-  char_to_digit.invalid:
-    address: 2668
-  char_to_digit.number:
-    address: 2657
-  char_to_digit.upper_case:
     address: 2643
+  char_to_digit.invalid:
+    address: 2726
+  char_to_digit.number:
+    address: 2715
+  char_to_digit.upper_case:
+    address: 2701
   char_to_digit.lower_case:
-    address: 2650
+    address: 2708
   char_to_digit.check_radix:
-    address: 2661
+    address: 2719
   char_to_digit.end:
-    address: 2672
+    address: 2730
   is_alpha.end:
-    address: 2706
+    address: 2764
   is_alphanum.end:
-    address: 2767
+    address: 2825
   strcmp.loop:
-    address: 2780
+    address: 2838
   strcmp.done:
-    address: 2813
+    address: 2871
   strcpy.loop:
-    address: 2834
+    address: 2892
   strcpy.done:
-    address: 2860
+    address: 2918
   zeromem.loop:
-    address: 2869
+    address: 2927
   zeromem.done:
-    address: 2891
-2898:
+    address: 2949
+2956:
   __heap_start:
-    address: 2898
+    address: 2956
