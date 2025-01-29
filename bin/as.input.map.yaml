@@ -883,6 +883,8 @@
     address: 12596
   zeromem:
     address: 12635
+  atoi:
+    address: 12666
   is_digit.end:
     address: 12353
   char_to_digit.invalid:
@@ -913,6 +915,10 @@
     address: 12637
   zeromem.done:
     address: 12659
-12666:
+  atoi.done:
+    address: 12777
+  atoi.loop:
+    address: 12721
+12788:
   __heap_start:
-    address: 12666
+    address: 12788
