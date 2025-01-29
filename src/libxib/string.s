@@ -5,6 +5,7 @@
 .EXPORT strcmp
 .EXPORT strcpy
 .EXPORT zeromem
+.EXPORT atoi
 
 ##########
 is_digit:
@@ -195,6 +196,65 @@ zeromem:
 .done:
     arb 1
     ret 2
+.ENDFRAME
+
+##########
+atoi:
+.FRAME input; output, index, sign, digit, char, tmp         # returns output
+    arb -6
+
+    add 0, 0, [rb + output]
+    add 0, 0, [rb + index]
+
+    # read next character
+    add [rb + input], [rb + index], [ip + 1]
+    add [0], 0, [rb + char]
+    add [rb + index], 1, [rb + index]
+    jz  [rb + char], .done
+
+    # process the minus sign if present
+    add 1, 0, [rb + sign]
+
+    eq  [rb + char], '-', [rb + tmp]
+    jz  [rb + tmp], .loop
+
+    add -1, 0, [rb + sign]
+
+    # read next character
+    add [rb + input], [rb + index], [ip + 1]
+    add [0], 0, [rb + char]
+    add [rb + index], 1, [rb + index]
+    jz  [rb + char], .done
+
+.loop:
+    # convert current character to a digit
+    add [rb + char], 0, [rb - 1]
+    add 10, 0, [rb - 2]
+    arb -2
+    call char_to_digit
+    add [rb - 4], 0, [rb + digit]
+
+    # if it is not a digit, end
+    eq  [rb + digit], -1, [rb + tmp]
+    jnz [rb + tmp], .done
+
+    # output = output * 10 + digit
+    mul [rb + output], 10, [rb + output]
+    add [rb + output], [rb + digit], [rb + output]
+
+    # read next character
+    add [rb + input], [rb + index], [ip + 1]
+    add [0], 0, [rb + char]
+    add [rb + index], 1, [rb + index]
+    jz  [rb + char], .done
+
+    jz  0, .loop
+
+.done:
+    mul [rb + digit], [rb + sign], [rb + digit]
+
+    arb 6
+    ret 1
 .ENDFRAME
 
 .EOF
