@@ -12,9 +12,9 @@
     "author": "Matus Horvath <matus.horvath@gmail.com>",
     "license": "MIT",
     "devDependencies": {
-        "eslint": "^9.17.0"
+        "eslint": "^9.23.0"
     },
     "dependencies": {
-        "yaml": "^2.7.0"
+        "yaml": "^2.7.1"
     }
 }
