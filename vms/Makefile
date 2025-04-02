@@ -53,8 +53,8 @@ clean-go:
 build-cs: cs/ic
 cs/ic: cs/ic.cs cs/ic.csproj
 	dotnet publish cs -c Release -r $(DOTNET_RID) -p:PublishSingleFile=true --self-contained false
-	if [ "$$OS" = "Windows_NT" ] ; then cp cs/bin/Release/net6.0/$(DOTNET_RID)/publish/ic.exe cs/ ; fi
-	if [ "$$OS" != "Windows_NT" ] ; then cp cs/bin/Release/net6.0/$(DOTNET_RID)/publish/ic cs/ ; fi
+	if [ "$$OS" = "Windows_NT" ] ; then cp cs/bin/Release/net9.0/$(DOTNET_RID)/publish/ic.exe cs/ ; fi
+	if [ "$$OS" != "Windows_NT" ] ; then cp cs/bin/Release/net9.0/$(DOTNET_RID)/publish/ic cs/ ; fi
 
 .PHONY: clean-cs
 clean-cs:
