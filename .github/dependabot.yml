@@ -2,12 +2,18 @@
 
 version: 2
 updates:
+  - package-ecosystem: "cargo"
+    directory: "/vms/rust"
+    schedule:
+      interval: "weekly"
   - package-ecosystem: "gomod"
     directory: "/vms/go"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/vms/rust"
+  - package-ecosystem: "npm"
+    directories:
+      - tools/profile
+      - vms/js
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
