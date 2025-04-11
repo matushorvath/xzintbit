@@ -6,6 +6,10 @@ updates:
     directory: "/vms/rust"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
   - package-ecosystem: "gomod"
     directory: "/vms/go"
     schedule:
@@ -14,9 +18,5 @@ updates:
     directories:
       - tools/profile
       - vms/js
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: "/"
     schedule:
       interval: "weekly"
