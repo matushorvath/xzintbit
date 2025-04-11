@@ -38,11 +38,11 @@ void init_terminal(bool extended) {
 }
 
 int read_sync(void) {
-    # TODO sync/async read on Windows
+    // TODO sync/async read on Windows
 }
 
 int read_async(void) {
-    # TODO sync/async read on Windows
+    // TODO sync/async read on Windows
 }
 
 #else // _WIN32

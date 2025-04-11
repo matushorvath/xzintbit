@@ -24,6 +24,20 @@ build-vms:
 build-fast-vms:
 	make -C vms build-fast
 
+# Build all tools
+.PHONY: build-tools
+build-tools: build-get-key build-profile
+
+.PHONY: build-get-key
+build-get-key:
+	make -C vms build-c-ext
+	make -C tools/get_key
+
+.PHONY: build-profile
+build-profile:
+	npm --prefix tools/profile install
+	npm --prefix tools/profile test
+
 # Build stage 1
 .PHONY: build-stage1
 build-stage1:

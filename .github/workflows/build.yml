@@ -64,3 +64,7 @@ jobs:
 
       - name: Test
         run: make test
+
+      - name: Build additional tools
+        run: make build-tools
+        if: matrix.os != 'windows-latest' # no c-ext vm on windows
