@@ -1,7 +1,7 @@
 [package]
 name = "vm"
 version = "1.0.0"
-rust-version = "1.85.1"
+rust-version = "1.85.0"
 edition = "2024"
 
 [[bin]]
