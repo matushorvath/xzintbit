@@ -12,7 +12,7 @@
     "author": "Matus Horvath <matus.horvath@gmail.com>",
     "license": "MIT",
     "devDependencies": {
-        "chalk": "^5.4.1",
+        "chalk": "^5.5.0",
         "eslint": "^9.31.0"
     },
     "dependencies": {
