@@ -13,7 +13,7 @@
     "license": "MIT",
     "devDependencies": {
         "chalk": "^5.5.0",
-        "eslint": "^9.32.0"
+        "eslint": "^9.33.0"
     },
     "dependencies": {
         "@ungap/with-resolvers": "^0.1.0",
