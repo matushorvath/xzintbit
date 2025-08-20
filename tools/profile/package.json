@@ -15,6 +15,6 @@
         "eslint": "^9.32.0"
     },
     "dependencies": {
-        "yaml": "^2.8.0"
+        "yaml": "^2.8.1"
     }
 }
