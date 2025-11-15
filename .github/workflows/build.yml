@@ -13,6 +13,8 @@ env:
 
 jobs:
   build:
+    permissions:
+      contents: read
     name: OS=${{ matrix.os }} VM=${{ matrix.icvm }}
     runs-on: ${{ matrix.os }}
     env:
