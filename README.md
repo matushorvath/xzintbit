@@ -1,4 +1,4 @@
-<div align="right"><img src="https://github.com/matushorvath/xzintbit/workflows/Build%20and%20Test/badge.svg"></div>
+[![Build and Test](https://github.com/matushorvath/xzintbit/actions/workflows/build.yml/badge.svg)](https://github.com/matushorvath/xzintbit/actions/workflows/build.yml)
 
 What is this?
 -------------
