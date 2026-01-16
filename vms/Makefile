@@ -8,13 +8,20 @@ DOTNET_RID = $(shell dotnet --info | awk '/RID:/ { print $$2 }')
 export GOFLAGS
 
 .PHONY: build
-build: build-apl build-c build-c-ext build-cs build-cl build-go build-js build-js-fn build-rust
+build: build-apl build-c build-c-ext build-cl build-cobol build-cs build-go build-js build-js-fn build-rust
 
 .PHONY: build-fast
-build-fast: build-c build-c-ext build-cs build-cl build-go build-js build-rust
+build-fast: build-c build-c-ext build-cl build-cobol build-cs build-go build-js build-rust
 
 .PHONY: clean
-clean: clean-apl clean-c clean-c-ext clean-cs clean-cl clean-go clean-js clean-js-fn clean-rust
+clean: clean-apl clean-c clean-c-ext clean-cl clean-cobol clean-cs clean-go clean-js clean-js-fn clean-rust
+
+# Intcode VM in APL
+.PHONY: build-apl
+build-apl: apl/ic apl/ic.apl
+
+.PHONY: clean-apl
+clean-apl:
 
 # Intcode VM in C
 .PHONY: build-c
@@ -38,15 +45,25 @@ c-ext/terminal.o: c-ext/terminal.h
 clean-c-ext:
 	rm -rf c-ext/ic c-ext/ic.exe c-ext/*.o
 
-# Intcode VM in Go
-.PHONY: build-go
-build-go: go/ic
-go/ic: go/ic.go
-	( cd go; go build -o ic )
+# Intcode VM in Common Lisp
+.PHONY: build-cl
+build-cl: cl/ic
+cl/ic: cl/ic.lisp
+	ln -sf ic.lisp cl/ic
 
-.PHONY: clean-go
-clean-go:
-	rm -rf go/ic go/ic.exe
+.PHONY: clean-cl
+clean-cl:
+	rm -rf cl/ic
+
+# Intcode VM in Cobol
+.PHONY: build-cobol
+build-cobol: cobol/ic
+cobol/ic: cobol/ic.cob
+	cobc -O3 -Wall -x $^ -o $@
+
+.PHONY: clean-cobol
+clean-cobol:
+	rm -rf cobol/ic
 
 # Intcode VM in C#
 .PHONY: build-cs
@@ -60,27 +77,15 @@ cs/ic: cs/ic.cs cs/ic.csproj
 clean-cs:
 	rm -rf cs/ic cs/ic.cmd cs/bin cs/obj
 
-# Intcode VM in Rust
-.PHONY: build-rust
-build-rust: rust/ic
-rust/ic: rust/Cargo.toml rust/*.rs
-	( cd rust ; cargo build --release )
-	if [ "$$OS" = "Windows_NT" ] ; then cp rust/target/release/ic.exe rust/ ; fi
-	if [ "$$OS" != "Windows_NT" ] ; then cp rust/target/release/ic rust/ ; fi
+# Intcode VM in Go
+.PHONY: build-go
+build-go: go/ic
+go/ic: go/ic.go
+	( cd go; go build -o ic )
 
-.PHONY: clean-rust
-clean-rust:
-	rm -rf rust/ic rust/ic.exe rust/target
-
-# Intcode VM in Common Lisp
-.PHONY: build-cl
-build-cl: cl/ic
-cl/ic: cl/ic.lisp
-	ln -sf ic.lisp cl/ic
-
-.PHONY: clean-cl
-clean-cl:
-	rm -rf cl/ic
+.PHONY: clean-go
+clean-go:
+	rm -rf go/ic go/ic.exe
 
 # Intcode VM in Javascript
 .PHONY: build-js
@@ -98,9 +103,14 @@ build-js-fn: js-fn/ic js-fn/ic.mjs
 .PHONY: clean-js-fn
 clean-js-fn:
 
-# Intcode VM in APL
-.PHONY: build-apl
-build-apl: apl/ic apl/ic.apl
+# Intcode VM in Rust
+.PHONY: build-rust
+build-rust: rust/ic
+rust/ic: rust/Cargo.toml rust/*.rs
+	( cd rust ; cargo build --release )
+	if [ "$$OS" = "Windows_NT" ] ; then cp rust/target/release/ic.exe rust/ ; fi
+	if [ "$$OS" != "Windows_NT" ] ; then cp rust/target/release/ic rust/ ; fi
 
-.PHONY: clean-apl
-clean-apl:
+.PHONY: clean-rust
+clean-rust:
+	rm -rf rust/ic rust/ic.exe rust/target
