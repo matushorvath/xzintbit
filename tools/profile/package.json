@@ -17,6 +17,6 @@
         "globals": "^17.6.0"
     },
     "dependencies": {
-        "yaml": "^2.8.4"
+        "yaml": "^2.9.0"
     }
 }
