@@ -1,6 +1,20 @@
 #include once "fbc-int/array.bi"
 Using FB
 
+Dim Shared StdIn As Integer
+StdIn = FreeFile
+Open Cons For Input As #StdIn
+
+Dim Shared StdOut As Integer
+StdOut = FreeFile
+Open Cons For Output As #StdOut
+
+Dim Shared StdErr As Integer
+StdErr = FreeFile
+Open Err As #StdErr
+
+On Error Goto Fail
+
 Dim Shared Mem(Any) As Integer
 
 Dim Shared Ip As Integer = 0
@@ -14,7 +28,7 @@ Sub ResizeMem(Addr As Integer)
 			NewSize = NewSize * 2
 		Loop
 
-		ReDim Mem(NewSize)
+		Redim Preserve Mem(NewSize)
 	End If
 End Sub
 
@@ -41,7 +55,7 @@ Function GetParam(Idx As Integer) As Integer
 	Case 2 'relative mode
 		Return GetMem(Rb + GetMem(Ip + Idx + 1))
 	Case Else
-		Print #2, Using "mode error: ip & idx &"; Ip; Idx
+		Print #StdErr, Using "mode error: ip & idx &"; Ip; Idx
 		System 1
 	End Select
 End Function
@@ -55,27 +69,9 @@ Sub SetParam(Idx As Integer, Value As Integer)
 	Case 2 'relative mode
 		SetMem(Rb + GetMem(Ip + Idx + 1), Value)
 	Case Else
-		Print #2, Using "mode error: ip & idx &"; Ip; Idx
+		Print #StdErr, Using "mode error: ip & idx &"; Ip; Idx
 		System 1
 	End Select
-End Sub
-
-Function GetInput() As Integer
-	' data := make([]byte, 1)
-	' count, err := os.Stdin.Read(data)
-	' if count > 0 {
-	' 	return int(data[0]), nil
-	' }
-	' return 0, err
-	' TODO
-	Return 0
-End Function
-
-Sub SetOutput(Value As Integer)
-	' fmt.Printf("%c", rune(value))
-	' return nil
-	' TODO
-	Print Value
 End Sub
 
 Sub Execute()
@@ -90,17 +86,14 @@ Sub Execute()
 			SetParam(2, GetParam(0) * GetParam(1))
 			Ip = Ip + 4
 		Case 3: 'in
-			Dim Value as Integer = GetInput()
-			' TODO If (Value = EOF) {
-			' 	fprintf(stderr, "no more inputs\n")
-			' 	exit(1)
-			' }
+			Dim Value as Integer
+			Get #StdIn, 0, Value
 			SetParam(0, Value)
 			Ip = Ip + 2
 		Case 4 'out
 			Dim Value As Integer = GetParam(0)
 			Ip = Ip + 2
-			SetOutput(Value)
+			Put #StdOut, 0, Value
 		Case 5 'jnz
 			If GetParam(0) <> 0 Then
 				Ip = GetParam(1)
@@ -133,20 +126,22 @@ Sub Execute()
 		Case 99 'hlt
 			Return
 		Case Else
-			Print #2, Using "opcode error: ip & oc &"; ip; oc
+			Print #StdErr, Using "opcode error: ip & oc &"; Ip; Oc
 			System 1
 		End Select
 	Loop
 End Sub
 
 Sub Main()
+	Redim Mem(64)
+
 	Dim Prog As Integer = FreeFile
 	Open Command(1) For Input As #Prog
 
 	Dim Idx As Integer = 0
 	Dim Value As Integer
 
-	Do While Not Eof(Prog)
+	Do Until Eof(Prog)
 		Input #Prog, Value
 		SetMem(Idx, Value)
 		Idx = Idx + 1
@@ -157,12 +152,9 @@ Sub Main()
 	Execute()
 End Sub
 
-Open Err As #2
-On Error Goto Fail
-
 Main()
 System 0
 
 Fail:
-Print #2, Using "error: &"; Err
+Print #StdErr, Using "error: &"; Err
 System 1
