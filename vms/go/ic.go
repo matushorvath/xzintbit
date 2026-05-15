@@ -207,7 +207,7 @@ func main() {
 
 	f, err := os.ReadFile(os.Args[1])
 	if err != nil {
-		log.Fatalf("%v\n", err)
+		log.Fatalf("read error: %v\n", err)
 	}
 	data := strings.Split(strings.TrimSpace(string(f)), ",")
 
@@ -221,6 +221,6 @@ func main() {
 
 	err = run(getInput, setOutput)
 	if err != nil {
-		log.Fatalf("xxx %v\n", err)
+		log.Fatalf("run error: %v\n", err)
 	}
 }
