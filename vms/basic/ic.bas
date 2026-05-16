@@ -1,6 +1,3 @@
-#include once "fbc-int/array.bi"
-Using FB
-
 Dim Shared StdIn As Integer
 StdIn = FreeFile
 Open Cons For Input As #StdIn
@@ -21,8 +18,8 @@ Dim Shared Ip As Integer = 0
 Dim Shared Rb As Integer = 0
 
 Sub ResizeMem(Addr As Integer)
-	If Addr >= ArrayLen(Mem()) Then
-		Dim NewSize As Integer = ArrayLen(Mem())
+	If Addr > UBound(Mem) Then
+		Dim NewSize As Integer = UBound(Mem) + 1
 
 		Do While Addr >= NewSize
 			NewSize = NewSize * 2
@@ -86,12 +83,16 @@ Sub Execute()
 			SetParam(2, GetParam(0) * GetParam(1))
 			Ip = Ip + 4
 		Case 3: 'in
-			Dim Value as Integer
+			If Eof(StdIn) Then
+				Print #StdErr, "no more inputs"
+				System 1
+			End If
+			Dim Value as Byte
 			Get #StdIn, 0, Value
 			SetParam(0, Value)
 			Ip = Ip + 2
 		Case 4 'out
-			Dim Value As Integer = GetParam(0)
+			Dim Value As Byte = GetParam(0)
 			Ip = Ip + 2
 			Put #StdOut, 0, Value
 		Case 5 'jnz
