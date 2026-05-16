@@ -26,6 +26,8 @@ jobs:
         icvm: [c, cs, go, js, rust]
         include:
           - os: ubuntu-latest
+            icvm: basic
+          - os: ubuntu-latest
             icvm: c-ext
           - os: macOS-latest
             icvm: c-ext
@@ -60,6 +62,18 @@ jobs:
           sbcl --non-interactive --load /usr/share/common-lisp/source/quicklisp/quicklisp.lisp --eval '(quicklisp-quickstart:install)'
           cp vms/cl/.sbclrc ~/.sbclrc
         if: matrix.icvm == 'cl'
+
+      - name: Setup FreeBASIC
+        env:
+          FREEBASIC_VERSION: 1.10.1
+        run: |
+          tmpdir=$(mktemp -d)
+          cd "$tmpdir"
+          wget http://downloads.sourceforge.net/fbc/FreeBASIC-${FREEBASIC_VERSION}-ubuntu-22.04-x86_64.tar.xz?download \
+            --output-document=- | tar -xJf -
+          cd FreeBASIC-${FREEBASIC_VERSION}-ubuntu-22.04-x86_64
+          sudo ./install.sh -i
+        if: matrix.icvm == 'basic'
 
       - name: Build
         run: make build

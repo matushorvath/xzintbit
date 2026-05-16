@@ -11,6 +11,7 @@ local.*
 /vms/c-ext/*.o
 /vms/cs/bin
 /vms/cs/obj
+/vms/cs/*.lscache
 /vms/rust/target
 /stage1
 /stage2
