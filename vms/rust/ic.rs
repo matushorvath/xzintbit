@@ -129,8 +129,9 @@ fn get_input() -> i32 {
 }
 
 fn set_output(val: i32) {
-    let val = u8::try_from(val).expect("output value out of range");
-    print!("{}", val as char);
+    let buf: [u8; 1] = [u8::try_from(val).unwrap()];
+    io::stdout().write(&buf).unwrap();
+    io::stdout().flush().unwrap();
 }
 
 fn main() {

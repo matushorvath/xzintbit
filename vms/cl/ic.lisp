@@ -148,11 +148,11 @@
 )
 
 (defun get-input ()
-    (char-code (read-char t))
+    (read-byte *standard-input*)
 )
 
 (defun set-output (val)
-    (princ (code-char val))
+    (write-byte val *standard-output*)
 )
 
 (handler-case (run (car (uiop:command-line-arguments)))

@@ -54,8 +54,8 @@ const loadMap = async (imagePath) => {
 
 async function* getIns() {
     for await (const chunk of process.stdin) {
-        for (const char of chunk) {
-            yield char;
+        for (const byte of chunk) {
+            yield byte;
         }
     }
 }
@@ -77,8 +77,8 @@ const main = async () => {
             vm.map = await loadMap(args.image);
         }
 
-        for await (const char of vm.run(mem, getIns())) {
-            await writeStreamAndWait(process.stdout, String.fromCharCode(char));
+        for await (const byte of vm.run(mem, getIns())) {
+            await writeStreamAndWait(process.stdout, Uint8Array.from([byte]));
         }
     } catch (error) {
         if (error instanceof NoMoreInputsError) {

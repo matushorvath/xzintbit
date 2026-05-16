@@ -10,6 +10,7 @@ IC_ERROR_RESULT = true
 ifndef TESTLOG
 	TESTLOG := $(shell mktemp)
 endif
+export TESTLOG
 
 NAME = $(notdir $(CURDIR))
 
@@ -21,8 +22,8 @@ ifeq ($(HAVE_COLOR),1)
 endif
 
 .PHONY: default test
-default: test
-	[ $(MAKELEVEL) -eq 0 ] && cat $(TESTLOG) && rm -f $(TESTLOG)
+default:
+	make test; STATUS=$$?; [ $(MAKELEVEL) -eq 0 ] && cat $(TESTLOG) && rm -f $(TESTLOG); exit $$STATUS
 
 .PHONY: test-prep
 test-prep:

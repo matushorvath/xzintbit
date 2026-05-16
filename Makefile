@@ -99,12 +99,12 @@ test-fast-vms: build-fast-vms build run-test-fast-vms
 .PHONY: run-test-vms
 run-test-vms:
 	MAKE=$(MAKE) TESTLOG="$(TESTLOG)" TESTDIRS="$(TESTDIRS)" \
-		./test/test-vms.sh apl c cl cs go js js-fn rust
+		./test/test-vms.sh apl basic c cl cs go js js-fn rust
 
 .PHONY: run-test-fast-vms
 run-test-fast-vms:
 	MAKE=$(MAKE) TESTLOG="$(TESTLOG)" TESTDIRS="$(TESTDIRS)" \
-		./test/test-vms.sh c cl cs go js rust
+		./test/test-vms.sh basic c cl cs go js rust
 
 # Clean
 .PHONY: clean

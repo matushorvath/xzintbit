@@ -198,8 +198,8 @@ func getInput() (int, error) {
 }
 
 func setOutput(value int) error {
-	fmt.Printf("%c", rune(value))
-	return nil
+	_, err := os.Stdout.Write([]byte{byte(value)})
+	return err
 }
 
 func main() {

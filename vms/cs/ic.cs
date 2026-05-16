@@ -22,6 +22,9 @@ namespace Ic
         int ip = 0;
         int rb = 0;
 
+        Stream stdIn = Console.OpenStandardInput();
+        Stream stdOut = Console.OpenStandardOutput();
+
         void ResizeMem(int addr)
         {
             if (addr >= mem.Count)
@@ -148,20 +151,20 @@ namespace Ic
             }
         }
 
-        static int GetInput()
+        int GetInput()
         {
-            var buffer = new char[1];
-            if (Console.In.ReadBlock(buffer, 0, 1) == 0)
+            var buffer = new byte[1];
+            if (stdIn.Read(buffer, 0, 1) == 0)
             {
                 throw new NoMoreInputsException();
             }
             return buffer[0];
         }
 
-        static void SetOutput(int val)
+        void SetOutput(int val)
         {
-            Console.Write(Convert.ToChar(val));
-            Console.Out.Flush();
+            stdOut.Write([(byte)val], 0, 1);
+            stdOut.Flush();
         }
 
         static void Main(string[] args)
@@ -178,7 +181,7 @@ namespace Ic
 
             try
             {
-                vm.Run(GetInput, SetOutput);
+                vm.Run(vm.GetInput, vm.SetOutput);
             }
             catch (NoMoreInputsException) {
                 Console.Error.Write("no more inputs\n");
