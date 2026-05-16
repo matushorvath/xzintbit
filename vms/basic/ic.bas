@@ -87,12 +87,12 @@ Sub Execute()
 				Print #StdErr, "no more inputs"
 				System 1
 			End If
-			Dim Value as Byte
+			Dim Value as UByte
 			Get #StdIn, 0, Value
 			SetParam(0, Value)
 			Ip = Ip + 2
 		Case 4 'out
-			Dim Value As Byte = GetParam(0)
+			Dim Value As UByte = GetParam(0)
 			Ip = Ip + 2
 			Put #StdOut, 0, Value
 		Case 5 'jnz
