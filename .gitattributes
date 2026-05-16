@@ -6,3 +6,5 @@
 test/*/*.stdin text eol=lf
 test/*/*.stdout text eol=lf
 test/*/*.stderr text eol=lf
+test/input_output_unsigned/*.stdin binary
+test/input_output_unsigned/*.stdout binary
