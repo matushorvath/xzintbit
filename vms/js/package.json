@@ -14,7 +14,7 @@
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "chalk": "^6.0.0",
-        "eslint": "^10.8.0",
+        "eslint": "^10.8.1",
         "globals": "^17.9.0"
     },
     "dependencies": {
