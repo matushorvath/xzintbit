@@ -15,7 +15,7 @@
         "@eslint/js": "^10.0.1",
         "chalk": "^6.0.0",
         "eslint": "^10.10.0",
-        "globals": "^17.11.0"
+        "globals": "^17.12.0"
     },
     "dependencies": {
         "@ungap/with-resolvers": "^0.1.0",
