@@ -69,6 +69,10 @@ void resize_mem(int addr) {
         int old_mem_size = mem_size;
         while (addr >= mem_size) mem_size <<= 1;
         mem = (int *)realloc(mem, mem_size * sizeof(int));
+        if (mem == NULL) {
+            fprintf(stderr, "not enough memory\n");
+            exit(1);
+        }
         memset(mem + old_mem_size, 0, (mem_size - old_mem_size) * sizeof(int));
     }
 }
@@ -231,7 +235,7 @@ void load_binary(char *program_name) {
 
     while (ch == ',') {
         if (fscanf(input, "%d%c", &num, &ch) != 2) {
-            fprintf(stderr, "parse error");
+            fprintf(stderr, "parse error\n");
             exit(1);
         }
         set_mem(idx++, num);
